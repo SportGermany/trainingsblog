@@ -157,6 +157,8 @@
   .cal-cell.today{ border-color:var(--text); color:var(--text); font-weight:660; }
   .cal-cell .rd{ position:absolute; bottom:5px; width:5px; height:5px; border-radius:50%; background:var(--run); }
   .cal-cell.done .rd{ background:var(--work); }
+  .cal-cell .rd.rest-dot{ background:#8B8FA3; }
+  .cal-cell.done .rd.rest-dot{ background:#8B8FA3; }
   .legend{ display:flex; flex-wrap:wrap; gap:12px; margin-top:12px; font-size:11.5px; color:var(--text-faint); }
   .legend i{ display:inline-block; width:9px; height:9px; border-radius:3px; margin-right:5px; vertical-align:middle; font-style:normal; }
 
@@ -168,8 +170,8 @@
   }
   .dist b{ display:block; font-size:19px; font-weight:670; }
   .dist span{ display:block; font-size:11px; color:var(--text-faint); margin-top:2px; }
-  .dist.sel{ background:var(--run-dim); border-color:var(--run); color:var(--run); }
-  .dist.sel span{ color:var(--run); opacity:.75; }
+  .dist.sel{ background:var(--run-dim); border-color:var(--run); border-width:2px; color:var(--run); box-shadow:0 0 0 1px var(--run) inset; }
+  .dist.sel span{ color:var(--run); opacity:.9; font-weight:600; }
   .splits{ width:100%; border-collapse:collapse; font-size:13px; font-variant-numeric:tabular-nums; }
   .splits th{ text-align:left; font-size:11px; color:var(--text-faint); font-weight:600; padding:0 0 7px; }
   .splits td{ padding:7px 0; border-top:1px solid var(--line); color:var(--text-dim); }
@@ -294,8 +296,61 @@
     background:var(--panel-3); color:var(--text); border:1px solid var(--line);
     padding:11px 16px; border-radius:12px; font-size:13.5px; font-weight:560;
     opacity:0; pointer-events:none; transition:.22s; max-width:92vw; text-align:center;
+    display:flex; align-items:center; gap:12px; justify-content:center;
   }
   .toast.show{ opacity:1; transform:translateX(-50%); }
+  .toast.show:has(.toast-undo){ pointer-events:auto; }
+  .toast-undo{
+    background:none; border:none; color:var(--run); font-weight:700; font-size:13.5px;
+    padding:0; cursor:pointer; flex:none;
+  }
+  .empty-state{
+    text-align:center; padding:28px 16px; color:var(--text-dim); display:flex;
+    flex-direction:column; align-items:center; gap:6px; font-size:28px;
+  }
+  .empty-state b{ font-size:14.5px; color:var(--text); margin-top:2px; }
+  .empty-state span{ font-size:12.5px; color:var(--text-faint); max-width:260px; }
+
+  /* ============ Abzeichen ============ */
+  .ach-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  .ach{
+    background:var(--panel-2); border:1px solid var(--line); border-radius:14px;
+    padding:14px 8px; text-align:center; opacity:.45;
+  }
+  .ach.on{ opacity:1; border-color:var(--work); }
+  .ach-icon{ font-size:26px; margin-bottom:6px; }
+  .ach b{ display:block; font-size:11.5px; font-weight:650; margin-bottom:3px; }
+  .ach span{ display:block; font-size:10px; color:var(--text-faint); line-height:1.3; }
+
+  /* ============ Onboarding-Fortschritt ============ */
+  .onb-progress{ display:flex; gap:6px; padding:16px 20px 0; }
+  .onb-progress i{ flex:1; height:4px; border-radius:100px; background:var(--panel-3); }
+  .onb-progress i.on{ background:var(--work); }
+
+  /* ============ Widgets ============ */
+  .widget-area{
+    display:grid; grid-template-columns:1fr 1fr; gap:9px; margin:18px 0 10px;
+  }
+  .widget-area:empty{ display:none; }
+  .widget-tile{
+    background:var(--panel-2); border:1px solid var(--line); border-radius:14px;
+    padding:12px 13px; min-height:64px; display:flex; flex-direction:column; justify-content:center;
+  }
+  .widget-tile .wt-label{ font-size:10.5px; color:var(--text-faint); font-weight:600; text-transform:uppercase; letter-spacing:.02em; margin-bottom:4px; }
+  .widget-tile .wt-value{ font-size:15px; font-weight:660; color:var(--text); line-height:1.3; }
+  .widget-edit-btn{ margin-bottom:6px; }
+  .widget-check-row{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding:11px 2px; border-bottom:1px solid var(--line);
+  }
+  .widget-check-row:last-child{ border-bottom:none; }
+  .widget-check-row .wl{ flex:1; min-width:0; }
+  .widget-check-row .wl b{ display:block; font-size:13.5px; font-weight:620; }
+  .widget-check-row .wl span{ display:block; font-size:11.5px; color:var(--text-faint); margin-top:2px; }
+
+  /* ============ Neu in dieser Version ============ */
+  .whatsnew ul{ margin:4px 0 0; padding-left:18px; }
+  .whatsnew li{ font-size:13px; color:var(--text-dim); margin-bottom:6px; line-height:1.4; }
 
   @media (min-height:760px){ .ov-name{ font-size:26px; } }
   @media (max-height:620px){
@@ -553,7 +608,7 @@
     border:1.5px solid var(--line); border-radius:18px; padding:15px 16px;
     margin-bottom:10px; cursor:pointer; color:var(--text);
   }
-  .goalcard.on{ border-color:var(--work); background:var(--work-dim); }
+  .goalcard.on{ border-color:var(--work); border-width:2px; background:var(--work-dim); box-shadow:0 0 0 1px var(--work) inset; }
   .goalcard b{ display:block; font-size:16px; font-weight:660; margin-bottom:5px; }
   .goalcard span{ display:block; font-size:12.5px; line-height:1.45; color:var(--text-dim); }
   .goalcard.on span{ color:var(--text-dim); }
@@ -631,6 +686,16 @@
   #ghStatus.ok{ color:var(--ok); }
   #ghStatus.err{ color:var(--danger); }
   #ghStatus.busy{ color:var(--text-dim); }
+
+  /* ============ Einstellungen durchsuchen ============ */
+  @keyframes flashhit{
+    0%{ box-shadow:0 0 0 3px var(--work); } 100%{ box-shadow:0 0 0 0 transparent; }
+  }
+  .flash-hit{ animation:flashhit 1.5s ease-out; border-radius:14px; }
+
+  /* ============ Schriftgröße ============ */
+  .shell.fs-klein{ zoom:0.88; }
+  .shell.fs-gross{ zoom:1.16; }
 </style>
 </head>
 <body>
@@ -639,7 +704,7 @@
 <!-- ==================== HEUTE ==================== -->
 <section class="screen active" id="s-heute">
   <div class="brand">
-    <h1>Trainingsblog</h1>
+    <h1 id="appTitle">Trainingsblog</h1>
     <div class="by" id="brandSub">360 Übungen · Kalender bis 2031 · alles offline</div>
   </div>
   <div class="top">
@@ -651,6 +716,12 @@
       <button class="streak-chip" id="btnBurn" style="border:none;cursor:pointer">🔥 <span id="burnVal">0</span></button>
       <div class="streak-chip" id="streakChip" style="background:var(--panel-2);color:var(--text-dim)">▲ <span id="streakVal">0</span></div>
     </div>
+  </div>
+
+  <div class="card whatsnew" id="whatsNewCard" style="display:none">
+    <div class="card-h"><h2>Neu in Version <span id="whatsNewVersion"></span></h2>
+      <button class="btn ghost sm" id="whatsNewClose" style="padding:4px 10px">✕</button></div>
+    <ul id="whatsNewList"></ul>
   </div>
 
   <div class="card weathercard" id="weatherToday" style="display:none">
@@ -686,7 +757,7 @@
       <button class="btn accent" id="btnStartToday">Training starten</button>
       <button class="btn secondary" style="flex:0 0 52px" id="btnToggleDone" title="Als erledigt markieren">✓</button>
     </div>
-    <button class="btn ghost block sm rest-toggle" id="btnRest">Heute schon trainiert</button>
+    <button class="btn ghost block sm rest-toggle" id="btnRest">Heute als Ruhetag</button>
   </div>
 
   <div class="stat-row">
@@ -713,6 +784,9 @@
   <div class="card tight">
     <p class="muted" id="tipText"></p>
   </div>
+
+  <div class="widget-area" id="widgetArea-heute"></div>
+  <button class="btn ghost block sm widget-edit-btn" data-screen="heute">🧩 Widgets bearbeiten</button>
 </section>
 
 <!-- ==================== KALENDER ==================== -->
@@ -743,10 +817,14 @@
     <div class="legend">
       <span><i style="background:var(--work)"></i>erledigt</span>
       <span><i style="background:var(--run)"></i>Lauftag</span>
+      <span><i style="background:#8B8FA3"></i>Ruhetag</span>
       <span><i style="background:var(--panel-3)"></i>geplant</span>
     </div>
   </div>
   <button class="btn ghost block sm" id="calToday">Zu heute springen</button>
+
+  <div class="widget-area" id="widgetArea-kalender"></div>
+  <button class="btn ghost block sm widget-edit-btn" data-screen="kalender">🧩 Widgets bearbeiten</button>
 </section>
 
 <!-- ==================== LAUF ==================== -->
@@ -791,6 +869,9 @@
   </div>
 
   <button class="fab" id="fabAdd" title="Einheit hinzufügen">+</button>
+
+  <div class="widget-area" id="widgetArea-lauf"></div>
+  <button class="btn ghost block sm widget-edit-btn" data-screen="lauf">🧩 Widgets bearbeiten</button>
 </section>
 
 <!-- ==================== DATEN ==================== -->
@@ -924,19 +1005,11 @@
     </div>
     <p class="tiny">GPX und TCX enthalten die jüngste Aktivität, CSV alle.</p>
   </div>
-
-  <div class="card">
-    <div class="card-h"><h2>Sicherung</h2></div>
-    <p class="muted" style="margin-bottom:12px">Streaks, Verlauf und Einstellungen als Datei sichern oder auf einem anderen Gerät einspielen.</p>
-    <div class="btn-row" style="margin-bottom:14px">
-      <button class="btn secondary sm" id="btnBackup">Exportieren</button>
-      <button class="btn secondary sm" id="btnRestore">Wiederherstellen</button>
-    </div>
-    <div class="meter"><div class="lbl"><span>Speicherplatz</span><span id="storeVal">–</span></div>
-      <div class="gauge"><i id="storeBar" style="width:2%"></i></div></div>
-  </div>
   </div>
 
+
+  <div class="widget-area" id="widgetArea-daten"></div>
+  <button class="btn ghost block sm widget-edit-btn" data-screen="daten">🧩 Widgets bearbeiten</button>
 </section>
 
 <!-- ==================== FITNESS ==================== -->
@@ -962,6 +1035,21 @@
         <p class="muted" style="margin-top:5px" id="fitText">–</p>
       </div>
     </div>
+  </div>
+
+  <div class="card">
+    <div class="card-h"><h2>Wochenrückblick</h2></div>
+    <p class="muted" id="weekSummaryText">–</p>
+  </div>
+
+  <div class="card">
+    <div class="card-h"><h2>Persönliche Rekorde</h2></div>
+    <div id="prList"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-h"><h2>Abzeichen</h2><span id="achCount">0/0</span></div>
+    <div class="ach-grid" id="achGrid"></div>
   </div>
 
   <div class="card">
@@ -1014,6 +1102,9 @@
     <div class="row"><div class="lab"><b>Kilometer gesamt</b></div><span id="recKm">0 km</span></div>
     <div class="row"><div class="lab"><b>Trainingszeit gesamt</b></div><span id="recTime">0 min</span></div>
   </div>
+
+  <div class="widget-area" id="widgetArea-fitness"></div>
+  <button class="btn ghost block sm widget-edit-btn" data-screen="fitness">🧩 Widgets bearbeiten</button>
 </section>
 
 <!-- ==================== EINSTELLUNGEN ==================== -->
@@ -1022,14 +1113,19 @@
     <div><h1>Einstellungen</h1><p>Alles anpassen, kategorisiert</p></div>
   </div>
 
+  <div class="btn-row" style="margin-bottom:10px">
+    <input type="text" id="setSearch" placeholder="Einstellung suchen …" style="flex:1">
+  </div>
+  <div id="setSearchResults" style="display:none;margin-bottom:14px"></div>
+
   <div class="catbar" id="setCatBar">
-    <button class="catchip on" data-cat="training">Ziel &amp; Training</button>
-    <button class="catchip" data-cat="koerper">Körper</button>
-    <button class="catchip" data-cat="wetter">Wetter</button>
-    <button class="catchip" data-cat="aussehen">Erscheinungsbild</button>
-    <button class="catchip" data-cat="verhalten">Verhalten</button>
-    <button class="catchip" data-cat="sync">Cloud-Sync</button>
-    <button class="catchip" data-cat="daten">Daten</button>
+    <button class="catchip on" data-cat="training">🎯 Ziel &amp; Training</button>
+    <button class="catchip" data-cat="koerper">🧍 Körper</button>
+    <button class="catchip" data-cat="wetter">🌤️ Wetter</button>
+    <button class="catchip" data-cat="aussehen">🎨 Erscheinungsbild</button>
+    <button class="catchip" data-cat="verhalten">🔔 Verhalten</button>
+    <button class="catchip" data-cat="sync">☁️ Cloud-Sync</button>
+    <button class="catchip" data-cat="daten">🗂️ Daten</button>
   </div>
 
   <!-- ========== Ziel & Training ========== -->
@@ -1115,6 +1211,7 @@
         <div class="daypick" id="setRestDays"></div>
       </div>
     </div>
+    <button class="btn ghost block sm" id="resetCatTraining" style="margin-top:2px">Ziel &amp; Training zurücksetzen</button>
   </div>
 
   <!-- ========== Körper ========== -->
@@ -1136,6 +1233,7 @@
       <div class="row"><div class="lab"><b>Wettkampf</b><span>Distanz und Wunschzeit</span></div>
         <input type="text" id="setRace" placeholder="z. B. 10 km in 55:00" style="max-width:150px"></div>
     </div>
+    <button class="btn ghost block sm" id="resetCatKoerper">Körper zurücksetzen</button>
   </div>
 
   <!-- ========== Wetter ========== -->
@@ -1161,6 +1259,7 @@
         <div class="btn-row" style="margin-top:8px"><button class="btn ghost sm" id="btnWeatherRefresh">Jetzt aktualisieren</button></div>
       </div>
     </div>
+    <button class="btn ghost block sm" id="resetCatWetter">Wetter zurücksetzen</button>
   </div>
 
   <!-- ========== Erscheinungsbild ========== -->
@@ -1171,6 +1270,18 @@
         <div class="seg" id="setThemeMode"><button data-v="dark">dunkel</button><button data-v="light">hell</button><button data-v="auto">automatisch</button></div></div>
       <div class="row"><div class="lab"><b>Neutrales Design (OS V2)</b><span>Strikt neutrales Grau, Farbe nur als Signal</span></div><button class="sw" id="setSkin"></button></div>
       <div class="row"><div class="lab"><b>Kalorien-Flamme</b><span>Anzeige auf der Startseite</span></div><button class="sw" id="setShowFlame"></button></div>
+      <div class="row"><div class="lab"><b>App-Name</b><span>Titel auf der Startseite</span></div><input type="text" id="setAppName" placeholder="Trainingsblog" style="max-width:150px"></div>
+      <div class="row"><div class="lab"><b>Schriftgröße</b></div>
+        <div class="seg" id="setFontScale"><button data-v="klein">klein</button><button data-v="normal">normal</button><button data-v="gross">groß</button></div></div>
+      <div class="row"><div class="lab"><b>Kalorien-Einheit</b></div>
+        <div class="seg" id="setCalUnit"><button data-v="kcal">kcal</button><button data-v="kj">kJ</button></div></div>
+      <div class="row"><div class="lab"><b>Start-Kategorie</b><span>Welche Einstellungen-Kategorie zuerst zu sehen ist</span></div>
+        <select id="setStartCat">
+          <option value="training">Ziel &amp; Training</option><option value="koerper">Körper</option>
+          <option value="wetter">Wetter</option><option value="aussehen">Erscheinungsbild</option>
+          <option value="verhalten">Verhalten</option><option value="sync">Cloud-Sync</option><option value="daten">Daten</option>
+        </select></div>
+      <div class="row"><div class="lab"><b>Akzentfarbe je Ziel</b><span>Andere Farbe automatisch bei Muskelaufbau/Abnehmen</span></div><button class="sw" id="setAccentPerGoal"></button></div>
     </div>
     <div class="sec-label">Farben</div>
     <div class="card">
@@ -1188,16 +1299,30 @@
       <div class="row"><div class="lab"><b>Vibration</b><span>Falls dein Gerät es unterstützt</span></div><button class="sw" id="setVibrate"></button></div>
       <div class="row"><div class="lab"><b>Bildschirm anlassen</b><span>Display bleibt während des Trainings an</span></div><button class="sw" id="setAwake"></button></div>
       <div class="row"><div class="lab"><b>Cool-down-Vorschlag</b><span>Nach dem Training automatisch anbieten</span></div><button class="sw" id="setAutoCooldown"></button></div>
+      <div class="row"><div class="lab"><b>Plus-Knopf</b><span>Schnellzugriff im Training-Tab</span></div><button class="sw" id="setShowFab"></button></div>
       <div class="row">
         <div class="lab"><b>Erinnerung</b><span id="remHint">Tägliche Benachrichtigung</span></div>
         <input type="time" id="setReminder" style="max-width:120px">
       </div>
+      <div class="row"><div class="lab"><b>Tonfall</b><span>Wie die Motivationstexte klingen</span></div>
+        <div class="seg" id="setTone"><button data-v="neutral">neutral</button><button data-v="enthu">enthusiastisch</button><button data-v="sachlich">sachlich</button></div></div>
     </div>
+    <button class="btn ghost block sm" id="resetCatVerhalten">Verhalten zurücksetzen</button>
   </div>
 
   <!-- ========== Cloud-Sync ========== -->
   <div class="catpanel" data-cat="sync">
-    <div class="sec-label">Cloud-Synchronisierung über GitHub</div>
+    <div class="sec-label">Synchronisation</div>
+    <div class="card">
+      <p class="muted" style="margin-bottom:12px">Bringe deine Daten auf ein anderes Gerät – automatisch über die Cloud oder einmalig als Datei.</p>
+      <div class="seg" id="syncMethod" style="width:100%">
+        <button data-v="cloud" style="flex:1">Cloud</button>
+        <button data-v="datei" style="flex:1">Datei</button>
+      </div>
+    </div>
+
+    <div id="syncCloudBlock">
+    <div class="sec-label">Cloud über GitHub</div>
     <div class="card">
       <p class="muted" style="margin-bottom:12px">Speichert eine Sicherungsdatei in einem GitHub-Repository deiner Wahl. Nutze am besten ein <b>privates</b> Repository – über die GitHub-Schnittstelle sind Dateiinhalte unabhängig von der Sichtbarkeit im Web genauso abrufbar.</p>
       <div class="row"><div class="lab"><b>Zugriffsschlüssel</b><span>Fine-grained Token, nur für dieses eine Repository</span></div></div>
@@ -1234,22 +1359,48 @@
       </div>
       <p class="tiny" id="ghStatus" style="margin-top:12px">Noch nicht eingerichtet.</p>
     </div>
+    </div><!-- /syncCloudBlock -->
+
+    <div id="syncFileBlock" style="display:none">
+    <div class="sec-label">Datei</div>
+    <div class="card">
+      <p class="muted" style="margin-bottom:12px">Streaks, Verlauf und Einstellungen einmalig als Datei sichern oder auf einem anderen Gerät einspielen – ohne GitHub-Konto.</p>
+      <div class="btn-row">
+        <button class="btn secondary sm" id="btnBackup">Exportieren</button>
+        <button class="btn secondary sm" id="btnRestore">Wiederherstellen</button>
+      </div>
+    </div>
+    </div><!-- /syncFileBlock -->
   </div>
 
   <!-- ========== Daten ========== -->
   <div class="catpanel" data-cat="daten">
     <div class="sec-label">Daten</div>
     <div class="card">
+      <div class="row"><div class="lab"><b>Version</b></div><span id="setVersion">–</span></div>
       <div class="row"><div class="lab"><b>Gespeicherte Tage</b></div><span id="setDays">0</span></div>
       <div class="row"><div class="lab"><b>Speicherort</b><span id="setStorage">–</span></div></div>
+      <div class="meter" style="margin-top:14px"><div class="lbl"><span>Speicherplatz</span><span id="storeVal">–</span></div>
+        <div class="gauge"><i id="storeBar" style="width:2%"></i></div></div>
+      <div class="row" style="margin-top:14px"><div class="lab"><b>Datenaufbewahrung</b><span>Ältere Verlaufseinträge automatisch löschen</span></div>
+        <select id="setRetention">
+          <option value="0">Unbegrenzt</option>
+          <option value="365">1 Jahr</option>
+          <option value="730">2 Jahre</option>
+          <option value="1095">3 Jahre</option>
+        </select></div>
       <div style="margin-top:14px" class="btn-row">
         <button class="btn ghost sm" id="btnResetLog">Verlauf löschen</button>
         <button class="btn danger sm" id="btnResetAll">Alles zurücksetzen</button>
       </div>
+      <button class="btn ghost block sm" id="btnUndoReset" style="margin-top:9px">Letzte Sicherung vor Reset wiederherstellen</button>
     </div>
   </div>
 
   <p class="tiny" style="text-align:center;margin:18px 0 4px">Trainingsblog &middot; 360 Übungen &middot; alles offline</p>
+
+  <div class="widget-area" id="widgetArea-einst"></div>
+  <button class="btn ghost block sm widget-edit-btn" data-screen="einst">🧩 Widgets bearbeiten</button>
 </section>
 
 </div><!-- /shell -->
@@ -1327,6 +1478,7 @@
 
 <!-- ==================== ONBOARDING ==================== -->
 <div class="onb" id="onb">
+  <div class="onb-progress" id="onbProgress"><i></i><i></i><i></i><i></i><i></i></div>
   <div class="step on" id="onbClear">
     <h2>Kurzer Check vorab</h2>
     <p class="muted">Zwei Fragen, bevor es losgeht. Das ist keine medizinische Untersuchung, nur ein sinnvoller erster Schritt.</p>
@@ -1412,6 +1564,14 @@
   <p class="muted" id="swapSub">–</p>
   <div class="ex-list" id="swapList" style="margin-top:14px"></div>
   <button class="btn ghost block sm" id="swapReset" style="margin-top:12px">Original wiederherstellen</button>
+</div></dialog>
+
+<!-- ==================== WIDGETS BEARBEITEN ==================== -->
+<dialog id="dlgWidgets"><div class="dlg" style="position:relative;max-height:82dvh;overflow:auto">
+  <button class="close" id="widgetsClose">✕</button>
+  <h3>Widgets bearbeiten</h3>
+  <p class="muted" id="widgetsSub">Wähle, welche Kacheln hier unten angezeigt werden.</p>
+  <div id="widgetsList" style="margin-top:14px"></div>
 </div></dialog>
 
 
@@ -1613,6 +1773,21 @@ var GROUP_COLOR = {
 };
 
 /* ---------- Trainingsziele ---------- */
+/* Versionsnummer der App. Steigt bei jeder Funktionsänderung/-erweiterung
+   um mindestens eine Nebenversion (Minor). Wird in Einstellungen -> Daten
+   angezeigt. Diese Zählung beginnt hier neu (erste Version mit einer
+   sichtbaren Versionsnummer überhaupt); frühere Entwicklungsrunden hatten
+   keine Versionsnummer. */
+var APP_VERSION = "1.3.0";
+var CHANGELOG = {
+  "1.3.0": [
+    "Einstellungen komplett neu geordnet, durchsuchbar und mit Icons versehen",
+    "App-Name, Schriftgröße, kcal/kJ, Tonfall, Start-Kategorie und mehr einstellbar",
+    "Ruhetage jetzt auch für die Zukunft im Kalender planbar",
+    "Persönliche Rekorde, Abzeichen und ein automatischer Wochenrückblick",
+    "Sicherung und Cloud-Sync jetzt an einem Ort unter Cloud-Sync"
+  ]
+};
 var GOALS = ["erhalt", "aufbau", "abnehmen"];
 var GOAL_LABEL = {
   erhalt:  "Muskelerhalt",
@@ -2278,6 +2453,8 @@ var API = {
   normalizeSettings:normalizeSettings, planForDate:planForDate, buildSequence:buildSequence,
   sequenceDuration:sequenceDuration, isRunDay:isRunDay, pickForGroup:pickForGroup,
   ymd:ymd, parseYmd:parseYmd, weekMonday:weekMonday, addDays:addDays, dayIndex:dayIndex, inRange:inRange,
+  APP_VERSION:APP_VERSION,
+  CHANGELOG:CHANGELOG,
   effectiveRunDistance:effectiveRunDistance, isFixedRestDay:isFixedRestDay,
   currentStreak:currentStreak, longestStreak:longestStreak, doneInLastDays:doneInLastDays,
   groupVolume:groupVolume, fitnessScore:fitnessScore, estimateRun:estimateRun,
@@ -4521,6 +4698,7 @@ function applyGoal(goal, keepTuning){
   S.swaps = {};
   store.set("wk_swaps", S.swaps);
   saveSettings();
+  if (window.APP4 && window.APP4.applyAccentPerGoal) window.APP4.applyAccentPerGoal();
 }
 function setRunning(on){
   S.settings.running = !!on;
@@ -4552,11 +4730,19 @@ var DAYS_LONG  = ["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag
 var MONTHS = ["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
 
 var toastTimer = null;
-function toast(msg){
+function toast(msg, undoFn){
   var t = $("toast");
-  t.textContent = msg; t.classList.add("show");
+  t.innerHTML = "";
+  t.appendChild(document.createTextNode(msg));
+  if (undoFn){
+    var b = document.createElement("button");
+    b.className = "toast-undo"; b.textContent = "Rückgängig";
+    b.onclick = function(){ undoFn(); t.classList.remove("show"); clearTimeout(toastTimer); };
+    t.appendChild(b);
+  }
+  t.classList.add("show");
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(function(){ t.classList.remove("show"); }, 2400);
+  toastTimer = setTimeout(function(){ t.classList.remove("show"); }, undoFn ? 5000 : 2400);
 }
 
 /* ---------- Ton & Vibration ---------- */
@@ -4731,7 +4917,7 @@ function renderHeute(){
 
   $("btnStartToday").textContent = p.rest ? "Atemübung starten" : p.run ? "Zum Lauf" : (done ? "Nochmal trainieren" : "Training starten");
   $("btnRest").classList.toggle("on", !!p.rest);
-  $("btnRest").textContent = p.rest ? "Doch normal trainieren" : "Heute schon trainiert";
+  $("btnRest").textContent = p.rest ? "Ruhetag aufheben" : "Heute als Ruhetag";
   $("btnToggleDone").textContent = done ? "✓" : "✓";
   $("btnToggleDone").style.opacity = done ? "1" : ".55";
   $("btnToggleDone").style.color = done ? "var(--work)" : "";
@@ -4838,7 +5024,8 @@ function renderKalender(){
     if (ds === S.today) cls += " today";
     var c = el("div", cls, String(day));
     c.dataset.date = ds;
-    if (W.isRunDay(ds, S.settings)) c.appendChild(el("div","rd"));
+    if (isRestDay(ds)) c.appendChild(el("div","rd rest-dot"));
+    else if (W.isRunDay(ds, S.settings)) c.appendChild(el("div","rd"));
     grid.appendChild(c);
   }
   if (window.APP4 && window.APP4.decorateCalendarGrid) window.APP4.decorateCalendarGrid();
@@ -4875,15 +5062,13 @@ function openSheet(dateStr){
     b1.onclick = function(){ closeSheet(); startToday(); };
     act.appendChild(b1);
   }
-  if (dateStr <= S.today){
-    var bR = el("button","btn ghost", p.rest ? "Doch normal trainieren" : "Schon trainiert");
-    bR.onclick = function(){
-      setRestDay(dateStr, !p.rest);
-      renderAll(); openSheet(dateStr);
-      toast(p.rest ? "Normales Training zurück" : "Entspannungstag gesetzt");
-    };
-    act.appendChild(bR);
-  }
+  var bR = el("button","btn ghost", p.rest ? "Ruhetag entfernen" : "Als Ruhetag festlegen");
+  bR.onclick = function(){
+    setRestDay(dateStr, !p.rest);
+    renderAll(); openSheet(dateStr);
+    toast(p.rest ? "Normales Training zurück" : (dateStr > S.today ? "Ruhetag für diesen Tag geplant" : "Entspannungstag gesetzt"));
+  };
+  act.appendChild(bR);
   if (S.settings.running){
     var isFixedRest = W.isFixedRestDay(dateStr, S.settings);
     var bL = el("button","btn ghost", p.run ? "Lauftag entfernen" : "Als Lauftag festlegen");
@@ -5012,7 +5197,7 @@ function renderDaten(){
   var list = $("actList"); list.innerHTML = "";
   $("actCount").textContent = S.activities.length;
   if (!S.activities.length){
-    list.appendChild(el("p","muted","Noch nichts importiert."));
+    list.appendChild(el("div","empty-state","📭<b>Noch nichts importiert</b><span>Tippe unten rechts auf + oder importiere eine Datei über die Synchronisation.</span>"));
   } else {
     S.activities.slice(0,40).forEach(function(a, i){
       var d = W.parseYmd(a.date);
@@ -5023,8 +5208,12 @@ function renderDaten(){
       r.appendChild(el("div","v", v));
       var x = el("button","x","✕");
       x.onclick = (function(act){ return function(){
+        var idx = S.activities.indexOf(act);
         S.activities = S.activities.filter(function(o){ return o !== act; });
-        saveAct(); renderAll(); toast("Aktivität gelöscht");
+        saveAct(); renderAll();
+        toast("Aktivität gelöscht", function(){
+          S.activities.splice(idx, 0, act); saveAct(); renderAll(); toast("Wiederhergestellt");
+        });
       };})(a);
       r.appendChild(x);
       list.appendChild(r);
@@ -5357,11 +5546,12 @@ function finishWorkout(){
   $("ovTagText").textContent = "Geschafft";
   $("ovName").textContent = "Training erledigt";
   $("ovTarget").textContent = "🔥 " + streak + " Tage Streak";
+  var getToneCue = (window.APP4 && window.APP4.toneCue) ? window.APP4.toneCue : function(){ return null; };
   $("ovCue").textContent = S.activeProgram === "rodeln"
-    ? "Rumpf, Beine, Schultern und Nacken sind aufgewärmt und mobilisiert. Der heutige Tag ist im Logbuch erledigt."
+    ? (getToneCue("rodeln") || "Rumpf, Beine, Schultern und Nacken sind aufgewärmt und mobilisiert. Der heutige Tag ist im Logbuch erledigt.")
     : planToday().rest
-    ? "Zwei Minuten bewusste Atmung sind erfasst. Dein Streak läuft weiter, morgen geht es normal weiter."
-    : "Du hast heute alle sechs Muskelgruppen trainiert. Morgen warten neue Übungen.";
+    ? (getToneCue("rest") || "Zwei Minuten bewusste Atmung sind erfasst. Dein Streak läuft weiter, morgen geht es normal weiter.")
+    : (getToneCue("work") || "Du hast heute alle sechs Muskelgruppen trainiert. Morgen warten neue Übungen.");
   $("ovNext").textContent = "";
   $("ovTime").className = "ov-time"; $("ovTime").textContent = "✓";
   $("ovUnit").textContent = W.fmtTime(W.sequenceDuration(P.seq));
@@ -5387,7 +5577,7 @@ function switchTab(name){
     t.classList.toggle("on", t.dataset.t === name);
   });
   var fab = $("fabAdd");
-  if (fab) fab.style.display = (name === "lauf") ? "flex" : "none";
+  if (fab) fab.style.display = (name === "lauf" && S.uiPrefs.showFab !== false) ? "flex" : "none";
   window.scrollTo(0,0);
   renderAll();
 }
@@ -5403,6 +5593,7 @@ function renderAll(){
   if (window.APP2 && window.APP2.after) window.APP2.after(S.screen);
   if (window.APP3 && window.APP3.after) window.APP3.after(S.screen);
   if (window.APP4 && window.APP4.after) window.APP4.after(S.screen);
+  if (window.APP5 && window.APP5.after) window.APP5.after(S.screen);
 }
 
 function bind(){
@@ -5545,7 +5736,8 @@ function bind(){
     }
   });
   $("btnResetAll").addEventListener("click", function(){
-    if (confirm("Alles zurücksetzen? Einstellungen, Verlauf, importierte Daten, Farben, Wetter-Standort und Cloud-Zugangsdaten gehen verloren.")){
+    if (confirm("Alles zurücksetzen? Einstellungen, Verlauf, importierte Daten, Farben, Wetter-Standort und Cloud-Zugangsdaten gehen verloren. Eine stille Sicherung wird vorher angelegt und lässt sich über 'Letzte Sicherung vor Reset wiederherstellen' zurückholen.")){
+      try { store.set("wk_lastResetBackup", collectFullState()); } catch(e){}
       ["wk_settings","wk_log","wk_activities","wk_rests","wk_swaps","wk_body","wk_weekgoal",
        "wk_race","wk_skin","wk_colors","wk_weather","wk_weather_cache","wk_sync","wk_uiprefs"]
         .forEach(function(k){ store.del(k); });
@@ -5554,6 +5746,14 @@ function bind(){
       applyTheme(); renderAll(); toast("Zurückgesetzt");
       if (window.APP4 && window.APP4.hardReset) window.APP4.hardReset();
     }
+  });
+  var btnUndoReset = $("btnUndoReset");
+  if (btnUndoReset) btnUndoReset.addEventListener("click", function(){
+    var bak = store.get("wk_lastResetBackup", null);
+    if (!bak){ toast("Keine Sicherung vorhanden"); return; }
+    if (!confirm("Den Stand von vor dem letzten Zurücksetzen wiederherstellen?")) return;
+    applyFullState(bak);
+    toast("Wiederhergestellt"); renderAll();
   });
 
   // Player
@@ -5889,6 +6089,7 @@ function renderReadinessCard(){
       bestHour.temp + "°, " + bestHour.label + ").";
   } else {
     tip.style.display = "none";
+    tip.textContent = "";
   }
 }
 /* Sucht in den nächsten Stunden des Wettercaches das angenehmste Zeitfenster
@@ -5898,9 +6099,11 @@ function suggestBestTrainingHour(){
   if (!window.APP4 || !S.weather || !S.weather.enabled || !S.weatherCache) return null;
   var hours = (S.weatherCache.data && S.weatherCache.data.hours) || [];
   if (!hours.length) return null;
+  var now = new Date();
   var best = null, bestScore = -1;
   hours.forEach(function(h){
     var t = new Date(h.time);
+    if (t.getTime() < now.getTime()) return; // nie eine bereits vergangene Stunde vorschlagen
     var hour = t.getHours();
     if (hour < 6 || hour > 20) return;
     var pop = h.pop == null ? 20 : h.pop;
@@ -5923,6 +6126,110 @@ var ANAT = {
   brust:["a-brust"], bauch:["a-bauch"], ruecken:["a-ruecken-l","a-ruecken-r"],
   cardio:["a-cardio-l","a-cardio-r"]
 };
+
+/* ============================================================
+   PERSÖNLICHE REKORDE & ABZEICHEN
+   ============================================================ */
+function computePRs(){
+  var longest = W.longestStreak(S.log);
+  var current = W.currentStreak(S.log, S.today);
+  var total = Object.keys(S.log).filter(function(k){ return S.log[k] && S.log[k].done; }).length;
+  var bestPaceSec = null, bestPaceDate = null, farthestKm = 0, farthestDate = null;
+  (S.activities || []).forEach(function(a){
+    var isRun = /lauf/i.test(a.type || "") || /lauf/i.test(a.name || "");
+    if (isRun && a.distanceKm > 0 && a.durationSec > 0){
+      var pace = a.durationSec / a.distanceKm;
+      if (bestPaceSec === null || pace < bestPaceSec){ bestPaceSec = pace; bestPaceDate = a.date; }
+    }
+    if (a.distanceKm > farthestKm){ farthestKm = a.distanceKm; farthestDate = a.date; }
+  });
+  var byWeek = {};
+  Object.keys(S.log).forEach(function(k){
+    if (!S.log[k] || !S.log[k].done) return;
+    var wk = W.weekMonday(k);
+    byWeek[wk] = (byWeek[wk] || 0) + 1;
+  });
+  var bestWeek = 0;
+  Object.keys(byWeek).forEach(function(k){ if (byWeek[k] > bestWeek) bestWeek = byWeek[k]; });
+  return {
+    longest: longest, current: current, total: total,
+    bestPaceSec: bestPaceSec, bestPaceDate: bestPaceDate,
+    farthestKm: farthestKm, farthestDate: farthestDate,
+    bestWeek: bestWeek
+  };
+}
+function renderPRs(){
+  var host = $("prList");
+  if (!host) return;
+  var pr = computePRs();
+  host.innerHTML = "";
+  var rows = [
+    ["Längste Serie", pr.longest + " Tage am Stück"],
+    ["Aktuelle Serie", pr.current + " Tage"],
+    ["Trainingstage insgesamt", pr.total + ""],
+    ["Beste Woche", pr.bestWeek + " Einheiten"]
+  ];
+  if (pr.bestPaceSec) rows.push(["Schnellster Lauf", W.fmtPace(pr.bestPaceSec)]);
+  if (pr.farthestKm > 0) rows.push(["Weiteste Distanz", (Math.round(pr.farthestKm*10)/10) + " km"]);
+  rows.forEach(function(r){ host.appendChild(row(r[0], "", r[1], "var(--work)")); });
+}
+
+var ACHIEVEMENTS = [
+  {id:"first", icon:"🎉", n:"Erster Schritt", d:"Die erste Einheit im Logbuch", check:function(pr){ return pr.total >= 1; }},
+  {id:"week", icon:"🔥", n:"Eine Woche dran", d:"7 Tage Serie erreicht", check:function(pr){ return pr.longest >= 7; }},
+  {id:"month", icon:"🏅", n:"Ein Monat dran", d:"30 Tage Serie erreicht", check:function(pr){ return pr.longest >= 30; }},
+  {id:"hundredstreak", icon:"👑", n:"Hundert Tage", d:"100 Tage Serie erreicht", check:function(pr){ return pr.longest >= 100; }},
+  {id:"ten", icon:"🔟", n:"Zehn Einheiten", d:"10 Trainingstage insgesamt", check:function(pr){ return pr.total >= 10; }},
+  {id:"fifty", icon:"5️⃣0️⃣", n:"Fünfzig Einheiten", d:"50 Trainingstage insgesamt", check:function(pr){ return pr.total >= 50; }},
+  {id:"hundred", icon:"💯", n:"Hundert Einheiten", d:"100 Trainingstage insgesamt", check:function(pr){ return pr.total >= 100; }},
+  {id:"run", icon:"🏃", n:"Erster Lauf", d:"Einen Lauf erfasst", check:function(pr){ return pr.bestPaceSec != null; }},
+  {id:"rodeln", icon:"🛷", n:"Rodeln-Debüt", d:"Das Rodeln-Programm einmal absolviert", check:function(){
+    return Object.keys(S.log).some(function(k){ return S.log[k] && S.log[k].type === "rodeln"; });
+  }}
+];
+function renderAchievements(){
+  var host = $("achGrid");
+  if (!host) return;
+  var pr = computePRs();
+  host.innerHTML = "";
+  var unlocked = 0;
+  ACHIEVEMENTS.forEach(function(a){
+    var ok = a.check(pr);
+    if (ok) unlocked++;
+    var b = el("div","ach" + (ok ? " on" : ""));
+    b.innerHTML = "<div class='ach-icon'>" + (ok ? a.icon : "🔒") + "</div><b>" + esc(a.n) + "</b><span>" + esc(a.d) + "</span>";
+    host.appendChild(b);
+  });
+  $("achCount").textContent = unlocked + "/" + ACHIEVEMENTS.length;
+}
+
+function renderWeekSummary(){
+  var host = $("weekSummaryText");
+  if (!host) return;
+  var mon = W.weekMonday(S.today);
+  var sessions = 0, kcal = 0, readySum = 0, readyN = 0, rodeln = 0, runs = 0;
+  for (var i = 0; i < 7; i++){
+    var ds = W.addDays(mon, i);
+    if (ds > S.today) break;
+    var e = S.log[ds];
+    if (e && e.done){
+      sessions++;
+      if (e.type === "rodeln") rodeln++;
+      if (e.type === "run") runs++;
+    }
+    kcal += OS.dayBurn(ds, S.log, S.activities, S.settings, body()).total;
+    var rd = OS.readiness(S.log, S.activities, ds, S.settings);
+    readySum += rd.score; readyN++;
+  }
+  var avgReady = readyN ? Math.round(readySum / readyN) : 0;
+  var fc = (window.APP4 && window.APP4.fmtCal) ? window.APP4.fmtCal(kcal) : Math.round(kcal) + " kcal";
+  var extra = [];
+  if (runs) extra.push(runs + " Lauf" + (runs>1?"e":""));
+  if (rodeln) extra.push(rodeln + "× Rodeln vorbereitet");
+  host.textContent = "Diese Woche: " + sessions + " Einheit" + (sessions===1?"":"en") +
+    (extra.length ? " (" + extra.join(", ") + ")" : "") +
+    ", " + fc + " verbrannt, Bereitschaft im Schnitt " + avgReady + "%.";
+}
 function renderReadiness(){
   var rd = OS.readiness(S.log, S.activities, S.today, S.settings);
   $("rdLabel").textContent = rd.label;
@@ -5974,14 +6281,19 @@ function renderReadiness(){
    KALORIEN-WIDGET
    ============================================================ */
 function burnToday(){ return OS.dayBurn(S.today, S.log, S.activities, S.settings, body()); }
-function renderBurnChip(){ $("burnVal").textContent = burnToday().total; }
+function renderBurnChip(){
+  var t = burnToday().total;
+  if (window.APP4 && window.APP4.calValue) t = window.APP4.calValue(t);
+  $("burnVal").textContent = t;
+}
 function openBurn(){
   var b = burnToday(), bd = body();
+  var fc = (window.APP4 && window.APP4.fmtCal) ? window.APP4.fmtCal : function(n){ return n + " kcal"; };
   fillProof($("burnProof"), [["Aktiv", b.workout + b.activities + ""], ["Nachbrennen", b.epoc + ""], ["Grundumsatz", bd ? OS.bmrPerDay(bd) + "" : "–"]]);
   var host = $("burnItems"); host.innerHTML = "";
   if (!b.items.length) host.appendChild(el("p", "muted", "Heute noch nichts erfasst."));
   b.items.forEach(function(it){
-    host.appendChild(row(it.name, it.min + " Minuten · MET " + it.met, it.kcal + " kcal", "var(--work)"));
+    host.appendChild(row(it.name, it.min + " Minuten · MET " + it.met, fc(it.kcal), "var(--work)"));
   });
   $("burnFormula").textContent = "Kalorien = MET × 3,5 × " + bd.weightKg + " kg ÷ 200 × Minuten. " +
     "Grundumsatz " + OS.bmrPerDay(bd) + " kcal/Tag nach Mifflin-St Jeor.";
@@ -6119,6 +6431,8 @@ function onbStep(n){
   ["onbClear","onb0","onb1","onb2","onb3"].forEach(function(id, i){
     $(id).classList.toggle("on", i === n);
   });
+  var prog = $("onbProgress");
+  if (prog) Array.prototype.forEach.call(prog.children, function(dot, i){ dot.classList.toggle("on", i <= n); });
 }
 var onbGoal = "erhalt", onbRunning = true, onbClearQ1 = false, onbClearQ2 = false;
 function renderGoalCards(){
@@ -6243,7 +6557,8 @@ function playerTick(){
   var stretching = P.seq.some(function(x){ return !!x.pose; });
   var b = OS.burnFor(stretching ? "aufwaermen" : "zirkel", done/60, body());
   var kc = $("ovKcal");
-  if (kc) kc.textContent = b.total + " kcal · MET " + b.met;
+  var fc = (window.APP4 && window.APP4.fmtCal) ? window.APP4.fmtCal(b.total) : (b.total + " kcal");
+  if (kc) kc.textContent = fc + " · MET " + b.met;
 }
 
 /* ============================================================
@@ -6426,11 +6741,14 @@ function bind(){
 window.APP2 = {
   openSwap: openSwap,
   invalidate: invalidate,
+  renderStorage: renderStorage,
+  computePRs: computePRs,
+  ACHIEVEMENTS: ACHIEVEMENTS,
   after: function(screen){
     invalidate();
     if (screen === "heute"){ renderReadinessCard(); renderBurnChip(); }
     if (screen === "daten") setSeg(pane);
-    if (screen === "fitness") renderReadiness();
+    if (screen === "fitness"){ renderReadiness(); renderPRs(); renderAchievements(); renderWeekSummary(); }
     if (screen === "einst") fillOsSettings();
   }
 };
@@ -7026,8 +7344,112 @@ function setCat(name){
 }
 
 /* ============================================================
-   ZUSTAND: Wetter & Sync (eigene Speicherschlüssel)
+   Synchronisation: Cloud (GitHub) oder direkte Datei
    ============================================================ */
+var syncMethod = A.store.get("wk_syncmethod", "cloud");
+function renderSyncMethod(){
+  if (!$("syncMethod")) return;
+  Array.prototype.forEach.call($("syncMethod").children, function(b){
+    b.classList.toggle("on", b.dataset.v === syncMethod);
+  });
+  $("syncCloudBlock").style.display = (syncMethod === "cloud") ? "" : "none";
+  $("syncFileBlock").style.display = (syncMethod === "datei") ? "" : "none";
+}
+
+/* ============================================================
+   EINSTELLUNGEN DURCHSUCHEN
+   ============================================================ */
+var SETTINGS_INDEX = [
+  {l:"Trainingsziel", cat:"training", a:"setGoal"},
+  {l:"Laufeinheiten Laufen an aus", cat:"training", a:"setRunning"},
+  {l:"Name Begrüßung", cat:"training", a:"setName"},
+  {l:"Intensität leicht normal hart", cat:"training", a:"setLevel"},
+  {l:"Runden Durchgänge", cat:"training", a:"setRounds"},
+  {l:"Zeit je Übung", cat:"training", a:"setWork"},
+  {l:"Pause zwischen Übungen", cat:"training", a:"setRest"},
+  {l:"Rundenpause", cat:"training", a:"setRoundRest"},
+  {l:"Aufwärmen", cat:"training", a:"setWarmup"},
+  {l:"Cool-down", cat:"training", a:"setCooldown"},
+  {l:"Rhythmus Lauftage fest variabel", cat:"training", a:"setRunMode"},
+  {l:"Lauftage Wochentage", cat:"training", a:"setRunDays"},
+  {l:"Standarddistanz Lauf km", cat:"training", a:"setRunDist"},
+  {l:"Eigene Distanz", cat:"training", a:"setRunCustom"},
+  {l:"Feste Ruhetage", cat:"training", a:"setRestDays"},
+  {l:"Gewicht Körpergewicht", cat:"koerper", a:"setWeight"},
+  {l:"Größe Körpergröße", cat:"koerper", a:"setHeight"},
+  {l:"Alter", cat:"koerper", a:"setAge"},
+  {l:"Grundumsatz Geschlecht", cat:"koerper", a:"setSex"},
+  {l:"Wochenziel Ring", cat:"koerper", a:"setWeekGoal"},
+  {l:"Wettkampf Zielzeit", cat:"koerper", a:"setRace"},
+  {l:"Wetter anzeigen", cat:"wetter", a:"setWeatherOn"},
+  {l:"Standort automatisch manuell", cat:"wetter", a:"setWeatherMode"},
+  {l:"Ort suchen Stadt", cat:"wetter", a:"weatherCity"},
+  {l:"Einheit Celsius Fahrenheit", cat:"wetter", a:"setWeatherUnit"},
+  {l:"Design hell dunkel automatisch Theme", cat:"aussehen", a:"setThemeMode"},
+  {l:"Neutrales Design OS V2 Skin", cat:"aussehen", a:"setSkin"},
+  {l:"Kalorien-Flamme", cat:"aussehen", a:"setShowFlame"},
+  {l:"Farben Akzentfarbe", cat:"aussehen", a:"colorRows"},
+  {l:"App-Name eigener Name", cat:"aussehen", a:"setAppName"},
+  {l:"Schriftgröße Textgröße", cat:"aussehen", a:"setFontScale"},
+  {l:"Kalorieneinheit kcal kJ", cat:"aussehen", a:"setCalUnit"},
+  {l:"Startkategorie Einstellungen", cat:"aussehen", a:"setStartCat"},
+  {l:"Signalton Ton auswählen", cat:"verhalten", a:"setSound"},
+  {l:"Vibration Muster", cat:"verhalten", a:"setVibrate"},
+  {l:"Bildschirm anlassen wach", cat:"verhalten", a:"setAwake"},
+  {l:"Cool-down-Vorschlag", cat:"verhalten", a:"setAutoCooldown"},
+  {l:"Erinnerung Benachrichtigung Uhrzeit", cat:"verhalten", a:"setReminder"},
+  {l:"Tonfall Motivationstexte", cat:"verhalten", a:"setTone"},
+  {l:"Zugriffsschlüssel Token GitHub", cat:"sync", a:"ghToken"},
+  {l:"Repository Konto GitHub", cat:"sync", a:"ghOwner"},
+  {l:"Synchronisationscode Verschlüsselung", cat:"sync", a:"ghPin"},
+  {l:"Automatisch synchronisieren", cat:"sync", a:"ghAutoSync"},
+  {l:"Sicherung Datei exportieren", cat:"sync", a:"syncMethod"},
+  {l:"Version", cat:"daten", a:"setVersion"},
+  {l:"Speicherplatz Speicherort", cat:"daten", a:"setStorage"},
+  {l:"Verlauf löschen zurücksetzen", cat:"daten", a:"btnResetLog"},
+  {l:"Datenaufbewahrung alte Einträge", cat:"daten", a:"setRetention"}
+];
+function renderSearchResults(q){
+  var host = $("setSearchResults");
+  var query = q.trim().toLowerCase();
+  if (!query){
+    host.style.display = "none"; host.innerHTML = "";
+    $("setCatBar").style.display = ""; document.querySelectorAll(".catpanel").forEach(function(p){});
+    return;
+  }
+  var hits = SETTINGS_INDEX.filter(function(it){ return it.l.toLowerCase().indexOf(query) >= 0; });
+  host.innerHTML = "";
+  $("setCatBar").style.display = "none";
+  Array.prototype.forEach.call(document.querySelectorAll(".catpanel"), function(p){ p.classList.remove("on"); });
+  if (!hits.length){
+    host.appendChild(el("p","muted","Keine Einstellung gefunden."));
+  } else {
+    hits.forEach(function(it){
+      var label = it.l.split(" ")[0];
+      var b = el("button","wcityresult", esc(label) + "<span>" + CATS_LABEL[it.cat] + "</span>");
+      b.onclick = function(){
+        $("setSearch").value = "";
+        renderSearchResults("");
+        setCat(it.cat);
+        setTimeout(function(){
+          var target = $(it.a);
+          if (!target) return;
+          target.scrollIntoView({block:"center", behavior:"smooth"});
+          target.classList.add("flash-hit");
+          setTimeout(function(){ target.classList.remove("flash-hit"); }, 1500);
+        }, 80);
+      };
+      host.appendChild(b);
+    });
+  }
+  host.style.display = "";
+}
+var CATS_LABEL = {
+  training:"Ziel & Training", koerper:"Körper", wetter:"Wetter", aussehen:"Erscheinungsbild",
+  verhalten:"Verhalten", sync:"Cloud-Sync", daten:"Daten"
+};
+
+
 S.weather = A.store.get("wk_weather", {
   enabled: true, mode: "auto", unit: "c",
   lat: null, lon: null, place: "", geoStatus: "noch nicht angefragt"
@@ -7036,7 +7458,13 @@ S.weatherCache = A.store.get("wk_weather_cache", null); // {fetchedAt, lat, lon,
 S.sync = A.store.get("wk_sync", {
   token: "", owner: "", repo: "", branch: "main", path: "trainingsblog-data.json", auto: false, pin: ""
 });
-S.uiPrefs = A.store.get("wk_uiprefs", {themeMode:"dark", showFlame:true, autoCooldown:true});
+S.uiPrefs = A.store.get("wk_uiprefs", {});
+(function(){
+  var d = {themeMode:"dark", showFlame:true, autoCooldown:true,
+    appName:"", fontScale:"normal", calUnit:"kcal", startCat:"training", tone:"neutral", retentionDays:0,
+    showFab:true, accentPerGoal:false};
+  for (var k in d) if (S.uiPrefs[k] === undefined) S.uiPrefs[k] = d[k];
+})();
 
 function saveWeatherSettings(){ A.store.set("wk_weather", S.weather); }
 function saveWeatherCache(){ A.store.set("wk_weather_cache", S.weatherCache); }
@@ -7395,6 +7823,21 @@ function applyFlameVisibility(){
   var b = $("btnBurn");
   if (b) b.style.display = S.uiPrefs.showFlame ? "" : "none";
 }
+function applyFabVisibility(){
+  var f = $("fabAdd");
+  if (!f) return;
+  f.style.display = (S.screen === "lauf" && S.uiPrefs.showFab !== false) ? "flex" : "none";
+}
+var GOAL_ACCENT = {erhalt:"#D97757", aufbau:"#5B8DEF", abnehmen:"#4FD1B5"};
+function applyAccentPerGoal(){
+  if (!S.uiPrefs.accentPerGoal) return;
+  var c = GOAL_ACCENT[S.settings.goal];
+  if (!c) return;
+  S.colors = S.colors || {};
+  S.colors.work = c;
+  A.store.set("wk_colors", S.colors);
+  if (window.APP3 && window.APP3.applyColors) window.APP3.applyColors();
+}
 
 /* ---------- kleine Helfer ---------- */
 function seg(id, val){
@@ -7404,11 +7847,162 @@ function seg(id, val){
 function sw(id, on){ var e = $(id); if (e) e.classList.toggle("on", !!on); }
 
 /* ============================================================
+   Weitere Anpassungen: App-Name, Schriftgröße, Kalorien-Einheit,
+   Start-Kategorie, Tonfall, Datenaufbewahrung
+   ============================================================ */
+function applyAppName(){
+  var t = $("appTitle");
+  if (t) t.textContent = S.uiPrefs.appName || "Trainingsblog";
+}
+function applyFontScale(){
+  var shell = document.querySelector(".shell");
+  if (!shell) return;
+  shell.classList.remove("fs-klein","fs-normal","fs-gross");
+  shell.classList.add("fs-" + (S.uiPrefs.fontScale || "normal"));
+}
+function fmtCal(kcal){
+  kcal = Math.round(kcal || 0);
+  if (S.uiPrefs.calUnit === "kj") return Math.round(kcal * 4.184) + " kJ";
+  return kcal + " kcal";
+}
+function calValue(kcal){
+  kcal = Math.round(kcal || 0);
+  return S.uiPrefs.calUnit === "kj" ? Math.round(kcal * 4.184) : kcal;
+}
+
+/* ============================================================
+   "NEU IN DIESER VERSION"
+   ============================================================ */
+/* ============================================================
+   GRANULARE RESETS PRO KATEGORIE
+   ============================================================ */
+function resetCategory(cat){
+  if (cat === "training"){
+    var d = W.normalizeSettings({});
+    ["name","goal","running","level","rounds","workSec","restSec","roundRestSec","warmup","cooldown",
+     "runMode","runDays","runPlan","runDistance","runDistanceCustom","restDays"].forEach(function(k){
+      S.settings[k] = d[k];
+    });
+    S.settings = W.normalizeSettings(S.settings);
+    A.saveSettings(); A.renderAll();
+    if (window.APP2 && window.APP2.after) window.APP2.after("einst");
+  } else if (cat === "koerper"){
+    S.body = {}; A.store.set("wk_body", S.body);
+    S.weekGoal = 0; A.store.set("wk_weekgoal", S.weekGoal);
+    S.race = ""; A.store.set("wk_race", S.race);
+    A.renderAll();
+  } else if (cat === "wetter"){
+    S.weather = {enabled:true, mode:"auto", unit:"c", lat:null, lon:null, place:"", geoStatus:"noch nicht angefragt"};
+    S.weatherCache = null;
+    saveWeatherSettings(); saveWeatherCache();
+    renderWeatherSettings(); renderWeatherUI(); A.renderAll();
+  } else if (cat === "verhalten"){
+    S.settings.sound = true; S.settings.vibrate = true; S.settings.keepAwake = true; S.settings.reminder = "";
+    S.uiPrefs.autoCooldown = true; S.uiPrefs.showFab = true; S.uiPrefs.tone = "neutral";
+    A.saveSettings(); saveUiPrefs();
+    renderMoreVerhalten(); A.renderAll();
+  }
+  A.toast("Kategorie zurückgesetzt");
+}
+
+function checkWhatsNew(){
+  var card = $("whatsNewCard");
+  if (!card) return;
+  var seen = A.store.get("wk_lastSeenVersion", null);
+  if (seen === null){
+    // Erststart: nichts zu vergleichen, einfach als gesehen vermerken.
+    A.store.set("wk_lastSeenVersion", W.APP_VERSION);
+    return;
+  }
+  if (seen === W.APP_VERSION) return;
+  var entries = (W.CHANGELOG && W.CHANGELOG[W.APP_VERSION]) || [];
+  if (!entries.length){ A.store.set("wk_lastSeenVersion", W.APP_VERSION); return; }
+  $("whatsNewVersion").textContent = W.APP_VERSION;
+  var list = $("whatsNewList"); list.innerHTML = "";
+  entries.forEach(function(t){ var li = document.createElement("li"); li.textContent = t; list.appendChild(li); });
+  card.style.display = "";
+}
+function dismissWhatsNew(){
+  $("whatsNewCard").style.display = "none";
+  A.store.set("wk_lastSeenVersion", W.APP_VERSION);
+}
+
+function applyRetention(){
+  var days = Number(S.uiPrefs.retentionDays) || 0;
+  if (!days) return;
+  var cutoff = W.addDays(S.today, -days);
+  var changed = false;
+  Object.keys(S.log).forEach(function(d){ if (d < cutoff){ delete S.log[d]; changed = true; } });
+  var before = S.activities.length;
+  S.activities = S.activities.filter(function(a){ return !a.date || a.date >= cutoff; });
+  if (S.activities.length !== before) changed = true;
+  if (changed){ A.saveLog(); A.saveAct(); }
+}
+
+/* ============================================================
+   TONFALL DER MOTIVATIONSTEXTE
+   ============================================================ */
+var TONE_TEXT = {
+  work: {
+    neutral: "Du hast heute alle sechs Muskelgruppen trainiert. Morgen warten neue Übungen.",
+    enthu: "Stark gemacht! Alle sechs Muskelgruppen sind heute drangekommen. 💪",
+    sachlich: "6 von 6 Muskelgruppen trainiert. Nächste Einheit: morgen."
+  },
+  rest: {
+    neutral: "Zwei Minuten bewusste Atmung sind erfasst. Dein Streak läuft weiter, morgen geht es normal weiter.",
+    enthu: "Gönn dir die Pause – auch das ist Training! Dein Streak bleibt erhalten. 🌿",
+    sachlich: "Ruhetag erfasst. Streak unverändert. Reguläres Training ab morgen."
+  },
+  rodeln: {
+    neutral: "Rumpf, Beine, Schultern und Nacken sind aufgewärmt und mobilisiert. Der heutige Tag ist im Logbuch erledigt.",
+    enthu: "Bereit für die Bahn! Rumpf, Beine, Schultern und Nacken sind aufgewärmt. 🛷",
+    sachlich: "Aufwärmprogramm abgeschlossen. Tag im Logbuch erfasst."
+  }
+};
+function toneCue(kind){
+  var tone = (S.uiPrefs && S.uiPrefs.tone) || "neutral";
+  var set = TONE_TEXT[kind] || TONE_TEXT.work;
+  return set[tone] || set.neutral;
+}
+
+function renderMoreAppearance(){
+  if (!$("setAppName")) return;
+  if (document.activeElement !== $("setAppName")) $("setAppName").value = S.uiPrefs.appName || "";
+  seg("setFontScale", S.uiPrefs.fontScale);
+  seg("setCalUnit", S.uiPrefs.calUnit);
+  $("setStartCat").value = S.uiPrefs.startCat;
+  sw("setAccentPerGoal", S.uiPrefs.accentPerGoal);
+}
+function renderMoreVerhalten(){
+  if (!$("setShowFab")) return;
+  sw("setShowFab", S.uiPrefs.showFab !== false);
+  seg("setTone", S.uiPrefs.tone);
+}
+function renderMoreDaten(){
+  if ($("setRetention")) $("setRetention").value = String(S.uiPrefs.retentionDays || 0);
+}
+
+/* ============================================================
    Bindings
    ============================================================ */
 function bind(){
   $("setCatBar").addEventListener("click", function(e){
     var b = e.target.closest(".catchip"); if (b) setCat(b.dataset.cat);
+  });
+  $("setSearch").addEventListener("input", function(e){ renderSearchResults(e.target.value); });
+  var wnClose = $("whatsNewClose");
+  if (wnClose) wnClose.addEventListener("click", dismissWhatsNew);
+  ["training","koerper","wetter","verhalten"].forEach(function(cat){
+    var b = $("resetCat" + cat.charAt(0).toUpperCase() + cat.slice(1));
+    if (b) b.addEventListener("click", function(){
+      if (confirm("Diese Kategorie auf die Standardwerte zurücksetzen?")) resetCategory(cat);
+    });
+  });
+  $("syncMethod").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    syncMethod = b.dataset.v;
+    A.store.set("wk_syncmethod", syncMethod);
+    renderSyncMethod();
   });
 
   // Wetter
@@ -7446,6 +8040,37 @@ function bind(){
   });
   $("setShowFlame").addEventListener("click", function(){
     S.uiPrefs.showFlame = !S.uiPrefs.showFlame; saveUiPrefs(); renderAppearance();
+  });
+  $("setAppName").addEventListener("input", function(){
+    S.uiPrefs.appName = $("setAppName").value.slice(0, 24); saveUiPrefs(); applyAppName();
+  });
+  $("setFontScale").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    S.uiPrefs.fontScale = b.dataset.v; saveUiPrefs(); applyFontScale(); renderMoreAppearance();
+  });
+  $("setCalUnit").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    S.uiPrefs.calUnit = b.dataset.v; saveUiPrefs(); renderMoreAppearance();
+    A.renderAll();
+  });
+  $("setStartCat").addEventListener("change", function(){
+    S.uiPrefs.startCat = $("setStartCat").value; saveUiPrefs();
+  });
+  $("setTone").addEventListener("click", function(e){
+    var b = e.target.closest("button"); if (!b) return;
+    S.uiPrefs.tone = b.dataset.v; saveUiPrefs(); renderMoreVerhalten();
+  });
+  $("setRetention").addEventListener("change", function(){
+    S.uiPrefs.retentionDays = Number($("setRetention").value); saveUiPrefs();
+    applyRetention(); A.renderAll();
+    A.toast(S.uiPrefs.retentionDays ? "Datenaufbewahrung gesetzt" : "Unbegrenzt gespeichert");
+  });
+  $("setShowFab").addEventListener("click", function(){
+    S.uiPrefs.showFab = !S.uiPrefs.showFab; saveUiPrefs(); renderMoreVerhalten(); applyFabVisibility();
+  });
+  $("setAccentPerGoal").addEventListener("click", function(){
+    S.uiPrefs.accentPerGoal = !S.uiPrefs.accentPerGoal; saveUiPrefs(); renderMoreAppearance();
+    if (S.uiPrefs.accentPerGoal) applyAccentPerGoal();
   });
   $("setAutoCooldown").addEventListener("click", function(){
     S.uiPrefs.autoCooldown = !S.uiPrefs.autoCooldown; saveUiPrefs(); renderAppearance();
@@ -7491,6 +8116,9 @@ window.APP4 = {
   after: function(screen){
     if (screen === "einst"){
       renderWeatherSettings(); renderSyncSettings(); renderAppearance();
+      renderSyncMethod(); renderMoreAppearance(); renderMoreVerhalten(); renderMoreDaten();
+      if (window.APP2 && window.APP2.renderStorage) window.APP2.renderStorage();
+      if ($("setVersion")) $("setVersion").textContent = W.APP_VERSION || "–";
     }
     if (screen === "heute") renderWeatherToday();
     if (screen === "kalender"){ renderWeatherStrip(); decorateCalendarGrid(); }
@@ -7500,26 +8128,320 @@ window.APP4 = {
   decorateSheet: decorateSheet,
   loadWeather: loadWeather,
   runAutoSync: runAutoSync,
+  fmtCal: fmtCal,
+  calValue: calValue,
+  toneCue: toneCue,
+  applyAccentPerGoal: applyAccentPerGoal,
   hourlyAutoSync: hourlyAutoSync,
   hardReset: function(){
     S.weather = {enabled:true, mode:"auto", unit:"c", lat:null, lon:null, place:"", geoStatus:"noch nicht angefragt"};
     S.weatherCache = null;
     S.sync = {token:"", owner:"", repo:"", branch:"main", path:"trainingsblog-data.json", auto:false};
-    S.uiPrefs = {themeMode:"dark", showFlame:true, autoCooldown:true};
+    S.uiPrefs = {};
+    (function(){
+      var d = {themeMode:"dark", showFlame:true, autoCooldown:true,
+        appName:"", fontScale:"normal", calUnit:"kcal", startCat:"training", tone:"neutral", retentionDays:0};
+      for (var k in d) S.uiPrefs[k] = d[k];
+    })();
     saveWeatherSettings(); saveWeatherCache(); saveSync(); saveUiPrefs();
     renderWeatherSettings(); renderSyncSettings(); renderAppearance();
     renderWeatherUI();
     applyFlameVisibility();
+    applyAppName(); applyFontScale();
   }
 };
 
 bind();
 applyFlameVisibility();
+applyAppName();
+applyFontScale();
+applyRetention();
+checkWhatsNew();
 if (S.uiPrefs.themeMode === "auto") applyAutoTheme();
 if (weatherReady()) loadWeather(false);
 setInterval(ensureWeatherFresh, 5 * 60 * 1000);
 setInterval(function(){ if (S.uiPrefs.themeMode === "auto") applyAutoTheme(); }, 10 * 60 * 1000);
+if ($("setCatBar") && S.uiPrefs.startCat && S.uiPrefs.startCat !== "training") setCat(S.uiPrefs.startCat);
 A.renderAll();
+})();
+</script>
+<script>
+/* ============================================================
+   WIDGET-SYSTEM
+   Für jeden der sechs Bildschirme gibt es 10 vordefinierte
+   Kacheln. Über "Widgets bearbeiten" am Bildschirmende lassen
+   sie sich einzeln an- und abschalten. Jede Kachel berechnet
+   ihren Wert live aus bereits vorhandenen Daten (kein neuer
+   Tracking-Aufwand, nur eine andere Ansicht auf Bestehendes).
+   ============================================================ */
+(function(){
+"use strict";
+var A = window.APP, W = window.WK, OS = window.OS;
+var S = A.S, $ = A.$, el = A.el, esc = A.esc;
+
+function body(){ return OS.normalizeBody(S.body); }
+function fc(kcal){ return (window.APP4 && window.APP4.fmtCal) ? window.APP4.fmtCal(kcal) : Math.round(kcal||0) + " kcal"; }
+function safe(fn, fallback){ try { var v = fn(); return (v === null || v === undefined || v === "") ? fallback : v; } catch(e){ return fallback; } }
+
+function nextRestDay(){
+  for (var i=1;i<15;i++){
+    var d = W.addDays(S.today, i);
+    if (W.isFixedRestDay(d, S.settings)) return d;
+  }
+  return null;
+}
+function nextRunDayStr(){
+  for (var i=0;i<15;i++){
+    var d = W.addDays(S.today, i);
+    if (W.isRunDay(d, S.settings)) return d;
+  }
+  return null;
+}
+function fmtShortDate(ds){
+  if (!ds) return "–";
+  var d = W.parseYmd(ds);
+  return A.DAYS_SHORT[d.getDay()] + ", " + d.getDate() + "." + (d.getMonth()+1) + ".";
+}
+function totalDoneCount(){ return Object.keys(S.log).filter(function(k){ return S.log[k] && S.log[k].done; }).length; }
+function sumKm(){
+  return (S.activities||[]).reduce(function(s,a){ return s + (a.distanceKm||0); }, 0);
+}
+function mostCommonActivityType(){
+  var counts = {};
+  (S.activities||[]).forEach(function(a){ counts[a.type||"Sonstiges"] = (counts[a.type||"Sonstiges"]||0)+1; });
+  var best = null, bestN = 0;
+  Object.keys(counts).forEach(function(k){ if (counts[k] > bestN){ bestN = counts[k]; best = k; } });
+  return best;
+}
+function monthDoneCount(){
+  var y = S.calMonth.getFullYear(), m = S.calMonth.getMonth();
+  var n = 0;
+  Object.keys(S.log).forEach(function(k){
+    var d = W.parseYmd(k);
+    if (d.getFullYear() === y && d.getMonth() === m && S.log[k].done) n++;
+  });
+  return n;
+}
+function isoWeekNum(dateStr){
+  var d = W.parseYmd(dateStr);
+  var target = new Date(d.valueOf());
+  var dayNr = (d.getDay() + 6) % 7;
+  target.setDate(target.getDate() - dayNr + 3);
+  var firstThursday = target.valueOf();
+  target.setMonth(0, 1);
+  if (target.getDay() !== 4) target.setMonth(0, 1 + ((4 - target.getDay()) + 7) % 7);
+  return 1 + Math.ceil((firstThursday - target) / 604800000);
+}
+function dayOfYear(dateStr){
+  var d = W.parseYmd(dateStr);
+  var start = new Date(d.getFullYear(), 0, 1);
+  return Math.floor((d - start) / 86400000) + 1;
+}
+function muscleBalanceText(){
+  var counts = {};
+  Object.keys(S.log).forEach(function(k){
+    var e = S.log[k];
+    if (e && e.done && Array.isArray(e.groups)) e.groups.forEach(function(g){ counts[g] = (counts[g]||0)+1; });
+  });
+  var best = null, bestN = 0;
+  Object.keys(counts).forEach(function(k){ if (counts[k] > bestN){ bestN = counts[k]; best = k; } });
+  var labels = {beine:"Beine", brust:"Brust", bauch:"Bauch", ruecken:"Rücken", arme:"Arme", cardio:"Cardio"};
+  return best ? (labels[best] || best) : null;
+}
+var QUOTES = [
+  "Kleine Schritte, jeden Tag.", "Konstanz schlägt Intensität.", "Der Rest kommt von allein, sobald du anfängst.",
+  "Heute zählt, nicht perfekt zu sein, sondern dabei zu bleiben.", "Ein Tag mehr ist ein Tag mehr.",
+  "Fortschritt ist leiser als man denkt.", "Du musst nicht schnell sein, nur dran bleiben.",
+  "Der beste Zeitpunkt ist jetzt.", "Erholung gehört zum Training dazu.", "Disziplin ist Selbstfürsorge."
+];
+function quoteOfDay(){
+  var idx = W.dayIndex(S.today) % QUOTES.length;
+  return QUOTES[idx];
+}
+function lastAchievementName(){
+  if (!window.APP2 || !window.APP2.computePRs) return null;
+  var pr = window.APP2.computePRs();
+  var unlocked = (window.APP2.ACHIEVEMENTS || []).filter(function(a){ return a.check(pr); });
+  return unlocked.length ? unlocked[unlocked.length-1].n : null;
+}
+function nextAchievementProgress(){
+  if (!window.APP2 || !window.APP2.computePRs) return null;
+  var pr = window.APP2.computePRs();
+  var locked = (window.APP2.ACHIEVEMENTS || []).filter(function(a){ return !a.check(pr); });
+  return locked.length ? locked[0].n : "alle erreicht";
+}
+function mostTiredGroup(){
+  if (!OS.fatigue) return null;
+  var f = OS.fatigue(S.log, S.activities, S.today, S.settings);
+  var best = null, bestV = -1;
+  Object.keys(f||{}).forEach(function(k){ if (f[k] > bestV){ bestV = f[k]; best = k; } });
+  var labels = {beine:"Beine", brust:"Brust", bauch:"Bauch", ruecken:"Rücken", arme:"Arme", cardio:"Cardio"};
+  return (best && bestV > 0) ? (labels[best] || best) : null;
+}
+function restDaysUsedThisWeek(){
+  var mon = W.weekMonday(S.today);
+  var n = 0;
+  for (var i=0;i<7;i++){
+    var d = W.addDays(mon, i);
+    if (d > S.today) break;
+    if (S.log[d] && S.log[d].done && S.log[d].type === "rest") n++;
+  }
+  return n;
+}
+function rainDaysNext14(){
+  if (!S.weatherCache || !S.weatherCache.data) return null;
+  return S.weatherCache.data.days.filter(function(d){ return d.pop != null && d.pop >= 50; }).length;
+}
+var WT_CODE_LABEL = {0:"klar",1:"heiter",2:"bewölkt",3:"bedeckt",45:"Nebel",48:"Nebel",51:"Niesel",53:"Niesel",55:"Niesel",
+  61:"Regen",63:"Regen",65:"Regen",71:"Schnee",73:"Schnee",75:"Schnee",80:"Schauer",81:"Schauer",82:"Schauer",95:"Gewitter"};
+function WT_LABEL(code){ return WT_CODE_LABEL[code] || "–"; }
+function isLeap(dateStr){ var y = W.parseYmd(dateStr).getFullYear(); return (y%4===0 && y%100!==0) || y%400===0; }
+
+/* ---------- Widget-Definitionen je Bildschirm ---------- */
+var WIDGET_DEFS = {
+  heute: [
+    {id:"h1", t:"Wochenfortschritt", v:function(){ var mon=W.weekMonday(S.today); var n=0; for(var i=0;i<7;i++){var d=W.addDays(mon,i); if(d<=S.today && S.log[d] && S.log[d].done) n++;} return n + " / " + (S.weekGoal||0) + " Einheiten"; }},
+    {id:"h2", t:"Kalorien heute", v:function(){ return fc(OS.dayBurn(S.today, S.log, S.activities, S.settings, body()).total); }},
+    {id:"h3", t:"Aktuelle Serie", v:function(){ return W.currentStreak(S.log, S.today) + " Tage"; }},
+    {id:"h4", t:"Nächster Ruhetag", v:function(){ return fmtShortDate(nextRestDay()); }},
+    {id:"h5", t:"Nächster Lauftag", v:function(){ return fmtShortDate(nextRunDayStr()); }},
+    {id:"h6", t:"Trainingsziel", v:function(){ return W.GOAL_LABEL[S.settings.goal] || "–"; }},
+    {id:"h7", t:"Letztes Abzeichen", v:function(){ return safe(lastAchievementName, "noch keins"); }},
+    {id:"h8", t:"Impuls des Tages", v:quoteOfDay},
+    {id:"h9", t:"Wetter gerade", v:function(){ if (!S.weatherCache || !S.weatherCache.data || !S.weatherCache.data.current) return "aus"; var c=S.weatherCache.data.current; return c.temp + "° · " + (WT_LABEL(c.code)); }},
+    {id:"h10", t:"Trainingstage gesamt", v:function(){ return totalDoneCount() + ""; }}
+  ],
+  kalender: [
+    {id:"k1", t:"Diesen Monat erledigt", v:function(){ return monthDoneCount() + " Tage"; }},
+    {id:"k2", t:"Längste Serie", v:function(){ return W.longestStreak(S.log) + " Tage"; }},
+    {id:"k3", t:"Nächster Lauftag", v:function(){ return fmtShortDate(nextRunDayStr()); }},
+    {id:"k4", t:"Nächster Ruhetag", v:function(){ return fmtShortDate(nextRestDay()); }},
+    {id:"k5", t:"Heute ist Tag", v:function(){ return dayOfYear(S.today) + " von " + (isLeap(S.today)?366:365); }},
+    {id:"k6", t:"Kalenderwoche", v:function(){ return "KW " + isoWeekNum(S.today); }},
+    {id:"k7", t:"Erledigt-Quote Monat", v:function(){ var y=S.calMonth.getFullYear(), m=S.calMonth.getMonth(); var days=new Date(y,m+1,0).getDate(); var vergangen=0; for(var d=1; d<=days; d++){ var ds=y+"-"+String(m+1).padStart(2,"0")+"-"+String(d).padStart(2,"0"); if (ds<=S.today) vergangen++; } return vergangen? Math.round(monthDoneCount()/vergangen*100)+"%" : "–"; }},
+    {id:"k8", t:"Regentage (14 Tage)", v:function(){ var r = rainDaysNext14(); return r===null ? "Wetter aus" : r + " von 14"; }},
+    {id:"k9", t:"Lauftage diese Woche", v:function(){ var mon=W.weekMonday(S.today); var n=0; for(var i=0;i<7;i++){ if (W.isRunDay(W.addDays(mon,i), S.settings)) n++; } return n + ""; }},
+    {id:"k10", t:"Gesamt erledigte Tage", v:function(){ return totalDoneCount() + ""; }}
+  ],
+  lauf: [
+    {id:"l1", t:"Geschätzte Dauer heute", v:function(){ return $("setDuration") ? $("setDuration").textContent : "–"; }},
+    {id:"l2", t:"Letzte Aktivität", v:function(){ var a=(S.activities||[])[0]; return a ? a.name : "noch keine"; }},
+    {id:"l3", t:"Aktivitäten gesamt", v:function(){ return (S.activities||[]).length + ""; }},
+    {id:"l4", t:"Gesamtkilometer", v:function(){ return (Math.round(sumKm()*10)/10) + " km"; }},
+    {id:"l5", t:"Lieblingssport", v:function(){ return safe(mostCommonActivityType, "noch keins"); }},
+    {id:"l6", t:"Rodeln absolviert", v:function(){ return Object.keys(S.log).filter(function(k){ return S.log[k] && S.log[k].type==="rodeln"; }).length + "×"; }},
+    {id:"l7", t:"Nächster Lauftag", v:function(){ return fmtShortDate(nextRunDayStr()); }},
+    {id:"l8", t:"Cool-down", v:function(){ return (S.uiPrefs && S.uiPrefs.autoCooldown!==false) ? "an" : "aus"; }},
+    {id:"l9", t:"Dehnen diese Woche", v:function(){ var mon=W.weekMonday(S.today); var n=0; for(var i=0;i<7;i++){var d=W.addDays(mon,i); if(S.log[d]&&S.log[d].done&&/dehn|stretch/i.test(S.log[d].type||"")) n++;} return n + "×"; }},
+    {id:"l10", t:"Standarddistanz", v:function(){ return W.effectiveRunDistance(S.settings) + " km"; }}
+  ],
+  daten: [
+    {id:"d1", t:"Trainingstage gesamt", v:function(){ return totalDoneCount() + ""; }},
+    {id:"d2", t:"Aktivitäten importiert", v:function(){ return (S.activities||[]).length + ""; }},
+    {id:"d3", t:"Häufigste Muskelgruppe", v:function(){ return safe(muscleBalanceText, "noch keine Daten"); }},
+    {id:"d4", t:"Cloud-Sync", v:function(){ return (S.sync && S.sync.auto) ? "aktiv" : "aus"; }},
+    {id:"d5", t:"Zuletzt synchronisiert", v:function(){ return (S.sync && S.sync.lastSync) ? new Date(S.sync.lastSync).toLocaleDateString("de-DE") : "nie"; }},
+    {id:"d6", t:"Kalorien gesamt (Log)", v:function(){ var sum=0; Object.keys(S.log).forEach(function(k){ if(S.log[k]&&S.log[k].done) sum += OS.dayBurn(k, S.log, S.activities, S.settings, body()).total; }); return fc(sum); }},
+    {id:"d7", t:"Ø Trainingsdauer", v:function(){ var arr=Object.keys(S.log).filter(function(k){return S.log[k]&&S.log[k].done&&S.log[k].sec;}); if(!arr.length) return "–"; var sum=arr.reduce(function(s,k){return s+S.log[k].sec;},0); return Math.round(sum/arr.length/60)+" Min"; }},
+    {id:"d8", t:"Beste Woche", v:function(){ return safe(function(){ return (window.APP2.computePRs().bestWeek)+" Einheiten"; }, "–"); }},
+    {id:"d9", t:"App-Version", v:function(){ return W.APP_VERSION; }},
+    {id:"d10", t:"Gesamtkilometer", v:function(){ return (Math.round(sumKm()*10)/10) + " km"; }}
+  ],
+  fitness: [
+    {id:"f1", t:"Bereitschaft heute", v:function(){ return OS.readiness(S.log, S.activities, S.today, S.settings).score + "%"; }},
+    {id:"f2", t:"Abzeichen freigeschaltet", v:function(){ return safe(function(){ var pr=window.APP2.computePRs(); return window.APP2.ACHIEVEMENTS.filter(function(a){return a.check(pr);}).length + " / " + window.APP2.ACHIEVEMENTS.length; }, "–"); }},
+    {id:"f3", t:"Nächstes Abzeichen", v:function(){ return safe(nextAchievementProgress, "–"); }},
+    {id:"f4", t:"Müdeste Muskelgruppe", v:function(){ return safe(mostTiredGroup, "keine Belastung"); }},
+    {id:"f5", t:"Längste Serie", v:function(){ return W.longestStreak(S.log) + " Tage"; }},
+    {id:"f6", t:"Ruhetage diese Woche", v:function(){ return restDaysUsedThisWeek() + "×"; }},
+    {id:"f7", t:"Schnellster Lauf", v:function(){ return safe(function(){ var p=window.APP2.computePRs(); return p.bestPaceSec ? W.fmtPace(p.bestPaceSec) : null; }, "noch keiner"); }},
+    {id:"f8", t:"Weiteste Distanz", v:function(){ return safe(function(){ var p=window.APP2.computePRs(); return p.farthestKm>0 ? (Math.round(p.farthestKm*10)/10)+" km" : null; }, "–"); }},
+    {id:"f9", t:"Trainingstage gesamt", v:function(){ return totalDoneCount() + ""; }},
+    {id:"f10", t:"Kalorien diese Woche", v:function(){ var mon=W.weekMonday(S.today); var sum=0; for(var i=0;i<7;i++){var d=W.addDays(mon,i); if(d>S.today) break; sum+=OS.dayBurn(d,S.log,S.activities,S.settings,body()).total;} return fc(sum); }}
+  ],
+  einst: [
+    {id:"e1", t:"App-Version", v:function(){ return W.APP_VERSION; }},
+    {id:"e2", t:"Trainingsziel", v:function(){ return W.GOAL_LABEL[S.settings.goal] || "–"; }},
+    {id:"e3", t:"Cloud-Sync", v:function(){ return (S.sync && S.sync.auto) ? "aktiv" : "aus"; }},
+    {id:"e4", t:"Zuletzt synchronisiert", v:function(){ return (S.sync && S.sync.lastSync) ? new Date(S.sync.lastSync).toLocaleDateString("de-DE") : "nie"; }},
+    {id:"e5", t:"Wetter-Standort", v:function(){ return (S.weather && S.weather.place) || "nicht gesetzt"; }},
+    {id:"e6", t:"Erinnerung", v:function(){ return S.settings.reminder || "aus"; }},
+    {id:"e7", t:"Tonfall", v:function(){ var m={neutral:"neutral", enthu:"enthusiastisch", sachlich:"sachlich"}; return m[(S.uiPrefs&&S.uiPrefs.tone)||"neutral"]; }},
+    {id:"e8", t:"Design", v:function(){ var m={dark:"dunkel", light:"hell", auto:"automatisch"}; return m[(S.uiPrefs&&S.uiPrefs.themeMode)||"dark"]; }},
+    {id:"e9", t:"Feste Ruhetage", v:function(){ return (S.settings.restDays||[]).length + " Wochentage"; }},
+    {id:"e10", t:"Gespeicherte Tage", v:function(){ return totalDoneCount() + ""; }}
+  ]
+};
+
+var DEFAULT_ON = {
+  heute: ["h1","h2","h3","h4"], kalender: ["k1","k2","k3","k4"],
+  lauf: ["l1","l2","l3","l4"], daten: ["d1","d2","d3","d4"],
+  fitness: ["f1","f2","f5","f6"], einst: ["e1","e2","e3","e9"]
+};
+S.widgetsOn = A.store.get("wk_widgets", null) || JSON.parse(JSON.stringify(DEFAULT_ON));
+
+function saveWidgets(){ A.store.set("wk_widgets", S.widgetsOn); }
+
+function renderWidgets(screen){
+  var host = $("widgetArea-" + screen);
+  if (!host) return;
+  var defs = WIDGET_DEFS[screen] || [];
+  var on = S.widgetsOn[screen] || [];
+  host.innerHTML = "";
+  on.forEach(function(id){
+    var def = defs.filter(function(d){ return d.id === id; })[0];
+    if (!def) return;
+    var val;
+    try { val = def.v(); } catch(e){ val = "–"; }
+    var tile = el("div","widget-tile");
+    tile.innerHTML = "<div class='wt-label'>" + esc(def.t) + "</div><div class='wt-value'>" + esc(String(val)) + "</div>";
+    host.appendChild(tile);
+  });
+}
+function renderAllWidgets(){ Object.keys(WIDGET_DEFS).forEach(renderWidgets); }
+
+function openWidgetEditor(screen){
+  var defs = WIDGET_DEFS[screen] || [];
+  var on = S.widgetsOn[screen] || [];
+  var host = $("widgetsList"); host.innerHTML = "";
+  defs.forEach(function(def){
+    var row = el("div","widget-check-row");
+    var val; try { val = def.v(); } catch(e){ val = "–"; }
+    row.innerHTML = "<div class='wl'><b>" + esc(def.t) + "</b><span>" + esc(String(val)) + "</span></div>";
+    var sw = document.createElement("button");
+    sw.className = "sw" + (on.indexOf(def.id) >= 0 ? " on" : "");
+    sw.dataset.id = def.id;
+    sw.onclick = function(){
+      var list = S.widgetsOn[screen] || [];
+      var i = list.indexOf(def.id);
+      if (i >= 0) list.splice(i,1); else list.push(def.id);
+      S.widgetsOn[screen] = list;
+      sw.classList.toggle("on");
+      saveWidgets(); renderWidgets(screen);
+    };
+    row.appendChild(sw);
+    host.appendChild(row);
+  });
+  $("dlgWidgets").showModal ? (function(){ try { $("dlgWidgets").showModal(); } catch(e){ $("dlgWidgets").setAttribute("open",""); } })() : $("dlgWidgets").setAttribute("open","");
+}
+
+document.addEventListener("click", function(e){
+  var b = e.target.closest(".widget-edit-btn");
+  if (b) openWidgetEditor(b.dataset.screen);
+});
+var wc = $("widgetsClose");
+if (wc) wc.addEventListener("click", function(){
+  try { $("dlgWidgets").close(); } catch(e){}
+  $("dlgWidgets").removeAttribute("open");
+});
+
+/* In die bestehende Render-Kette einhängen, wie APP2/APP3/APP4 auch */
+renderAllWidgets();
+
+window.APP5 = {
+  renderWidgets: renderWidgets, renderAllWidgets: renderAllWidgets, WIDGET_DEFS: WIDGET_DEFS,
+  after: function(screen){ renderWidgets(screen); }
+};
 })();
 </script>
 </body>
