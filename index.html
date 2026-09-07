@@ -669,6 +669,14 @@
     <p class="tiny" id="wUpdatedTxt" style="margin:8px 2px 0"></p>
   </div>
 
+  <div class="card" id="readinessCard" style="display:none">
+    <div class="card-h"><h2>Trainingsbereitschaft</h2><span id="readyScoreTxt">–</span></div>
+    <div class="meter"><div class="lbl"><span id="readyLabel">–</span><span id="readyPct">–</span></div>
+      <div class="track"><i id="readyBar" style="width:0%"></i></div></div>
+    <p class="muted" id="readyAdvice" style="margin-top:11px">–</p>
+    <p class="tiny" id="readyTimeTip" style="margin-top:8px;display:none"></p>
+  </div>
+
   <div class="hero" id="hero">
     <div class="kicker" id="heroKicker">Tagestraining</div>
     <h2 id="heroTitle">Ganzkörper</h2>
@@ -695,12 +703,6 @@
   <div class="card">
     <div class="card-h"><h2>Diese Woche</h2><span id="weekRange"></span></div>
     <div class="week" id="weekBar"></div>
-  </div>
-
-  <div class="card">
-    <div class="card-h"><h2>Plan · Soll und Ist</h2><span id="planState">–</span></div>
-    <div id="planList"></div>
-    <div class="why" id="planWhy"></div>
   </div>
 
   <div class="card" id="importCard" style="display:none">
@@ -759,13 +761,13 @@
     <button class="btn accent block" id="btnStretchStart">Dehnprogramm starten</button>
   </div>
 
-  <div id="runBlocks">
   <div class="card">
-    <div class="card-h"><h2>Zielzeiten aus deinen Daten</h2><span id="benchSource">–</span></div>
-    <table class="splits" id="benchTable"></table>
-    <p class="tiny" style="margin-top:10px">Berechnet aus deiner besten Leistung und deinem aktuellen Formstand – keine manuelle Vorgabe nötig.</p>
+    <div class="card-h"><h2>Programm starten</h2><span>Rodeln vorbereiten</span></div>
+    <p class="muted" style="margin-bottom:12px">15 Minuten, extra für Rennrodeln: Rumpf, Beine, Hüfte, Schulter/Arme, Nacken und Füße – Aufwärmen und Mobilisieren gemischt, keine Halteposition. Jede Übung mit genauer Anleitung.</p>
+    <button class="btn accent block" id="btnRodelnStart">Aktiv Vorbereitung Rodeln</button>
   </div>
 
+  <div id="runBlocks">
   <div class="card">
     <div class="card-h"><h2>Distanz wählen</h2></div>
     <div class="dist-row" id="distRow">
@@ -773,28 +775,13 @@
       <div class="dist" data-km="10"><b>10</b><span>km</span></div>
       <div class="dist" data-km="15"><b>15</b><span>km</span></div>
     </div>
-    <div class="stat-row" style="margin-bottom:0">
-      <div class="stat"><b id="runEstTime">–</b><span>Zielzeit</span></div>
-      <div class="stat"><b id="runEstPace">–</b><span>Pace</span></div>
+    <div class="row" style="padding-top:14px">
+      <div class="lab"><b>Eigene Distanz</b></div>
+      <input type="number" id="runCustomKm" min="0.5" max="200" step="0.1" placeholder="km" style="max-width:96px">
     </div>
-    <p class="tiny" id="runEstSource" style="margin:10px 2px 0"></p>
-  </div>
-
-  <div class="card">
-    <div class="card-h"><h2>Kilometer-Plan</h2><span>leicht negativer Split</span></div>
-    <table class="splits" id="splitTable"></table>
-  </div>
-
-  <div class="card" id="trackCard">
-    <div class="card-h"><h2>Lauf-Tracking</h2><span id="trackState">bereit</span></div>
-    <div class="track-time" id="trackTime">0:00</div>
-    <div class="track-sub" id="trackSub">Tippe auf Start und dann bei jedem Kilometer auf „Runde“.</div>
-    <div class="btn-row">
-      <button class="btn runc" id="btnRunStart">Start</button>
-      <button class="btn secondary" id="btnRunLap" disabled>Runde</button>
-      <button class="btn ghost" id="btnRunStop" disabled>Ende</button>
-    </div>
-    <div class="lap-list" id="lapList"></div>
+    <p class="tiny" id="runPlanTxt" style="margin:10px 2px 14px"></p>
+    <button class="btn accent block" id="btnRunDone">Lauf als erledigt markieren</button>
+    <p class="tiny" style="margin-top:10px">Für genaue Zeit, Distanz oder Puls: unten rechts auf <b>+</b> tippen und als „Laufen" erfassen.</p>
   </div>
   </div><!-- /runBlocks -->
 
@@ -1116,8 +1103,16 @@
         <select id="setRunDist"><option value="5">5 km</option><option value="10">10 km</option><option value="15">15 km</option></select>
       </div>
       <div class="row">
-        <div class="lab"><b>Zielzeiten</b><span>Werden automatisch aus deinen Läufen berechnet</span></div>
-        <span id="setAutoPace">–</span>
+        <div class="lab"><b>Eigene Distanz</b><span>Überschreibt die Standarddistanz, wenn ausgefüllt</span></div>
+        <input type="number" id="setRunCustom" min="0.5" max="200" step="0.1" placeholder="z. B. 7.5" style="max-width:96px">
+      </div>
+    </div>
+
+    <div class="sec-label">Ruhetage</div>
+    <div class="card">
+      <div class="row" style="flex-direction:column;align-items:stretch;gap:9px">
+        <div class="lab"><b>Feste Ruhetage</b><span>An diesen Tagen wird keine normale Einheit geplant, damit die Muskeln sich erholen</span></div>
+        <div class="daypick" id="setRestDays"></div>
       </div>
     </div>
   </div>
@@ -1214,7 +1209,7 @@
       <div class="row"><div class="lab"><b>Repository</b></div><input type="text" id="ghRepo" placeholder="trainingsblog-daten" style="max-width:170px"></div>
       <div class="row"><div class="lab"><b>Branch</b></div><input type="text" id="ghBranch" placeholder="main" style="max-width:120px"></div>
       <div class="row"><div class="lab"><b>Dateipfad</b></div><input type="text" id="ghPath" placeholder="trainingsblog-data.json" style="max-width:200px"></div>
-      <div class="row"><div class="lab"><b>Automatisch synchronisieren</b><span>Nach jeder Änderung hochladen</span></div><button class="sw" id="ghAutoSync"></button></div>
+      <div class="row"><div class="lab"><b>Automatisch synchronisieren</b><span>Nach Änderungen und zusätzlich stündlich</span></div><button class="sw" id="ghAutoSync"></button></div>
     </div>
 
     <div class="sec-label">Verschlüsselung</div>
@@ -1332,7 +1327,25 @@
 
 <!-- ==================== ONBOARDING ==================== -->
 <div class="onb" id="onb">
-  <div class="step on" id="onb0">
+  <div class="step on" id="onbClear">
+    <h2>Kurzer Check vorab</h2>
+    <p class="muted">Zwei Fragen, bevor es losgeht. Das ist keine medizinische Untersuchung, nur ein sinnvoller erster Schritt.</p>
+    <div class="card" style="margin:18px 0 14px">
+      <div class="row" style="align-items:flex-start">
+        <div class="lab"><b>Gesundheitliche Einschränkungen?</b><span>Herz-Kreislauf, Gelenke, akute Verletzungen, Schwangerschaft oder eine Operation in den letzten 3 Monaten</span></div>
+        <button class="sw" id="clearQ1"></button>
+      </div>
+      <div class="row" style="align-items:flex-start">
+        <div class="lab"><b>Längere Trainingspause?</b><span>Mehr als 3 Monate keinen Sport gemacht</span></div>
+        <button class="sw" id="clearQ2"></button>
+      </div>
+    </div>
+    <p class="tiny" id="clearWarn" style="display:none;margin-bottom:14px">⚠️ Sprich im Zweifel vorher mit einer Ärztin oder einem Arzt. Die App ersetzt keine medizinische Beratung. Du kannst trotzdem fortfahren – reduziere dann anfangs Tempo und Intensität.</p>
+    <p class="tiny" style="margin-bottom:14px">Mit „Weiter" bestätigst du, dass du auf eigene Verantwortung trainierst und bei Schmerzen sofort abbrichst.</p>
+    <button class="btn accent block" id="clearNext">Weiter</button>
+  </div>
+
+  <div class="step" id="onb0">
     <h2>Was ist dein Ziel?</h2>
     <p class="muted">Danach richtet sich alles: welche Übungen du bekommst, wie viele Wiederholungen und wie lang die Pausen sind. Du kannst das Ziel jederzeit in den Einstellungen wechseln.</p>
     <div id="goalCards" style="margin:18px 0 14px"></div>
@@ -1722,12 +1735,15 @@ var DEFAULT_SETTINGS = {
   runDays: [0],           // fester Rhythmus: Wochentage
   runPlan: {},            // variabel: { "YYYY-MM-DD" (Montag): [Datum, ...] }
   runDistance: 5,         // Standarddistanz in km
+  runDistanceCustom: null,// benutzerdefinierte Distanz in km, überschreibt runDistance wenn gesetzt
   basePaceSec: 390,       // 6:30 min/km als Startwert
+  restDays: [],           // feste wöchentliche Ruhetage (0=So … 6=Sa), hat Vorrang vor allem anderen
   sound: true,
   vibrate: true,
   keepAwake: true,
   theme: "dark",
-  reminder: ""            // "HH:MM" oder leer
+  reminder: "",           // "HH:MM" oder leer
+  cleared: false          // Freigabefragen zu Beginn beantwortet?
 };
 var LEVEL_FACTOR = { leicht: 0.75, normal: 1, hart: 1.25 };
 
@@ -1742,6 +1758,14 @@ function normalizeSettings(s){
   out.restSec = Math.min(45, Math.max(5, Number(out.restSec) || 15));
   out.roundRestSec = Math.min(90, Math.max(10, Number(out.roundRestSec) || 40));
   out.runDistance = [5,10,15].indexOf(Number(out.runDistance)) >= 0 ? Number(out.runDistance) : 5;
+  if (out.runDistanceCustom != null){
+    var rc = Number(out.runDistanceCustom);
+    out.runDistanceCustom = (rc > 0 && rc <= 200) ? Math.round(rc*10)/10 : null;
+  }
+  if (!Array.isArray(out.restDays)) out.restDays = [];
+  out.restDays = out.restDays.map(Number).filter(function(d){ return d >= 0 && d <= 6; })
+                 .filter(function(d,i,a){ return a.indexOf(d) === i; }).sort();
+  out.cleared = !!out.cleared;
   out.basePaceSec = Math.min(900, Math.max(180, Number(out.basePaceSec) || 390));
   if (!LEVEL_FACTOR[out.level]) out.level = "normal";
   if (GOALS.indexOf(out.goal) === -1) out.goal = "erhalt";
@@ -1812,9 +1836,18 @@ function weekMonday(dateStr){
   var d = parseYmd(dateStr);
   return addDays(dateStr, -((d.getDay() + 6) % 7));
 }
+function effectiveRunDistance(settings){
+  var s = normalizeSettings(settings);
+  return s.runDistanceCustom != null ? s.runDistanceCustom : s.runDistance;
+}
+function isFixedRestDay(dateStr, settings){
+  var s = normalizeSettings(settings);
+  return s.restDays.indexOf(parseYmd(dateStr).getDay()) >= 0;
+}
 function isRunDay(dateStr, settings){
   var s = normalizeSettings(settings);
   if (!s.running) return false;
+  if (isFixedRestDay(dateStr, s)) return false; // Ruhetag hat Vorrang vor Lauftag
   if (s.runMode === "variabel"){
     var list = s.runPlan[weekMonday(dateStr)];
     return Array.isArray(list) && list.indexOf(dateStr) >= 0;
@@ -2245,6 +2278,7 @@ var API = {
   normalizeSettings:normalizeSettings, planForDate:planForDate, buildSequence:buildSequence,
   sequenceDuration:sequenceDuration, isRunDay:isRunDay, pickForGroup:pickForGroup,
   ymd:ymd, parseYmd:parseYmd, weekMonday:weekMonday, addDays:addDays, dayIndex:dayIndex, inRange:inRange,
+  effectiveRunDistance:effectiveRunDistance, isFixedRestDay:isFixedRestDay,
   currentStreak:currentStreak, longestStreak:longestStreak, doneInLastDays:doneInLastDays,
   groupVolume:groupVolume, fitnessScore:fitnessScore, estimateRun:estimateRun,
   fmtTime:fmtTime, fmtPace:fmtPace, parseFitnessFile:parseFitnessFile,
@@ -2913,6 +2947,497 @@ var API = {
 };
 for (var k in API) W[k] = API[k];
 root.STRETCH = API;
+if (typeof module !== "undefined" && module.exports) module.exports = API;
+})(typeof globalThis !== "undefined" ? globalThis : this);
+</script>
+<script id="rodelnScript">
+/* ============================================================
+   RODELN VORBEREITEN – dynamisches Aufwärm- & Mobilitätsprogramm
+   Fokus auf rennrodel-relevante Muskeln: Rumpf/Core (die Beine
+   liegen die ganze Fahrt erhöht, der Rumpf hält und steuert),
+   Beine/Hüfte/Fuß (Drucksteuerung über die Kufen, explosiver
+   Start-Abstoß), Schulter/Arme (Zug an den Startgriffen, kurze
+   kraftvolle Eisstöße) und Nacken (Kopfkontrolle unter den
+   Fliehkräften in Rückenlage). Alle Übungen sind Bewegung, keine
+   Halteposition, und laufen frei im Raum – das Handy kann
+   währenddessen einfach am Boden liegen.
+   phase: "warm" (10-Minuten-Ganzkörperblock) oder "mobil"
+   (5-Minuten-Block mit Fokus Fuß/Hüfte/Arme/Kopf) – beide werden
+   im Player gemischt, nicht nacheinander in Blöcken abgespielt.
+   pos = exakte Ausgangsposition, aus = exakte Ausführung.
+   ============================================================ */
+(function(root){
+"use strict";
+var W = root.WK;
+
+var RODELN_CAT = {
+  rumpf: "Rumpf & Core", bein: "Beine", huefte: "Hüfte",
+  arm: "Schulter & Arme", nacken: "Nacken & Kopf", fuss: "Fuß & Sprunggelenk",
+  ganz: "Ganzkörper"
+};
+
+var RODELN = [
+/* ---------------- RUMPF & CORE, dynamisch (18) – warm ---------------- */
+{id:4001,g:"rumpf",phase:"warm",n:"Rumpfrotation im Stand",m:"reps",v:20,
+ pos:"Hüftbreiter Stand, Arme vor der Brust angewinkelt, Ellbogen zeigen zur Seite.",
+ aus:"Rumpf zügig nach rechts drehen, dabei die Hüfte fast ruhig lassen, dann zurück zur Mitte und nach links drehen. Kopf dreht sanft mit, Blick folgt den Ellbogen."},
+{id:4002,g:"rumpf",phase:"warm",n:"Seitliche Rumpfneigung gehend",m:"reps",v:16,
+ pos:"Hüftbreiter Stand, Arme locker seitlich am Körper.",
+ aus:"Rechten Arm über den Kopf strecken und den Oberkörper dabei zügig nach links neigen, linke Hand gleitet am Oberschenkel Richtung Knie. Zurück zur Mitte, Seite wechseln."},
+{id:4003,g:"rumpf",phase:"warm",n:"Bear Crawl vorwärts",m:"time",v:35,
+ pos:"Vierfüßlerstand, Knie schweben zwei Zentimeter über dem Boden, Rücken flach.",
+ aus:"Abwechselnd rechte Hand mit linkem Knie und linke Hand mit rechtem Knie kleine Schritte nach vorn setzen, Hüfte bleibt tief und ruhig. Nach der Zeit umdrehen und zurückkriechen."},
+{id:4004,g:"rumpf",phase:"warm",n:"Mountain Climber locker",m:"time",v:30,
+ pos:"Handstütz, Arme unter den Schultern, Körper eine gerade Linie.",
+ aus:"Abwechselnd ein Knie zügig, aber kontrolliert Richtung Brust ziehen und wieder zurückstrecken, Hüfte bleibt auf gleicher Höhe. Blick bleibt zum Boden, Nacken lang."},
+{id:4005,g:"rumpf",phase:"warm",n:"Plank Walk-out",m:"reps",v:10,
+ pos:"Hüftbreiter Stand, Beine gestreckt, Oberkörper leicht vorgebeugt.",
+ aus:"Mit den Händen langsam nach vorn laufen bis zum Handstütz, kurz die gerade Körperlinie spüren, dann die Hände wieder zurück zu den Füßen laufen und aufrichten."},
+{id:4006,g:"rumpf",phase:"warm",n:"Superman dynamisch",m:"reps",v:16,
+ pos:"Bauchlage, Arme nach vorn gestreckt, Beine lang, Stirn knapp über dem Boden.",
+ aus:"Gleichzeitig Arme, Brust und gestreckte Beine einige Zentimeter vom Boden abheben, kurz die Spannung halten, dann kontrolliert zurück auf den Boden sinken lassen."},
+{id:4007,g:"rumpf",phase:"warm",n:"Liegender Beinüberschlag locker",m:"reps",v:12,
+ pos:"Rückenlage, Arme seitlich ausgestreckt, Beine senkrecht nach oben gestreckt.",
+ aus:"Beide Beine zusammen langsam nach rechts zur Seite absenken, bis kurz vor den Boden, dann durch die Körpermitte zurück nach oben und zur Gegenseite führen."},
+{id:4008,g:"rumpf",phase:"warm",n:"Russian Twist im Sitzen",m:"reps",v:24,
+ pos:"Sitzend, Oberkörper leicht zurückgelehnt, Knie gebeugt, Fersen am Boden, Hände vor der Brust gefaltet.",
+ aus:"Aus dem Rumpf zügig von einer Seite zur anderen drehen, die Hände tippen dabei neben die Hüfte, Rücken bleibt gerade und leicht zurückgelehnt."},
+{id:4009,g:"rumpf",phase:"warm",n:"Hollow-Body-Wippen",m:"time",v:25,
+ pos:"Rückenlage, unterer Rücken fest auf den Boden gedrückt, Arme über dem Kopf lang, Beine gestreckt leicht angehoben.",
+ aus:"In dieser leicht gebogenen Position minimal auf und ab wippen, ohne dass der untere Rücken den Bodenkontakt verliert. Gleichmäßig weiteratmen."},
+{id:4010,g:"rumpf",phase:"warm",n:"Beckenheben im Wechsel",m:"reps",v:20,
+ pos:"Rückenlage, Knie aufgestellt, Füße hüftbreit, Arme flach neben dem Körper.",
+ aus:"Becken zügig anheben bis Schultern, Hüfte und Knie eine Linie bilden, oben kurz halten, dann kontrolliert absenken, ohne den Boden ganz zu berühren, sofort wiederholen."},
+{id:4011,g:"rumpf",phase:"warm",n:"Seitstütz-Hüftpumpen rechts",m:"reps",v:14,
+ pos:"Seitstütz auf dem rechten Unterarm, Füße übereinander, Körper eine gerade Linie.",
+ aus:"Hüfte zügig einige Zentimeter Richtung Boden absenken und wieder anheben, ohne den Boden zu berühren. Der obere Arm zeigt zur Decke."},
+{id:4012,g:"rumpf",phase:"warm",n:"Seitstütz-Hüftpumpen links",m:"reps",v:14,
+ pos:"Seitstütz auf dem linken Unterarm, Füße übereinander, Körper eine gerade Linie.",
+ aus:"Hüfte zügig einige Zentimeter Richtung Boden absenken und wieder anheben, ohne den Boden zu berühren. Der obere Arm zeigt zur Decke."},
+{id:4013,g:"rumpf",phase:"warm",n:"Toe Reach dynamisch",m:"reps",v:16,
+ pos:"Rückenlage, Beine senkrecht nach oben gestreckt, Arme neben dem Körper.",
+ aus:"Oberkörper zügig anheben und mit beiden Händen Richtung Zehenspitzen greifen, dabei kurz die Schulterblätter vom Boden lösen, dann kontrolliert zurücklegen."},
+{id:4014,g:"rumpf",phase:"warm",n:"Liegestütz-Schulterklopfen",m:"reps",v:16,
+ pos:"Hoher Handstütz, Füße etwas breiter als hüftbreit für mehr Stand, Rücken gerade.",
+ aus:"Abwechselnd eine Hand vom Boden lösen und die gegenüberliegende Schulter antippen, Hüfte bleibt dabei so ruhig wie möglich, kein Wackeln nach links oder rechts."},
+{id:4015,g:"rumpf",phase:"warm",n:"Liegender Scherenschlag Rumpf",m:"time",v:30,
+ pos:"Rückenlage, Hände unter dem Gesäß, Beine gestreckt leicht angehoben.",
+ aus:"Beine im Wechsel klein und zügig auf und ab bewegen wie eine Schere, unterer Rücken bleibt die ganze Zeit am Boden."},
+{id:4016,g:"rumpf",phase:"warm",n:"Vierfüßler-Diagonalheben",m:"reps",v:16,
+ pos:"Vierfüßlerstand, Rücken flach, Blick zum Boden.",
+ aus:"Rechten Arm nach vorn und linkes Bein nach hinten strecken, kurz halten, dann zügig unter dem Körper zusammenführen bis Ellbogen und Knie sich fast berühren. Seite wechseln."},
+{id:4017,g:"rumpf",phase:"warm",n:"Sit-up mit Rotation",m:"reps",v:14,
+ pos:"Rückenlage, Knie aufgestellt, Hände leicht an den Schläfen.",
+ aus:"Zügig hochrollen und dabei den rechten Ellbogen Richtung linkes Knie drehen, zurück ablegen, beim nächsten Mal die andere Seite ansteuern."},
+{id:4018,g:"rumpf",phase:"warm",n:"Plank-Jack",m:"reps",v:20,
+ pos:"Unterarmstütz, Ellbogen unter den Schultern, Beine geschlossen und gestreckt.",
+ aus:"Beide Füße gleichzeitig springend nach außen setzen und wieder zusammenspringen, Oberkörper und Hüfte bleiben dabei ruhig und stabil."},
+
+/* ---------------- BEINE, dynamisch (26) – warm ---------------- */
+{id:4019,g:"bein",phase:"warm",n:"Beinschwingen vorwärts-rückwärts rechts",m:"reps",v:14,
+ pos:"Stand auf dem linken Bein, rechte Hand hält sich leicht an einer Wand oder Stuhllehne fest.",
+ aus:"Rechtes Bein locker und mit wachsender Amplitude nach vorn und hinten schwingen, Oberkörper bleibt aufrecht, Becken dreht kaum mit."},
+{id:4020,g:"bein",phase:"warm",n:"Beinschwingen vorwärts-rückwärts links",m:"reps",v:14,
+ pos:"Stand auf dem rechten Bein, linke Hand hält sich leicht an einer Wand oder Stuhllehne fest.",
+ aus:"Linkes Bein locker und mit wachsender Amplitude nach vorn und hinten schwingen, Oberkörper bleibt aufrecht, Becken dreht kaum mit."},
+{id:4021,g:"bein",phase:"warm",n:"Seitliches Beinschwingen rechts",m:"reps",v:14,
+ pos:"Stand auf dem linken Bein, rechte Hand stützt sich leicht ab, Blick nach vorn.",
+ aus:"Rechtes Bein gestreckt seitlich vor dem Körper nach links und wieder nach rechts schwingen, Oberkörper bleibt gerade, Bewegung kommt aus der Hüfte."},
+{id:4022,g:"bein",phase:"warm",n:"Seitliches Beinschwingen links",m:"reps",v:14,
+ pos:"Stand auf dem rechten Bein, linke Hand stützt sich leicht ab, Blick nach vorn.",
+ aus:"Linkes Bein gestreckt seitlich vor dem Körper nach rechts und wieder nach links schwingen, Oberkörper bleibt gerade, Bewegung kommt aus der Hüfte."},
+{id:4023,g:"bein",phase:"warm",n:"Ausfallschritt gehend vorwärts",m:"time",v:35,
+ pos:"Hüftbreiter Stand am Anfang des freien Raums.",
+ aus:"Großen Schritt nach vorn setzen, hinteres Knie sinkt Richtung Boden ohne ihn zu berühren, dann aufstehen und mit dem anderen Bein den nächsten Ausfallschritt nach vorn setzen. So durch den Raum wandern."},
+{id:4024,g:"bein",phase:"warm",n:"Rückwärtiger Ausfallschritt im Wechsel",m:"reps",v:16,
+ pos:"Hüftbreiter Stand, Hände in die Hüften gestützt.",
+ aus:"Mit dem rechten Bein einen großen Schritt nach hinten setzen, Knie sinkt Richtung Boden, dann zügig zurück in den Stand und mit dem linken Bein wiederholen."},
+{id:4025,g:"bein",phase:"warm",n:"Seitlicher Ausfallschritt im Wechsel",m:"reps",v:16,
+ pos:"Breiter Stand, Füße etwas mehr als hüftbreit, Zehen zeigen leicht nach außen.",
+ aus:"Gewicht zügig auf das rechte Bein verlagern, in die Hocke gehen, linkes Bein bleibt gestreckt zur Seite, dann zurück zur Mitte und zur Gegenseite wechseln."},
+{id:4026,g:"bein",phase:"warm",n:"Kniehebelauf auf der Stelle",m:"time",v:30,
+ pos:"Hüftbreiter Stand, Arme locker angewinkelt wie beim Laufen.",
+ aus:"Im lockeren Tempo abwechselnd die Knie bis auf Hüfthöhe anheben, Arme schwingen im Laufrhythmus mit, Fußaufsatz bleibt leise und weich."},
+{id:4027,g:"bein",phase:"warm",n:"Fersenheben im Gehen",m:"time",v:30,
+ pos:"Start am Anfang des freien Raums, aufrechter Stand.",
+ aus:"Kleine Schritte nach vorn gehen, dabei bei jedem Schritt bewusst hoch auf den Fußballen abrollen, bevor der nächste Fuß aufsetzt."},
+{id:4028,g:"bein",phase:"warm",n:"Kniebeuge im Tempo",m:"reps",v:20,
+ pos:"Hüftbreiter bis schulterbreiter Stand, Arme locker vor der Brust.",
+ aus:"Zügig in die Hocke gehen, Fersen bleiben am Boden, Knie zeigen über die Fußspitzen, dann kraftvoll wieder aufrichten, ohne oben ganz durchzuhängen."},
+{id:4029,g:"bein",phase:"warm",n:"Sumo-Kniebeuge mit Pulsen",m:"time",v:30,
+ pos:"Breiter Stand, Fußspitzen zeigen nach außen, Hände vor der Brust gefaltet.",
+ aus:"In die tiefe Hocke gehen und dort in kleinen, zügigen Bewegungen auf und ab pulsieren, Rücken bleibt lang und aufrecht."},
+{id:4030,g:"bein",phase:"warm",n:"Step-up auf niedrige Stufe rechts",m:"reps",v:12,
+ pos:"Stand vor einer stabilen Stufe oder einem festen Tritt, rechter Fuß steht bereits oben.",
+ aus:"Über das rechte Bein hochdrücken bis der Körper oben gestreckt steht, dann kontrolliert wieder mit demselben Bein zurücktreten."},
+{id:4031,g:"bein",phase:"warm",n:"Step-up auf niedrige Stufe links",m:"reps",v:12,
+ pos:"Stand vor einer stabilen Stufe oder einem festen Tritt, linker Fuß steht bereits oben.",
+ aus:"Über das linke Bein hochdrücken bis der Körper oben gestreckt steht, dann kontrolliert wieder mit demselben Bein zurücktreten."},
+{id:4032,g:"bein",phase:"warm",n:"Innenschenkel-Pendel rechts",m:"reps",v:14,
+ pos:"Seitliche Stützhaltung an einer Wand mit der rechten Hand, Körper leicht zur Wand gedreht.",
+ aus:"Linkes Bein leicht vor das rechte kreuzen, dann seitlich wegschwingen und wieder zurückkreuzen, Bewegung bleibt zügig und kontrolliert."},
+{id:4033,g:"bein",phase:"warm",n:"Innenschenkel-Pendel links",m:"reps",v:14,
+ pos:"Seitliche Stützhaltung an einer Wand mit der linken Hand, Körper leicht zur Wand gedreht.",
+ aus:"Rechtes Bein leicht vor das linke kreuzen, dann seitlich wegschwingen und wieder zurückkreuzen, Bewegung bleibt zügig und kontrolliert."},
+{id:4034,g:"bein",phase:"warm",n:"Curtsy Lunge im Wechsel",m:"reps",v:16,
+ pos:"Hüftbreiter Stand, Hände in die Hüften gestützt.",
+ aus:"Mit dem rechten Bein diagonal hinter das linke Bein kreuzen, in die Hocke sinken, dann zurück in den Stand und mit dem linken Bein die Gegenseite ausführen."},
+{id:4035,g:"bein",phase:"warm",n:"Hamstring-Kick vorwärts",m:"reps",v:16,
+ pos:"Hüftbreiter Stand, Arme locker seitlich.",
+ aus:"Beim Gehen die Ferse zügig Richtung Gesäß hochschnellen lassen, kurz antippen, dann wieder absetzen und mit dem anderen Bein fortsetzen, dabei stetig vorwärtsbewegen."},
+{id:4036,g:"bein",phase:"warm",n:"Skater-Sprung locker",m:"reps",v:14,
+ pos:"Stand auf dem rechten Bein, leicht in die Knie gegangen.",
+ aus:"Mit einem seitlichen Sprung aufs linke Bein wechseln, rechtes Bein schwingt locker hinter das linke, dann zurück zur anderen Seite springen. Landung immer weich in den Knien abfedern."},
+{id:4037,g:"bein",phase:"warm",n:"Wadenheben im Stand zügig",m:"reps",v:24,
+ pos:"Hüftbreiter Stand, Hände locker in der Hüfte oder leicht abgestützt.",
+ aus:"Zügig auf die Fußballen hochdrücken, oben kurz halten, dann kontrolliert die Fersen wieder absenken, sofort das nächste Mal hochdrücken."},
+{id:4038,g:"bein",phase:"warm",n:"Ausfallschritt mit Rotation",m:"reps",v:14,
+ pos:"Hüftbreiter Stand, Hände vor der Brust gefaltet.",
+ aus:"Großen Schritt nach vorn ins Ausfallschritt-Knie, dabei den Oberkörper zur Seite des vorderen Beins drehen, zurück zur Mitte drehen, aufstehen und die Seite wechseln."},
+{id:4039,g:"bein",phase:"warm",n:"Frog Jump locker",m:"reps",v:10,
+ pos:"Tiefe Hocke, Hände zwischen den Füßen leicht auf dem Boden.",
+ aus:"Aus der Hocke einen kleinen Sprung nach vorn machen, weich mit erneuter Hocke landen, kurz stabilisieren, dann den nächsten Sprung ausführen."},
+{id:4040,g:"bein",phase:"warm",n:"Adduktoren-Ausfallschritt seitlich gehend",m:"time",v:30,
+ pos:"Breiter Stand am Anfang des freien Raums.",
+ aus:"Großen Schritt zur Seite setzen, in die Hocke über das seitliche Bein sinken, anderes Bein bleibt gestreckt, dann das gestreckte Bein heranziehen und den nächsten Seitschritt setzen. So seitlich durch den Raum wandern."},
+{id:4041,g:"bein",phase:"warm",n:"Ausfallschritt-Pulsen",m:"time",v:25,
+ pos:"Tiefer Ausfallschritt, rechtes Bein vorn, hinteres Knie knapp über dem Boden.",
+ aus:"In dieser Position mehrmals klein und zügig auf und ab pulsieren, Oberkörper bleibt aufrecht, dann Seite wechseln und mit dem linken Bein vorn wiederholen."},
+{id:4042,g:"bein",phase:"warm",n:"Beinkreisen im Liegen rechts",m:"reps",v:10,
+ pos:"Rückenlage, Arme seitlich ausgestreckt, rechtes Bein senkrecht nach oben gestreckt.",
+ aus:"Mit dem gestreckten rechten Bein große, zügige Kreise in die Luft zeichnen, fünf in jede Richtung, das Becken bleibt möglichst ruhig am Boden."},
+{id:4043,g:"bein",phase:"warm",n:"Beinkreisen im Liegen links",m:"reps",v:10,
+ pos:"Rückenlage, Arme seitlich ausgestreckt, linkes Bein senkrecht nach oben gestreckt.",
+ aus:"Mit dem gestreckten linken Bein große, zügige Kreise in die Luft zeichnen, fünf in jede Richtung, das Becken bleibt möglichst ruhig am Boden."},
+{id:4044,g:"bein",phase:"warm",n:"Squat-to-Stand mit Armschwung",m:"reps",v:14,
+ pos:"Hüftbreiter Stand, Arme hängen locker.",
+ aus:"In die tiefe Hocke sinken und dabei die Arme nach hinten schwingen, dann kraftvoll aufrichten und die Arme nach vorn oben schwingen lassen wie beim Absprung."},
+
+/* ---------------- HÜFTE, dynamisch (14) – mobil ---------------- */
+{id:4045,g:"huefte",phase:"mobil",n:"Hüftkreisen im Stand groß",m:"reps",v:10,
+ pos:"Hüftbreiter Stand, Hände auf dem Becken.",
+ aus:"Becken in großen, langsamen Kreisen bewegen, fünf Kreise im Uhrzeigersinn, Oberkörper bleibt möglichst ruhig, nur die Hüfte kreist."},
+{id:4046,g:"huefte",phase:"mobil",n:"Hüftkreisen Gegenrichtung",m:"reps",v:10,
+ pos:"Hüftbreiter Stand, Hände auf dem Becken.",
+ aus:"Becken in großen, langsamen Kreisen gegen den Uhrzeigersinn bewegen, fünf Kreise, Knie bleiben leicht weich."},
+{id:4047,g:"huefte",phase:"mobil",n:"Hüftpendel seitlich im Stand",m:"time",v:25,
+ pos:"Hüftbreiter Stand, Hände locker in der Hüfte.",
+ aus:"Becken zügig von einer Seite zur anderen schieben, Oberkörper bleibt aufrecht und ruhig, nur das Becken pendelt seitlich."},
+{id:4048,g:"huefte",phase:"mobil",n:"90-90-Hüftwechsel",m:"reps",v:10,
+ pos:"Sitzend auf dem Boden, beide Knie im rechten Winkel angewinkelt, ein Bein vorn, eines seitlich abgewinkelt.",
+ aus:"Beide Knie zügig zur anderen Seite kippen lassen, sodass die Beinstellung spiegelverkehrt wird, Hände stützen leicht hinter dem Körper."},
+{id:4049,g:"huefte",phase:"mobil",n:"Beckenkippen dynamisch",m:"reps",v:16,
+ pos:"Hüftbreiter Stand, Knie leicht gebeugt, Hände auf dem unteren Rücken.",
+ aus:"Becken abwechselnd nach vorn kippen, sodass sich der untere Rücken rundet, dann nach hinten kippen, sodass sich ein leichtes Hohlkreuz bildet."},
+{id:4050,g:"huefte",phase:"mobil",n:"Hüftöffner im Vierfüßler rechts",m:"reps",v:12,
+ pos:"Vierfüßlerstand, Rücken flach, rechtes Knie angewinkelt.",
+ aus:"Rechtes Knie seitlich nach außen und oben anheben wie bei einem Hund am Hydranten, dann kontrolliert zurückführen, ohne dass sich der Rücken mitdreht."},
+{id:4051,g:"huefte",phase:"mobil",n:"Hüftöffner im Vierfüßler links",m:"reps",v:12,
+ pos:"Vierfüßlerstand, Rücken flach, linkes Knie angewinkelt.",
+ aus:"Linkes Knie seitlich nach außen und oben anheben wie bei einem Hund am Hydranten, dann kontrolliert zurückführen, ohne dass sich der Rücken mitdreht."},
+{id:4052,g:"huefte",phase:"mobil",n:"Hüftbeuger-Pendel im Ausfallschritt",m:"time",v:30,
+ pos:"Tiefer Ausfallschritt, rechtes Bein vorn, Hände locker auf dem vorderen Oberschenkel.",
+ aus:"Das Becken sanft und zügig nach vorn schieben und wieder zurücknehmen, die Dehnung im hinteren Hüftbeuger dabei bewusst spüren, dann Seite wechseln."},
+{id:4053,g:"huefte",phase:"mobil",n:"Liegende Knie-Rotation",m:"reps",v:14,
+ pos:"Rückenlage, Knie angewinkelt und zusammen, Füße flach auf dem Boden, Arme seitlich ausgestreckt.",
+ aus:"Beide Knie zügig, aber kontrolliert nach rechts zum Boden absenken, kurz antippen, dann durch die Mitte zur linken Seite führen."},
+{id:4054,g:"huefte",phase:"mobil",n:"Stehende Hüftrotation",m:"reps",v:12,
+ pos:"Stand auf dem linken Bein, rechtes Knie angehoben auf Hüfthöhe.",
+ aus:"Das angehobene rechte Knie nach außen öffnen und wieder nach innen schließen, wie ein kleines Scheibenwischen in der Luft, dann Bein wechseln."},
+{id:4055,g:"huefte",phase:"mobil",n:"Hüftschaukeln im Vierfüßler",m:"time",v:25,
+ pos:"Vierfüßlerstand, Hände unter den Schultern, Knie unter der Hüfte.",
+ aus:"Das Gesäß rhythmisch Richtung Fersen zurückschieben und wieder nach vorn in die Ausgangsposition schaukeln, Bewegung bleibt fließend."},
+{id:4056,g:"huefte",phase:"mobil",n:"Cossack-Wechsel dynamisch",m:"reps",v:12,
+ pos:"Sehr breiter Stand, Fußspitzen leicht nach außen.",
+ aus:"Gewicht zügig auf die rechte Seite verlagern und tief in die Hocke sinken, linkes Bein bleibt gestreckt, dann durch die Mitte zur linken Seite wechseln."},
+{id:4057,g:"huefte",phase:"mobil",n:"Liegendes Beinöffnen und -schließen",m:"reps",v:16,
+ pos:"Seitlage, Beine übereinander leicht angewinkelt, Kopf auf dem unteren Arm abgelegt.",
+ aus:"Das obere Knie wie eine Muschel nach oben öffnen, Fersen bleiben zusammen, dann wieder schließen. Nach der Hälfte die Seite wechseln."},
+{id:4058,g:"huefte",phase:"mobil",n:"Stehender Hüftkreis mit angehobenem Knie",m:"reps",v:10,
+ pos:"Stand auf dem linken Bein, rechtes Knie auf Hüfthöhe angehoben.",
+ aus:"Mit dem angehobenen Knie einen großen Kreis in die Luft zeichnen, erst nach außen, dann nach innen, danach das Bein wechseln."},
+
+/* ---------------- SCHULTER & ARME, dynamisch (24) ---------------- */
+{id:4059,g:"arm",phase:"mobil",n:"Armkreisen groß vorwärts",m:"time",v:25,
+ pos:"Hüftbreiter Stand, Arme seitlich waagrecht ausgestreckt.",
+ aus:"Große, langsame Kreise nach vorn ziehen, die Bewegung kommt aus der ganzen Schulter, nicht nur dem Handgelenk."},
+{id:4060,g:"arm",phase:"mobil",n:"Armkreisen groß rückwärts",m:"time",v:25,
+ pos:"Hüftbreiter Stand, Arme seitlich waagrecht ausgestreckt.",
+ aus:"Große, langsame Kreise nach hinten ziehen, Brustkorb bleibt dabei offen, Schultern sinken weg von den Ohren."},
+{id:4061,g:"arm",phase:"warm",n:"Armkreisen klein schnell vorwärts",m:"time",v:20,
+ pos:"Hüftbreiter Stand, Arme seitlich waagrecht ausgestreckt.",
+ aus:"Kleine, schnelle Kreise nach vorn ziehen, Arme bleiben die ganze Zeit auf Schulterhöhe gestreckt."},
+{id:4062,g:"arm",phase:"warm",n:"Armkreisen klein schnell rückwärts",m:"time",v:20,
+ pos:"Hüftbreiter Stand, Arme seitlich waagrecht ausgestreckt.",
+ aus:"Kleine, schnelle Kreise nach hinten ziehen, Arme bleiben die ganze Zeit auf Schulterhöhe gestreckt."},
+{id:4063,g:"arm",phase:"warm",n:"Wechselseitiges Armschwingen",m:"time",v:30,
+ pos:"Hüftbreiter Stand, leichte Kniebeugung, Arme hängen locker vor dem Körper.",
+ aus:"Abwechselnd einen Arm kraftvoll nach vorn oben und den anderen nach hinten schwingen wie beim Skilanglauf, Beine federn im Rhythmus mit."},
+{id:4064,g:"arm",phase:"warm",n:"Boxschläge gerade",m:"time",v:30,
+ pos:"Leichter Kampfstand, Fäuste vor dem Kinn, Knie weich.",
+ aus:"Abwechselnd rechte und linke Faust zügig nach vorn schlagen und zurückziehen, die Hüfte dreht dabei leicht mit, Fäuste kehren sofort zur Deckung zurück."},
+{id:4065,g:"arm",phase:"warm",n:"Boxschläge Aufwärtshaken",m:"time",v:25,
+ pos:"Leichter Kampfstand, Fäuste vor dem Kinn, Knie weich.",
+ aus:"Abwechselnd mit einer Faust einen Aufwärtshaken andeuten, dabei leicht in die Knie gehen und die Hüfte mitdrehen, dann zurück in die Deckung."},
+{id:4066,g:"arm",phase:"mobil",n:"Schulterkreisen vorwärts",m:"time",v:20,
+ pos:"Hüftbreiter Stand, Fingerspitzen berühren die Schultern.",
+ aus:"Die Ellbogen in großen, langsamen Kreisen nach vorn führen, Schulterblätter bewegen sich dabei bewusst mit."},
+{id:4067,g:"arm",phase:"mobil",n:"Schulterkreisen rückwärts",m:"time",v:20,
+ pos:"Hüftbreiter Stand, Fingerspitzen berühren die Schultern.",
+ aus:"Die Ellbogen in großen, langsamen Kreisen nach hinten führen, Brust öffnet sich dabei bewusst nach vorn."},
+{id:4068,g:"arm",phase:"mobil",n:"Armscheren horizontal",m:"time",v:25,
+ pos:"Hüftbreiter Stand, Arme seitlich waagrecht ausgestreckt, Handflächen nach oben.",
+ aus:"Beide Arme zügig vor der Brust kreuzen und wieder öffnen, im Wechsel liegt einmal der rechte, einmal der linke Arm oben."},
+{id:4069,g:"arm",phase:"mobil",n:"Armscheren vertikal",m:"time",v:25,
+ pos:"Hüftbreiter Stand, ein Arm oben, einer unten, beide gestreckt.",
+ aus:"Beide Arme senkrecht aneinander vorbeiführen, oberer Arm sinkt, unterer steigt, zügiger fließender Wechsel."},
+{id:4070,g:"arm",phase:"warm",n:"Paddelzug im Stand",m:"time",v:30,
+ pos:"Hüftbreiter Stand, leichte Vorlage des Oberkörpers, Arme vor dem Körper wie beim Kanufahren.",
+ aus:"Abwechselnd einen Arm kraftvoll nach hinten ziehen, als würde ein Paddel durchs Wasser gezogen, der andere Arm führt gleichzeitig nach vorn."},
+{id:4071,g:"arm",phase:"warm",n:"Startgriff-Zugsimulation",m:"time",v:30,
+ pos:"Hüftbreiter Stand, Oberkörper leicht zurückgelehnt, beide Fäuste auf Brusthöhe wie an Startgriffen.",
+ aus:"Beide Arme schnell und kraftvoll nach hinten unten reißen, als würde man sich an Griffen abstoßen, dann zügig wieder nach vorn oben führen und wiederholen."},
+{id:4072,g:"arm",phase:"warm",n:"Liegestütz-Wippen dynamisch",m:"time",v:25,
+ pos:"Hoher Handstütz, Arme leicht gebeugt, Körper eine gerade Linie.",
+ aus:"In den Armen leicht auf und ab wippen, ohne die Ellbogen ganz durchzustrecken oder den Boden zu berühren, Rumpf bleibt fest."},
+{id:4073,g:"arm",phase:"warm",n:"Wand-Push-off dynamisch",m:"reps",v:14,
+ pos:"Beide Hände schulterbreit an einer Wand, Körper leicht schräg nach vorn geneigt.",
+ aus:"Die Arme beugen, bis sich die Brust der Wand nähert, dann kraftvoll abdrücken, bis die Arme wieder gestreckt sind."},
+{id:4074,g:"arm",phase:"mobil",n:"Schulterblätter-Zusammenziehen dynamisch",m:"reps",v:16,
+ pos:"Hüftbreiter Stand, Arme seitlich im rechten Winkel angehoben, Handflächen nach vorn.",
+ aus:"Die Schulterblätter zügig zusammenziehen, sodass sich die Ellbogen leicht nach hinten bewegen, dann wieder lösen und sofort wiederholen."},
+{id:4075,g:"arm",phase:"warm",n:"Armkreisen im Ausfallschritt",m:"time",v:25,
+ pos:"Tiefer Ausfallschritt, rechtes Bein vorn, Arme seitlich ausgestreckt.",
+ aus:"In der Ausfallschritt-Position die Arme in kleinen, zügigen Kreisen bewegen, nach der Hälfte der Zeit die Beine wechseln."},
+{id:4076,g:"arm",phase:"mobil",n:"Trizeps-Pump im Stand",m:"reps",v:16,
+ pos:"Hüftbreiter Stand, beide Arme über dem Kopf gestreckt.",
+ aus:"Die Unterarme zügig hinter den Kopf beugen und wieder ganz nach oben strecken, Oberarme bleiben dabei möglichst nah am Kopf."},
+{id:4077,g:"arm",phase:"mobil",n:"Handgelenkskreisen mit Armstreckung",m:"time",v:20,
+ pos:"Hüftbreiter Stand, beide Arme vor dem Körper gestreckt, Fäuste locker geballt.",
+ aus:"Beide Handgelenke gleichzeitig in zügigen Kreisen bewegen, zehn Kreise in eine Richtung, dann zehn in die andere."},
+{id:4078,g:"arm",phase:"warm",n:"Faustöffnen im Armschwingen",m:"time",v:20,
+ pos:"Hüftbreiter Stand, Arme locker seitlich am Körper.",
+ aus:"Beide Arme leicht nach vorn und zurück schwingen und dabei im Rhythmus die Fäuste weit öffnen und wieder fest schließen."},
+{id:4079,g:"arm",phase:"warm",n:"Diagonales Armschwingen",m:"time",v:25,
+ pos:"Hüftbreiter Stand, rechter Arm über der linken Schulter, wie zum Axtschwung angesetzt.",
+ aus:"Den rechten Arm diagonal von der linken Schulter nach rechts unten schwingen lassen wie bei einem Holzhieb, Hüfte dreht leicht mit, dann Seite wechseln."},
+{id:4080,g:"arm",phase:"warm",n:"Armzug rückwärts im Ausfallschritt",m:"reps",v:14,
+ pos:"Tiefer Ausfallschritt, rechtes Bein vorn, Oberkörper leicht vorgeneigt, Arme vor dem Körper gestreckt.",
+ aus:"Beide Ellbogen kraftvoll nach hinten ziehen, Schulterblätter zusammenführen, dann Arme wieder nach vorn strecken. Nach der Hälfte Bein und Rhythmus wechseln."},
+{id:4081,g:"arm",phase:"mobil",n:"Seitliches Armheben dynamisch",m:"reps",v:18,
+ pos:"Hüftbreiter Stand, Arme locker seitlich am Körper.",
+ aus:"Beide Arme zügig seitlich bis Schulterhöhe anheben, kurz oben halten, dann kontrolliert wieder absenken, sofort wiederholen."},
+{id:4082,g:"arm",phase:"warm",n:"Kreuzheben-Armschwung",m:"reps",v:16,
+ pos:"Hüftbreiter Stand, Arme seitlich ausgestreckt auf Schulterhöhe.",
+ aus:"Beide Arme vor dem Körper zügig kreuzen, sodass sich die Hände fast berühren, dann wieder weit nach außen öffnen."},
+
+/* ---------------- NACKEN & KOPF, dynamisch (14) – mobil ---------------- */
+{id:4083,g:"nacken",phase:"mobil",n:"Nackenrollen sanft dynamisch",m:"time",v:25,
+ pos:"Aufrechter Sitz oder Stand, Schultern entspannt.",
+ aus:"Den Kopf langsam von einer Schulter zur Brust und zur anderen Schulter rollen, immer im vorderen Halbkreis, niemals in den Nacken hinein."},
+{id:4084,g:"nacken",phase:"mobil",n:"Kopf-Neige-Wechsel seitlich",m:"reps",v:14,
+ pos:"Aufrechter Sitz oder Stand, Blick geradeaus.",
+ aus:"Den Kopf zügig, aber kontrolliert zur rechten Schulter neigen, kurz halten, dann zur Mitte zurück und zur linken Schulter neigen."},
+{id:4085,g:"nacken",phase:"mobil",n:"Kopf-Rotation im Wechsel",m:"reps",v:14,
+ pos:"Aufrechter Sitz oder Stand, Kinn leicht parallel zum Boden.",
+ aus:"Den Kopf zügig so weit wie angenehm möglich nach rechts drehen, zurück zur Mitte, dann nach links drehen, Bewegung bleibt fließend."},
+{id:4086,g:"nacken",phase:"mobil",n:"Kinn-Zieh-Wiederholung",m:"reps",v:14,
+ pos:"Aufrechter Sitz oder Stand, Blick geradeaus.",
+ aus:"Das Kinn gerade nach hinten Richtung Hals ziehen, als würde man ein Doppelkinn formen, kurz halten, dann wieder lösen."},
+{id:4087,g:"nacken",phase:"mobil",n:"Blickführung mit Kopf-Rotation",m:"time",v:25,
+ pos:"Aufrechter Sitz oder Stand, ein Punkt geradeaus fixiert.",
+ aus:"Den Kopf langsam nach rechts drehen, während der Blick möglichst lange auf dem Fixpunkt bleibt, dann zurück zur Mitte und zur linken Seite wiederholen."},
+{id:4088,g:"nacken",phase:"mobil",n:"Nacken-Achter",m:"time",v:25,
+ pos:"Aufrechter Sitz oder Stand, Schultern entspannt.",
+ aus:"Mit der Nase eine liegende Acht in die Luft zeichnen, die Bewegung bleibt klein und ruhig, der Blick folgt der Nase."},
+{id:4089,g:"nacken",phase:"mobil",n:"Kopf-Nick-Wiederholung",m:"reps",v:16,
+ pos:"Aufrechter Sitz oder Stand, Blick geradeaus.",
+ aus:"Das Kinn zügig Richtung Brust senken, dann den Kopf wieder aufrichten bis der Blick geradeaus geht, nicht in den Nacken überstrecken."},
+{id:4090,g:"nacken",phase:"mobil",n:"Schulter-Ohr-Wechsel",m:"reps",v:14,
+ pos:"Aufrechter Stand, Arme hängen locker.",
+ aus:"Die rechte Schulter zügig Richtung Ohr hochziehen, wieder absenken, dann die linke Schulter hochziehen, Kopf bleibt dabei gerade."},
+{id:4091,g:"nacken",phase:"mobil",n:"Nacken-Seitneige im Gehen",m:"time",v:25,
+ pos:"Aufrechter Stand, bereit für kleine Schritte auf der Stelle.",
+ aus:"Locker auf der Stelle gehen und dabei den Kopf im Wechsel sanft zu einer Schulter und dann zur anderen neigen, Schultern bleiben entspannt."},
+{id:4092,g:"nacken",phase:"mobil",n:"Kopfkreisen sehr sanft groß",m:"reps",v:6,
+ pos:"Aufrechter Sitz oder Stand, Schultern entspannt.",
+ aus:"Den Kopf in einem großen, sehr langsamen Halbkreis von einer Schulter über die Brust zur anderen Schulter führen und zurück, nie ganz in den Nacken."},
+{id:4093,g:"nacken",phase:"mobil",n:"Diagonale Kopfneigung im Wechsel",m:"reps",v:14,
+ pos:"Aufrechter Sitz oder Stand, Blick geradeaus.",
+ aus:"Die Nase zügig Richtung rechte Achsel senken, zurück zur Mitte, dann Richtung linke Achsel senken, Bewegung bleibt klein und kontrolliert."},
+{id:4094,g:"nacken",phase:"mobil",n:"Nackenstrecker-Pump",m:"reps",v:16,
+ pos:"Aufrechter Sitz oder Stand, Hand locker am Hinterkopf.",
+ aus:"Den Kopf leicht gegen die Hand nach hinten drücken und sofort wieder lösen, Druck bleibt sanft und die Bewegung ist klein."},
+{id:4095,g:"nacken",phase:"mobil",n:"Blick-Fixierung mit Kopfschwenk",m:"time",v:20,
+ pos:"Aufrechter Sitz oder Stand, ein Finger auf Augenhöhe vor dem Gesicht.",
+ aus:"Den Finger fixieren und den Kopf langsam nach rechts und links schwenken, ohne den Blick vom Finger zu lösen."},
+{id:4096,g:"nacken",phase:"mobil",n:"Kinnkreisen leicht",m:"reps",v:10,
+ pos:"Aufrechter Sitz oder Stand, Mund leicht geschlossen.",
+ aus:"Mit dem Kinn kleine, sanfte Kreise in die Luft zeichnen, fünf in jede Richtung, Bewegung bleibt minimal und locker."},
+
+/* ---------------- FUSS & SPRUNGGELENK, dynamisch (12) – mobil ---------------- */
+{id:4097,g:"fuss",phase:"mobil",n:"Fußkreisen im Sitzen rechts",m:"reps",v:10,
+ pos:"Sitzend, rechtes Bein leicht angehoben, Fuß frei in der Luft.",
+ aus:"Mit dem rechten Fuß große, langsame Kreise zeichnen, fünf im Uhrzeigersinn, fünf gegen den Uhrzeigersinn, nur das Sprunggelenk bewegt sich."},
+{id:4098,g:"fuss",phase:"mobil",n:"Fußkreisen im Sitzen links",m:"reps",v:10,
+ pos:"Sitzend, linkes Bein leicht angehoben, Fuß frei in der Luft.",
+ aus:"Mit dem linken Fuß große, langsame Kreise zeichnen, fünf im Uhrzeigersinn, fünf gegen den Uhrzeigersinn, nur das Sprunggelenk bewegt sich."},
+{id:4099,g:"fuss",phase:"mobil",n:"Zehenspitzen-Fersen-Wippen",m:"time",v:25,
+ pos:"Hüftbreiter Stand, Hände locker in der Hüfte.",
+ aus:"Zügig auf die Zehenspitzen hochkommen, dann auf die Fersen zurückkippen, sodass die Zehen leicht abheben, ein fließender Wechsel."},
+{id:4100,g:"fuss",phase:"mobil",n:"Seitliches Fußabrollen gehend",m:"time",v:25,
+ pos:"Hüftbreiter Stand am Anfang des freien Raums.",
+ aus:"Kleine Schritte seitlich setzen und dabei bewusst über die Außenkante und dann über die Innenkante des Fußes abrollen."},
+{id:4101,g:"fuss",phase:"mobil",n:"Sprunggelenk-Pump im Stand",m:"reps",v:20,
+ pos:"Hüftbreiter Stand, ein Bein leicht vorgestellt, Ferse am Boden, Zehen zeigen nach oben.",
+ aus:"Die Fußspitze des vorderen Fußes zügig nach oben ziehen und wieder absenken, das Sprunggelenk pumpt dabei kräftig, dann Seite wechseln."},
+{id:4102,g:"fuss",phase:"mobil",n:"Zehenheben im Stand",m:"reps",v:18,
+ pos:"Hüftbreiter Stand, Gewicht gleichmäßig auf beiden Füßen.",
+ aus:"Beide Fußspitzen zügig vom Boden abheben, nur auf den Fersen stehen bleiben, kurz halten, dann die Zehen wieder absetzen."},
+{id:4103,g:"fuss",phase:"mobil",n:"Fußgelenk-Wippen im Ausfallschritt",m:"time",v:25,
+ pos:"Leichter Ausfallschritt, hinterer Fuß mit dem Ballen aufgesetzt, Ferse zeigt nach oben.",
+ aus:"Die hintere Ferse zügig Richtung Boden drücken und wieder anheben, das vordere Bein bleibt stabil, dann die Seite wechseln."},
+{id:4104,g:"fuss",phase:"mobil",n:"Ballengang auf der Stelle",m:"time",v:25,
+ pos:"Hüftbreiter Stand, beide Fersen leicht angehoben.",
+ aus:"Auf den Fußballen kleine, zügige Schritte auf der Stelle machen, die Fersen bleiben die ganze Zeit oben, Arme schwingen locker mit."},
+{id:4105,g:"fuss",phase:"mobil",n:"Fersengang auf der Stelle",m:"time",v:25,
+ pos:"Hüftbreiter Stand, beide Zehen leicht angehoben.",
+ aus:"Auf den Fersen kleine, zügige Schritte auf der Stelle machen, die Zehen bleiben die ganze Zeit oben, Schienbeine spüren die Arbeit."},
+{id:4106,g:"fuss",phase:"mobil",n:"Seitliches Fußkanten-Wippen",m:"time",v:20,
+ pos:"Hüftbreiter Stand, Gewicht gleichmäßig verteilt.",
+ aus:"Das Gewicht zügig auf die Außenkanten beider Füße verlagern, kurz halten, dann auf die Innenkanten kippen, immer sanft und kontrolliert."},
+{id:4107,g:"fuss",phase:"mobil",n:"Fußspitzen-Antippen im Wechsel",m:"time",v:25,
+ pos:"Hüftbreiter Stand, leichtes Körpergewicht auf dem Standbein.",
+ aus:"Mit der freien Fußspitze abwechselnd vorn, seitlich und hinten den Boden antippen, wie eine kleine Uhr um den Standfuß, dann Bein wechseln."},
+{id:4108,g:"fuss",phase:"mobil",n:"Sprung-Abfederung leicht",m:"reps",v:12,
+ pos:"Hüftbreiter Stand, leichte Kniebeugung.",
+ aus:"Ganz leicht abspringen, nur wenige Zentimeter hoch, und weich über den ganzen Fuß abrollend landen, Knie federn die Landung ab."},
+
+/* ---------------- GANZKÖRPER, dynamisch (12) – warm ---------------- */
+{id:4109,g:"ganz",phase:"warm",n:"Hampelmann locker",m:"time",v:35,
+ pos:"Hüftbreiter Stand, Arme locker seitlich am Körper.",
+ aus:"Gleichzeitig die Beine seitlich öffnen und die Arme über den Kopf zusammenführen, dann zurück in die Ausgangsposition springen, lockeres Tempo."},
+{id:4110,g:"ganz",phase:"warm",n:"Step-Jack ohne Sprung",m:"time",v:30,
+ pos:"Hüftbreiter Stand, Arme locker seitlich am Körper.",
+ aus:"Abwechselnd ein Bein zur Seite ausstellen und die Arme dabei über den Kopf führen, ohne zu springen, dann zurück und die andere Seite ausführen."},
+{id:4111,g:"ganz",phase:"warm",n:"Marschieren mit großem Armschwung",m:"time",v:30,
+ pos:"Hüftbreiter Stand, bereit zum Gehen auf der Stelle.",
+ aus:"Auf der Stelle marschieren und dabei die Arme mit großer Amplitude gegengleich zu den Knien mitschwingen lassen."},
+{id:4112,g:"ganz",phase:"warm",n:"Skipping locker auf der Stelle",m:"time",v:30,
+ pos:"Hüftbreiter Stand, leichte Grundspannung in den Beinen.",
+ aus:"Locker auf der Stelle von einem Bein aufs andere hüpfen, Knie kommen dabei leicht nach vorn oben, Armeinsatz wie beim Laufen."},
+{id:4113,g:"ganz",phase:"warm",n:"Ganzkörper-Wellenbewegung",m:"reps",v:10,
+ pos:"Hüftbreiter Stand, Arme über dem Kopf gestreckt.",
+ aus:"Von den Fingerspitzen beginnend eine Welle durch den ganzen Körper laufen lassen: Arme, Brust, Bauch und Hüfte nacheinander leicht nach vorn bewegen, dann wieder aufrichten."},
+{id:4114,g:"ganz",phase:"warm",n:"Seitliches Pendellaufen",m:"time",v:30,
+ pos:"Hüftbreiter Stand am Anfang des freien Raums.",
+ aus:"Mehrere schnelle Seitschritte nach rechts setzen, kurz abstoppen, dann mehrere schnelle Seitschritte nach links, Arme helfen beim Abstoppen mit."},
+{id:4115,g:"ganz",phase:"warm",n:"Boxschritt-Kombination",m:"time",v:30,
+ pos:"Leichter Kampfstand, Fäuste vor dem Kinn.",
+ aus:"Locker auf der Stelle von einem Fuß auf den anderen wippen und dabei im Rhythmus einzelne Schläge nach vorn andeuten."},
+{id:4116,g:"ganz",phase:"warm",n:"Lockeres Traben auf der Stelle",m:"time",v:35,
+ pos:"Hüftbreiter Stand, Arme locker angewinkelt.",
+ aus:"In lockerem Lauftempo auf der Stelle traben, Fußaufsatz bleibt weich und leise, Schultern bleiben entspannt."},
+{id:4117,g:"ganz",phase:"warm",n:"Kniehebelauf mit Armzug kombiniert",m:"time",v:30,
+ pos:"Hüftbreiter Stand, Arme locker angewinkelt wie beim Laufen.",
+ aus:"Die Knie zügig auf Hüfthöhe anheben und gleichzeitig die Arme kraftvoll wie beim Startzug nach hinten reißen, dann wieder nach vorn führen."},
+{id:4118,g:"ganz",phase:"warm",n:"Seitgalopp im Raum",m:"time",v:30,
+ pos:"Hüftbreiter Stand am Anfang des freien Raums.",
+ aus:"Im Seitgalopp durch den Raum bewegen: ein Fuß setzt zur Seite, der andere folgt heran, ohne die Füße zu kreuzen, Arme schwingen locker mit."},
+{id:4119,g:"ganz",phase:"warm",n:"Ausfallschritt-Startsimulation",m:"reps",v:10,
+ pos:"Tiefer Ausfallschritt, rechtes Bein vorn, Arme wie an Startgriffen vor dem Körper.",
+ aus:"Kraftvoll aus dem Ausfallschritt nach vorn drücken, dabei die Arme nach hinten reißen wie beim Rodel-Start, dann zurück in den Ausfallschritt und die Seite wechseln."},
+{id:4120,g:"ganz",phase:"warm",n:"Ganzkörper-Ausschütteln dynamisch",m:"time",v:30,
+ pos:"Hüftbreiter Stand, Knie leicht gebeugt, Arme locker.",
+ aus:"Nacheinander beide Arme, dann beide Beine kräftig ausschütteln, dabei den ganzen Körper leicht in Bewegung halten, zum Abschluss tief durchatmen."}
+];
+
+var RODELN_TOTAL_SEC = 900; // 15 Minuten
+var RODELN_MOBIL_SEC = 300; // davon 5 Minuten mit Fokus Fuß/Hüfte/Arme/Kopf
+var RODELN_WARM_SEC = RODELN_TOTAL_SEC - RODELN_MOBIL_SEC;
+
+function rodelnPool(phase){ return RODELN.filter(function(e){ return e.phase === phase; }); }
+
+/* Deterministisch je Tag gemischte Reihenfolge einer Liste (wie shuffled in core.js) */
+function rShuffle(arr, seedStr){
+  var a = arr.slice();
+  var h = 2166136261;
+  for (var i = 0; i < seedStr.length; i++){ h ^= seedStr.charCodeAt(i); h = Math.imul(h, 16777619); }
+  var s = (h >>> 0) || 1;
+  function rnd(){ s ^= s << 13; s >>>= 0; s ^= s >> 17; s ^= s << 5; s >>>= 0; return s / 4294967296; }
+  for (var j = a.length - 1; j > 0; j--){
+    var k = Math.floor(rnd() * (j + 1));
+    var t = a[j]; a[j] = a[k]; a[k] = t;
+  }
+  return a;
+}
+
+/* Füllt einen Zeitbudget-Topf aus einem Pool, ohne eine Übung zu wiederholen,
+   bis das Budget (inklusive kurzer Wechselpause) erreicht ist. */
+function fillBudget(pool, seed, budgetSec, transitionSec){
+  var order = rShuffle(pool, seed);
+  var out = [], used = 0, i = 0;
+  while (used < budgetSec && i < order.length){
+    var e = order[i++];
+    var dur = e.m === "reps" ? Math.max(15, Math.round(e.v * 1.8)) : e.v;
+    out.push({ex:e, dur:dur});
+    used += dur + transitionSec;
+  }
+  return out;
+}
+
+/* Baut das gemischte 15-Minuten-Programm für ein Datum: 10 Minuten aus dem
+   warm-Pool, 5 Minuten aus dem mobil-Pool, danach ineinander verschränkt
+   (nicht als zwei Blöcke hintereinander). */
+function rodelnProgramForDate(dateStr){
+  var idx = W.dayIndex(dateStr || "2026-01-01");
+  var warmItems = fillBudget(rodelnPool("warm"), "rodeln-warm#" + idx, RODELN_WARM_SEC, 6);
+  var mobilItems = fillBudget(rodelnPool("mobil"), "rodeln-mobil#" + idx, RODELN_MOBIL_SEC, 6);
+
+  // Verschränken im Verhältnis etwa 2 Aufwärm- zu 1 Mobil-Übung, nicht als Blöcke.
+  var mixed = [], wi = 0, mi = 0, toggle = 0;
+  while (wi < warmItems.length || mi < mobilItems.length){
+    if (toggle < 2 && wi < warmItems.length){ mixed.push(warmItems[wi++]); toggle++; }
+    else if (mi < mobilItems.length){ mixed.push(mobilItems[mi++]); toggle = 0; }
+    else if (wi < warmItems.length){ mixed.push(warmItems[wi++]); }
+    else { toggle = 0; }
+  }
+  return mixed;
+}
+
+/* Spielbare Abfolge für den bestehenden Player: eine Übung, danach eine
+   kurze Wechselpause, seitenweise Übungen laufen automatisch als zwei
+   Blöcke rechts/links hintereinander. */
+function buildRodelnSequence(dateStr){
+  var items = rodelnProgramForDate(dateStr);
+  var seq = [{type:"warmup", name:"Rodeln vorbereiten", cue:"15 Minuten, im Stehen oder am Boden. Leg das Handy einfach neben dich, du hörst Ton und Ansage.", dur:10, round:0}];
+  items.forEach(function(it, i){
+    var e = it.ex;
+    var label = RODELN_CAT[e.g];
+    var fullCue = e.pos + " " + e.aus;
+    seq.push({
+      type:"work", name:e.n, cue:fullCue, dur:it.dur, round:1, mode:e.m,
+      reps: e.m === "reps" ? e.v : undefined,
+      exIndex:i+1, exTotal:items.length, groupLabel:label, group:e.g
+    });
+    if (i < items.length - 1){
+      seq.push({type:"rest", name:"Wechsel", cue:"Kurz lockern, nächste Übung vorbereiten.", dur:6, round:1});
+    }
+  });
+  seq.push({type:"cooldown", name:"Geschafft", cue:"Rumpf, Beine, Schultern und Nacken sind aufgewärmt und mobilisiert. Gute Fahrt.", dur:10, round:1});
+  return seq;
+}
+function rodelnSequenceDuration(dateStr){
+  return W.sequenceDuration(buildRodelnSequence(dateStr));
+}
+
+var API = {
+  RODELN:RODELN, RODELN_CAT:RODELN_CAT, RODELN_TOTAL_SEC:RODELN_TOTAL_SEC,
+  rodelnPool:rodelnPool, rodelnProgramForDate:rodelnProgramForDate,
+  buildRodelnSequence:buildRodelnSequence, rodelnSequenceDuration:rodelnSequenceDuration
+};
+for (var k in API) W[k] = API[k];
+root.RODELN_API = API;
 if (typeof module !== "undefined" && module.exports) module.exports = API;
 })(typeof globalThis !== "undefined" ? globalThis : this);
 </script>
@@ -3983,7 +4508,8 @@ var S = {
   skin: store.get("wk_skin", "osv2")
 };
 S.calMonth = new Date(W.parseYmd(S.today).getFullYear(), W.parseYmd(S.today).getMonth(), 1);
-S.runKm = S.settings.runDistance;
+S.runKm = W.effectiveRunDistance(S.settings);
+S.runCustomActive = S.settings.runDistanceCustom != null;
 function saveSettings(){ store.set(K.set, S.settings); }
 function applyGoal(goal, keepTuning){
   S.settings.goal = goal;
@@ -4002,10 +4528,10 @@ function setRunning(on){
   applyRunningVisibility();
 }
 function applyRunningVisibility(){
-  var tab = document.querySelector('.tab[data-t="lauf"]');
-  if (tab) tab.style.display = S.settings.running ? "" : "none";
+  // Der Tab selbst bleibt immer sichtbar: er enthält neben dem Lauf auch
+  // Dehnen/Mobility, das Rodeln-Programm und die Mehrsport-Erfassung, die
+  // alle unabhängig vom Laufen-Schalter funktionieren müssen.
   document.documentElement.setAttribute("data-running", S.settings.running ? "on" : "off");
-  if (!S.settings.running && S.screen === "lauf") switchTab("heute");
   var rb = document.getElementById("runBlocks");
   if (rb) rb.style.display = S.settings.running ? "" : "none";
 }
@@ -4086,9 +4612,13 @@ var BREATH_STEPS = [
   ["Halten", "Locker halten, nicht pressen", "4s"],
   ["Ausatmen", "Langsam durch den Mund", "6s"]
 ];
-function isRestDay(dateStr){ return !!S.rests[dateStr]; }
+function isRestDay(dateStr){
+  if (S.rests[dateStr] === 0) return false; // bewusst überschrieben: "Doch normal trainieren"
+  if (S.rests[dateStr] === 1) return true;  // bewusst überschrieben: "Heute schon trainiert" -> Ruhetag
+  return W.isFixedRestDay(dateStr, S.settings); // sonst: fester wöchentlicher Ruhetag
+}
 function setRestDay(dateStr, on){
-  if (on) S.rests[dateStr] = 1; else delete S.rests[dateStr];
+  S.rests[dateStr] = on ? 1 : 0;
   store.set("wk_rests", S.rests);
 }
 
@@ -4353,6 +4883,31 @@ function openSheet(dateStr){
       toast(p.rest ? "Normales Training zurück" : "Entspannungstag gesetzt");
     };
     act.appendChild(bR);
+  }
+  if (S.settings.running){
+    var isFixedRest = W.isFixedRestDay(dateStr, S.settings);
+    var bL = el("button","btn ghost", p.run ? "Lauftag entfernen" : "Als Lauftag festlegen");
+    bL.onclick = function(){
+      if (isFixedRest && !p.run){
+        toast("Das ist ein fester Ruhetag – zuerst in den Einstellungen ändern.");
+        return;
+      }
+      var mon = W.weekMonday(dateStr);
+      S.settings.runMode = "variabel";
+      var list = (S.settings.runPlan[mon] || []).slice();
+      var i = list.indexOf(dateStr);
+      if (i >= 0) list.splice(i,1); else { list.push(dateStr); list.sort(); }
+      S.settings.runPlan[mon] = list;
+      S.settings = W.normalizeSettings(S.settings);
+      saveSettings();
+      renderAll(); openSheet(dateStr);
+      toast(i >= 0 ? "Lauftag entfernt" : "Lauftag festgelegt");
+    };
+    act.appendChild(bL);
+  }
+  // "Als erledigt markieren" bleibt bewusst der letzte Button in der Liste:
+  // mehrere Testabläufe und die Bedienlogik gehen von "letzter Knopf = erledigt" aus.
+  if (dateStr <= S.today){
     var b2 = el("button","btn " + (isDone ? "ghost" : "secondary"), isDone ? "Erledigt entfernen" : "Als erledigt markieren");
     b2.onclick = function(){
       if (isDone) unmark(dateStr); else markDone(dateStr);
@@ -4377,6 +4932,10 @@ function closeSheet(){
    SCREEN: LAUF
    ============================================================ */
 function renderLauf(){
+  if (!S.settings.running){
+    $("runDayInfo").textContent = "Dehnen, Rodeln-Vorbereitung und Mehrsport-Erfassung – Laufen ist in den Einstellungen deaktiviert.";
+    return;
+  }
   var next = nextRunDay();
   var isToday = W.isRunDay(S.today, S.settings);
   $("runDayInfo").textContent = isToday
@@ -4384,20 +4943,14 @@ function renderLauf(){
     : "Nächster Lauftag: " + DAYS_LONG[W.parseYmd(next).getDay()] + ", " + W.parseYmd(next).getDate() + ". " + MONTHS[W.parseYmd(next).getMonth()];
 
   Array.prototype.forEach.call(document.querySelectorAll("#distRow .dist"), function(d){
-    d.classList.toggle("sel", Number(d.dataset.km) === S.runKm);
+    d.classList.toggle("sel", Number(d.dataset.km) === S.runKm && !S.runCustomActive);
   });
+  var ci = $("runCustomKm");
+  if (document.activeElement !== ci) ci.value = S.runCustomActive ? S.runKm : "";
 
-  var est = W.estimateRun(S.runKm, S.activities, S.log, S.today, S.settings);
-  $("runEstTime").textContent = W.fmtTime(est.seconds);
-  $("runEstPace").textContent = W.fmtPace(est.paceSec).replace(" min/km","");
-  $("runEstSource").textContent = "Zielzeit " + est.source + ". Pace in min/km.";
-
-  var t = $("splitTable");
-  t.innerHTML = "<tr><th>km</th><th>Split</th><th style='text-align:right'>gesamt</th></tr>";
-  est.splits.forEach(function(s){
-    var tr = el("tr", null, "<td>"+s.km+"</td><td>"+W.fmtTime(s.split)+"</td><td>"+W.fmtTime(s.total)+"</td>");
-    t.appendChild(tr);
-  });
+  var already = !!(S.log[S.today] && S.log[S.today].done);
+  $("runPlanTxt").textContent = "Geplant: " + S.runKm + " km" + (already ? " · heute bereits erledigt" : "");
+  $("btnRunDone").textContent = already ? "Als nicht erledigt zurücksetzen" : "Lauf als erledigt markieren";
 }
 function nextRunDay(){
   for (var i=0;i<8;i++){
@@ -4406,74 +4959,18 @@ function nextRunDay(){
   }
   return S.today;
 }
-
-/* ---------- Lauf-Tracking ---------- */
-var run = {active:false, start:0, elapsed:0, laps:[], timer:null, paused:false};
-function runTick(){
-  run.elapsed = Math.floor((Date.now() - run.start)/1000);
-  $("trackTime").textContent = W.fmtTime(run.elapsed);
-  var est = W.estimateRun(S.runKm, S.activities, S.log, S.today, S.settings);
-  var kmDone = run.laps.length;
-  var target = est.splits[Math.min(kmDone, est.splits.length-1)];
-  var diff = kmDone > 0 ? run.elapsed - est.splits[kmDone-1].total : 0;
-  $("trackSub").textContent = kmDone + " von " + S.runKm + " km" +
-    (kmDone > 0 ? " · " + (diff <= 0 ? "▼ " : "▲ ") + W.fmtTime(Math.abs(diff)) + " zur Zielzeit" : "") +
-    (target ? " · nächster km bei " + W.fmtTime(target.total) : "");
-}
-function runStart(){
-  run.active = true; run.paused = false; run.laps = [];
-  run.start = Date.now(); run.elapsed = 0;
-  run.timer = setInterval(runTick, 250);
-  $("btnRunStart").textContent = "Pause";
-  $("btnRunLap").disabled = false; $("btnRunStop").disabled = false;
-  $("trackState").textContent = "läuft";
-  $("lapList").innerHTML = "";
-  keepAwake(true); beep(880,120); buzz(60);
-  runTick();
-}
-function runPause(){
-  if (run.paused){
-    run.start = Date.now() - run.elapsed*1000;
-    run.timer = setInterval(runTick, 250);
-    run.paused = false; $("btnRunStart").textContent = "Pause"; $("trackState").textContent = "läuft";
-  } else {
-    clearInterval(run.timer); run.timer = null;
-    run.paused = true; $("btnRunStart").textContent = "Weiter"; $("trackState").textContent = "pausiert";
+var runDoneCooldownTimer = null;
+function markRunDone(){
+  if (S.log[S.today] && S.log[S.today].done){
+    clearTimeout(runDoneCooldownTimer);
+    unmark(S.today); toast("Eintrag entfernt"); renderAll(); return;
   }
-}
-function runLap(){
-  if (!run.active) return;
-  var prev = run.laps.length ? run.laps[run.laps.length-1].total : 0;
-  run.laps.push({km:run.laps.length+1, split:run.elapsed - prev, total:run.elapsed});
-  beep(1046,90); buzz([40,60,40]);
-  var l = run.laps[run.laps.length-1];
-  var est = W.estimateRun(S.runKm, S.activities, S.log, S.today, S.settings);
-  var tgt = est.splits[l.km-1];
-  $("lapList").insertBefore(
-    row("Kilometer " + l.km, tgt ? "Ziel " + W.fmtTime(tgt.split) : "Extra-Kilometer", W.fmtTime(l.split), "var(--run)"),
-    $("lapList").firstChild);
-  runTick();
-  if (run.laps.length >= S.runKm) toast("Distanz geschafft – stark!");
-}
-function runStop(){
-  clearInterval(run.timer); run.timer = null;
-  var sec = run.elapsed, km = run.laps.length || S.runKm;
-  run.active = false; run.paused = false;
-  $("btnRunStart").textContent = "Start";
-  $("btnRunLap").disabled = true; $("btnRunStop").disabled = true;
-  $("trackState").textContent = "bereit";
-  keepAwake(false);
-  if (sec < 60){ toast("Lauf verworfen (zu kurz)"); $("trackTime").textContent = "0:00"; return; }
-  var merged = W.mergeActivities(S.activities, [{
-    date:S.today, name:"Lauf (App)", type:"Lauf",
-    distanceKm:km, durationSec:sec, calories:Math.round(km*62), steps:0, avgHr:0, source:"App"
-  }]);
-  S.activities = merged.list; saveAct();
-  markDone(S.today, {type:"run", km:km, sec:sec});
+  markDone(S.today, {type:"run", km:S.runKm});
   beep(660,180); setTimeout(function(){ beep(880,260); }, 190);
-  toast(km + " km in " + W.fmtTime(sec) + " gespeichert");
+  toast(S.runKm + " km als erledigt gespeichert"); buzz(50);
   renderAll();
-  if (window.APP3) setTimeout(function(){
+  clearTimeout(runDoneCooldownTimer);
+  if (window.APP3) runDoneCooldownTimer = setTimeout(function(){
     if (confirm("Kurzes Cool-down für die Beine? Etwa zwei Minuten Dehnen.")) window.APP3.startCoolDown(true);
   }, 400);
 }
@@ -4702,6 +5199,9 @@ function fillSettings(){
   sw("setWarmup", S.settings.warmup);
   sw("setCooldown", S.settings.cooldown);
   $("setRunDist").value = String(S.settings.runDistance);
+  if (document.activeElement !== $("setRunCustom")){
+    $("setRunCustom").value = S.settings.runDistanceCustom != null ? S.settings.runDistanceCustom : "";
+  }
   sw("setSound", S.settings.sound);
   sw("setVibrate", S.settings.vibrate);
   sw("setAwake", S.settings.keepAwake);
@@ -4757,6 +5257,7 @@ function closePlayer(){
   stopTimer(); P.open = false;
   $("player").classList.remove("open");
   keepAwake(false);
+  S.activeProgram = null;
   renderAll();
 }
 function typeLabel(t){
@@ -4839,14 +5340,26 @@ function prev(){
 }
 function finishWorkout(){
   stopTimer();
-  markDone(S.today, {sec: W.sequenceDuration(P.seq)});
+  var extra = {sec: W.sequenceDuration(P.seq)};
+  if (S.activeProgram === "rodeln"){
+    extra.type = "rodeln";
+    extra.ex = [];
+    var map = {rumpf:"bauch", bein:"beine", huefte:"beine", fuss:"beine", arm:"arme", nacken:"ruecken", ganz:"cardio"};
+    var seen = {};
+    extra.groups = P.seq.filter(function(s){ return s.type === "work" && s.group; })
+      .map(function(s){ return map[s.group] || null; })
+      .filter(function(g){ return g && !seen[g] && (seen[g] = true); });
+  }
+  markDone(S.today, extra);
   keepAwake(false);
   var streak = W.currentStreak(S.log, S.today);
   $("ovTag").className = "ov-tag t-work";
   $("ovTagText").textContent = "Geschafft";
   $("ovName").textContent = "Training erledigt";
   $("ovTarget").textContent = "🔥 " + streak + " Tage Streak";
-  $("ovCue").textContent = planToday().rest
+  $("ovCue").textContent = S.activeProgram === "rodeln"
+    ? "Rumpf, Beine, Schultern und Nacken sind aufgewärmt und mobilisiert. Der heutige Tag ist im Logbuch erledigt."
+    : planToday().rest
     ? "Zwei Minuten bewusste Atmung sind erfasst. Dein Streak läuft weiter, morgen geht es normal weiter."
     : "Du hast heute alle sechs Muskelgruppen trainiert. Morgen warten neue Übungen.";
   $("ovNext").textContent = "";
@@ -4940,11 +5453,21 @@ function bind(){
     var d = e.target.closest(".dist");
     if (!d) return;
     S.runKm = Number(d.dataset.km);
+    S.runCustomActive = false;
     renderLauf();
   });
-  $("btnRunStart").addEventListener("click", function(){ if (!run.active) runStart(); else runPause(); });
-  $("btnRunLap").addEventListener("click", runLap);
-  $("btnRunStop").addEventListener("click", runStop);
+  $("runCustomKm").addEventListener("input", function(e){
+    var v = parseFloat(e.target.value);
+    if (v > 0 && v <= 200){
+      S.runKm = Math.round(v*10)/10;
+      S.runCustomActive = true;
+      Array.prototype.forEach.call(document.querySelectorAll("#distRow .dist"), function(d){
+        d.classList.remove("sel");
+      });
+      $("runPlanTxt").textContent = "Geplant: " + S.runKm + " km";
+    }
+  });
+  $("btnRunDone").addEventListener("click", markRunDone);
 
   // Daten
   $("drop").addEventListener("click", function(){ $("fileInput").click(); });
@@ -4998,7 +5521,20 @@ function bind(){
     });
   });
   $("setRunDist").addEventListener("change", function(e){
-    S.settings.runDistance = Number(e.target.value); S.runKm = S.settings.runDistance; saveSettings();
+    S.settings.runDistance = Number(e.target.value);
+    S.settings.runDistanceCustom = null; saveSettings();
+    S.runKm = S.settings.runDistance; S.runCustomActive = false;
+    fillSettings();
+  });
+  $("setRunCustom").addEventListener("input", function(e){
+    var v = parseFloat(e.target.value);
+    if (v > 0 && v <= 200){
+      S.settings.runDistanceCustom = Math.round(v*10)/10; saveSettings();
+      S.runKm = S.settings.runDistanceCustom; S.runCustomActive = true;
+    } else if (e.target.value === ""){
+      S.settings.runDistanceCustom = null; saveSettings();
+      S.runKm = S.settings.runDistance; S.runCustomActive = false;
+    }
   });
   $("setReminder").addEventListener("change", function(e){
     S.settings.reminder = e.target.value; saveSettings(); setupReminder();
@@ -5075,7 +5611,7 @@ window.APP = {
   saveSettings:saveSettings, saveLog:saveLog, saveAct:saveAct, renderAll:renderAll,
   switchTab:switchTab, applyTheme:applyTheme, fillSettings:fillSettings, totalDone:totalDone,
   handleFiles:handleFiles, player:P, renderPlayer:renderPlayer, openPlayer:openPlayer, closePlayer:closePlayer, keepAwake:keepAwake, storageOk:storageOk,
-  MONTHS:MONTHS, DAYS_SHORT:DAYS_SHORT, DAYS_LONG:DAYS_LONG, run:run,
+  MONTHS:MONTHS, DAYS_SHORT:DAYS_SHORT, DAYS_LONG:DAYS_LONG,
   collectFullState:collectFullState, applyFullState:applyFullState,
   openSheet:openSheet, closeSheet:closeSheet
 };
@@ -5121,7 +5657,7 @@ try{
    ============================================================ */
 (function(){
 "use strict";
-var A = window.APP, W = window.WK, OS = window.OS;
+var A = window.APP, W = window.WK, OS = window.OS, WT = window.WEATHER;
 var S = A.S, $ = A.$, el = A.el, esc = A.esc, row = A.row;
 
 var pane = "overview";
@@ -5323,69 +5859,60 @@ function openShareBig(){
 function closeShareBig(){ $("shareOver").classList.remove("open"); }
 
 /* ============================================================
-   PLAN · Soll/Ist + Reparatur
+   TRAININGSBEREITSCHAFT (ersetzt die frühere Plan-Soll/Ist-Karte)
    ============================================================ */
-function renderPlan(){
-  var a = analysis();
+function renderReadinessCard(){
+  var card = $("readinessCard");
+  if (!card) return;
+  card.style.display = "";
   var rd = OS.readiness(S.log, S.activities, S.today, S.settings);
-  var rep = OS.repairTraining(a, rd.score, S.settings);
-  var mon = OS.isoMonday(S.today);
-  var host = $("planList"); host.innerHTML = "";
-  var doneCount = 0;
+  $("readyScoreTxt").textContent = rd.score + " / 100";
+  $("readyLabel").textContent = rd.label;
+  $("readyPct").textContent = rd.score + "%";
+  $("readyBar").style.width = rd.score + "%";
+  $("readyBar").style.background = rd.score >= 55 ? "var(--run)" : "var(--work)";
 
-  // Die Reparatur trifft genau einen Tag: bevorzugt heute, sonst den
-  // nächsten Zirkeltag der Woche.
-  var target = null;
-  for (var k = 0; k < 7 && rep.change; k++){
-    var cand = W.addDays(mon, k);
-    var cp = A.getPlan(cand);
-    if (cp.run || cp.rest) continue;
-    if (target === null) target = cand;
-    if (cand === S.today){ target = cand; break; }
+  var isRestDay = W.isFixedRestDay ? W.isFixedRestDay(S.today, S.settings) : false;
+  var advice;
+  if (isRestDay) advice = "Heute ist ein fester Ruhetag – bewusst nichts trainieren, das gehört zum Plan.";
+  else if (rd.score >= 75) advice = "Du bist frisch. Ein guter Tag für eine anspruchsvollere Einheit.";
+  else if (rd.score >= 55) advice = "Solide Basis – das reguläre Training passt heute gut.";
+  else if (rd.score >= 35) advice = "Etwas belastet. Heute lieber die leichtere Stufe oder kürzer trainieren.";
+  else advice = "Deine Werte sprechen für eine Pause oder nur eine sehr leichte Einheit.";
+  $("readyAdvice").textContent = advice;
+
+  var tip = $("readyTimeTip");
+  var bestHour = suggestBestTrainingHour();
+  if (bestHour){
+    tip.style.display = "";
+    tip.textContent = "🌤️ Beste Trainingszeit heute laut Wetter: gegen " + bestHour.hour + " Uhr (" +
+      bestHour.temp + "°, " + bestHour.label + ").";
+  } else {
+    tip.style.display = "none";
   }
-
-  for (var i = 0; i < 7; i++){
-    var ds = W.addDays(mon, i);
-    var p = A.getPlan(ds);
-    var done = !!(S.log[ds] && S.log[ds].done);
-    if (done) doneCount++;
-    var r = el("div", "planrow" + (ds === S.today ? " today" : "") + (done ? " done" : ""));
-    r.appendChild(el("div", "d", A.DAYS_SHORT[W.parseYmd(ds).getDay()]));
-
-    var text;
-    if (p.rest){
-      text = "Entspannung · 2 Minuten Atemübung";
-    } else if (p.run){
-      text = "Lauf · " + S.settings.runDistance + " km";
-    } else {
-      text = "Zirkel · " + S.settings.rounds + " Runden · " + p.exercises.length + " Übungen";
-      if (rep.change && ds === target && rep.change.kind === "focus"){
-        text = "Zirkel · <s>" + esc(rep.change.from) + "</s> <em>" + esc(rep.change.to) + "</em>" +
-               "<span class='mark'>geändert</span>";
-        r.classList.add("changed");
-      } else if (rep.change && ds === target && rep.change.kind === "rounds"){
-        text = "Zirkel · <s>" + esc(rep.change.from) + "</s> <em>" + esc(rep.change.to) + "</em>" +
-               "<span class='mark'>geändert</span>";
-        r.classList.add("changed");
-      } else if (rep.change && ds === target && rep.change.kind === "level"){
-        text = "Zirkel · <s>" + esc(rep.change.from) + "</s> <em>" + esc(rep.change.to) + "</em>" +
-               "<span class='mark'>geändert</span>";
-        r.classList.add("changed");
-      }
+}
+/* Sucht in den nächsten Stunden des Wettercaches das angenehmste Zeitfenster
+   zwischen 6 und 20 Uhr (wenig Regen, moderate Temperatur). Rein optional –
+   ohne Wetterdaten liefert die Funktion einfach nichts. */
+function suggestBestTrainingHour(){
+  if (!window.APP4 || !S.weather || !S.weather.enabled || !S.weatherCache) return null;
+  var hours = (S.weatherCache.data && S.weatherCache.data.hours) || [];
+  if (!hours.length) return null;
+  var best = null, bestScore = -1;
+  hours.forEach(function(h){
+    var t = new Date(h.time);
+    var hour = t.getHours();
+    if (hour < 6 || hour > 20) return;
+    var pop = h.pop == null ? 20 : h.pop;
+    var tempPenalty = Math.abs(h.temp - 16); // 16°C als angenehmer Richtwert
+    var score = 100 - pop - tempPenalty * 3;
+    if (score > bestScore){
+      bestScore = score;
+      var info = WT.wmoInfo(h.code);
+      best = {hour: hour + ":00", temp: h.temp, label: info[1]};
     }
-    var t = el("div", "t", text);
-    r.appendChild(t);
-    r.appendChild(el("div", "chk", done ? "✓" : ""));
-    host.appendChild(r);
-  }
-  $("planState").textContent = doneCount + " / 7 erledigt";
-
-  var why = $("planWhy");
-  why.innerHTML = "";
-  why.appendChild(el("p", null, esc(rep.reason)));
-  var pf = el("div", "proof");
-  fillProof(pf, rep.proof);
-  why.appendChild(pf);
+  });
+  return best;
 }
 
 /* ============================================================
@@ -5589,11 +6116,11 @@ function parseInWorker(name, text){
   });
 }
 function onbStep(n){
-  ["onb0","onb1","onb2","onb3"].forEach(function(id, i){
+  ["onbClear","onb0","onb1","onb2","onb3"].forEach(function(id, i){
     $(id).classList.toggle("on", i === n);
   });
 }
-var onbGoal = "erhalt", onbRunning = true;
+var onbGoal = "erhalt", onbRunning = true, onbClearQ1 = false, onbClearQ2 = false;
 function renderGoalCards(){
   var host = $("goalCards"); host.innerHTML = "";
   W.GOALS.forEach(function(g){
@@ -5618,7 +6145,7 @@ function onbFiles(files){
       A.saveAct();
       invalidate();
       showReadout(f.name, items);
-      onbStep(2);
+      onbStep(3);
     });
   };
   fr.readAsText(f);
@@ -5843,11 +6370,31 @@ function bind(){
     A.applyGoal(onbGoal);
     A.setRunning(onbRunning);
     A.fillSettings();
+    onbStep(2);
+  });
+  $("clearQ1").addEventListener("click", function(){
+    onbClearQ1 = !onbClearQ1;
+    $("clearQ1").classList.toggle("on", onbClearQ1);
+    $("clearWarn").style.display = (onbClearQ1 || onbClearQ2) ? "" : "none";
+  });
+  $("clearQ2").addEventListener("click", function(){
+    onbClearQ2 = !onbClearQ2;
+    $("clearQ2").classList.toggle("on", onbClearQ2);
+    $("clearWarn").style.display = (onbClearQ1 || onbClearQ2) ? "" : "none";
+  });
+  $("clearNext").addEventListener("click", function(){
+    S.settings.cleared = true;
+    if (onbClearQ1 || onbClearQ2){
+      // sanfter Einstieg: Intensität in Schritt 3 auf "leicht" vorbelegen
+      Array.prototype.forEach.call($("onbLevel").children, function(x){ x.classList.toggle("on", x.dataset.v === "leicht"); });
+      S.settings.level = "leicht";
+    }
+    A.saveSettings();
     onbStep(1);
   });
-  $("onbBack").addEventListener("click", function(){ onbStep(0); });
+  $("onbBack").addEventListener("click", function(){ onbStep(1); });
   $("onbSkip").addEventListener("click", finishOnb);
-  $("onbNext").addEventListener("click", function(){ onbStep(3); });
+  $("onbNext").addEventListener("click", function(){ onbStep(4); });
   $("onbLevel").addEventListener("click", function(e){
     var b = e.target.closest("button"); if (!b) return;
     Array.prototype.forEach.call($("onbLevel").children, function(x){ x.classList.toggle("on", x === b); });
@@ -5881,7 +6428,7 @@ window.APP2 = {
   invalidate: invalidate,
   after: function(screen){
     invalidate();
-    if (screen === "heute"){ renderPlan(); renderBurnChip(); }
+    if (screen === "heute"){ renderReadinessCard(); renderBurnChip(); }
     if (screen === "daten") setSeg(pane);
     if (screen === "fitness") renderReadiness();
     if (screen === "einst") fillOsSettings();
@@ -6037,28 +6584,23 @@ function renderRunDays(){
     })(i);
   }
 }
-
-/* ============================================================
-   MODUL 3 – Zielzeiten aus den eigenen Daten
-   ============================================================ */
-function renderBenchmarks(){
-  var t = $("benchTable");
-  if (!t) return;
-  var b = OS.benchmarks(S.activities, S.log, S.today, S.settings);
-  $("benchSource").textContent = b.base.best ? b.base.source : "noch keine Läufe";
-  t.innerHTML = "<tr><th>Distanz</th><th>Zielzeit</th><th style='text-align:right'>Pace</th></tr>";
-  b.list.forEach(function(x){
-    var label = (x.km === 21.1 ? "21,1" : String(x.km)) + " km";
-    var best = x.best ? "<br><span class='tiny'>Best " + W.fmtTime(x.best) + "</span>" : "";
-    t.appendChild(el("tr", null,
-      "<td>" + label + "</td><td>" + W.fmtTime(x.target) + best + "</td>" +
-      "<td style='text-align:right'>" + W.fmtPace(x.paceSec).replace(" min/km","") + "</td>"));
+function renderRestDaySettings(){
+  var host = $("setRestDays");
+  if (!host) return;
+  host.innerHTML = "";
+  DAY_ORDER.forEach(function(d){
+    var b = el("button", (S.settings.restDays.indexOf(d) >= 0 ? "on" : ""), A.DAYS_SHORT[d]);
+    b.onclick = function(){
+      var list = S.settings.restDays.slice();
+      var i = list.indexOf(d);
+      if (i >= 0) list.splice(i,1); else list.push(d);
+      S.settings.restDays = list;
+      S.settings = W.normalizeSettings(S.settings);
+      A.saveSettings(); renderRestDaySettings(); A.renderAll();
+      A.toast(i >= 0 ? "Ruhetag entfernt" : "Ruhetag festgelegt");
+    };
+    host.appendChild(b);
   });
-  var ap = $("setAutoPace");
-  if (ap){
-    var five = b.list.filter(function(x){ return x.km === 5; })[0];
-    ap.textContent = five ? "5 km in " + W.fmtTime(five.target) : "–";
-  }
 }
 
 /* ============================================================
@@ -6217,7 +6759,6 @@ function deleteSport(){
 function recalcEverything(){
   if (window.APP2 && window.APP2.invalidate) window.APP2.invalidate();
   A.renderAll();
-  renderBenchmarks();
   renderSportLog();
 }
 function renderSportLog(){
@@ -6364,7 +6905,7 @@ function applyDoneState(){
   var e = S.log[S.today];
   var card = el("div","card donecard");
   card.id = "doneCard";
-  var what = e.type === "rest" ? "Entspannungstag" : e.type === "run" ? "Lauf" : "Tagestraining";
+  var what = e.type === "rest" ? "Entspannungstag" : e.type === "run" ? "Lauf" : e.type === "rodeln" ? "Rodeln vorbereiten" : "Tagestraining";
   card.innerHTML =
     '<div class="big">🎉</div>' +
     '<h2>Training heute erfolgreich absolviert!</h2>' +
@@ -6409,6 +6950,11 @@ function bind(){
 
   // Dehnen
   $("btnStretchStart").addEventListener("click", openStretchDialog);
+  $("btnRodelnStart").addEventListener("click", function(){
+    if (!W.buildRodelnSequence) { A.toast("Programm nicht verfügbar"); return; }
+    S.activeProgram = "rodeln";
+    A.openPlayer(W.buildRodelnSequence(S.today));
+  });
   $("stretchClose").addEventListener("click", function(){ closeDlg("dlgStretch"); });
   $("stretchMins").addEventListener("click", function(e){
     var b = e.target.closest("button"); if (!b) return;
@@ -6441,14 +6987,14 @@ function decorateActivityList(){
 window.APP3 = {
   after: function(screen){
     if (screen === "heute") applyDoneState();
-    if (screen === "lauf"){ renderBenchmarks(); renderSportLog(); }
-    if (screen === "einst"){ renderRunDays(); renderColorRows(); renderBenchmarks(); }
+    if (screen === "lauf"){ renderSportLog(); }
+    if (screen === "einst"){ renderRunDays(); renderRestDaySettings(); renderColorRows(); }
     if (screen === "daten") decorateActivityList();
   },
   openSportDialog: openSportDialog,
   startCoolDown: startCoolDown,
   applyColors: applyColors,
-  renderRunDays: renderRunDays
+  renderRunDays: renderRunDays, renderRestDaySettings: renderRestDaySettings
 };
 
 applyColors();
@@ -6784,17 +7330,34 @@ function doClear(){
   A.toast("Zugangsdaten gelöscht");
 }
 var syncTimer = null;
+function runAutoSync(){
+  if (!S.sync.auto || !GH.cfgComplete(S.sync)) return;
+  var pin = S.sync.pin;
+  if (pin && pin.length > 0 && pin.length < 4) return; // unvollständiger Code: nicht automatisch senden
+  var data = A.collectFullState();
+  var prep = (pin && pin.length >= 4) ? GH.encryptPayload(data, pin) : Promise.resolve(data);
+  ghStatus("Automatisch wird synchronisiert …", "busy");
+  prep.then(function(payload){ return GH.push(S.sync, payload); }).then(function(){
+    S.sync.lastSync = Date.now(); saveSync(); renderSyncSettings();
+  }).catch(function(err){ ghStatus(err.message, "err"); });
+}
+/* Änderungsgetrieben: kurze Verzögerung, damit nicht bei jedem Tastendruck
+   synchronisiert wird. Läuft nach renderAll(), siehe APP4.after(). */
 function scheduleAutoSync(){
   if (!S.sync.auto || !GH.cfgComplete(S.sync)) return;
   clearTimeout(syncTimer);
-  syncTimer = setTimeout(function(){
-    var data = A.collectFullState();
-    ghStatus("Automatisch wird synchronisiert …", "busy");
-    GH.push(S.sync, data).then(function(){
-      S.sync.lastSync = Date.now(); saveSync(); renderSyncSettings();
-    }).catch(function(err){ ghStatus(err.message, "err"); });
-  }, 4000);
+  syncTimer = setTimeout(runAutoSync, 4000);
 }
+/* Zusätzlich stündlich, unabhängig von Änderungen – falls die App zwischen
+   zwei Besuchen offen bleibt oder der änderungsgetriebene Sync verpasst
+   wurde. Überspringt, wenn gerade erst synchronisiert wurde. */
+var ONE_HOUR_SYNC = 3600000;
+function hourlyAutoSync(){
+  if (!S.sync.auto || !GH.cfgComplete(S.sync)) return;
+  if (S.sync.lastSync && (Date.now() - S.sync.lastSync) < ONE_HOUR_SYNC) return;
+  runAutoSync();
+}
+setInterval(hourlyAutoSync, 5 * 60 * 1000); // alle 5 Min prüfen, ob eine Stunde um ist
 
 /* ============================================================
    ERSCHEINUNGSBILD-ERWEITERUNGEN: Auto-Theme, Flamme, Cool-down
@@ -6936,6 +7499,8 @@ window.APP4 = {
   decorateCalendarGrid: decorateCalendarGrid,
   decorateSheet: decorateSheet,
   loadWeather: loadWeather,
+  runAutoSync: runAutoSync,
+  hourlyAutoSync: hourlyAutoSync,
   hardReset: function(){
     S.weather = {enabled:true, mode:"auto", unit:"c", lat:null, lon:null, place:"", geoStatus:"noch nicht angefragt"};
     S.weatherCache = null;
