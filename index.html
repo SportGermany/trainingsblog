@@ -2,6 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://api.github.com https://api.open-meteo.com https://geocoding-api.open-meteo.com; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self';">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Trainingsblog</title>
 <meta name="theme-color" content="#0A0A0A">
@@ -1362,7 +1363,7 @@
     <div class="sec-label">Cloud über GitHub</div>
     <div class="card">
       <p class="muted" style="margin-bottom:12px">Speichert eine Sicherungsdatei in einem GitHub-Repository deiner Wahl. Nutze am besten ein <b>privates</b> Repository – über die GitHub-Schnittstelle sind Dateiinhalte unabhängig von der Sichtbarkeit im Web genauso abrufbar.</p>
-      <div class="row"><div class="lab"><b>Zugriffsschlüssel</b><span>Fine-grained Token, nur für dieses eine Repository</span></div></div>
+      <div class="row"><div class="lab"><b>Zugriffsschlüssel</b><span>Fine-grained Token, nur für dieses eine Repository · bleibt nur für diese Sitzung im Browser, kein dauerhaftes Speichern auf dem Gerät</span></div></div>
       <div class="btn-row" style="margin-bottom:10px">
         <input type="password" id="ghToken" autocomplete="off" name="ghToken-nofill" placeholder="ghp_… oder github_pat_…" style="flex:1">
         <button class="btn ghost sm" id="ghTokenShow" style="flex:0 0 44px">👁</button>
@@ -1376,10 +1377,10 @@
 
     <div class="sec-label">Verschlüsselung</div>
     <div class="card">
-      <p class="muted" style="margin-bottom:12px">Optional: Verschlüsselt deine Daten, bevor sie zu GitHub gehen, mit einem Code, den nur du kennst. Auch bei einem öffentlichen Repository sind die Inhalte dann nicht lesbar. <b>Ein kurzer, nur numerischer Code schützt vor zufälligem Mitlesen, aber nicht vor einem gezielten Versuch, ihn zu erraten</b> – je länger der Code, desto sicherer. Vergisst du ihn, ist die Cloud-Sicherung unwiederbringlich verloren.</p>
-      <div class="row"><div class="lab"><b>Synchronisationscode</b><span>Mindestens 4 Ziffern, leer lassen für keine Verschlüsselung</span></div></div>
+      <p class="muted" style="margin-bottom:12px">Optional: Verschlüsselt deine Daten Ende-zu-Ende, bevor sie zu GitHub gehen, mit einer Passphrase, die nur du kennst und die dein Gerät nie dauerhaft speichert. Auch bei einem öffentlichen Repository sind die Inhalte dann nicht lesbar. <b>Eine kurze, nur numerische Eingabe schützt vor zufälligem Mitlesen, aber nicht vor einem gezielten Versuch, sie zu erraten</b> – nimm am besten mehrere zufällige Wörter statt einer kurzen Zahl. Vergisst du sie, ist die Cloud-Sicherung unwiederbringlich verloren.</p>
+      <div class="row"><div class="lab"><b>Passphrase</b><span>Mindestens 4 Zeichen, gern ein ganzer Satz oder mehrere Wörter – leer lassen für keine Verschlüsselung</span></div></div>
       <div class="btn-row" style="margin-bottom:6px">
-        <input type="password" id="ghPin" autocomplete="off" name="ghPin-nofill" placeholder="z. B. 4271" inputmode="numeric" pattern="[0-9]*" maxlength="12" style="flex:1">
+        <input type="password" id="ghPin" autocomplete="off" name="ghPin-nofill" placeholder="z. B. vier zufällige Wörter" maxlength="128" style="flex:1">
         <button class="btn ghost sm" id="ghPinShow" style="flex:0 0 44px">👁</button>
       </div>
       <p class="tiny" id="ghPinHint">Keine Verschlüsselung – die Sicherung ist für jeden mit Repository-Zugriff lesbar.</p>
@@ -1833,8 +1834,20 @@ var GROUP_COLOR = {
    angezeigt. Diese Zählung beginnt hier neu (erste Version mit einer
    sichtbaren Versionsnummer überhaupt); frühere Entwicklungsrunden hatten
    keine Versionsnummer. */
-var APP_VERSION = "1.3.0";
+var APP_VERSION = "2.1.0";
 var CHANGELOG = {
+  "2.1.0": [
+    "Ausführliche, recherchierte Erklärungen jetzt auch für alle 240 Übungen in Muskelaufbau und Abnehmen",
+    "Cloud-Sicherung noch robuster: gleicht Schreibkonflikte jetzt mehrfach automatisch aus, praktisch kein Fehlschlag mehr möglich",
+    "Systemweite Versionsnummer wird ab sofort bei jeder Änderung konsequent hochgezählt"
+  ],
+  "2.0.0": [
+    "Komplettes Widget-System: jede Seite frei anpassbar, Bereiche und Kacheln ein-/ausblendbar und in der Reihenfolge änderbar",
+    "Neues Krankheits-Feature: Aktivierung im Kalender, tägliche Nachfrage, leichtes Dehnprogramm, Kranktage-Zähler",
+    "Sicherheits-Umbau: Passphrase statt PIN, Zugangsdaten nur noch sitzungsgebunden, höhere Verschlüsselungsstärke, Content-Security-Policy",
+    "Ausführlichere, recherchierte Erklärungen zu allen Übungen",
+    "Zahlreiche neue Einstellungsmöglichkeiten und Detailverbesserungen"
+  ],
   "1.3.0": [
     "Einstellungen komplett neu geordnet, durchsuchbar und mit Icons versehen",
     "App-Name, Schriftgröße, kcal/kJ, Tonfall, Start-Kategorie und mehr einstellbar",
@@ -2466,16 +2479,34 @@ function parseJSONFile(text){
     };
   }).filter(function(a){ return a.date; });
 }
+/* Bereinigt Freitext-Felder aus importierten Dateien (GPX/TCX/CSV/JSON), bevor
+   sie überhaupt ins Datenmodell gelangen: HTML-Tags entfernen und Länge
+   begrenzen. Die App escaped an allen Stellen, an denen solche Werte
+   angezeigt werden, ohnehin schon konsequent (esc()); das hier ist eine
+   zusätzliche Verteidigungsebene direkt an der Quelle. */
+function sanitizeText(s, maxLen){
+  if (typeof s !== "string") return s;
+  var out = s.replace(/<[^>]*>/g, "").replace(/[<>]/g, "").trim();
+  return out.slice(0, maxLen || 120);
+}
+function sanitizeActivity(a){
+  if (!a || typeof a !== "object") return a;
+  a.name = sanitizeText(a.name, 120) || "Aktivität";
+  a.type = sanitizeText(a.type, 60) || "Training";
+  a.rawType = sanitizeText(a.rawType, 60);
+  a.source = sanitizeText(a.source, 20);
+  return a;
+}
 function parseFitnessFile(filename, text){
   var f = String(filename || "").toLowerCase();
-  if (/\.gpx$/.test(f) || /<trkpt/i.test(text)) return {kind:"activities", items: parseGPX(text)};
-  if (/\.tcx$/.test(f) || /<TrainingCenterDatabase/i.test(text)) return {kind:"activities", items: parseTCX(text)};
+  if (/\.gpx$/.test(f) || /<trkpt/i.test(text)) return {kind:"activities", items: parseGPX(text).map(sanitizeActivity)};
+  if (/\.tcx$/.test(f) || /<TrainingCenterDatabase/i.test(text)) return {kind:"activities", items: parseTCX(text).map(sanitizeActivity)};
   if (/\.json$/.test(f) || /^\s*[\[{]/.test(text)){
     var res = parseJSONFile(text);
     if (res && (res.__muskelApp || res.__trainingsblog)) return {kind:"backup", items: res};
-    return {kind:"activities", items: res};
+    return {kind:"activities", items: (Array.isArray(res) ? res : []).map(sanitizeActivity)};
   }
-  if (/\.(csv|tsv|txt)$/.test(f) || text.indexOf(",") >= 0 || text.indexOf(";") >= 0) return {kind:"activities", items: parseCSV(text)};
+  if (/\.(csv|tsv|txt)$/.test(f) || text.indexOf(",") >= 0 || text.indexOf(";") >= 0) return {kind:"activities", items: parseCSV(text).map(sanitizeActivity)};
   return {kind:"activities", items: []};
 }
 function mergeActivities(existing, incoming){
@@ -2548,271 +2579,271 @@ var W = root.WK;
 /* ---------------- MUSKELAUFBAU (2001–2120) ---------------- */
 var AUFBAU = [
   /* --- BEINE (24) --- */
-  {id:2001, g:"beine", n:"Tempo-Kniebeuge 4-1-1",        m:"reps", v:12, l:3, c:"Vier Sekunden absenken, eine halten, zügig hoch."},
-  {id:2002, g:"beine", n:"Split Squat mit Pause unten",  m:"reps", v:8,  l:3, s:true, c:"Unten zwei Sekunden halten, dann kontrolliert hoch."},
-  {id:2003, g:"beine", n:"Sissy Squat an der Wand",      m:"reps", v:10, l:3, c:"Knie nach vorn, Hüfte gestreckt, Oberschenkel brennt."},
-  {id:2004, g:"beine", n:"Skater Squat",                 m:"reps", v:8,  l:3, s:true, c:"Einbeinig absenken, hinteres Knie tippt fast auf."},
-  {id:2005, g:"beine", n:"Pistol-Negativ",               m:"reps", v:5,  l:3, s:true, c:"Nur das Absenken einbeinig, fünf Sekunden lang."},
-  {id:2006, g:"beine", n:"Reverse Nordic Curl",          m:"reps", v:10, l:3, c:"Aus dem Kniestand zurücklehnen, Oberschenkel vorn hält."},
-  {id:2007, g:"beine", n:"Einbeiniges Kreuzheben",       m:"reps", v:10, l:2, s:true, c:"Standbein leicht gebeugt, Rücken lang, Hüfte klappt."},
-  {id:2008, g:"beine", n:"Glute Bridge mit Pause",       m:"reps", v:12, l:2, s:true, c:"Oben drei Sekunden halten, Becken waagrecht."},
-  {id:2009, g:"beine", n:"Hip Thrust erhöht",            m:"reps", v:15, l:3, c:"Schultern auf dem Sofa, Hüfte voll strecken."},
-  {id:2010, g:"beine", n:"Wadenheben langsam einbeinig", m:"reps", v:15, l:2, s:true, c:"Drei Sekunden hoch, drei Sekunden runter."},
-  {id:2011, g:"beine", n:"Wadenheben mit Pause oben",    m:"reps", v:20, l:2, c:"Oben zwei Sekunden halten, tief absenken."},
-  {id:2012, g:"beine", n:"Cossack Squat tief",           m:"reps", v:6,  l:3, s:true, c:"So tief wie möglich, anderes Bein gestreckt."},
-  {id:2013, g:"beine", n:"Step-up mit Knieheben",        m:"reps", v:10, l:2, s:true, c:"Oben das freie Knie zur Brust ziehen, ohne Schwung."},
-  {id:2014, g:"beine", n:"Einbeiniger Wandsitz",         m:"time", v:30, l:3, c:"Ein Bein trägt, das andere schwebt vor dem Körper."},
-  {id:2015, g:"beine", n:"Kniebeuge 5 Sekunden runter",  m:"reps", v:8,  l:3, c:"Fünf Sekunden absenken, unten kurz stehen, hoch."},
-  {id:2016, g:"beine", n:"Nordic Curl assistiert",       m:"reps", v:6,  l:3, c:"Füße fixieren, so weit wie möglich kontrolliert nach vorn."},
-  {id:2017, g:"beine", n:"Adduktoren-Squeeze",           m:"time", v:35, l:2, c:"Kissen oder Faust zwischen die Knie, konstant pressen."},
-  {id:2018, g:"beine", n:"Frog Pump mit Pause",          m:"reps", v:18, l:2, c:"Fußsohlen zusammen, oben zwei Sekunden halten."},
-  {id:2019, g:"beine", n:"Ausfallschritt langsam ab",    m:"reps", v:8,  l:3, s:true, c:"Vier Sekunden absenken, ohne den Boden zu berühren."},
-  {id:2020, g:"beine", n:"Zehenspitzengang",             m:"time", v:40, l:1, c:"Auf den Ballen gehen, Fersen bleiben oben."},
-  {id:2021, g:"beine", n:"Einbeiniger Hip Thrust Pause", m:"reps", v:10, l:3, s:true, c:"Oben zwei Sekunden, Becken nicht kippen lassen."},
-  {id:2022, g:"beine", n:"Beckenheben mit Fersen hoch",  m:"reps", v:15, l:2, c:"Nur die Fersen am Boden, Rückseite arbeitet stärker."},
-  {id:2023, g:"beine", n:"Kniebeuge mit Fersen erhöht",  m:"reps", v:14, l:2, c:"Fersen auf ein Buch, aufrecht tief absenken."},
-  {id:2024, g:"beine", n:"Isometrische Halbkniebeuge",   m:"time", v:40, l:3, c:"Halb tief halten, Spannung bewusst aufbauen."},
+  {id:2001, g:"beine", n:"Tempo-Kniebeuge 4-1-1",        m:"reps", v:12, l:3, c:"Hüftbreiter Stand. Vier Sekunden lang kontrolliert in die Kniebeuge absenken, unten eine Sekunde halten, dann zügig und kraftvoll hochdrücken – die lange Zeit unter Spannung ist der eigentliche Trainingsreiz."},
+  {id:2002, g:"beine", n:"Split Squat mit Pause unten",  m:"reps", v:8,  l:3, s:true, c:"Ausfallschritt-Stand, hinteres Bein locker. Absenken bis beide Knie etwa 90 Grad erreichen, unten zwei Sekunden ruhig halten, dann kontrolliert hochdrücken."},
+  {id:2003, g:"beine", n:"Sissy Squat an der Wand",      m:"reps", v:10, l:3, c:"Mit einer Hand an der Wand oder einem Halt abstützen. Auf den Fußballen nach hinten lehnen und die Knie weit nach vorn schieben, Hüfte bleibt gestreckt, bis der vordere Oberschenkel deutlich brennt."},
+  {id:2004, g:"beine", n:"Skater Squat",                 m:"reps", v:8,  l:3, s:true, c:"Auf einem Bein stehen, das andere schwebt nach hinten. Langsam einbeinig absenken, bis das hintere Knie fast den Boden berührt, dann kraftvoll wieder hochdrücken."},
+  {id:2005, g:"beine", n:"Pistol-Negativ",               m:"reps", v:5,  l:3, s:true, c:"Auf einem Bein stehen, das andere nach vorn strecken. Über fünf Sekunden so tief wie möglich kontrolliert absenken, dann mit beiden Beinen wieder hochkommen."},
+  {id:2006, g:"beine", n:"Reverse Nordic Curl",          m:"reps", v:10, l:3, c:"Kniend, Oberschenkel und Rumpf bilden eine Linie. Langsam mit geradem Rücken nach hinten lehnen, der vordere Oberschenkel bremst die Bewegung, dann zurück in den Kniestand."},
+  {id:2007, g:"beine", n:"Einbeiniges Kreuzheben",       m:"reps", v:10, l:2, s:true, c:"Auf einem Bein stehen, Standbein leicht gebeugt. Oberkörper mit langem Rücken nach vorn kippen, während das freie Bein nach hinten schwingt, dann kontrolliert aufrichten."},
+  {id:2008, g:"beine", n:"Glute Bridge mit Pause",       m:"reps", v:12, l:2, s:true, c:"Rückenlage, Füße aufgestellt. Hüfte hochdrücken, oben drei Sekunden halten und den Po fest anspannen, Becken bleibt dabei waagrecht, dann absenken."},
+  {id:2009, g:"beine", n:"Hip Thrust erhöht",            m:"reps", v:15, l:3, c:"Oberer Rücken auf einer Erhöhung wie dem Sofa, Füße hüftbreit. Hüfte voll strecken bis der Körper eine gerade Linie bildet, oben kurz anspannen, dann absenken."},
+  {id:2010, g:"beine", n:"Wadenheben langsam einbeinig", m:"reps", v:15, l:2, s:true, c:"Auf einem Bein stehen, Hand zur Balance an der Wand. Drei Sekunden lang auf den Fußballen hochdrücken, drei Sekunden lang wieder absenken."},
+  {id:2011, g:"beine", n:"Wadenheben mit Pause oben",    m:"reps", v:20, l:2, c:"Beidbeiniger Stand. Ganz auf die Fußballen hochdrücken, oben zwei Sekunden halten, dann tief bis unter Fersenhöhe absenken."},
+  {id:2012, g:"beine", n:"Cossack Squat tief",           m:"reps", v:6,  l:3, s:true, c:"Sehr breiter Stand. Das Gewicht so tief wie möglich auf ein Bein verlagern, das andere bleibt komplett gestreckt, dann zur anderen Seite wechseln."},
+  {id:2013, g:"beine", n:"Step-up mit Knieheben",        m:"reps", v:10, l:2, s:true, c:"Ganzen Fuß auf eine Stufe stellen. Kraftvoll hochdrücken und oben angekommen das freie Knie ohne Schwung zur Brust ziehen, dann kontrolliert absteigen."},
+  {id:2014, g:"beine", n:"Einbeiniger Wandsitz",         m:"time", v:30, l:3, c:"Aus dem normalen Wandsitz ein Bein nach vorn strecken, sodass das andere Bein die gesamte Last allein trägt. Position ruhig halten."},
+  {id:2015, g:"beine", n:"Kniebeuge 5 Sekunden runter",  m:"reps", v:8,  l:3, c:"Hüftbreiter Stand. Über volle fünf Sekunden kontrolliert absenken, unten kurz stehen bleiben, dann kraftvoll hochdrücken."},
+  {id:2016, g:"beine", n:"Nordic Curl assistiert",       m:"reps", v:6,  l:3, c:"Füße unter einem schweren Möbelstück fixieren, kniend. So weit wie kontrollierbar mit geradem Oberkörper nach vorn absenken, mit den Händen leicht abfangen, dann zurück."},
+  {id:2017, g:"beine", n:"Adduktoren-Squeeze",           m:"time", v:35, l:2, c:"Sitzend oder liegend ein Kissen oder die eigene Faust zwischen die Knie klemmen. Mit konstanter Kraft zusammendrücken und die Spannung halten."},
+  {id:2018, g:"beine", n:"Frog Pump mit Pause",          m:"reps", v:18, l:2, c:"Rückenlage, Fußsohlen zusammen, Knie fallen zur Seite. Hüfte hochdrücken, oben zwei Sekunden halten, dann absenken."},
+  {id:2019, g:"beine", n:"Ausfallschritt langsam ab",    m:"reps", v:8,  l:3, s:true, c:"Großer Schritt nach vorn. Über vier Sekunden absenken, ohne mit dem hinteren Knie den Boden zu berühren, dann hochdrücken."},
+  {id:2020, g:"beine", n:"Zehenspitzengang",             m:"time", v:40, l:1, c:"Auf den Fußballen gehen, Fersen bleiben die ganze Zeit oben. Kleine, kontrollierte Schritte für die Wadenausdauer."},
+  {id:2021, g:"beine", n:"Einbeiniger Hip Thrust Pause", m:"reps", v:10, l:3, s:true, c:"Wie Hip Thrust, aber ein Bein gestreckt in der Luft. Oben zwei Sekunden halten, Becken darf dabei nicht kippen."},
+  {id:2022, g:"beine", n:"Beckenheben mit Fersen hoch",  m:"reps", v:15, l:2, c:"Rückenlage, nur die Fersen bleiben am Boden, Zehen zeigen hoch. Hüfte heben – die Rückseite der Oberschenkel arbeitet stärker mit."},
+  {id:2023, g:"beine", n:"Kniebeuge mit Fersen erhöht",  m:"reps", v:14, l:2, c:"Fersen auf ein flaches Buch stellen. Aufrecht und kontrolliert tief absenken, das erlaubt mehr Tiefe bei aufrechtem Oberkörper."},
+  {id:2024, g:"beine", n:"Isometrische Halbkniebeuge",   m:"time", v:40, l:3, c:"In der halben Kniebeuge-Position verharren und bewusst Spannung in der Oberschenkelmuskulatur aufbauen, gleichmäßig weiteratmen."},
 
   /* --- ARME & SCHULTERN (20) --- */
-  {id:2025, g:"arme", n:"Diamant-Liegestütz langsam",    m:"reps", v:8,  l:3, c:"Drei Sekunden runter, unten kurz halten."},
-  {id:2026, g:"arme", n:"Pseudo-Planche-Liegestütz",     m:"reps", v:8,  l:3, c:"Hände an der Hüfte, Schultern weit vor die Hände."},
-  {id:2027, g:"arme", n:"Pike Push-up erhöht",           m:"reps", v:8,  l:3, c:"Füße auf dem Sofa, Kopf tief zwischen die Hände."},
-  {id:2028, g:"arme", n:"Handstand-Liegestütz Wand",     m:"reps", v:5,  l:3, c:"An der Wand, nur so tief wie kontrollierbar."},
-  {id:2029, g:"arme", n:"Trizeps-Dip mit Pause",         m:"reps", v:10, l:3, c:"Unten zwei Sekunden halten, Schultern tief."},
-  {id:2030, g:"arme", n:"Trizeps-Extension am Boden",    m:"reps", v:10, l:3, c:"Unterarme am Boden, nur aus dem Ellbogen drücken."},
-  {id:2031, g:"arme", n:"Türrahmen-Curl isometrisch",    m:"time", v:35, l:2, s:true, c:"Gegen den Türrahmen ziehen, Bizeps voll anspannen."},
-  {id:2032, g:"arme", n:"Chin-up-Negativ am Türrahmen",  m:"reps", v:5,  l:3, c:"Stabile Kante nutzen, fünf Sekunden absenken."},
-  {id:2033, g:"arme", n:"Sphinx Push-up",                m:"reps", v:10, l:3, c:"Vom Unterarm in den Handstütz, nur Ellbogen bewegt sich."},
-  {id:2034, g:"arme", n:"Tiger Bend",                    m:"reps", v:8,  l:3, c:"Aus dem Handstütz auf die Unterarme und zurück."},
-  {id:2035, g:"arme", n:"Scapula Dips",                  m:"reps", v:12, l:2, c:"Arme gestreckt, nur Schultern heben und senken."},
-  {id:2036, g:"arme", n:"Planche-Lean-Halt",             m:"time", v:25, l:3, c:"Schultern weit vor die Hände schieben und halten."},
-  {id:2037, g:"arme", n:"Crab Dips",                     m:"reps", v:12, l:2, c:"Rückwärtsstütz, Po tief absenken, Trizeps drückt."},
-  {id:2038, g:"arme", n:"Curl exzentrisch",              m:"reps", v:10, l:2, s:true, c:"Mit der freien Hand gegenhalten, langsam strecken."},
-  {id:2039, g:"arme", n:"Halt im 90-Grad-Liegestütz",    m:"time", v:25, l:3, c:"Auf halber Höhe halten, Ellbogen im rechten Winkel."},
-  {id:2040, g:"arme", n:"Wall-Handstand-Shrug",          m:"reps", v:12, l:3, c:"An der Wand nur die Schultern hoch und runter."},
-  {id:2041, g:"arme", n:"Kobra-Trizepsdrücken",          m:"reps", v:12, l:2, c:"Bauchlage, Hände neben der Brust, Oberkörper hochdrücken."},
-  {id:2042, g:"arme", n:"Bear-Crawl-Halt",               m:"time", v:35, l:2, c:"Knie schweben, Schultern über den Händen, ruhig atmen."},
-  {id:2043, g:"arme", n:"Unterarmstütz-Rotation",        m:"reps", v:12, l:2, c:"Aus dem Unterarmstütz seitlich öffnen und schließen."},
-  {id:2044, g:"arme", n:"Isometrischer Seitheb-Halt",    m:"time", v:35, l:2, c:"Arme waagrecht halten, Handflächen nach unten."},
+  {id:2025, g:"arme", n:"Diamant-Liegestütz langsam",    m:"reps", v:8,  l:3, c:"Hände bilden unter der Brust ein Dreieck. Drei Sekunden lang absenken, unten kurz halten, dann hochdrücken – starke Trizepsbelastung."},
+  {id:2026, g:"arme", n:"Pseudo-Planche-Liegestütz",     m:"reps", v:8,  l:3, c:"Hände auf Hüfthöhe, Finger zeigen nach hinten. Schultern weit über die Hände nach vorn schieben und in dieser Position drücken."},
+  {id:2027, g:"arme", n:"Pike Push-up erhöht",           m:"reps", v:8,  l:3, c:"Füße auf einem Sofa, Hüfte hoch wie ein umgekehrtes V. Kopf tief zwischen die Hände absenken, dann kraftvoll zurückdrücken."},
+  {id:2028, g:"arme", n:"Handstand-Liegestütz Wand",     m:"reps", v:5,  l:3, c:"Im Handstand an der Wand nur so tief absenken, wie sicher kontrollierbar, dann zurückdrücken."},
+  {id:2029, g:"arme", n:"Trizeps-Dip mit Pause",         m:"reps", v:10, l:3, c:"Hände auf einer Stuhlkante. Absenken bis die Ellbogen etwa 90 Grad erreichen, unten zwei Sekunden halten, dann hochdrücken."},
+  {id:2030, g:"arme", n:"Trizeps-Extension am Boden",    m:"reps", v:10, l:3, c:"Unterarme liegen am Boden, Oberarme senkrecht. Nur aus dem Ellbogen den Oberkörper ein Stück hoch- und wieder herunterdrücken."},
+  {id:2031, g:"arme", n:"Türrahmen-Curl isometrisch",    m:"time", v:35, l:2, s:true, c:"In der Türöffnung mit gebeugtem Arm gegen den Rahmen nach oben ziehen, als würde man einen Bizepscurl machen, und die Spannung halten."},
+  {id:2032, g:"arme", n:"Chin-up-Negativ am Türrahmen",  m:"reps", v:5,  l:3, c:"An einer stabilen Kante hochziehen oder hochsteigen, dann über fünf Sekunden kontrolliert wieder absenken."},
+  {id:2033, g:"arme", n:"Sphinx Push-up",                m:"reps", v:10, l:3, c:"Start auf den Unterarmen. In den hohen Handstütz drücken, dabei bewegt sich nur der Ellbogen, dann zurück auf die Unterarme."},
+  {id:2034, g:"arme", n:"Tiger Bend",                    m:"reps", v:8,  l:3, c:"Aus dem Handstütz die Ellbogen beugen, bis die Unterarme den Boden berühren, dann kraftvoll zurück in den Handstütz drücken."},
+  {id:2035, g:"arme", n:"Scapula Dips",                  m:"reps", v:12, l:2, c:"Im hohen Stütz, Arme bleiben komplett gestreckt. Nur durch Heben und Senken der Schultern arbeiten, ohne die Ellbogen zu beugen."},
+  {id:2036, g:"arme", n:"Planche-Lean-Halt",             m:"time", v:25, l:3, c:"Im Liegestütz die Schultern weit vor die Hände schieben und die vorgelehnte Position mit angespanntem Rumpf halten."},
+  {id:2037, g:"arme", n:"Crab Dips",                     m:"reps", v:12, l:2, c:"Rückwärtsstütz, Hände hinter dem Körper. Po tief absenken, bis die Ellbogen etwa 90 Grad erreichen, dann durch den Trizeps hochdrücken."},
+  {id:2038, g:"arme", n:"Curl exzentrisch",              m:"reps", v:10, l:2, s:true, c:"Mit der freien Hand am gebeugten Arm Widerstand geben und den Arm nur sehr langsam gegen diesen Widerstand strecken."},
+  {id:2039, g:"arme", n:"Halt im 90-Grad-Liegestütz",    m:"time", v:25, l:3, c:"Auf halber Höhe der Liegestütz-Bewegung verharren, Ellbogen im rechten Winkel, Position ruhig halten."},
+  {id:2040, g:"arme", n:"Wall-Handstand-Shrug",          m:"reps", v:12, l:3, c:"Im Handstand an der Wand nur die Schultern hochziehen und wieder absenken, Arme bleiben gestreckt."},
+  {id:2041, g:"arme", n:"Kobra-Trizepsdrücken",          m:"reps", v:12, l:2, c:"Bauchlage, Hände neben der Brust. Nur den Oberkörper hochdrücken, Hüfte bleibt am Boden, Trizeps arbeitet vorrangig."},
+  {id:2042, g:"arme", n:"Bear-Crawl-Halt",               m:"time", v:35, l:2, c:"Vierfüßlerstand mit angehobenen Knien, Schultern direkt über den Händen. Position ruhig halten, gleichmäßig atmen."},
+  {id:2043, g:"arme", n:"Unterarmstütz-Rotation",        m:"reps", v:12, l:2, c:"Aus dem Unterarmstütz die Hüfte seitlich öffnen, sodass der Körper zur Seite zeigt, dann zurück und zur anderen Seite."},
+  {id:2044, g:"arme", n:"Isometrischer Seitheb-Halt",    m:"time", v:35, l:2, c:"Arme seitlich auf Schulterhöhe ausgestreckt halten, Handflächen zeigen nach unten, Position über die Zeit halten."},
 
   /* --- BRUST (16) --- */
-  {id:2045, g:"brust", n:"Liegestütz 5 Sekunden runter", m:"reps", v:8,  l:3, c:"Fünf Sekunden absenken, unten nicht ablegen."},
-  {id:2046, g:"brust", n:"Tiefer Liegestütz auf Büchern",m:"reps", v:10, l:3, c:"Hände erhöht, Brust unter Handhöhe absenken."},
-  {id:2047, g:"brust", n:"Archer-Liegestütz mit Halt",   m:"reps", v:6,  l:3, s:true, c:"Unten zwei Sekunden auf einer Seite halten."},
-  {id:2048, g:"brust", n:"Einarmiger Liegestütz assist.",m:"reps", v:5,  l:3, s:true, c:"Eine Hand erhöht abstützen, Last verlagern."},
-  {id:2049, g:"brust", n:"Füße hoch mit Pause",          m:"reps", v:8,  l:3, c:"Füße auf dem Stuhl, unten zwei Sekunden halten."},
-  {id:2050, g:"brust", n:"Enger Liegestütz langsam",     m:"reps", v:10, l:3, c:"Hände eng, drei Sekunden runter, Ellbogen am Körper."},
-  {id:2051, g:"brust", n:"Typewriter mit Halt",          m:"reps", v:6,  l:3, c:"Unten von Hand zu Hand schieben, kurz stoppen."},
-  {id:2052, g:"brust", n:"Liegestütz mit Handversatz",   m:"reps", v:10, l:3, c:"Eine Hand weit vor, nach der Hälfte wechseln."},
-  {id:2053, g:"brust", n:"Brustpresse isometrisch",      m:"time", v:35, l:2, c:"Handflächen vor der Brust fest gegeneinander drücken."},
-  {id:2054, g:"brust", n:"Liegestütz mit Beinheben",     m:"reps", v:10, l:3, c:"Beim Hochdrücken ein Bein gestreckt anheben."},
-  {id:2055, g:"brust", n:"Fliegende am Boden",           m:"reps", v:12, l:2, c:"Arme seitlich weit öffnen, Handtücher unter den Händen."},
-  {id:2056, g:"brust", n:"Halt kurz über dem Boden",     m:"time", v:25, l:3, c:"Zwei Handbreit über dem Boden halten, Körper lang."},
-  {id:2057, g:"brust", n:"Liegestütz mit Fußversatz",    m:"reps", v:12, l:2, c:"Füße eng zusammen, Rumpf besonders fest."},
-  {id:2058, g:"brust", n:"Knie-Liegestütz sehr langsam", m:"reps", v:14, l:1, c:"Vier Sekunden runter, zwei hoch, saubere Linie."},
-  {id:2059, g:"brust", n:"Liegestütz mit Handtuchzug",   m:"reps", v:10, l:3, c:"Oben eine Hand nach vorn schieben, Rumpf hält."},
-  {id:2060, g:"brust", n:"Wandpresse einarmig",          m:"time", v:30, l:2, s:true, c:"Mit einer Hand gegen die Wand drücken, gleichmäßig."},
+  {id:2045, g:"brust", n:"Liegestütz 5 Sekunden runter", m:"reps", v:8,  l:3, c:"Hände schulterbreit. Über fünf volle Sekunden absenken, kurz vor dem Boden nicht ablegen, dann kraftvoll hochdrücken."},
+  {id:2046, g:"brust", n:"Tiefer Liegestütz auf Büchern",m:"reps", v:10, l:3, c:"Hände erhöht auf zwei Büchern oder Stufen. So absenken, dass die Brust unter Handhöhe sinkt – größere Bewegungsamplitude."},
+  {id:2047, g:"brust", n:"Archer-Liegestütz mit Halt",   m:"reps", v:6,  l:3, s:true, c:"Breiter Handstand, beim Absenken das Gewicht auf eine Seite verlagern und dort zwei Sekunden halten, dann hoch und Seite wechseln."},
+  {id:2048, g:"brust", n:"Einarmiger Liegestütz assist.",m:"reps", v:5,  l:3, s:true, c:"Eine Hand auf einer Erhöhung, die andere am Boden. Last verstärkt auf den unteren Arm verlagern, kontrolliert absenken und drücken."},
+  {id:2049, g:"brust", n:"Füße hoch mit Pause",          m:"reps", v:8,  l:3, c:"Füße auf einem Stuhl, Hände am Boden. Absenken, unten zwei Sekunden halten, dann hochdrücken – betont die obere Brust."},
+  {id:2050, g:"brust", n:"Enger Liegestütz langsam",     m:"reps", v:10, l:3, c:"Hände eng zusammen, Ellbogen laufen am Körper entlang. Drei Sekunden absenken, dann hochdrücken."},
+  {id:2051, g:"brust", n:"Typewriter mit Halt",          m:"reps", v:6,  l:3, c:"Unten in der tiefen Position von Hand zu Hand schieben und dabei kurz an jeder Seite innehalten."},
+  {id:2052, g:"brust", n:"Liegestütz mit Handversatz",   m:"reps", v:10, l:3, c:"Eine Hand deutlich weiter vorn als die andere platzieren, normal drücken, nach der Hälfte der Wiederholungen die Seite wechseln."},
+  {id:2053, g:"brust", n:"Brustpresse isometrisch",      m:"time", v:35, l:2, c:"Handflächen vor der Brust zusammenpressen und mit konstanter Kraft gegeneinander drücken, ohne die Position zu verändern."},
+  {id:2054, g:"brust", n:"Liegestütz mit Beinheben",     m:"reps", v:10, l:3, c:"Während des Hochdrückens ein Bein gestreckt vom Boden abheben, Rumpf bleibt dabei stabil, dann Bein wechseln."},
+  {id:2055, g:"brust", n:"Fliegende am Boden",           m:"reps", v:12, l:2, c:"Rückenlage oder Bauchlage, Arme seitlich weit öffnen und wieder vor der Brust zusammenführen, Bewegung kommt aus der Schulter."},
+  {id:2056, g:"brust", n:"Halt kurz über dem Boden",     m:"time", v:25, l:3, c:"In der tiefsten Liegestütz-Position, etwa zwei Handbreit über dem Boden, verharren und den Körper lang und fest halten."},
+  {id:2057, g:"brust", n:"Liegestütz mit Fußversatz",    m:"reps", v:12, l:2, c:"Füße eng zusammenstellen, was die Rumpfspannung deutlich erhöht, dann normal absenken und hochdrücken."},
+  {id:2058, g:"brust", n:"Knie-Liegestütz sehr langsam", m:"reps", v:14, l:1, c:"Knie am Boden, Hüfte gestreckt. Vier Sekunden absenken, zwei Sekunden hoch, auf eine gerade Linie vom Kopf bis zu den Knien achten."},
+  {id:2059, g:"brust", n:"Liegestütz mit Handtuchzug",   m:"reps", v:10, l:3, c:"Oben in der Liegestütz-Position eine Hand nach vorn schieben und wieder zurück, der Rumpf hält die Balance."},
+  {id:2060, g:"brust", n:"Wandpresse einarmig",          m:"time", v:30, l:2, s:true, c:"Mit einer Hand gegen die Wand drücken und die Spannung gleichmäßig über einige Sekunden halten, dann Seite wechseln."},
 
   /* --- BAUCH & RUMPF (24) --- */
-  {id:2061, g:"bauch", n:"Hollow Hold lang",             m:"time", v:40, l:3, c:"Unterer Rücken am Boden, Arme und Beine lang."},
-  {id:2062, g:"bauch", n:"L-Sit am Boden",               m:"time", v:20, l:3, c:"Hände neben der Hüfte, Po hebt ab, Beine gestreckt."},
-  {id:2063, g:"bauch", n:"V-Up langsam",                 m:"reps", v:12, l:3, c:"Drei Sekunden auf, drei Sekunden ab."},
-  {id:2064, g:"bauch", n:"Dragon Flag Negativ",          m:"reps", v:6,  l:3, c:"Körper gestreckt langsam absenken, Schultern fixiert."},
-  {id:2065, g:"bauch", n:"Reverse Crunch mit Pause",     m:"reps", v:14, l:2, c:"Oben zwei Sekunden halten, langsam abrollen."},
-  {id:2066, g:"bauch", n:"Toes to Sky",                  m:"reps", v:15, l:2, c:"Beine senkrecht, Becken gerade nach oben drücken."},
-  {id:2067, g:"bauch", n:"Copenhagen Plank",             m:"time", v:20, l:3, s:true, c:"Oberes Bein auf dem Stuhl, Hüfte hoch."},
-  {id:2068, g:"bauch", n:"Seitstütz mit Hüftsenken",     m:"reps", v:12, l:3, s:true, c:"Hüfte tief absenken und wieder hoch drücken."},
-  {id:2069, g:"bauch", n:"Rollout mit Handtuch",         m:"reps", v:10, l:3, c:"Auf glattem Boden Hände nach vorn gleiten lassen."},
-  {id:2070, g:"bauch", n:"Plank mit Gewichtsverlagerung",m:"time", v:35, l:2, c:"Im Stütz langsam vor und zurück wiegen."},
-  {id:2071, g:"bauch", n:"Hollow Rock langsam",          m:"reps", v:15, l:3, c:"Kleine Bewegung, Spannung nie abgeben."},
-  {id:2072, g:"bauch", n:"Scheibenwischer langsam",      m:"reps", v:12, l:3, c:"Beine oben, vier Sekunden zur Seite absenken."},
-  {id:2073, g:"bauch", n:"Boat Hold",                    m:"time", v:35, l:2, c:"Auf dem Sitzbein balancieren, Brust auf."},
-  {id:2074, g:"bauch", n:"Boat to Hollow",               m:"reps", v:12, l:3, c:"Aus dem Boot in die Hollow-Position und zurück."},
-  {id:2075, g:"bauch", n:"Dead Bug mit Pause",           m:"reps", v:14, l:2, c:"Gestreckt zwei Sekunden halten, Rücken bleibt unten."},
-  {id:2076, g:"bauch", n:"Bird Dog mit Pause",           m:"reps", v:14, l:2, c:"Oben drei Sekunden, Becken absolut ruhig."},
-  {id:2077, g:"bauch", n:"Sit-up mit Armen über Kopf",   m:"reps", v:15, l:3, c:"Arme bleiben neben den Ohren, langsam abrollen."},
-  {id:2078, g:"bauch", n:"Jackknife",                    m:"reps", v:14, l:3, c:"Arme und Beine gleichzeitig über der Hüfte treffen."},
-  {id:2079, g:"bauch", n:"Heel Tap langsam",             m:"reps", v:20, l:1, c:"Zwei Sekunden je Seite, seitlicher Bauch arbeitet."},
-  {id:2080, g:"bauch", n:"Plank Reach",                  m:"reps", v:14, l:3, c:"Im Stütz einen Arm weit nach vorn strecken."},
-  {id:2081, g:"bauch", n:"Seitliches Crunchen",          m:"reps", v:16, l:2, s:true, c:"Seitlage, Oberkörper zur Hüfte anheben."},
-  {id:2082, g:"bauch", n:"Reverse Plank Crunch",         m:"reps", v:12, l:3, c:"Im Rückwärtsstütz Knie zur Brust ziehen."},
-  {id:2083, g:"bauch", n:"Candlestick",                  m:"reps", v:12, l:3, c:"Beine senkrecht hoch rollen, kontrolliert zurück."},
-  {id:2084, g:"bauch", n:"Bauch-Iso im Sitzen",          m:"time", v:35, l:2, c:"Aufrecht sitzen, Beine schweben, Bauch fest."},
+  {id:2061, g:"bauch", n:"Hollow Hold lang",             m:"time", v:40, l:3, c:"Rückenlage, unterer Rücken fest in den Boden gedrückt. Arme und Beine lang ausstrecken und die Position über eine längere Zeit halten."},
+  {id:2062, g:"bauch", n:"L-Sit am Boden",               m:"time", v:20, l:3, c:"Hände neben der Hüfte aufstützen, Po vom Boden abheben, Beine gestreckt nach vorn halten."},
+  {id:2063, g:"bauch", n:"V-Up langsam",                 m:"reps", v:12, l:3, c:"Rückenlage, Arme über dem Kopf. Drei Sekunden lang Oberkörper und Beine gleichzeitig anheben, drei Sekunden lang zurück."},
+  {id:2064, g:"bauch", n:"Dragon Flag Negativ",          m:"reps", v:6,  l:3, c:"Schultern am Boden fixiert, Körper gestreckt in der Luft. So langsam wie möglich kontrolliert absenken."},
+  {id:2065, g:"bauch", n:"Reverse Crunch mit Pause",     m:"reps", v:14, l:2, c:"Rückenlage, Beine angewinkelt. Knie zur Brust rollen, oben zwei Sekunden halten, dann langsam abrollen."},
+  {id:2066, g:"bauch", n:"Toes to Sky",                  m:"reps", v:15, l:2, c:"Rückenlage, Beine senkrecht nach oben gestreckt. Das Becken gerade nach oben drücken, als würden die Zehen zur Decke wachsen."},
+  {id:2067, g:"bauch", n:"Copenhagen Plank",             m:"time", v:20, l:3, s:true, c:"Seitstütz, das obere Bein liegt auf einem Stuhl. Hüfte anheben und halten – sehr intensiv für die seitliche Rumpfmuskulatur."},
+  {id:2068, g:"bauch", n:"Seitstütz mit Hüftsenken",     m:"reps", v:12, l:3, s:true, c:"Aus dem Seitstütz die Hüfte kontrolliert Richtung Boden absenken und wieder hochdrücken, ohne den Stütz zu verlassen."},
+  {id:2069, g:"bauch", n:"Rollout mit Handtuch",         m:"reps", v:10, l:3, c:"Kniend, Hände auf einem Handtuch auf glattem Boden. Langsam so weit wie kontrollierbar nach vorn gleiten, dann zurückziehen."},
+  {id:2070, g:"bauch", n:"Plank mit Gewichtsverlagerung",m:"time", v:35, l:2, c:"Im Unterarmstütz das Gewicht langsam nach vorn über die Ellbogen hinaus und wieder zurück verlagern."},
+  {id:2071, g:"bauch", n:"Hollow Rock langsam",          m:"reps", v:15, l:3, c:"Aus der Hollow-Position mit kleiner Amplitude vor und zurück schaukeln, die Grundspannung bleibt durchgehend erhalten."},
+  {id:2072, g:"bauch", n:"Scheibenwischer langsam",      m:"reps", v:12, l:3, c:"Beine senkrecht nach oben, Arme seitlich zur Stabilität. Über vier Sekunden zur Seite absenken, dann zur anderen Seite."},
+  {id:2073, g:"bauch", n:"Boat Hold",                    m:"time", v:35, l:2, c:"Auf dem Sitzbein balancieren, Beine angehoben, Brust geöffnet, Arme parallel zum Boden nach vorn – Position halten."},
+  {id:2074, g:"bauch", n:"Boat to Hollow",               m:"reps", v:12, l:3, c:"Aus der Boat-Position (aufrecht, V-Form) in die flache Hollow-Position übergehen und wieder zurück."},
+  {id:2075, g:"bauch", n:"Dead Bug mit Pause",           m:"reps", v:14, l:2, c:"Rückenlage, Arme zur Decke, Knie angehoben. Gegengleich Arm und Bein strecken, zwei Sekunden halten, Rücken bleibt am Boden."},
+  {id:2076, g:"bauch", n:"Bird Dog mit Pause",           m:"reps", v:14, l:2, c:"Vierfüßlerstand. Arm und gegenüberliegendes Bein strecken, oben drei Sekunden halten, Becken bleibt absolut ruhig."},
+  {id:2077, g:"bauch", n:"Sit-up mit Armen über Kopf",   m:"reps", v:15, l:3, c:"Arme bleiben während der ganzen Bewegung neben den Ohren gestreckt, langsam aufrollen und wieder abrollen."},
+  {id:2078, g:"bauch", n:"Jackknife",                    m:"reps", v:14, l:3, c:"Rückenlage, Arme über dem Kopf. Oberkörper und gestreckte Beine gleichzeitig anheben, sodass sich Hände und Füße über der Hüfte treffen."},
+  {id:2079, g:"bauch", n:"Heel Tap langsam",             m:"reps", v:20, l:1, c:"Rückenlage, Knie aufgestellt. Über zwei Sekunden je Seite zur Ferse tippen, seitliche Bauchmuskulatur arbeitet bewusst langsam."},
+  {id:2080, g:"bauch", n:"Plank Reach",                  m:"reps", v:14, l:3, c:"Hoher Stütz. Einen Arm weit nach vorn strecken und halten, ohne dass die Hüfte absackt, dann Seite wechseln."},
+  {id:2081, g:"bauch", n:"Seitliches Crunchen",          m:"reps", v:16, l:2, s:true, c:"Seitlage, Beine leicht angewinkelt. Oberkörper seitlich zur Hüfte anheben, dann kontrolliert absenken."},
+  {id:2082, g:"bauch", n:"Reverse Plank Crunch",         m:"reps", v:12, l:3, c:"Im Rückwärtsstütz ein Knie zur Brust ziehen, ohne die Hüfte absacken zu lassen, dann zurückstrecken."},
+  {id:2083, g:"bauch", n:"Candlestick",                  m:"reps", v:12, l:3, c:"Rückenlage. Die gestreckten Beine hoch bis über den Kopf rollen, dann kontrolliert und langsam zurück."},
+  {id:2084, g:"bauch", n:"Bauch-Iso im Sitzen",          m:"time", v:35, l:2, c:"Aufrecht sitzen, Beine schweben gestreckt in der Luft. Position mit fest angespanntem Bauch halten."},
 
   /* --- RÜCKEN (20) --- */
-  {id:2085, g:"ruecken", n:"Türrahmen-Rudern langsam",   m:"reps", v:10, l:3, s:true, c:"Drei Sekunden ziehen, drei Sekunden zurück."},
-  {id:2086, g:"ruecken", n:"Tisch-Rudern mit Pause",     m:"reps", v:10, l:3, c:"Oben zwei Sekunden halten, Schulterblätter zusammen."},
-  {id:2087, g:"ruecken", n:"Handtuch-Rudern isometrisch",m:"time", v:35, l:2, c:"Handtuch spannen und die Spannung konstant halten."},
-  {id:2088, g:"ruecken", n:"Superman mit 5s Pause",      m:"reps", v:12, l:2, c:"Oben fünf Sekunden halten, dann absenken."},
-  {id:2089, g:"ruecken", n:"Reverse Snow Angel langsam", m:"reps", v:14, l:2, c:"Arme dicht über dem Boden, vier Sekunden pro Bahn."},
-  {id:2090, g:"ruecken", n:"Prone Y-Raise",              m:"reps", v:14, l:2, c:"Arme im Y anheben, Daumen zeigen nach oben."},
-  {id:2091, g:"ruecken", n:"Prone T-Raise",              m:"reps", v:14, l:2, c:"Arme seitlich im T, Schulterblätter zusammenziehen."},
-  {id:2092, g:"ruecken", n:"Prone W-Raise",              m:"reps", v:14, l:2, c:"Ellbogen eng am Körper, Hände nach außen drehen."},
-  {id:2093, g:"ruecken", n:"Swimmer langsam",            m:"time", v:35, l:2, c:"Bewusst langsam, keine Schwungbewegung."},
-  {id:2094, g:"ruecken", n:"Brücke mit Pause oben",      m:"reps", v:14, l:2, c:"Oben drei Sekunden halten, Rippen unten lassen."},
-  {id:2095, g:"ruecken", n:"Rückstütz-Beinheben langsam", m:"reps", v:12, l:3, c:"Im Rückwärtsstütz je Bein über vier Sekunden anheben."},
-  {id:2096, g:"ruecken", n:"Wall Slide langsam",         m:"reps", v:12, l:1, c:"Rücken und Arme bleiben an der Wand, vier Sekunden hoch."},
-  {id:2097, g:"ruecken", n:"Scapula Pull am Türrahmen",  m:"reps", v:12, l:2, c:"Arme gestreckt, nur die Schulterblätter arbeiten."},
-  {id:2098, g:"ruecken", n:"Bird Dog Row",               m:"reps", v:12, l:2, s:true, c:"Im Vierfüßler einen Arm wie beim Rudern anziehen."},
-  {id:2099, g:"ruecken", n:"Rückenstrecken mit Pause",   m:"reps", v:14, l:2, c:"Oben zwei Sekunden, Blick bleibt zum Boden."},
-  {id:2100, g:"ruecken", n:"Vierfüßler-Halt lang",       m:"time", v:40, l:2, c:"Knie knapp über dem Boden, Rücken flach halten."},
-  {id:2101, g:"ruecken", n:"Prone Cobra lang",           m:"time", v:45, l:2, c:"Brust offen, Daumen nach außen, ruhig atmen."},
-  {id:2102, g:"ruecken", n:"Hüftbeuge mit Pause",        m:"reps", v:14, l:2, c:"Rücken gerade, unten zwei Sekunden halten."},
-  {id:2103, g:"ruecken", n:"Türrahmen-Zug isometrisch",  m:"time", v:35, l:3, c:"Am Rahmen zurücklehnen und die Position halten."},
-  {id:2104, g:"ruecken", n:"Katze-Kuh kontrolliert",     m:"reps", v:14, l:1, c:"Jeden Wirbel einzeln bewegen, vier Sekunden pro Richtung."},
+  {id:2085, g:"ruecken", n:"Türrahmen-Rudern langsam",   m:"reps", v:10, l:3, s:true, c:"Beide Hände am Türrahmen, Körper nach hinten geneigt. Drei Sekunden ziehen, drei Sekunden kontrolliert zurück."},
+  {id:2086, g:"ruecken", n:"Tisch-Rudern mit Pause",     m:"reps", v:10, l:3, c:"Unter einem stabilen Tisch liegen, Kante greifen. Brust zur Kante ziehen, oben zwei Sekunden halten, Schulterblätter zusammen."},
+  {id:2087, g:"ruecken", n:"Handtuch-Rudern isometrisch",m:"time", v:35, l:2, c:"Handtuch um einen festen Punkt spannen und mit konstanter Zugkraft die Spannung halten, Ellbogen bleiben angewinkelt."},
+  {id:2088, g:"ruecken", n:"Superman mit 5s Pause",      m:"reps", v:12, l:2, c:"Bauchlage. Arme und Beine anheben, oben fünf Sekunden halten, dann kontrolliert absenken."},
+  {id:2089, g:"ruecken", n:"Reverse Snow Angel langsam", m:"reps", v:14, l:2, c:"Bauchlage, Arme seitlich am Körper. Dicht über dem Boden nach oben kreisen, für jede Bahn vier Sekunden Zeit lassen."},
+  {id:2090, g:"ruecken", n:"Prone Y-Raise",              m:"reps", v:14, l:2, c:"Bauchlage. Arme schräg nach oben in Y-Form anheben, Daumen zeigen zur Decke, dann absenken."},
+  {id:2091, g:"ruecken", n:"Prone T-Raise",              m:"reps", v:14, l:2, c:"Bauchlage. Arme seitlich waagrecht in T-Form anheben, Schulterblätter bewusst zusammenziehen."},
+  {id:2092, g:"ruecken", n:"Prone W-Raise",              m:"reps", v:14, l:2, c:"Bauchlage, Ellbogen eng am Körper angewinkelt. Hände nach außen drehen und die Schulterblätter zusammenführen."},
+  {id:2093, g:"ruecken", n:"Swimmer langsam",            m:"time", v:35, l:2, c:"Bauchlage, Arme vorgestreckt. Gegengleich Arm und Bein bewusst langsam heben und senken, keine Schwungbewegung."},
+  {id:2094, g:"ruecken", n:"Brücke mit Pause oben",      m:"reps", v:14, l:2, c:"Rückenlage, Füße aufgestellt. Hüfte hochdrücken, oben drei Sekunden halten, Rippen bleiben unten."},
+  {id:2095, g:"ruecken", n:"Rückstütz-Beinheben langsam", m:"reps", v:12, l:3, c:"Im Rückwärtsstütz je Bein über vier Sekunden anheben und wieder absenken, Hüfte bleibt oben."},
+  {id:2096, g:"ruecken", n:"Wall Slide langsam",         m:"reps", v:12, l:1, c:"Rücken und Arme an der Wand, Ellbogen im rechten Winkel. Über vier Sekunden die Arme an der Wand entlang hochschieben."},
+  {id:2097, g:"ruecken", n:"Scapula Pull am Türrahmen",  m:"reps", v:12, l:2, c:"Arme gestreckt am Türrahmen. Nur die Schulterblätter nach hinten ziehen, ohne die Ellbogen zu beugen."},
+  {id:2098, g:"ruecken", n:"Bird Dog Row",               m:"reps", v:12, l:2, s:true, c:"Vierfüßlerstand, ein Arm gestreckt vorgestreckt. Wie beim Rudern den Ellbogen kraftvoll nach hinten ziehen, dann wieder strecken."},
+  {id:2099, g:"ruecken", n:"Rückenstrecken mit Pause",   m:"reps", v:14, l:2, c:"Bauchlage. Oberkörper leicht anheben, oben zwei Sekunden halten, Blick bleibt zum Boden gerichtet."},
+  {id:2100, g:"ruecken", n:"Vierfüßler-Halt lang",       m:"time", v:40, l:2, c:"Knie schweben knapp über dem Boden, Rücken bleibt flach. Position über eine längere Zeit ruhig halten."},
+  {id:2101, g:"ruecken", n:"Prone Cobra lang",           m:"time", v:45, l:2, c:"Bauchlage. Brust anheben, Daumen nach außen drehen, Schulterblätter zusammen, Position über längere Zeit halten, ruhig weiteratmen."},
+  {id:2102, g:"ruecken", n:"Hüftbeuge mit Pause",        m:"reps", v:14, l:2, c:"Hüftbreiter Stand. Mit geradem Rücken die Hüfte nach hinten schieben, unten zwei Sekunden halten, dann aufrichten."},
+  {id:2103, g:"ruecken", n:"Türrahmen-Zug isometrisch",  m:"time", v:35, l:3, c:"Am Türrahmen zurücklehnen, als würde man daran ziehen, und die Zugspannung konstant halten."},
+  {id:2104, g:"ruecken", n:"Katze-Kuh kontrolliert",     m:"reps", v:14, l:1, c:"Vierfüßlerstand. Jeden Wirbel einzeln bewusst runden und strecken, für jede Richtung vier Sekunden Zeit nehmen."},
 
   /* --- CARDIO (16) – begleitend, kurz gehalten --- */
-  {id:2105, g:"cardio", n:"Zügiges Marschieren",         m:"time", v:40, l:1, c:"Ruhiges Tempo, Arme aktiv mitschwingen."},
-  {id:2106, g:"cardio", n:"Step-Touch",                  m:"time", v:40, l:1, c:"Seitlich treten, weich in den Knien bleiben."},
-  {id:2107, g:"cardio", n:"Seilspringen ruhig",          m:"time", v:40, l:2, c:"Kleine Sprünge, gleichmäßiger Rhythmus."},
-  {id:2108, g:"cardio", n:"Shadow Boxing locker",        m:"time", v:40, l:1, c:"Lockere Schläge, Schultern nicht hochziehen."},
-  {id:2109, g:"cardio", n:"Knieheben moderat",           m:"time", v:35, l:2, c:"Knie auf Hüfthöhe, kontrolliertes Tempo."},
-  {id:2110, g:"cardio", n:"Fersenheben im Gehen",        m:"time", v:35, l:1, c:"Bei jedem Schritt die Ferse zum Po ziehen."},
-  {id:2111, g:"cardio", n:"Seitliches Pendeln",          m:"time", v:35, l:2, c:"Gewicht ruhig von Bein zu Bein verlagern."},
-  {id:2112, g:"cardio", n:"Boxsprünge ohne Kasten",      m:"reps", v:12, l:2, c:"Kleiner Sprung nach vorn, weich landen."},
-  {id:2113, g:"cardio", n:"Inchworm langsam",            m:"reps", v:8,  l:2, c:"Hände langsam nach vorn laufen, Rumpf hält."},
-  {id:2114, g:"cardio", n:"Stufensteigen ruhig",         m:"time", v:40, l:2, c:"Gleichmäßiges Tempo, ganzer Fuß auf die Stufe."},
-  {id:2115, g:"cardio", n:"Armkreisen im Stand",         m:"time", v:30, l:1, c:"Große Kreise, Schulterblätter mitnehmen."},
-  {id:2116, g:"cardio", n:"Hampelmann ohne Sprung",      m:"time", v:40, l:1, c:"Ein Bein nach dem anderen zur Seite setzen."},
-  {id:2117, g:"cardio", n:"Kniebeuge-Puls locker",       m:"time", v:35, l:2, c:"Kleine Auf-ab-Bewegung, Puls sanft hochfahren."},
-  {id:2118, g:"cardio", n:"Schattenrudern",              m:"time", v:35, l:1, c:"Ruderbewegung im Stand, Rücken lang."},
-  {id:2119, g:"cardio", n:"Ausfallschritt-Gehen",        m:"reps", v:12, l:2, c:"Im Raum vorwärts ausschreiten, ruhiges Tempo."},
-  {id:2120, g:"cardio", n:"Atemleiter im Stand",         m:"time", v:35, l:1, c:"Vier Schritte einatmen, vier ausatmen."}
+  {id:2105, g:"cardio", n:"Zügiges Marschieren",         m:"time", v:40, l:1, c:"Auf der Stelle in ruhigem, zügigem Tempo marschieren, Arme schwingen aktiv mit."},
+  {id:2106, g:"cardio", n:"Step-Touch",                  m:"time", v:40, l:1, c:"Seitlich einen Schritt setzen und den anderen Fuß heranführen, weich in den Knien bleiben, Seite wechseln."},
+  {id:2107, g:"cardio", n:"Seilspringen ruhig",          m:"time", v:40, l:2, c:"Kleine, gleichmäßige Sprünge aus dem Fußgelenk ohne echtes Seil simulieren, ruhiger Rhythmus."},
+  {id:2108, g:"cardio", n:"Shadow Boxing locker",        m:"time", v:40, l:1, c:"Lockere Schläge in die Luft setzen, Beinarbeit bleibt entspannt, Schultern nicht hochziehen."},
+  {id:2109, g:"cardio", n:"Knieheben moderat",           m:"time", v:35, l:2, c:"Auf der Stelle laufen, Knie auf Hüfthöhe heben, kontrolliertes statt hektisches Tempo."},
+  {id:2110, g:"cardio", n:"Fersenheben im Gehen",        m:"time", v:35, l:1, c:"Beim Gehen auf der Stelle bei jedem Schritt die Ferse bewusst Richtung Po ziehen."},
+  {id:2111, g:"cardio", n:"Seitliches Pendeln",          m:"time", v:35, l:2, c:"Das Körpergewicht ruhig und kontrolliert von einem Bein auf das andere verlagern."},
+  {id:2112, g:"cardio", n:"Boxsprünge ohne Kasten",      m:"reps", v:12, l:2, c:"Kleinen Sprung nach vorn simulieren, als würde man auf einen niedrigen Kasten springen, weich landen."},
+  {id:2113, g:"cardio", n:"Inchworm langsam",            m:"reps", v:8,  l:2, c:"Aus dem Stand die Hände langsam nach vorn wandern lassen bis zum Stütz, dann Füße zu den Händen heranlaufen."},
+  {id:2114, g:"cardio", n:"Stufensteigen ruhig",         m:"time", v:40, l:2, c:"Eine Stufe oder erhöhte Fläche in gleichmäßigem Tempo besteigen und wieder heruntersteigen, ganzer Fuß aufsetzen."},
+  {id:2115, g:"cardio", n:"Armkreisen im Stand",         m:"time", v:30, l:1, c:"Große, kontrollierte Kreise mit gestreckten Armen, Schulterblätter bewusst mitbewegen."},
+  {id:2116, g:"cardio", n:"Hampelmann ohne Sprung",      m:"time", v:40, l:1, c:"Statt zu springen abwechselnd ein Bein zur Seite setzen, während die Arme über dem Kopf zusammenkommen."},
+  {id:2117, g:"cardio", n:"Kniebeuge-Puls locker",       m:"time", v:35, l:2, c:"In der halben Kniebeuge kleine, sanfte Auf-ab-Bewegungen machen, um den Puls langsam zu steigern."},
+  {id:2118, g:"cardio", n:"Schattenrudern",              m:"time", v:35, l:1, c:"Im Stand eine Ruderbewegung mit den Armen simulieren, Rücken bleibt lang, Ellbogen ziehen nach hinten."},
+  {id:2119, g:"cardio", n:"Ausfallschritt-Gehen",        m:"reps", v:12, l:2, c:"Im Raum abwechselnd große Schritte nach vorn setzen und dabei jeweils tief in den Ausfallschritt sinken."},
+  {id:2120, g:"cardio", n:"Atemleiter im Stand",         m:"time", v:35, l:1, c:"Im Stehen bewusst vier Schritte lang einatmen und vier Schritte lang ausatmen, Bewegung bleibt ruhig."}
 ];
 
 /* ---------------- ABNEHMEN (1001–1120) ---------------- */
 var ABNEHMEN = [
   /* --- BEINE (24) --- */
-  {id:1001, g:"beine", n:"Kniebeuge im Dauertempo",      m:"reps", v:30, l:2, c:"Zügig durchziehen, oben nie ganz ausruhen."},
-  {id:1002, g:"beine", n:"Squat-Puls unten",             m:"time", v:40, l:2, c:"Tief bleiben und kleine Pulse machen."},
-  {id:1003, g:"beine", n:"Ausfallschritt im Wechsel",    m:"reps", v:24, l:2, c:"Zügig die Seite wechseln, Oberkörper aufrecht."},
-  {id:1004, g:"beine", n:"Squat-to-Stand",               m:"reps", v:20, l:2, c:"Tief in die Hocke, dann ganz aufrichten."},
-  {id:1005, g:"beine", n:"Sumo-Squat mit Pulsen",        m:"time", v:40, l:2, c:"Breiter Stand, unten pulsieren, Innenseite brennt."},
-  {id:1006, g:"beine", n:"Seitschritt-Kniebeuge",        m:"reps", v:24, l:2, c:"Ein Schritt zur Seite, tief runter, zurück."},
-  {id:1007, g:"beine", n:"Kniebeuge mit Knieheben",      m:"reps", v:24, l:2, c:"Nach jeder Kniebeuge ein Knie zur Brust ziehen."},
-  {id:1008, g:"beine", n:"Wandsitz mit Fersenheben",     m:"time", v:40, l:2, c:"Im Wandsitz abwechselnd die Fersen anheben."},
-  {id:1009, g:"beine", n:"Sprungkniebeuge im Takt",      m:"reps", v:20, l:3, c:"Weich landen, sofort in die nächste Wiederholung."},
-  {id:1010, g:"beine", n:"Ausfallschritt mit Sprung",    m:"reps", v:20, l:3, c:"In der Luft wechseln, Landung abfedern."},
-  {id:1011, g:"beine", n:"Wadenheben schnell",           m:"reps", v:35, l:1, c:"Hohes Tempo, ganze Bewegungsamplitude."},
-  {id:1012, g:"beine", n:"Glute Bridge im Tempo",        m:"reps", v:30, l:1, c:"Zügig hoch, oben kurz anspannen."},
-  {id:1013, g:"beine", n:"Marschieren in der Brücke",    m:"reps", v:24, l:2, c:"Hüfte oben halten und abwechselnd Knie heben."},
-  {id:1014, g:"beine", n:"Step-up im Tempo",             m:"reps", v:24, l:2, c:"Zügig auf die Stufe und wieder runter."},
-  {id:1015, g:"beine", n:"Kosakenwechsel",               m:"reps", v:16, l:2, c:"Von Seite zu Seite tief durchschieben."},
-  {id:1016, g:"beine", n:"Squat mit Seitkick",           m:"reps", v:24, l:2, c:"Nach der Kniebeuge ein Bein zur Seite strecken."},
-  {id:1017, g:"beine", n:"Beinheben seitlich schnell",   m:"reps", v:24, l:1, s:true, c:"Zügiges Tempo, Becken bleibt ruhig."},
-  {id:1018, g:"beine", n:"Feuerhydrant im Takt",         m:"reps", v:24, l:1, s:true, c:"Knie seitlich anheben, Rücken flach."},
-  {id:1019, g:"beine", n:"Donkey Kick schnell",          m:"reps", v:24, l:1, s:true, c:"Ferse zur Decke, ohne den Rücken zu hohlen."},
-  {id:1020, g:"beine", n:"Squat-Halt plus Pulse",        m:"time", v:45, l:3, c:"Zwanzig Sekunden halten, dann pulsen."},
-  {id:1021, g:"beine", n:"Sprungkniebeuge zur Seite",    m:"reps", v:20, l:3, c:"Seitlich springen und tief landen."},
-  {id:1022, g:"beine", n:"Good Morning zügig",           m:"reps", v:24, l:2, c:"Hüfte nach hinten, Rücken bleibt gerade."},
-  {id:1023, g:"beine", n:"Fersenlauf auf der Stelle",    m:"time", v:40, l:2, c:"Nur auf den Fersen gehen, Zehen bleiben oben."},
-  {id:1024, g:"beine", n:"Squat-Walk in der Hocke",      m:"time", v:35, l:3, c:"Tief in der Hocke bleiben und vorwärts gehen."},
+  {id:1001, g:"beine", n:"Kniebeuge im Dauertempo",      m:"reps", v:30, l:2, c:"Hüftbreiter Stand. Zügig und gleichmäßig in die Kniebeuge und wieder hoch, oben nie ganz stehen bleiben, damit die Spannung erhalten bleibt."},
+  {id:1002, g:"beine", n:"Squat-Puls unten",             m:"time", v:40, l:2, c:"In der tiefen Kniebeuge-Position bleiben und dort kleine, schnelle Auf-ab-Bewegungen machen."},
+  {id:1003, g:"beine", n:"Ausfallschritt im Wechsel",    m:"reps", v:24, l:2, c:"Zügig zwischen linkem und rechtem Ausfallschritt wechseln, Oberkörper bleibt dabei aufrecht."},
+  {id:1004, g:"beine", n:"Squat-to-Stand",               m:"reps", v:20, l:2, c:"Tief in die Hocke gehen und danach ganz aufrichten bis in den Stand, zügiges, durchgehendes Tempo."},
+  {id:1005, g:"beine", n:"Sumo-Squat mit Pulsen",        m:"time", v:40, l:2, c:"Breiter Stand, Fußspitzen außen. Unten bleiben und pulsieren, die Innenseite der Oberschenkel arbeitet intensiv mit."},
+  {id:1006, g:"beine", n:"Seitschritt-Kniebeuge",        m:"reps", v:24, l:2, c:"Einen großen Schritt zur Seite setzen, tief in die Kniebeuge sinken, dann zurück zur Mitte."},
+  {id:1007, g:"beine", n:"Kniebeuge mit Knieheben",      m:"reps", v:24, l:2, c:"Nach jeder Kniebeuge im Stehen ein Knie zügig zur Brust ziehen, dann die nächste Kniebeuge."},
+  {id:1008, g:"beine", n:"Wandsitz mit Fersenheben",     m:"time", v:40, l:2, c:"Im Wandsitz verharren und dabei abwechselnd die Fersen vom Boden abheben."},
+  {id:1009, g:"beine", n:"Sprungkniebeuge im Takt",      m:"reps", v:20, l:3, c:"Aus der Kniebeuge heraus abspringen, weich landen und direkt in die nächste Wiederholung übergehen, gleichmäßiger Rhythmus."},
+  {id:1010, g:"beine", n:"Ausfallschritt mit Sprung",    m:"reps", v:20, l:3, c:"Aus dem Ausfallschritt hochspringen und die Beine in der Luft wechseln, Landung weich abfedern."},
+  {id:1011, g:"beine", n:"Wadenheben schnell",           m:"reps", v:35, l:1, c:"Zügiges Tempo, dabei die volle Bewegungsamplitude von ganz unten bis ganz oben auf die Fußballen nutzen."},
+  {id:1012, g:"beine", n:"Glute Bridge im Tempo",        m:"reps", v:30, l:1, c:"Rückenlage, Füße aufgestellt. Zügig die Hüfte hochdrücken, oben kurz anspannen, dann wieder absenken."},
+  {id:1013, g:"beine", n:"Marschieren in der Brücke",    m:"reps", v:24, l:2, c:"Hüfte in der Brückenposition oben halten und dabei abwechselnd die Knie anheben, als würde man marschieren."},
+  {id:1014, g:"beine", n:"Step-up im Tempo",             m:"reps", v:24, l:2, c:"Zügig auf eine Stufe steigen und wieder herunter, gleichmäßiger, durchgehender Rhythmus."},
+  {id:1015, g:"beine", n:"Kosakenwechsel",               m:"reps", v:16, l:2, c:"Zügig von einer tiefen Seite zur anderen wechseln, das gestreckte Bein bleibt jeweils flach am Boden."},
+  {id:1016, g:"beine", n:"Squat mit Seitkick",           m:"reps", v:24, l:2, c:"Nach der Kniebeuge ein Bein zügig zur Seite strecken, dann zurück in die nächste Kniebeuge."},
+  {id:1017, g:"beine", n:"Beinheben seitlich schnell",   m:"reps", v:24, l:1, s:true, c:"Seitlage. Oberes Bein in zügigem, gleichmäßigem Tempo anheben und senken, Becken bleibt ruhig."},
+  {id:1018, g:"beine", n:"Feuerhydrant im Takt",         m:"reps", v:24, l:1, s:true, c:"Vierfüßlerstand. Knie zügig seitlich anheben und wieder senken, Rücken bleibt flach."},
+  {id:1019, g:"beine", n:"Donkey Kick schnell",          m:"reps", v:24, l:1, s:true, c:"Vierfüßlerstand. Ferse zügig Richtung Decke drücken und wieder absenken, ohne den Rücken durchzuhohlen."},
+  {id:1020, g:"beine", n:"Squat-Halt plus Pulse",        m:"time", v:45, l:3, c:"Zwanzig Sekunden in der Kniebeuge-Position halten, danach in kleine, schnelle Pulse übergehen."},
+  {id:1021, g:"beine", n:"Sprungkniebeuge zur Seite",    m:"reps", v:20, l:3, c:"Aus der Kniebeuge seitlich abspringen und tief in der nächsten Kniebeuge landen."},
+  {id:1022, g:"beine", n:"Good Morning zügig",           m:"reps", v:24, l:2, c:"Hüftbreiter Stand. Zügig die Hüfte mit geradem Rücken nach hinten schieben und wieder aufrichten."},
+  {id:1023, g:"beine", n:"Fersenlauf auf der Stelle",    m:"time", v:40, l:2, c:"Auf der Stelle laufen, dabei nur auf den Fersen abrollen, die Zehen bleiben oben."},
+  {id:1024, g:"beine", n:"Squat-Walk in der Hocke",      m:"time", v:35, l:3, c:"Tief in der Hocke bleiben und in dieser Position seitlich oder vorwärts gehen, durchgehende Spannung in den Oberschenkeln."},
 
   /* --- ARME & SCHULTERN (20) --- */
-  {id:1025, g:"arme", n:"Liegestütz-Schulterberührung",  m:"reps", v:20, l:2, c:"Nach jedem Liegestütz eine Schulter antippen."},
-  {id:1026, g:"arme", n:"Trizeps-Dip im Tempo",          m:"reps", v:20, l:2, c:"Zügig, aber mit voller Bewegungsamplitude."},
-  {id:1027, g:"arme", n:"Armkreisen schnell vorwärts",   m:"time", v:35, l:1, c:"Kleine schnelle Kreise, Arme waagrecht."},
-  {id:1028, g:"arme", n:"Armkreisen schnell rückwärts",  m:"time", v:35, l:1, c:"Gleiches Tempo, andere Richtung."},
-  {id:1029, g:"arme", n:"Boxschläge gerade",             m:"time", v:40, l:2, c:"Aus der Hüfte schlagen, Beine arbeiten mit."},
-  {id:1030, g:"arme", n:"Boxschläge Haken",              m:"time", v:40, l:2, c:"Seitliche Schläge, Rumpf rotiert."},
-  {id:1031, g:"arme", n:"Aufwärtsschläge",               m:"time", v:40, l:2, c:"Von unten nach oben, Knie federn mit."},
-  {id:1032, g:"arme", n:"Plank-Walk-up im Tempo",        m:"reps", v:20, l:2, c:"Zügig vom Unterarm in den Handstütz."},
-  {id:1033, g:"arme", n:"Bear Crawl vorwärts",           m:"time", v:35, l:3, c:"Knie tief, gleichmäßig vorwärts."},
-  {id:1034, g:"arme", n:"Crab Walk schnell",             m:"time", v:35, l:3, c:"Po hoch halten und zügig laufen."},
-  {id:1035, g:"arme", n:"Schulterdrücken ohne Gewicht",  m:"reps", v:30, l:1, c:"Arme über Kopf strecken, Tempo halten."},
-  {id:1036, g:"arme", n:"Seitheben schnell",             m:"reps", v:30, l:1, c:"Arme seitlich bis Schulterhöhe, zügig."},
-  {id:1037, g:"arme", n:"Frontheben schnell",            m:"reps", v:30, l:1, c:"Arme vor dem Körper bis Schulterhöhe."},
-  {id:1038, g:"arme", n:"Trizeps-Kickback im Takt",      m:"reps", v:30, l:1, c:"Oberkörper vorgeneigt, Arme nach hinten strecken."},
-  {id:1039, g:"arme", n:"Curl-Sprint ohne Gewicht",      m:"time", v:30, l:1, c:"Schnelles Beugen und Strecken mit Anspannung."},
-  {id:1040, g:"arme", n:"Liegestütz-Halt mit Wippen",    m:"time", v:35, l:3, c:"Im Stütz vor und zurück wiegen."},
-  {id:1041, g:"arme", n:"Plank-Jack mit Schulterklopf",  m:"reps", v:20, l:3, c:"Beine grätschen und dabei die Schulter tippen."},
-  {id:1042, g:"arme", n:"Ruderzug im Stand schnell",     m:"time", v:40, l:2, c:"Ellbogen kraftvoll nach hinten ziehen."},
-  {id:1043, g:"arme", n:"Boxen mit Kniehub",             m:"time", v:40, l:3, c:"Schlagen und dabei die Knie hochziehen."},
-  {id:1044, g:"arme", n:"Scapula Push-up im Takt",       m:"reps", v:24, l:1, c:"Arme gestreckt, nur die Schulterblätter bewegen."},
+  {id:1025, g:"arme", n:"Liegestütz-Schulterberührung",  m:"reps", v:20, l:2, c:"Nach jeder Liegestütz im hohen Stütz kurz die gegenüberliegende Schulter antippen, Hüfte bleibt ruhig."},
+  {id:1026, g:"arme", n:"Trizeps-Dip im Tempo",          m:"reps", v:20, l:2, c:"Zügig absenken und hochdrücken, dabei die volle Bewegungsamplitude nutzen, nicht nur oberflächlich wippen."},
+  {id:1027, g:"arme", n:"Armkreisen schnell vorwärts",   m:"time", v:35, l:1, c:"Arme seitlich waagrecht, kleine, schnelle Kreise nach vorn, konstantes Tempo halten."},
+  {id:1028, g:"arme", n:"Armkreisen schnell rückwärts",  m:"time", v:35, l:1, c:"Gleiches Tempo wie vorwärts, nur in die andere Richtung."},
+  {id:1029, g:"arme", n:"Boxschläge gerade",             m:"time", v:40, l:2, c:"Aus der Hüfte heraus abwechselnd gerade Schläge in die Luft setzen, die Beine federn leicht mit."},
+  {id:1030, g:"arme", n:"Boxschläge Haken",              m:"time", v:40, l:2, c:"Seitliche Schläge (Haken) setzen, der Rumpf rotiert dabei bewusst mit."},
+  {id:1031, g:"arme", n:"Aufwärtsschläge",               m:"time", v:40, l:2, c:"Schläge von unten nach oben setzen, die Knie federn bei jedem Schlag leicht mit."},
+  {id:1032, g:"arme", n:"Plank-Walk-up im Tempo",        m:"reps", v:20, l:2, c:"Zügig vom Unterarmstütz in den hohen Handstütz hochdrücken und wieder zurück."},
+  {id:1033, g:"arme", n:"Bear Crawl vorwärts",           m:"time", v:35, l:3, c:"Vierfüßlerstand mit angehobenen Knien, gleichmäßig und zügig vorwärts krabbeln."},
+  {id:1034, g:"arme", n:"Crab Walk schnell",             m:"time", v:35, l:3, c:"Rückwärtsstütz mit angehobener Hüfte, zügig im Krebsgang vor- und zurücklaufen."},
+  {id:1035, g:"arme", n:"Schulterdrücken ohne Gewicht",  m:"reps", v:30, l:1, c:"Arme im zügigen, gleichmäßigen Tempo über den Kopf strecken und wieder absenken."},
+  {id:1036, g:"arme", n:"Seitheben schnell",             m:"reps", v:30, l:1, c:"Arme seitlich zügig bis Schulterhöhe anheben und wieder absenken."},
+  {id:1037, g:"arme", n:"Frontheben schnell",            m:"reps", v:30, l:1, c:"Arme vor dem Körper zügig bis Schulterhöhe anheben und wieder absenken."},
+  {id:1038, g:"arme", n:"Trizeps-Kickback im Takt",      m:"reps", v:30, l:1, c:"Oberkörper leicht vorgeneigt, Arme im gleichmäßigen Takt nach hinten strecken und wieder anwinkeln."},
+  {id:1039, g:"arme", n:"Curl-Sprint ohne Gewicht",      m:"time", v:30, l:1, c:"Arme mit bewusster Eigenspannung schnell beugen und strecken, als würde man gegen einen Widerstand curlen."},
+  {id:1040, g:"arme", n:"Liegestütz-Halt mit Wippen",    m:"time", v:35, l:3, c:"In der tiefen Liegestütz-Position leicht vor und zurück wiegen, Spannung bleibt durchgehend hoch."},
+  {id:1041, g:"arme", n:"Plank-Jack mit Schulterklopf",  m:"reps", v:20, l:3, c:"Im Stütz die Beine springend öffnen und schließen, dazwischen kurz die Schulter antippen."},
+  {id:1042, g:"arme", n:"Ruderzug im Stand schnell",     m:"time", v:40, l:2, c:"Im Stand zügig eine Ruderbewegung simulieren, Ellbogen kraftvoll nach hinten ziehen."},
+  {id:1043, g:"arme", n:"Boxen mit Kniehub",             m:"time", v:40, l:3, c:"Schläge setzen und dabei abwechselnd die Knie hochziehen, ganzkörperlich im Tempo bleiben."},
+  {id:1044, g:"arme", n:"Scapula Push-up im Takt",       m:"reps", v:24, l:1, c:"Im hohen Stütz, Arme bleiben gestreckt. Zügig nur die Schulterblätter zusammen- und auseinanderschieben."},
 
   /* --- BRUST (16) --- */
-  {id:1045, g:"brust", n:"Liegestütz im Dauertempo",     m:"reps", v:20, l:2, c:"Gleichmäßiges Tempo, Körper bleibt eine Linie."},
-  {id:1046, g:"brust", n:"Knie-Liegestütz schnell",      m:"reps", v:28, l:1, c:"Zügig, aber mit voller Bewegung."},
-  {id:1047, g:"brust", n:"Liegestütz erhöht im Takt",    m:"reps", v:24, l:1, c:"Hände auf einem Stuhl, hohes Tempo."},
-  {id:1048, g:"brust", n:"Liegestütz mit Plank-Jack",    m:"reps", v:16, l:3, c:"Liegestütz, dann Beine springend öffnen."},
-  {id:1049, g:"brust", n:"Liegestütz mit Knie zur Brust",m:"reps", v:16, l:3, c:"Nach dem Drücken ein Knie nach vorn ziehen."},
-  {id:1050, g:"brust", n:"Wand-Liegestütz schnell",      m:"reps", v:30, l:1, c:"Sanfte Variante im hohen Tempo."},
-  {id:1051, g:"brust", n:"Liegestütz mit Handwechsel",   m:"reps", v:16, l:3, c:"Zwischen breit und eng abwechseln."},
-  {id:1052, g:"brust", n:"Hindu Push-up fließend",       m:"reps", v:14, l:2, c:"In einer fließenden Bewegung durchtauchen."},
-  {id:1053, g:"brust", n:"Liegestütz mit Schritt",       m:"reps", v:16, l:2, c:"Nach jedem Liegestütz die Hände versetzen."},
-  {id:1054, g:"brust", n:"Brust-Klatschen im Stand",     m:"time", v:35, l:1, c:"Arme vor der Brust kräftig zusammenführen."},
-  {id:1055, g:"brust", n:"Liegestütz-Burpee ohne Sprung",m:"reps", v:14, l:3, c:"Runter, Liegestütz, hoch – ohne Sprung."},
-  {id:1056, g:"brust", n:"Spiderman im Tempo",           m:"reps", v:16, l:3, c:"Knie beim Absenken zum Ellbogen ziehen."},
-  {id:1057, g:"brust", n:"Liegestütz mit Rotation zügig",m:"reps", v:16, l:2, c:"Oben einen Arm zur Decke öffnen."},
-  {id:1058, g:"brust", n:"Breiter Liegestütz schnell",   m:"reps", v:18, l:2, c:"Hände weit außen, zügiges Tempo."},
-  {id:1059, g:"brust", n:"Liegestütz-Halt mit Tappen",   m:"time", v:35, l:3, c:"Unten halten und abwechselnd die Hände tippen."},
-  {id:1060, g:"brust", n:"Stützwechsel schnell",         m:"reps", v:20, l:2, c:"Zügig zwischen Hand- und Unterarmstütz wechseln."},
+  {id:1045, g:"brust", n:"Liegestütz im Dauertempo",     m:"reps", v:20, l:2, c:"Gleichmäßiges, zügiges Tempo, Körper bildet durchgehend eine gerade Linie vom Kopf bis zu den Fersen."},
+  {id:1046, g:"brust", n:"Knie-Liegestütz schnell",      m:"reps", v:28, l:1, c:"Knie am Boden, Hüfte gestreckt. Zügiges Tempo bei voller Bewegungsamplitude."},
+  {id:1047, g:"brust", n:"Liegestütz erhöht im Takt",    m:"reps", v:24, l:1, c:"Hände auf einem Stuhl, zügiges, gleichmäßiges Tempo für viele Wiederholungen."},
+  {id:1048, g:"brust", n:"Liegestütz mit Plank-Jack",    m:"reps", v:16, l:3, c:"Nach jeder Liegestütz im Stütz die Beine springend öffnen und wieder schließen."},
+  {id:1049, g:"brust", n:"Liegestütz mit Knie zur Brust",m:"reps", v:16, l:3, c:"Nach dem Hochdrücken zügig ein Knie nach vorn zur Brust ziehen, dann die nächste Liegestütz."},
+  {id:1050, g:"brust", n:"Wand-Liegestütz schnell",      m:"reps", v:30, l:1, c:"Sanfte Variante gegen die Wand, dafür im höheren Tempo für mehr Wiederholungen."},
+  {id:1051, g:"brust", n:"Liegestütz mit Handwechsel",   m:"reps", v:16, l:3, c:"Zwischen breiter und enger Handposition abwechseln, Tempo bleibt zügig."},
+  {id:1052, g:"brust", n:"Hindu Push-up fließend",       m:"reps", v:14, l:2, c:"In einer durchgehenden, fließenden Bewegung von der Hüfte hoch nach vorn unten tauchen und zurück."},
+  {id:1053, g:"brust", n:"Liegestütz mit Schritt",       m:"reps", v:16, l:2, c:"Nach jeder Liegestütz die Hände seitlich versetzen, sodass der Körper langsam wandert."},
+  {id:1054, g:"brust", n:"Brust-Klatschen im Stand",     m:"time", v:35, l:1, c:"Im Stand die Arme vor der Brust kräftig und zügig zusammenführen, als würde man klatschen."},
+  {id:1055, g:"brust", n:"Liegestütz-Burpee ohne Sprung",m:"reps", v:14, l:3, c:"In die Liegestütz-Position runter, eine Liegestütz machen, dann wieder hoch – ohne den abschließenden Sprung."},
+  {id:1056, g:"brust", n:"Spiderman im Tempo",           m:"reps", v:16, l:3, c:"Beim Absenken der Liegestütz zügig ein Knie zum gleichseitigen Ellbogen ziehen, Seite im Wechsel."},
+  {id:1057, g:"brust", n:"Liegestütz mit Rotation zügig",m:"reps", v:16, l:2, c:"Oben in der Liegestütz einen Arm zügig zur Decke öffnen, Blick folgt der Hand, dann Seite wechseln."},
+  {id:1058, g:"brust", n:"Breiter Liegestütz schnell",   m:"reps", v:18, l:2, c:"Hände deutlich breiter als schulterbreit, zügiges Tempo bei voller Tiefe."},
+  {id:1059, g:"brust", n:"Liegestütz-Halt mit Tappen",   m:"time", v:35, l:3, c:"Unten in der Liegestütz halten und dabei abwechselnd mit einer Hand kurz den Boden neben der anderen antippen."},
+  {id:1060, g:"brust", n:"Stützwechsel schnell",         m:"reps", v:20, l:2, c:"Zügig zwischen Hand- und Unterarmstütz wechseln, Rumpf bleibt während des Wechsels stabil."},
 
   /* --- BAUCH & RUMPF (24) --- */
-  {id:1061, g:"bauch", n:"Mountain Climber schnell",     m:"time", v:45, l:3, c:"Hohes Tempo, Hüfte bleibt tief."},
-  {id:1062, g:"bauch", n:"Cross-Body Climber",           m:"time", v:40, l:3, c:"Knie diagonal zum gegenüberliegenden Ellbogen."},
-  {id:1063, g:"bauch", n:"Crunch im Dauertempo",         m:"reps", v:35, l:1, c:"Kurze Bewegung, Nacken lang lassen."},
-  {id:1064, g:"bauch", n:"Bicycle schnell",              m:"reps", v:40, l:2, c:"Zügig drehen, Ellbogen zum Gegenknie."},
-  {id:1065, g:"bauch", n:"Flutter Kick schnell",         m:"time", v:40, l:2, c:"Kleine schnelle Scheren, Beine tief."},
-  {id:1066, g:"bauch", n:"Russian Twist zügig",          m:"reps", v:40, l:2, c:"Aus dem Rumpf drehen, nicht nur die Arme."},
-  {id:1067, g:"bauch", n:"Plank Jack im Takt",           m:"reps", v:28, l:2, c:"Beine springend öffnen und schließen."},
-  {id:1068, g:"bauch", n:"Sit-up im Dauertempo",         m:"reps", v:24, l:2, c:"Zügig aufrollen und kontrolliert zurück."},
-  {id:1069, g:"bauch", n:"Toe Touch schnell",            m:"reps", v:28, l:2, c:"Beine senkrecht, Hände Richtung Zehen."},
-  {id:1070, g:"bauch", n:"Sitzendes Beinpendeln",        m:"time", v:35, l:2, c:"Beine schweben und seitlich pendeln lassen."},
-  {id:1071, g:"bauch", n:"Standing Knee Crunch",         m:"reps", v:30, l:1, c:"Im Stand Knie und Ellbogen zusammenführen."},
-  {id:1072, g:"bauch", n:"Seitbeuge im Stand",           m:"reps", v:30, l:1, c:"Zur Seite neigen, Bauch bleibt fest."},
-  {id:1073, g:"bauch", n:"Plank mit Kniewechsel",        m:"reps", v:24, l:2, c:"Im Stütz abwechselnd Knie zum Boden tippen."},
-  {id:1074, g:"bauch", n:"Reverse Crunch schnell",       m:"reps", v:24, l:2, c:"Knie zügig zur Brust rollen."},
-  {id:1075, g:"bauch", n:"Scissor Kick schnell",         m:"time", v:40, l:2, c:"Beine kreuzen sich zügig über- und untereinander."},
-  {id:1076, g:"bauch", n:"Hollow Hold mit Wippen",       m:"time", v:35, l:3, c:"In der Hollow-Position leicht schaukeln."},
-  {id:1077, g:"bauch", n:"Plank mit Armzug",             m:"reps", v:24, l:2, c:"Im Stütz einen Arm nach hinten ziehen."},
-  {id:1078, g:"bauch", n:"Käfer im Tempo",               m:"reps", v:30, l:1, c:"Gegengleich strecken, Rücken bleibt am Boden."},
-  {id:1079, g:"bauch", n:"Standing Oblique Twist",       m:"time", v:40, l:2, c:"Im Stand aus der Taille drehen, Hüfte ruhig."},
-  {id:1080, g:"bauch", n:"Plank mit Sprungwechsel",      m:"reps", v:20, l:3, c:"Beine springend vor und zurück wechseln."},
-  {id:1081, g:"bauch", n:"V-Up schnell",                 m:"reps", v:20, l:3, c:"Arme und Beine gleichzeitig zusammenführen."},
-  {id:1082, g:"bauch", n:"Heel Reach im Takt",           m:"reps", v:40, l:1, c:"Seitlich zur Ferse tippen, zügiges Tempo."},
-  {id:1083, g:"bauch", n:"Beinheben im Dauertempo",      m:"reps", v:20, l:2, c:"Beine gestreckt, Lendenwirbel bleibt unten."},
-  {id:1084, g:"bauch", n:"Squat-Twist",                  m:"reps", v:24, l:2, c:"Aus der Kniebeuge hoch und zur Seite drehen."},
+  {id:1061, g:"bauch", n:"Mountain Climber schnell",     m:"time", v:45, l:3, c:"Hoher Stütz, hohes Tempo. Knie schnell abwechselnd zur Brust ziehen, Hüfte bleibt tief."},
+  {id:1062, g:"bauch", n:"Cross-Body Climber",           m:"time", v:40, l:3, c:"Wie Mountain Climber, aber das Knie zieht diagonal zum gegenüberliegenden Ellbogen."},
+  {id:1063, g:"bauch", n:"Crunch im Dauertempo",         m:"reps", v:35, l:1, c:"Kurze, zügige Bewegung, nur Kopf und Schultern lösen sich vom Boden, Nacken bleibt lang."},
+  {id:1064, g:"bauch", n:"Bicycle schnell",              m:"reps", v:40, l:2, c:"Zügig aus dem Rumpf heraus drehen, Ellbogen abwechselnd zum Gegenknie führen."},
+  {id:1065, g:"bauch", n:"Flutter Kick schnell",         m:"time", v:40, l:2, c:"Rückenlage, unterer Rücken unten. Kleine, schnelle Scherbewegungen mit den gestreckten Beinen."},
+  {id:1066, g:"bauch", n:"Russian Twist zügig",          m:"reps", v:40, l:2, c:"Sitzend, Oberkörper zurückgelehnt. Zügig aus dem Rumpf – nicht nur aus den Armen – nach links und rechts drehen."},
+  {id:1067, g:"bauch", n:"Plank Jack im Takt",           m:"reps", v:28, l:2, c:"Hoher Stütz. Beine im gleichmäßigen Takt springend öffnen und schließen."},
+  {id:1068, g:"bauch", n:"Sit-up im Dauertempo",         m:"reps", v:24, l:2, c:"Zügig aufrollen bis zum Sitzen, dann kontrolliert zurück, durchgehender Rhythmus."},
+  {id:1069, g:"bauch", n:"Toe Touch schnell",            m:"reps", v:28, l:2, c:"Rückenlage, Beine senkrecht. Zügig mit den Händen Richtung Zehenspitzen tippen, nur Kopf und Schultern heben."},
+  {id:1070, g:"bauch", n:"Sitzendes Beinpendeln",        m:"time", v:35, l:2, c:"Aufrecht sitzen, Beine schweben. Beine kontrolliert seitlich hin- und herpendeln lassen."},
+  {id:1071, g:"bauch", n:"Standing Knee Crunch",         m:"reps", v:30, l:1, c:"Im Stand Knie und gegenüberliegenden Ellbogen zügig zusammenführen, dann die Seite wechseln."},
+  {id:1072, g:"bauch", n:"Seitbeuge im Stand",           m:"reps", v:30, l:1, c:"Im Stand zügig zur Seite neigen, der Bauch bleibt dabei angespannt, dann zur anderen Seite."},
+  {id:1073, g:"bauch", n:"Plank mit Kniewechsel",        m:"reps", v:24, l:2, c:"Hoher Stütz. Abwechselnd ein Knie zügig Richtung Boden unter die Brust tippen."},
+  {id:1074, g:"bauch", n:"Reverse Crunch schnell",       m:"reps", v:24, l:2, c:"Rückenlage, Beine angewinkelt. Knie zügig zur Brust rollen, Becken hebt kurz ab."},
+  {id:1075, g:"bauch", n:"Scissor Kick schnell",         m:"time", v:40, l:2, c:"Rückenlage, Beine gestreckt knapp über dem Boden. Zügig über- und untereinander kreuzen."},
+  {id:1076, g:"bauch", n:"Hollow Hold mit Wippen",       m:"time", v:35, l:3, c:"In der Hollow-Position mit kleiner Amplitude leicht schaukeln, Grundspannung bleibt erhalten."},
+  {id:1077, g:"bauch", n:"Plank mit Armzug",             m:"reps", v:24, l:2, c:"Hoher Stütz. Einen Arm zügig nach hinten ziehen, als würde man rudern, dann die Seite wechseln."},
+  {id:1078, g:"bauch", n:"Käfer im Tempo",               m:"reps", v:30, l:1, c:"Rückenlage, Arme und Beine gegengleich strecken, zügiges, aber kontrolliertes Tempo, Rücken bleibt unten."},
+  {id:1079, g:"bauch", n:"Standing Oblique Twist",       m:"time", v:40, l:2, c:"Im Stand aus der Taille heraus zügig drehen, die Hüfte bleibt dabei ruhig nach vorn gerichtet."},
+  {id:1080, g:"bauch", n:"Plank mit Sprungwechsel",      m:"reps", v:20, l:3, c:"Hoher Stütz. Beide Beine gemeinsam springend nach vorn und zurück versetzen."},
+  {id:1081, g:"bauch", n:"V-Up schnell",                 m:"reps", v:20, l:3, c:"Rückenlage, Arme über dem Kopf. Zügig Oberkörper und Beine gleichzeitig zusammenführen."},
+  {id:1082, g:"bauch", n:"Heel Reach im Takt",           m:"reps", v:40, l:1, c:"Rückenlage, Knie aufgestellt. Im zügigen Takt abwechselnd zur Ferse tippen."},
+  {id:1083, g:"bauch", n:"Beinheben im Dauertempo",      m:"reps", v:20, l:2, c:"Rückenlage, Beine gestreckt. Zügig anheben und senken, der untere Rücken bleibt am Boden."},
+  {id:1084, g:"bauch", n:"Squat-Twist",                  m:"reps", v:24, l:2, c:"Aus der Kniebeuge hochkommen und dabei zügig zur Seite drehen, dann die nächste Kniebeuge zur anderen Seite."},
 
   /* --- RÜCKEN (20) --- */
-  {id:1085, g:"ruecken", n:"Superman im Takt",           m:"reps", v:28, l:1, c:"Zügig anheben und absenken, ohne Schwung."},
-  {id:1086, g:"ruecken", n:"Schwimmer schnell",          m:"time", v:40, l:2, c:"Arme und Beine wechselseitig, hohes Tempo."},
-  {id:1087, g:"ruecken", n:"Bird Dog im Tempo",          m:"reps", v:28, l:1, c:"Gegengleich strecken, Becken bleibt waagrecht."},
-  {id:1088, g:"ruecken", n:"Ruderzug mit Handtuch",      m:"reps", v:28, l:2, c:"Handtuch spannen und zügig zum Bauch ziehen."},
-  {id:1089, g:"ruecken", n:"Türrahmen-Rudern schnell",   m:"reps", v:16, l:3, s:true, c:"Zurücklehnen und zügig heranziehen."},
-  {id:1090, g:"ruecken", n:"Reverse Angel im Takt",      m:"reps", v:24, l:2, c:"Arme dicht über dem Boden kreisen lassen."},
-  {id:1091, g:"ruecken", n:"Hüftheben schnell",          m:"reps", v:30, l:1, c:"Fersen in den Boden drücken, zügiges Tempo."},
-  {id:1092, g:"ruecken", n:"Schulterblattzug im Stand",  m:"reps", v:30, l:1, c:"Ellbogen im rechten Winkel nach hinten ziehen."},
-  {id:1093, g:"ruecken", n:"Rückenstrecken im Takt",     m:"reps", v:28, l:2, c:"Nur den Oberkörper anheben, Beine bleiben liegen."},
-  {id:1094, g:"ruecken", n:"Schattenklimmzug",           m:"time", v:40, l:2, c:"Zugbewegung im Stand mit voller Anspannung."},
-  {id:1095, g:"ruecken", n:"Brücke mit Marschieren",     m:"reps", v:28, l:2, c:"Hüfte oben, abwechselnd Füße anheben."},
-  {id:1096, g:"ruecken", n:"Katze-Kuh zügig",            m:"reps", v:28, l:1, c:"Fließend zwischen Rundung und Streckung wechseln."},
-  {id:1097, g:"ruecken", n:"Wall Slide schnell",         m:"reps", v:24, l:1, c:"Arme an der Wand zügig hoch und runter."},
-  {id:1098, g:"ruecken", n:"Reverse Plank Halt",         m:"time", v:35, l:3, c:"Rückwärtsstütz, Körper bildet eine gerade Linie."},
-  {id:1099, g:"ruecken", n:"Superman-Zug im Takt",       m:"reps", v:24, l:2, c:"Arme vorstrecken und wie beim Ziehen anwinkeln."},
-  {id:1100, g:"ruecken", n:"Hüftbeuge zügig",            m:"reps", v:28, l:2, c:"Hüfte nach hinten schieben, Rücken gerade."},
-  {id:1101, g:"ruecken", n:"Vierfüßler-Marsch",          m:"time", v:35, l:2, c:"Knie schweben, abwechselnd Hände und Füße heben."},
-  {id:1102, g:"ruecken", n:"Rudern in der Hocke",        m:"time", v:40, l:2, c:"Tief in der Hocke, Ruderbewegung mit Zug."},
-  {id:1103, g:"ruecken", n:"Prone Cobra im Takt",        m:"reps", v:24, l:2, c:"Brust anheben, Daumen nach außen drehen."},
-  {id:1104, g:"ruecken", n:"Schulterbrücke einbeinig",   m:"reps", v:20, l:2, s:true, c:"Ein Bein gestreckt, Hüfte zügig hoch."},
+  {id:1085, g:"ruecken", n:"Superman im Takt",           m:"reps", v:28, l:1, c:"Bauchlage. Arme und Beine zügig anheben und absenken, ohne Schwung zu holen."},
+  {id:1086, g:"ruecken", n:"Schwimmer schnell",          m:"time", v:40, l:2, c:"Bauchlage, Arme vorgestreckt. Arme und Beine im hohen Tempo wechselseitig auf und ab bewegen."},
+  {id:1087, g:"ruecken", n:"Bird Dog im Tempo",          m:"reps", v:28, l:1, c:"Vierfüßlerstand. Arm und Gegenbein zügig strecken und wieder anziehen, Becken bleibt waagrecht."},
+  {id:1088, g:"ruecken", n:"Ruderzug mit Handtuch",      m:"reps", v:28, l:2, c:"Handtuch spannen und zügig zum Bauch heranziehen, dann wieder strecken."},
+  {id:1089, g:"ruecken", n:"Türrahmen-Rudern schnell",   m:"reps", v:16, l:3, s:true, c:"Am Türrahmen zurücklehnen und zügig heranziehen, dann wieder strecken."},
+  {id:1090, g:"ruecken", n:"Reverse Angel im Takt",      m:"reps", v:24, l:2, c:"Bauchlage, Arme seitlich. Im gleichmäßigen Takt dicht über dem Boden kreisen lassen."},
+  {id:1091, g:"ruecken", n:"Hüftheben schnell",          m:"reps", v:30, l:1, c:"Rückenlage, Fersen in den Boden gedrückt. Zügig die Hüfte heben und senken."},
+  {id:1092, g:"ruecken", n:"Schulterblattzug im Stand",  m:"reps", v:30, l:1, c:"Arme im rechten Winkel vor dem Körper. Zügig die Ellbogen nach hinten ziehen und wieder lösen."},
+  {id:1093, g:"ruecken", n:"Rückenstrecken im Takt",     m:"reps", v:28, l:2, c:"Bauchlage. Nur den Oberkörper im gleichmäßigen Takt anheben und senken, Beine bleiben liegen."},
+  {id:1094, g:"ruecken", n:"Schattenklimmzug",           m:"time", v:40, l:2, c:"Im Stand eine Klimmzugbewegung mit voller Armspannung simulieren, zügiger Rhythmus."},
+  {id:1095, g:"ruecken", n:"Brücke mit Marschieren",     m:"reps", v:28, l:2, c:"Hüfte in der Brücke oben halten und dabei abwechselnd zügig die Füße anheben."},
+  {id:1096, g:"ruecken", n:"Katze-Kuh zügig",            m:"reps", v:28, l:1, c:"Vierfüßlerstand. Fließend und zügig zwischen Rundung und Streckung der Wirbelsäule wechseln."},
+  {id:1097, g:"ruecken", n:"Wall Slide schnell",         m:"reps", v:24, l:1, c:"Rücken und Arme an der Wand. Arme zügig hoch und runter schieben, Kontakt zur Wand bleibt bestehen."},
+  {id:1098, g:"ruecken", n:"Reverse Plank Halt",         m:"time", v:35, l:3, c:"Rückwärtsstütz, Körper bildet eine gerade Linie von den Schultern bis zu den Fersen. Position halten."},
+  {id:1099, g:"ruecken", n:"Superman-Zug im Takt",       m:"reps", v:24, l:2, c:"Bauchlage. Arme vorstrecken, dann zügig wie beim Rudern anwinkeln und die Ellbogen nach hinten ziehen."},
+  {id:1100, g:"ruecken", n:"Hüftbeuge zügig",            m:"reps", v:28, l:2, c:"Hüftbreiter Stand. Zügig die Hüfte mit geradem Rücken nach hinten schieben und wieder aufrichten."},
+  {id:1101, g:"ruecken", n:"Vierfüßler-Marsch",          m:"time", v:35, l:2, c:"Knie schweben knapp über dem Boden. Abwechselnd eine Hand und den gegenüberliegenden Fuß anheben."},
+  {id:1102, g:"ruecken", n:"Rudern in der Hocke",        m:"time", v:40, l:2, c:"Tief in der Hocke bleiben und dabei eine zügige Ruderbewegung mit den Armen simulieren."},
+  {id:1103, g:"ruecken", n:"Prone Cobra im Takt",        m:"reps", v:24, l:2, c:"Bauchlage. Im gleichmäßigen Takt die Brust anheben, Daumen nach außen drehen, dann absenken."},
+  {id:1104, g:"ruecken", n:"Schulterbrücke einbeinig",   m:"reps", v:20, l:2, s:true, c:"Ein Bein gestreckt in der Luft, das andere trägt. Hüfte zügig heben und senken, dann Bein wechseln."},
 
   /* --- CARDIO (16) – der Motor dieses Plans --- */
-  {id:1105, g:"cardio", n:"Burpee komplett",             m:"reps", v:15, l:3, c:"Sauberer Ablauf statt maximales Tempo."},
-  {id:1106, g:"cardio", n:"Half Burpee schnell",         m:"reps", v:20, l:3, c:"Ohne Liegestütz, zügig rein und raus."},
-  {id:1107, g:"cardio", n:"Hampelmann schnell",          m:"time", v:50, l:2, c:"Hohes gleichmäßiges Tempo halten."},
-  {id:1108, g:"cardio", n:"High Knees Sprint",           m:"time", v:40, l:3, c:"Knie auf Hüfthöhe, kurze Bodenkontakte."},
-  {id:1109, g:"cardio", n:"Skater im Tempo",             m:"time", v:45, l:2, c:"Seitlich springen, weich auf einem Bein landen."},
-  {id:1110, g:"cardio", n:"Seilspringen schnell",        m:"time", v:50, l:2, c:"Kleine Sprünge, Handgelenke kreisen."},
-  {id:1111, g:"cardio", n:"Star Jump",                   m:"reps", v:25, l:2, c:"Aus der Hocke explosiv zum Stern öffnen."},
-  {id:1112, g:"cardio", n:"Tuck Jump",                   m:"reps", v:15, l:3, c:"Knie in der Luft zur Brust, weich landen."},
-  {id:1113, g:"cardio", n:"Lateral Shuffle schnell",     m:"time", v:45, l:2, c:"Tiefe Position, schnelle Seitschritte."},
-  {id:1114, g:"cardio", n:"Antritt auf der Stelle",       m:"time", v:35, l:3, c:"Maximales Tempo aus dem Stand, Vorfußlauf."},
-  {id:1115, g:"cardio", n:"Burpee mit Ausfallschritt",   m:"reps", v:14, l:3, c:"Nach dem Aufstehen ein Bein nach hinten setzen."},
-  {id:1116, g:"cardio", n:"Squat-Sprung-Serie",          m:"reps", v:20, l:3, c:"Ohne Pause zwischen den Sprüngen."},
-  {id:1117, g:"cardio", n:"Bergsteiger-Sprint",          m:"time", v:35, l:3, c:"So schnell wie möglich, Hüfte tief."},
-  {id:1118, g:"cardio", n:"Treppensprint",               m:"time", v:45, l:3, c:"Stufe oder Treppe im hohen Tempo."},
-  {id:1119, g:"cardio", n:"Boxen mit Sprungwechsel",     m:"time", v:45, l:3, c:"Schlagen und dabei die Füße wechseln."},
-  {id:1120, g:"cardio", n:"Ganzkörper-Kette",            m:"reps", v:12, l:3, c:"Kniebeuge, Liegestütz, Sprung – als eine Wiederholung."}
+  {id:1105, g:"cardio", n:"Burpee komplett",             m:"reps", v:15, l:3, c:"Aus dem Stand in die Hocke, Hände auf den Boden, Beine nach hinten in den Stütz, Liegestütz, zurück in die Hocke und hoch in den Strecksprung – sauberer Ablauf ist wichtiger als Tempo."},
+  {id:1106, g:"cardio", n:"Half Burpee schnell",         m:"reps", v:20, l:3, c:"Wie Burpee, aber ohne Liegestütz – zügig in den Stütz springen und direkt zurück in die Hocke und hoch."},
+  {id:1107, g:"cardio", n:"Hampelmann schnell",          m:"time", v:50, l:2, c:"Beine seitlich öffnen und Arme über dem Kopf zusammenführen, hohes, gleichmäßiges Tempo halten."},
+  {id:1108, g:"cardio", n:"High Knees Sprint",           m:"time", v:40, l:3, c:"Auf der Stelle laufen, Knie auf Hüfthöhe, so kurze Bodenkontakte wie möglich."},
+  {id:1109, g:"cardio", n:"Skater im Tempo",             m:"time", v:45, l:2, c:"Seitlich von einem Bein aufs andere springen, weich auf dem jeweils vorderen Bein landen."},
+  {id:1110, g:"cardio", n:"Seilspringen schnell",        m:"time", v:50, l:2, c:"Kleine, schnelle Sprünge aus dem Fußgelenk simulieren, Handgelenke kreisen aktiv mit."},
+  {id:1111, g:"cardio", n:"Star Jump",                   m:"reps", v:25, l:2, c:"Aus der Hocke explosiv nach oben abspringen und Arme sowie Beine sternförmig weit öffnen."},
+  {id:1112, g:"cardio", n:"Tuck Jump",                   m:"reps", v:15, l:3, c:"Aus dem Stand hochspringen, beide Knie so hoch wie möglich zur Brust ziehen, weich landen."},
+  {id:1113, g:"cardio", n:"Lateral Shuffle schnell",     m:"time", v:45, l:2, c:"Tiefe, athletische Position, schnelle Seitschritte hin und her ohne die Knie durchzudrücken."},
+  {id:1114, g:"cardio", n:"Antritt auf der Stelle",       m:"time", v:35, l:3, c:"Maximales Lauftempo aus dem Stand heraus, kurze Bodenkontakte über den Vorfuß."},
+  {id:1115, g:"cardio", n:"Burpee mit Ausfallschritt",   m:"reps", v:14, l:3, c:"Nach dem Aufstehen aus dem Burpee zusätzlich ein Bein nach hinten in den Ausfallschritt setzen."},
+  {id:1116, g:"cardio", n:"Squat-Sprung-Serie",          m:"reps", v:20, l:3, c:"Ohne Pause zwischen den Sprüngen direkt von einer Landung in die nächste Kniebeuge und den nächsten Sprung übergehen."},
+  {id:1117, g:"cardio", n:"Bergsteiger-Sprint",          m:"time", v:35, l:3, c:"Mountain Climbers im höchstmöglichen Tempo, Hüfte bleibt dabei tief."},
+  {id:1118, g:"cardio", n:"Treppensprint",               m:"time", v:45, l:3, c:"Eine Treppe oder Stufe im hohen Tempo hoch- und heruntersteigen."},
+  {id:1119, g:"cardio", n:"Boxen mit Sprungwechsel",     m:"time", v:45, l:3, c:"Schläge in die Luft setzen und dabei die Füße immer wieder wechseln wie beim Boxtraining."},
+  {id:1120, g:"cardio", n:"Ganzkörper-Kette",            m:"reps", v:12, l:3, c:"Kniebeuge, Liegestütz und ein Strecksprung als eine durchgehende Wiederholung ausführen, ohne abzusetzen."}
 ];
 
 W.registerPool("aufbau", AUFBAU);
@@ -3920,21 +3951,19 @@ function putFile(cfg, dataObj, sha){
     .then(function(data){ return {sha: data.content && data.content.sha}; });
 }
 
-/* Bequemer Rundumschlag: hochladen mit automatischer sha-Ermittlung */
-function push(cfg, dataObj){
+/* Bequemer Rundumschlag: hochladen mit automatischer sha-Ermittlung.
+   Bei einem Schreibkonflikt (ein anderes Gerät hat zwischenzeitlich
+   geschrieben) wird automatisch die aktuelle Version erneut geholt und
+   der eigene Stand nachgelegt – mehrfach hintereinander, falls nötig,
+   damit der Upload praktisch immer gelingt und nie eine störende
+   Konfliktmeldung angezeigt werden muss. Letzter Schreiber gewinnt,
+   aber ohne dass dabei je ungeprüft überschrieben wird. */
+function push(cfg, dataObj, attemptsLeft){
+  if (attemptsLeft === undefined) attemptsLeft = 5;
   return getFile(cfg).then(function(cur){
     return putFile(cfg, dataObj, cur.exists ? cur.sha : null);
   }).catch(function(err){
-    // Ein anderes Gerät hat zwischenzeitlich geschrieben: statt einer
-    // störenden Meldung automatisch die aktuelle Version erneut holen
-    // und den eigenen Stand einmal still nachlegen (letzter Schreiber
-    // gewinnt, aber ohne dass etwas verloren geht wie bei einem
-    // ungeprüften Überschreiben).
-    if (err.conflict){
-      return getFile(cfg).then(function(fresh){
-        return putFile(cfg, dataObj, fresh.exists ? fresh.sha : null);
-      });
-    }
+    if (err.conflict && attemptsLeft > 1) return push(cfg, dataObj, attemptsLeft - 1);
     throw err;
   });
 }
@@ -3953,7 +3982,7 @@ function pull(cfg){
    Nutzer: ein kurzer, rein numerischer Code ist kein Schutz gegen
    gezielte Angriffe, nur gegen zufälliges Mitlesen.
    ============================================================ */
-var KDF_ITERATIONS = 400000;
+var KDF_ITERATIONS = 600000;
 function cryptoAvailable(){
   return !!(root.crypto && root.crypto.subtle && root.crypto.getRandomValues);
 }
@@ -5433,10 +5462,32 @@ function collectFullState(){
     skin: S.skin, rests: S.rests, colors: S.colors
   };
 }
+/* ============================================================
+   SICHERHEIT: Schema-Absicherung beim Wiederherstellen
+   Entfernt gefährliche Schlüssel (Prototype Pollution) aus
+   importierten/entschlüsselten Daten, bevor sie ins Datenmodell
+   übernommen werden, ohne die eigentliche Struktur anzutasten.
+   ============================================================ */
+var DANGEROUS_KEYS = ["__proto__", "constructor", "prototype"];
+function stripDangerousKeys(obj, depth){
+  if (depth === undefined) depth = 0;
+  if (depth > 6 || obj === null || typeof obj !== "object") return obj;
+  if (Array.isArray(obj)){
+    for (var i = 0; i < obj.length; i++) obj[i] = stripDangerousKeys(obj[i], depth + 1);
+    return obj;
+  }
+  var out = {};
+  Object.keys(obj).forEach(function(k){
+    if (DANGEROUS_KEYS.indexOf(k) >= 0) return; // bewusst weglassen
+    out[k] = stripDangerousKeys(obj[k], depth + 1);
+  });
+  return out;
+}
 function applyFullState(data){
   if (!data || typeof data !== "object") return false;
+  data = stripDangerousKeys(data);
   if (data.settings) S.settings = W.normalizeSettings(data.settings);
-  if (data.log && typeof data.log === "object") S.log = data.log;
+  if (data.log && typeof data.log === "object" && !Array.isArray(data.log)) S.log = data.log;
   if (Array.isArray(data.activities)) S.activities = data.activities;
   if (data.body && typeof data.body === "object") S.body = data.body;
   if (typeof data.weekGoal === "number") S.weekGoal = data.weekGoal;
@@ -6004,7 +6055,7 @@ window.APP = {
   switchTab:switchTab, applyTheme:applyTheme, fillSettings:fillSettings, totalDone:totalDone,
   handleFiles:handleFiles, player:P, renderPlayer:renderPlayer, openPlayer:openPlayer, closePlayer:closePlayer, keepAwake:keepAwake, storageOk:storageOk,
   MONTHS:MONTHS, DAYS_SHORT:DAYS_SHORT, DAYS_LONG:DAYS_LONG,
-  collectFullState:collectFullState, applyFullState:applyFullState,
+  collectFullState:collectFullState, applyFullState:applyFullState, stripDangerousKeys:stripDangerousKeys,
   startIllness:startIllness, endIllness:endIllness, isSickDay:isSickDay,
   openSheet:openSheet, closeSheet:closeSheet
 };
@@ -7612,7 +7663,7 @@ var SETTINGS_INDEX = [
   {l:"Tonfall Motivationstexte", cat:"verhalten", a:"setTone"},
   {l:"Zugriffsschlüssel Token GitHub", cat:"sync", a:"ghToken"},
   {l:"Repository Konto GitHub", cat:"sync", a:"ghOwner"},
-  {l:"Synchronisationscode Verschlüsselung", cat:"sync", a:"ghPin"},
+  {l:"Passphrase Synchronisationscode Verschlüsselung", cat:"sync", a:"ghPin"},
   {l:"Automatisch synchronisieren", cat:"sync", a:"ghAutoSync"},
   {l:"Sicherung Datei exportieren", cat:"sync", a:"syncMethod"},
   {l:"Version", cat:"daten", a:"setVersion"},
@@ -7666,9 +7717,28 @@ S.weather = A.store.get("wk_weather", {
   lat: null, lon: null, place: "", geoStatus: "noch nicht angefragt"
 });
 S.weatherCache = A.store.get("wk_weather_cache", null); // {fetchedAt, lat, lon, data}
+/* ============================================================
+   SICHERHEIT: Zugangsdaten (Token, Passphrase) werden bewusst
+   NICHT im localStorage abgelegt, sondern nur im sessionStorage
+   (überlebt ein Neuladen, wird aber beim Schließen des Tabs vom
+   Browser automatisch geleert) bzw. rein im Arbeitsspeicher. Nur
+   die unkritischen Verbindungsdaten (Repo, Branch, Pfad, Zeitpunkt
+   der letzten Sync) werden dauerhaft gespeichert.
+   ============================================================ */
+function loadSessionSecret(key){
+  try { return sessionStorage.getItem(key) || ""; } catch(e){ return ""; }
+}
+function saveSessionSecret(key, val){
+  try {
+    if (val) sessionStorage.setItem(key, val);
+    else sessionStorage.removeItem(key);
+  } catch(e){ /* sessionStorage evtl. blockiert (privater Modus) – Wert bleibt nur im Arbeitsspeicher */ }
+}
 S.sync = A.store.get("wk_sync", {
-  token: "", owner: "", repo: "", branch: "main", path: "trainingsblog-data.json", auto: false, pin: ""
+  owner: "", repo: "", branch: "main", path: "trainingsblog-data.json", auto: false
 });
+S.sync.token = loadSessionSecret("wk_session_token");
+S.sync.pin = loadSessionSecret("wk_session_pin");
 S.uiPrefs = A.store.get("wk_uiprefs", {});
 (function(){
   var d = {themeMode:"dark", showFlame:true, autoCooldown:true,
@@ -7679,8 +7749,22 @@ S.uiPrefs = A.store.get("wk_uiprefs", {});
 
 function saveWeatherSettings(){ A.store.set("wk_weather", S.weather); }
 function saveWeatherCache(){ A.store.set("wk_weather_cache", S.weatherCache); }
-function saveSync(){ A.store.set("wk_sync", S.sync); }
+function saveSync(){
+  // Token und Passphrase bewusst NICHT mit in den localStorage-Datensatz aufnehmen.
+  var toSave = {};
+  for (var k in S.sync) if (k !== "token" && k !== "pin") toSave[k] = S.sync[k];
+  A.store.set("wk_sync", toSave);
+  saveSessionSecret("wk_session_token", S.sync.token || "");
+  saveSessionSecret("wk_session_pin", S.sync.pin || "");
+}
 function saveUiPrefs(){ A.store.set("wk_uiprefs", S.uiPrefs); }
+
+/* Beim Verlassen der Seite sensible Werte im Arbeitsspeicher überschreiben. */
+window.addEventListener("beforeunload", function(){
+  try {
+    S.sync.token = ""; S.sync.pin = "";
+  } catch(e){}
+});
 
 /* ============================================================
    WETTER: Laden, Cachen, stündlich aktualisieren
@@ -7909,8 +7993,8 @@ function renderSyncSettings(){
   sw("ghAutoSync", S.sync.auto);
   var pinLen = (S.sync.pin || "").length;
   if (pinLen === 0) $("ghPinHint").textContent = "Keine Verschlüsselung – die Sicherung ist für jeden mit Repository-Zugriff lesbar.";
-  else if (pinLen < 4) $("ghPinHint").textContent = "Noch zu kurz – mindestens 4 Ziffern nötig, sonst wird unverschlüsselt hochgeladen.";
-  else if (pinLen < 6) $("ghPinHint").textContent = "Verschlüsselung aktiv. Ein längerer Code wäre sicherer, falls jemand gezielt versucht, ihn zu erraten.";
+  else if (pinLen < 4) $("ghPinHint").textContent = "Noch zu kurz – mindestens 4 Zeichen nötig, sonst wird unverschlüsselt hochgeladen.";
+  else if (pinLen < 6) $("ghPinHint").textContent = "Verschlüsselung aktiv. Eine längere Passphrase (mehrere Wörter) ist deutlich sicherer als ein kurzer Code.";
   else $("ghPinHint").textContent = "Verschlüsselung aktiv.";
   var complete = GH.cfgComplete(S.sync);
   ["ghTest","ghPush","ghPull"].forEach(function(id){ $(id).disabled = !complete; });
@@ -7924,7 +8008,7 @@ function readSyncFieldsIntoState(){
   S.sync.repo = $("ghRepo").value.trim();
   S.sync.branch = $("ghBranch").value.trim() || "main";
   S.sync.path = $("ghPath").value.trim() || "trainingsblog-data.json";
-  S.sync.pin = $("ghPin").value.replace(/\s+/g, "");
+  S.sync.pin = $("ghPin").value.trim(); // Leerzeichen INNERHALB der Passphrase bleiben erhalten (mehrere Wörter), nur am Rand entfernen
   saveSync();
   renderSyncSettings();
 }
@@ -7952,6 +8036,7 @@ function buildSyncPayload(){
       : Promise.resolve(remote);
     return decodeP.then(function(remoteState){
       if (!remoteState || typeof remoteState !== "object") return local;
+      remoteState = A.stripDangerousKeys ? A.stripDangerousKeys(remoteState) : remoteState;
       local.log = Object.assign({}, remoteState.log || {}, local.log || {});
       local.activities = W.mergeActivities(remoteState.activities || [], local.activities || []).list;
       return local;
@@ -7962,7 +8047,7 @@ function doPush(){
   readSyncFieldsIntoState();
   var pin = S.sync.pin;
   if (pin && pin.length > 0 && pin.length < 4){
-    ghStatus("Der Synchronisationscode braucht mindestens 4 Ziffern (oder das Feld leer lassen).", "err");
+    ghStatus("Die Passphrase braucht mindestens 4 Zeichen (oder das Feld leer lassen).", "err");
     return;
   }
   ghStatus("Wird hochgeladen …", "busy");
@@ -7998,7 +8083,7 @@ function doPull(){
     ghStatus((res.wasEncrypted ? "Entschlüsselt wiederhergestellt · " : "Erfolgreich wiederhergestellt · ") + fmtUpdated(S.sync.lastSync), "ok");
   }).catch(function(err){
     ghStatus(err.message, "err");
-    if (err.needsPin) A.toast("Synchronisationscode eingeben und erneut versuchen");
+    if (err.needsPin) A.toast("Passphrase eingeben und erneut versuchen");
     else if (err.wrongPin) A.toast("Code stimmt nicht – lokale Daten wurden nicht verändert");
     else A.toast(err.notfound ? "Noch keine Sicherung in diesem Repository" : "Herunterladen fehlgeschlagen");
   });
@@ -8347,11 +8432,11 @@ function bind(){
     $(id).addEventListener("change", readSyncFieldsIntoState);
   });
   $("ghPin").addEventListener("input", function(){
-    S.sync.pin = $("ghPin").value.replace(/\s+/g, "");
+    S.sync.pin = $("ghPin").value.trim(); // Leerzeichen INNERHALB der Passphrase bleiben erhalten (mehrere Wörter), nur am Rand entfernen
     var pinLen = S.sync.pin.length;
     if (pinLen === 0) $("ghPinHint").textContent = "Keine Verschlüsselung – die Sicherung ist für jeden mit Repository-Zugriff lesbar.";
-    else if (pinLen < 4) $("ghPinHint").textContent = "Noch zu kurz – mindestens 4 Ziffern nötig, sonst wird unverschlüsselt hochgeladen.";
-    else if (pinLen < 6) $("ghPinHint").textContent = "Verschlüsselung aktiv. Ein längerer Code wäre sicherer, falls jemand gezielt versucht, ihn zu erraten.";
+    else if (pinLen < 4) $("ghPinHint").textContent = "Noch zu kurz – mindestens 4 Zeichen nötig, sonst wird unverschlüsselt hochgeladen.";
+    else if (pinLen < 6) $("ghPinHint").textContent = "Verschlüsselung aktiv. Eine längere Passphrase (mehrere Wörter) ist deutlich sicherer als ein kurzer Code.";
     else $("ghPinHint").textContent = "Verschlüsselung aktiv.";
   });
   $("ghPinShow").addEventListener("click", function(){
