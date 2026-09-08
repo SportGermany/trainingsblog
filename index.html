@@ -163,6 +163,9 @@
   .cal-cell.sick{ background:rgba(232,179,61,.16); border-color:rgba(232,179,61,.4); }
   .cal-cell .rd.sick-dot{ background:#E8B33D; }
   .cal-cell.done .rd.sick-dot{ background:#E8B33D; }
+  .cal-cell.vacation{ background:rgba(79,169,217,.16); border-color:rgba(79,169,217,.4); }
+  .cal-cell .rd.vacation-dot{ background:#4FA9D9; }
+  .cal-cell.done .rd.vacation-dot{ background:#4FA9D9; }
   .legend{ display:flex; flex-wrap:wrap; gap:12px; margin-top:12px; font-size:11.5px; color:var(--text-faint); }
   .legend i{ display:inline-block; width:9px; height:9px; border-radius:3px; margin-right:5px; vertical-align:middle; font-style:normal; }
 
@@ -449,6 +452,7 @@
 
   /* ============ Bento ============ */
   .bento{ display:flex; flex-direction:column; gap:12px; }
+  #p-daten{ display:flex; flex-direction:column; }
   .bento .cell{ background:var(--panel); border:1px solid var(--line); border-radius:22px; padding:16px; }
   .befund{ font-size:17px; font-weight:600; line-height:1.35; letter-spacing:-.01em; margin:0 0 14px; }
   .proof{ display:flex; gap:8px; }
@@ -741,13 +745,13 @@
     </div>
   </div>
 
-  <div class="card whatsnew" id="whatsNewCard" style="display:none">
+  <div class="card whatsnew" id="whatsNewCard" data-sec="whatsnew" style="display:none">
     <div class="card-h"><h2>Neu in Version <span id="whatsNewVersion"></span></h2>
       <button class="btn ghost sm" id="whatsNewClose" style="padding:4px 10px">✕</button></div>
     <ul id="whatsNewList"></ul>
   </div>
 
-  <div class="card weathercard" id="weatherToday" style="display:none">
+  <div class="card weathercard" id="weatherToday" data-sec="weathertoday" style="display:none">
     <div class="wtop">
       <div class="wicon-big" id="wTodayIcon"></div>
       <div class="wmain">
@@ -763,7 +767,7 @@
     <p class="tiny" id="wUpdatedTxt" style="margin:8px 2px 0"></p>
   </div>
 
-  <div class="card sick-checkin" id="sickCheckIn" style="display:none">
+  <div class="card sick-checkin" id="sickCheckIn" data-sec="sickcheckin" style="display:none">
     <div class="card-h"><h2>🤒 Bist du noch krank?</h2></div>
     <p class="muted" style="margin-bottom:14px">Seit deiner letzten Angabe hat sich der Tag geändert. Für heute nur ein leichtes Dehnprogramm, oder wieder normal weitermachen?</p>
     <div class="btn-row">
@@ -809,7 +813,7 @@
     <div class="week" id="weekBar"></div>
   </div>
 
-  <div class="card" id="importCard" style="display:none">
+  <div class="card" id="importCard" data-sec="importcard" style="display:none">
     <div class="card-h"><h2>Importierte Daten</h2><span>letzte 28 Tage</span></div>
     <p class="muted" id="importSummary"></p>
   </div>
@@ -852,10 +856,42 @@
       <span><i style="background:var(--run)"></i>Lauftag</span>
       <span><i style="background:#8B8FA3"></i>Ruhetag</span>
       <span><i style="background:#E8B33D"></i>Krank</span>
+      <span><i style="background:#4FA9D9"></i>Urlaub</span>
       <span><i style="background:var(--panel-3)"></i>geplant</span>
     </div>
   </div>
-  <button class="btn ghost block sm" id="calToday">Zu heute springen</button>
+  <button class="btn ghost block sm" id="calToday" data-sec="caltoday">Zu heute springen</button>
+
+  <div class="card" data-sec="calmonthsummary">
+    <div class="card-h"><h2>Monatsrückblick</h2></div>
+    <p class="muted" id="calMonthSummaryText">–</p>
+  </div>
+
+  <div class="card" data-sec="calstreaktext">
+    <div class="card-h"><h2>Serien-Verlauf</h2></div>
+    <p class="muted" id="calStreakText">–</p>
+  </div>
+
+  <div class="card" data-sec="calupcoming">
+    <div class="card-h"><h2>Nächste Termine</h2></div>
+    <p class="muted" id="calUpcomingText">–</p>
+  </div>
+
+  <div class="card" data-sec="calyearprogress">
+    <div class="card-h"><h2>Jahresfortschritt</h2></div>
+    <div class="meter"><div class="lbl"><span id="calYearLabel">–</span><span id="calYearPct">–</span></div>
+      <div class="track"><i id="calYearBar" style="width:0%"></i></div></div>
+  </div>
+
+  <div class="card" data-sec="calsickoverview">
+    <div class="card-h"><h2>Krankheitsübersicht</h2></div>
+    <p class="muted" id="calSickText">–</p>
+  </div>
+
+  <div class="card" data-sec="calweekoverview">
+    <div class="card-h"><h2>Diese Woche im Überblick</h2></div>
+    <p class="muted" id="calWeekOverviewText">–</p>
+  </div>
 
   <div class="widget-area" id="widgetArea-kalender"></div>
   <button class="btn ghost block sm widget-edit-btn" data-screen="kalender">🧩 Seite bearbeiten</button>
@@ -902,6 +938,36 @@
     <div id="sportLog"></div>
   </div>
 
+  <div class="card" data-sec="runstats">
+    <div class="card-h"><h2>Lauf-Statistik</h2></div>
+    <p class="muted" id="runStatsText">–</p>
+  </div>
+
+  <div class="card" data-sec="rodelnhistory">
+    <div class="card-h"><h2>Rodeln-Verlauf</h2></div>
+    <p class="muted" id="rodelnHistoryText">–</p>
+  </div>
+
+  <div class="card" data-sec="stretchhistory">
+    <div class="card-h"><h2>Dehn-Verlauf</h2></div>
+    <p class="muted" id="stretchHistoryText">–</p>
+  </div>
+
+  <div class="card" data-sec="nextrunday">
+    <div class="card-h"><h2>Nächster Lauftag</h2></div>
+    <p class="muted" id="nextRunDayText">–</p>
+  </div>
+
+  <div class="card" data-sec="favoritesport">
+    <div class="card-h"><h2>Lieblingssport</h2></div>
+    <p class="muted" id="favoriteSportText">–</p>
+  </div>
+
+  <div class="card" data-sec="cooldownstatus">
+    <div class="card-h"><h2>Cool-down nach dem Training</h2></div>
+    <p class="muted" id="cooldownStatusText">–</p>
+  </div>
+
   <button class="fab" id="fabAdd" title="Einheit hinzufügen">+</button>
 
   <div class="widget-area" id="widgetArea-lauf"></div>
@@ -923,12 +989,12 @@
   <!-- ---------- Overview (Bento) ---------- -->
   <div class="pane" id="p-overview">
     <div class="bento">
-      <div class="cell">
+      <div class="cell" data-sec="dbefund">
         <p class="befund" id="befund">–</p>
         <div class="proof" id="proof"></div>
       </div>
 
-      <div class="cell">
+      <div class="cell" data-sec="drings">
         <div class="rings">
           <svg viewBox="0 0 340 340" id="ringSvg">
             <g class="hud" id="hudTicks"></g>
@@ -953,7 +1019,7 @@
         <div class="mono" id="ringTele" style="margin-top:12px">–</div>
       </div>
 
-      <div class="cell">
+      <div class="cell" data-sec="dkpis">
         <div class="stat-row" style="margin-bottom:9px">
           <div class="stat"><b id="kpiRatio">–</b><span>Belastung 7/28</span></div>
           <div class="stat"><b id="kpi7">–</b><span>Übungen 7 Tage</span></div>
@@ -965,12 +1031,12 @@
         <p class="tiny" style="margin:11px 2px 0">Das Belastungsverhältnis ist ein Hinweis, keine Diagnose.</p>
       </div>
 
-      <div class="cell">
+      <div class="cell" data-sec="dweeks12">
         <div class="card-h"><h2>12 Wochen Übungen</h2><span id="capsHint">Sprungwoche in Glut</span></div>
         <div class="caps" id="caps"></div>
       </div>
 
-      <div class="cell">
+      <div class="cell" data-sec="dweekoverview">
         <div class="cal-nav" style="margin-bottom:10px">
           <button class="nav-btn" id="wkPrev">‹</button>
           <b id="wkTitle">Wochenübersicht</b>
@@ -985,7 +1051,7 @@
         <p class="tiny" style="margin-top:10px">Tippe auf einen Tag, um die Übungen zu sehen.</p>
       </div>
 
-      <div class="cell">
+      <div class="cell" data-sec="dsharecard">
         <div class="card-h"><h2>Share-Karte</h2><button class="btn ghost sm" id="btnShareBig">Karte groß</button></div>
         <div class="sharewrap"><div class="sharecard" id="shareCard">
           <div class="sc-kick">Trainingsblog</div>
@@ -1002,13 +1068,14 @@
   <!-- ---------- Daten ---------- -->
   <div class="pane" id="p-daten" style="display:none">
 
-  <div class="drop" id="drop">
+  <div class="drop" id="drop" data-sec="ddropzone">
     <b>Datei auswählen</b>
     Garmin, Samsung Health, Apple, Polar, Strava &middot; GPX, TCX, CSV, JSON
   </div>
   <input type="file" id="fileInput" multiple accept=".gpx,.tcx,.csv,.tsv,.txt,.json" style="display:none">
   <p class="tiny" style="margin:9px 2px 16px" id="importHint">Alles bleibt auf deinem Gerät – nichts wird hochgeladen.</p>
 
+  <div data-sec="dagoverview">
   <div class="stat-row">
     <div class="stat"><b id="agKm">0</b><span>km / 28 Tage</span></div>
     <div class="stat"><b id="agSess">0</b><span>Aktivitäten</span></div>
@@ -1019,18 +1086,19 @@
     <div class="stat"><b id="agSteps">0</b><span>Schritte</span></div>
     <div class="stat"><b id="agHr">–</b><span>Ø Puls</span></div>
   </div>
+  </div>
 
-  <div class="card">
+  <div class="card" data-sec="dkmweek">
     <div class="card-h"><h2>Kilometer pro Woche</h2><span>letzte 8 Wochen</span></div>
     <div class="bars" id="kmBars"></div>
   </div>
 
-  <div class="card">
+  <div class="card" data-sec="dactivities">
     <div class="card-h"><h2>Aktivitäten</h2><span id="actCount">0</span></div>
     <div id="actList"><p class="muted">Noch nichts importiert.</p></div>
   </div>
 
-  <div class="card">
+  <div class="card" data-sec="dexport">
     <div class="card-h"><h2>Export</h2><span>aus deinen Aktivitäten</span></div>
     <div class="btn-row" style="margin-bottom:9px">
       <button class="btn secondary sm" id="btnExpCsv">.CSV</button>
@@ -1607,6 +1675,15 @@
 </div></dialog>
 
 
+<!-- ==================== URLAUB ==================== -->
+<dialog id="dlgVacation"><div class="dlg" style="position:relative">
+  <button class="close" id="vacationClose">✕</button>
+  <h3>🏖️ Urlaub</h3>
+  <p class="muted" id="vacationSub" style="margin-bottom:14px">–</p>
+  <div class="row"><div class="lab"><b>Bis wann?</b></div><input type="date" id="vacationEndDate"></div>
+  <button class="btn accent block sm" id="btnVacationSave" style="margin-top:16px">Urlaub speichern</button>
+</div></dialog>
+
 <!-- ==================== KRANKHEIT ==================== -->
 <dialog id="dlgSick"><div class="dlg" style="position:relative">
   <button class="close" id="sickClose">✕</button>
@@ -1836,8 +1913,12 @@ var GROUP_COLOR = {
    angezeigt. Diese Zählung beginnt hier neu (erste Version mit einer
    sichtbaren Versionsnummer überhaupt); frühere Entwicklungsrunden hatten
    keine Versionsnummer. */
-var APP_VERSION = "2.2.0";
+var APP_VERSION = "2.3.0";
 var CHANGELOG = {
+  "2.3.0": [
+    "Neue Funktion 'Urlaub': im Kalender einen Zeitraum festlegen, in dem feste 'schon trainiert'-Wochentage nicht gelten – normales Training läuft in dieser Zeit ganz regulär weiter",
+    "Bereiche-System deutlich ausgebaut: Startseite, Kalender, Training und Analyse haben jetzt jeweils mindestens 10 einzeln ein-/ausblendbare und verschiebbare Bereiche (vorher teils nur 3-4)"
+  ],
   "2.2.0": [
     "Cloud-Sicherung grundlegend vereinfacht: ersetzt die Datei im Repository jetzt einfach, ohne Nachfragen oder 'veraltet'-Meldung",
     "Echte Fehlerursachen werden jetzt korrekt angezeigt (z. B. fehlende Schreibrechte) statt pauschal als veraltete Version missgedeutet",
@@ -4847,7 +4928,8 @@ var S = {
   colors: store.get("wk_colors", {}),
   skin: store.get("wk_skin", "osv2"),
   sickDays: store.get("wk_sickdays", {}),
-  illnessActive: store.get("wk_illness_active", false)
+  illnessActive: store.get("wk_illness_active", false),
+  vacationDays: store.get("wk_vacation", {})
 };
 S.calMonth = new Date(W.parseYmd(S.today).getFullYear(), W.parseYmd(S.today).getMonth(), 1);
 S.runKm = W.effectiveRunDistance(S.settings);
@@ -5033,6 +5115,42 @@ function buildSickRoutine(){
   return seq;
 }
 
+/* ============================================================
+   URLAUB
+   Aktivierung ausschließlich über den Kalender: ein Zeitraum von
+   einem Starttag bis zu einem gewählten Endtag. Während des
+   Urlaubs wird die feste "schon trainiert extern"-Erkennung
+   ausgeschaltet (man folgt ja gerade nicht dem gewohnten
+   Wochenrhythmus), das reguläre Training läuft aber ganz normal
+   weiter – Urlaub ist kein Ruhetag und keine Krankheit.
+   ============================================================ */
+function isVacationDay(dateStr){ return !!S.vacationDays[dateStr]; }
+function addVacationRange(fromDate, toDate){
+  var d = fromDate;
+  var guard = 0;
+  while (d <= toDate && guard < 366){
+    S.vacationDays[d] = 1;
+    d = W.addDays(d, 1);
+    guard++;
+  }
+  store.set("wk_vacation", S.vacationDays);
+}
+function endVacationFrom(dateStr){
+  Object.keys(S.vacationDays).forEach(function(d){ if (d >= dateStr) delete S.vacationDays[d]; });
+  store.set("wk_vacation", S.vacationDays);
+}
+function openVacationDialog(fromDate){
+  var d = W.parseYmd(fromDate);
+  $("vacationSub").textContent = "Urlaub ab " + d.getDate() + "." + (d.getMonth()+1) + "." + d.getFullYear() +
+    ". Bis wann geht er? Trainiert wird in dieser Zeit ganz normal weiter, nur feste \"schon trainiert\"-Wochentage gelten währenddessen nicht.";
+  var endInput = $("vacationEndDate");
+  endInput.min = fromDate;
+  endInput.value = fromDate;
+  endInput.dataset.from = fromDate;
+  var dlg = $("dlgVacation");
+  dlg.showModal ? (function(){ try { dlg.showModal(); } catch(e){ dlg.setAttribute("open",""); } })() : dlg.setAttribute("open","");
+}
+
 function getPlan(dateStr){
   if (isRestDay(dateStr)){
     return {date:dateStr, weekday:W.parseYmd(dateStr).getDay(), run:false, rest:true, sick:isSickDay(dateStr),
@@ -5150,7 +5268,7 @@ function renderHeute(){
   $("btnToggleDone").textContent = done ? "✓" : "✓";
   $("btnToggleDone").style.opacity = done ? "1" : ".55";
   $("btnToggleDone").style.color = done ? "var(--work)" : "";
-  var fixedTrained = W.isFixedTrainedDay(S.today, S.settings) && !done && !p.rest;
+  var fixedTrained = W.isFixedTrainedDay(S.today, S.settings) && !done && !p.rest && !isVacationDay(S.today);
   var bte = $("btnTrainedElsewhere");
   if (bte){
     bte.classList.toggle("accent", fixedTrained);
@@ -5259,9 +5377,11 @@ function renderKalender(){
     else if (ds < S.today) cls += " missed";
     if (ds === S.today) cls += " today";
     if (isSickDay(ds)) cls += " sick";
+    else if (isVacationDay(ds)) cls += " vacation";
     var c = el("div", cls, String(day));
     c.dataset.date = ds;
     if (isSickDay(ds)) c.appendChild(el("div","rd sick-dot"));
+    else if (isVacationDay(ds)) c.appendChild(el("div","rd vacation-dot"));
     else if (isRestDay(ds)) c.appendChild(el("div","rd rest-dot"));
     else if (W.isRunDay(ds, S.settings)) c.appendChild(el("div","rd"));
     grid.appendChild(c);
@@ -5328,6 +5448,17 @@ function openSheet(dateStr){
     };
     act.appendChild(bL);
   }
+  var bV = el("button","btn ghost", isVacationDay(dateStr) ? "Urlaub beenden" : "Urlaub hinzufügen");
+  bV.onclick = function(){
+    if (isVacationDay(dateStr)){
+      endVacationFrom(dateStr);
+      renderAll(); openSheet(dateStr);
+      toast("Urlaub ab diesem Tag beendet");
+    } else {
+      openVacationDialog(dateStr);
+    }
+  };
+  act.appendChild(bV);
   // "Als erledigt markieren" bleibt bewusst der letzte Button in der Liste:
   // mehrere Testabläufe und die Bedienlogik gehen von "letzter Knopf = erledigt" aus.
   if (dateStr <= S.today){
@@ -5911,6 +6042,23 @@ function bind(){
     buzz(40);
     openPlayer(buildBreath());
   });
+  $("btnVacationSave").addEventListener("click", function(){
+    var endInput = $("vacationEndDate");
+    var from = endInput.dataset.from;
+    var to = endInput.value;
+    if (!to || to < from){ toast("Bitte ein gültiges Enddatum wählen"); return; }
+    addVacationRange(from, to);
+    var dlg = $("dlgVacation");
+    try { dlg.close(); } catch(e){}
+    dlg.removeAttribute("open");
+    renderAll(); openSheet(from);
+    toast("Urlaub eingetragen");
+  });
+  $("vacationClose").addEventListener("click", function(){
+    var dlg = $("dlgVacation");
+    try { dlg.close(); } catch(e){}
+    dlg.removeAttribute("open");
+  });
   $("btnToggleDone").addEventListener("click", function(){
     if (S.log[S.today] && S.log[S.today].done){ unmark(S.today); toast("Eintrag entfernt"); }
     else { markDone(S.today); toast("Als erledigt gespeichert"); buzz(50); }
@@ -6117,6 +6265,7 @@ window.APP = {
   MONTHS:MONTHS, DAYS_SHORT:DAYS_SHORT, DAYS_LONG:DAYS_LONG,
   collectFullState:collectFullState, applyFullState:applyFullState, stripDangerousKeys:stripDangerousKeys,
   startIllness:startIllness, endIllness:endIllness, isSickDay:isSickDay,
+  isVacationDay:isVacationDay,
   openSheet:openSheet, closeSheet:closeSheet
 };
 
@@ -8892,18 +9041,35 @@ var SECTION_DEFS = {
     {id:"stats", l:"Statistik-Zeile"},
     {id:"exercises", l:"Deine Übungen heute"},
     {id:"weekbar", l:"Diese Woche"},
-    {id:"tip", l:"Tagestipp"}
+    {id:"tip", l:"Tagestipp"},
+    {id:"whatsnew", l:"\"Neu in dieser Version\"-Hinweis"},
+    {id:"weathertoday", l:"Wetter heute"},
+    {id:"sickcheckin", l:"Krankheits-Nachfrage"},
+    {id:"importcard", l:"Import-Hinweis nach Datei-Upload"}
   ],
   kalender: [
     {id:"calstats", l:"Statistik-Zeile"},
     {id:"calweather", l:"Wetter-Vorschau"},
-    {id:"calgrid", l:"Kalenderraster"}
+    {id:"calgrid", l:"Kalenderraster"},
+    {id:"caltoday", l:"\"Zu heute springen\"-Knopf"},
+    {id:"calmonthsummary", l:"Monatsrückblick"},
+    {id:"calstreaktext", l:"Serien-Verlauf"},
+    {id:"calupcoming", l:"Nächste Termine"},
+    {id:"calyearprogress", l:"Jahresfortschritt"},
+    {id:"calsickoverview", l:"Krankheitsübersicht"},
+    {id:"calweekoverview", l:"Diese Woche im Überblick"}
   ],
   lauf: [
     {id:"stretch", l:"Dehnen & Mobility"},
     {id:"rodeln", l:"Rodeln vorbereiten"},
     {id:"distance", l:"Distanz wählen"},
-    {id:"sportlog", l:"Zuletzt erfasst"}
+    {id:"sportlog", l:"Zuletzt erfasst"},
+    {id:"runstats", l:"Lauf-Statistik"},
+    {id:"rodelnhistory", l:"Rodeln-Verlauf"},
+    {id:"stretchhistory", l:"Dehn-Verlauf"},
+    {id:"nextrunday", l:"Nächster Lauftag"},
+    {id:"favoritesport", l:"Lieblingssport"},
+    {id:"cooldownstatus", l:"Cool-down-Status"}
   ],
   fitness: [
     {id:"fitscore", l:"Fitness-Score"},
@@ -8916,15 +9082,121 @@ var SECTION_DEFS = {
     {id:"fitmuscles", l:"Muskelgruppen"},
     {id:"fitweeks", l:"Einheiten pro Woche"},
     {id:"fitbest", l:"Bestwerte"}
+  ],
+  daten: [
+    {id:"dbefund", l:"Ehrlicher Befund"},
+    {id:"drings", l:"Wochen-Ringe"},
+    {id:"dkpis", l:"Kennzahlen-Kacheln"},
+    {id:"dweeks12", l:"12 Wochen Übungen"},
+    {id:"dweekoverview", l:"Wochenübersicht"},
+    {id:"dsharecard", l:"Share-Karte"},
+    {id:"ddropzone", l:"Datei-Import"},
+    {id:"dagoverview", l:"28-Tage-Übersicht"},
+    {id:"dkmweek", l:"Kilometer pro Woche"},
+    {id:"dactivities", l:"Aktivitäten-Liste"},
+    {id:"dexport", l:"Export"}
   ]
 };
 S.sectionsOn = A.store.get("wk_sections", null) || {};
 (function(){
   Object.keys(SECTION_DEFS).forEach(function(scr){
-    if (!S.sectionsOn[scr]) S.sectionsOn[scr] = SECTION_DEFS[scr].map(function(d){ return d.id; });
+    var allIds = SECTION_DEFS[scr].map(function(d){ return d.id; });
+    if (!S.sectionsOn[scr]){ S.sectionsOn[scr] = allIds; return; }
+    // Neu hinzugekommene Bereiche (z. B. nach einem App-Update) an bereits
+    // gespeicherte Auswahl anhängen, statt sie unsichtbar zu lassen.
+    var known = S.sectionsOn[scr];
+    allIds.forEach(function(id){ if (known.indexOf(id) < 0) known.push(id); });
   });
 })();
 function saveSections(){ A.store.set("wk_sections", S.sectionsOn); }
+/* ============================================================
+   Inhalte der neuen Kalender-Bereiche
+   ============================================================ */
+/* ============================================================
+   Inhalte der neuen Training-Bereiche
+   ============================================================ */
+function renderLaufSections(){
+  if (!$("runStatsText")) return;
+  var km = sumKm();
+  $("runStatsText").textContent = (S.activities||[]).length === 0
+    ? "Noch keine Aktivitäten erfasst."
+    : (Math.round(km*10)/10) + " km insgesamt in " + (S.activities||[]).length + " erfassten Aktivitäten.";
+
+  var rodelnCount = Object.keys(S.log).filter(function(k){ return S.log[k] && S.log[k].type === "rodeln"; }).length;
+  $("rodelnHistoryText").textContent = rodelnCount === 0
+    ? "Noch nicht absolviert. Einmal ausprobieren?"
+    : "Bereits " + rodelnCount + "× absolviert.";
+
+  var mon = W.weekMonday(S.today);
+  var stretchCount = 0;
+  for (var i = 0; i < 7; i++){
+    var d = W.addDays(mon, i);
+    if (d > S.today) break;
+    if (S.log[d] && S.log[d].done && /dehn|stretch/i.test(S.log[d].type || "")) stretchCount++;
+  }
+  $("stretchHistoryText").textContent = stretchCount + "× diese Woche gedehnt.";
+
+  $("nextRunDayText").textContent = "Am " + fmtShortDate(nextRunDayStr()) + " ist laut Plan der nächste Lauftag.";
+
+  $("favoriteSportText").textContent = safe(function(){
+    var s = mostCommonActivityType();
+    return s ? s + " ist bisher dein am häufigsten erfasster Sport." : null;
+  }, "Noch keine Aktivitäten erfasst, aus denen sich ein Muster ablesen lässt.");
+
+  var cdOn = S.uiPrefs && S.uiPrefs.autoCooldown !== false;
+  $("cooldownStatusText").textContent = cdOn
+    ? "Aktiv – nach dem Training wird automatisch ein kurzes Cool-down vorgeschlagen."
+    : "Ausgeschaltet – lässt sich in Einstellungen → Verhalten wieder aktivieren.";
+}
+
+function renderCalendarSections(){
+  if (!$("calMonthSummaryText")) return;
+  var y = S.calMonth.getFullYear(), m = S.calMonth.getMonth();
+  var days = new Date(y, m+1, 0).getDate();
+  var vergangen = 0, erledigt = 0;
+  for (var d = 1; d <= days; d++){
+    var ds = y + "-" + String(m+1).padStart(2,"0") + "-" + String(d).padStart(2,"0");
+    if (ds <= S.today) vergangen++;
+    if (S.log[ds] && S.log[ds].done) erledigt++;
+  }
+  var monatsName = ["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"][m];
+  $("calMonthSummaryText").textContent = vergangen === 0
+    ? monatsName + " hat gerade erst begonnen."
+    : monatsName + ": " + erledigt + " von " + vergangen + " vergangenen Tagen erledigt (" + Math.round(erledigt/vergangen*100) + "%).";
+
+  var cur = W.currentStreak(S.log, S.today), best = W.longestStreak(S.log);
+  $("calStreakText").textContent = cur === 0
+    ? "Aktuell keine laufende Serie. Bisheriger Rekord: " + best + " Tage."
+    : "Aktuelle Serie: " + cur + " Tage" + (cur >= best ? " – das ist dein bisheriger Rekord!" : ", Rekord bisher " + best + " Tage") + ".";
+
+  var nr = nextRestDay(), nl = nextRunDayStr();
+  var parts = [];
+  if (nr) parts.push("nächster Ruhetag " + fmtShortDate(nr));
+  if (nl) parts.push("nächster Lauftag " + fmtShortDate(nl));
+  $("calUpcomingText").textContent = parts.length ? parts.join(" · ") + "." : "Aktuell keine festen Termine in den nächsten zwei Wochen.";
+
+  var doy = dayOfYear(S.today), total = isLeap(S.today) ? 366 : 365;
+  var pct = Math.round(doy/total*100);
+  $("calYearLabel").textContent = "Tag " + doy + " von " + total;
+  $("calYearPct").textContent = pct + "%";
+  $("calYearBar").style.width = pct + "%";
+
+  var sn = sickYearCount();
+  $("calSickText").textContent = sn === 0
+    ? "Keine Kranktage in diesem Jahr erfasst."
+    : sn + " Kranktag" + (sn===1?"":"e") + " in diesem Jahr" + (S.illnessActive ? " · Krankheitsmodus gerade aktiv" : "") + ".";
+
+  var mon = W.weekMonday(S.today);
+  var labels = [];
+  for (var i = 0; i < 7; i++){
+    var wd = W.addDays(mon, i);
+    var tag = A.DAYS_SHORT[W.parseYmd(wd).getDay()];
+    var mark = wd > S.today ? "geplant" : (S.log[wd] && S.log[wd].done) ? "erledigt" : (wd === S.today ? "heute" : "offen");
+    labels.push(tag + " " + mark);
+  }
+  $("calWeekOverviewText").textContent = labels.join(" · ");
+}
+
 function applySections(screen){
   var defs = SECTION_DEFS[screen];
   if (!defs) return;
@@ -9066,7 +9338,11 @@ Object.keys(SECTION_DEFS).forEach(applySections);
 
 window.APP5 = {
   renderWidgets: renderWidgets, renderAllWidgets: renderAllWidgets, WIDGET_DEFS: WIDGET_DEFS,
-  after: function(screen){ renderWidgets(screen); applySections(screen); }
+  after: function(screen){
+    renderWidgets(screen); applySections(screen);
+    if (screen === "kalender") renderCalendarSections();
+    if (screen === "lauf") renderLaufSections();
+  }
 };
 })();
 </script>
