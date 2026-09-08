@@ -42,7 +42,7 @@
     padding-bottom:calc(var(--nav-h) + env(safe-area-inset-bottom, 0px) + 12px);
   }
   .screen{ display:none; padding:calc(env(safe-area-inset-top,0px) + 16px) 16px 16px; }
-  .screen.active{ display:block; animation:fade .18s ease; }
+  .screen.active{ display:flex; flex-direction:column; animation:fade .18s ease; }
   @keyframes fade{ from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:none;} }
 
   /* ---------- Kopfzeile ---------- */
@@ -159,6 +159,9 @@
   .cal-cell.done .rd{ background:var(--work); }
   .cal-cell .rd.rest-dot{ background:#8B8FA3; }
   .cal-cell.done .rd.rest-dot{ background:#8B8FA3; }
+  .cal-cell.sick{ background:rgba(232,179,61,.16); border-color:rgba(232,179,61,.4); }
+  .cal-cell .rd.sick-dot{ background:#E8B33D; }
+  .cal-cell.done .rd.sick-dot{ background:#E8B33D; }
   .legend{ display:flex; flex-wrap:wrap; gap:12px; margin-top:12px; font-size:11.5px; color:var(--text-faint); }
   .legend i{ display:inline-block; width:9px; height:9px; border-radius:3px; margin-right:5px; vertical-align:middle; font-style:normal; }
 
@@ -338,6 +341,9 @@
   }
   .widget-tile .wt-label{ font-size:10.5px; color:var(--text-faint); font-weight:600; text-transform:uppercase; letter-spacing:.02em; margin-bottom:4px; }
   .widget-tile .wt-value{ font-size:15px; font-weight:660; color:var(--text); line-height:1.3; }
+  .widget-tile-tap{ cursor:pointer; }
+  .widget-tile-tap:active{ opacity:.75; }
+  .sick-checkin{ border-color:#E8B33D; }
   .widget-edit-btn{ margin-bottom:6px; }
   .widget-check-row{
     display:flex; align-items:center; justify-content:space-between; gap:12px;
@@ -347,6 +353,22 @@
   .widget-check-row .wl{ flex:1; min-width:0; }
   .widget-check-row .wl b{ display:block; font-size:13.5px; font-weight:620; }
   .widget-check-row .wl span{ display:block; font-size:11.5px; color:var(--text-faint); margin-top:2px; }
+  .wmove-group{ display:flex; flex-direction:column; gap:2px; flex:none; }
+  .wmove{
+    background:var(--panel-3); border:1px solid var(--line); color:var(--text-dim);
+    border-radius:6px; width:26px; height:20px; font-size:10px; line-height:1; cursor:pointer; padding:0;
+  }
+  .wmove:disabled{ opacity:.25; cursor:default; }
+  .sec-hidden{ display:none !important; }
+  .widget-area, .widget-edit-btn{ order:999; }
+  .widgets-tab{ display:flex; gap:8px; margin:14px 0 4px; }
+  .widgets-tab button{
+    flex:1; background:var(--panel-2); border:1px solid var(--line); color:var(--text-dim);
+    border-radius:12px; padding:9px; font-size:13px; font-weight:640; cursor:pointer;
+  }
+  .widgets-tab button.on{ background:var(--text); color:var(--bg); border-color:var(--text); }
+  #netIcon{ color:var(--text); opacity:.85; }
+  #netIcon.offline{ color:#e5484d; opacity:1; }
 
   /* ============ Neu in dieser Version ============ */
   .whatsnew ul{ margin:4px 0 0; padding-left:18px; }
@@ -704,7 +726,7 @@
 <!-- ==================== HEUTE ==================== -->
 <section class="screen active" id="s-heute">
   <div class="brand">
-    <h1 id="appTitle">Trainingsblog</h1>
+    <h1><span id="appTitle">Trainingsblog</span> <svg id="netIcon" viewBox="0 0 24 24" width="17" height="17" style="vertical-align:-2px"><path d="M12 20a1.6 1.6 0 1 0 0-3.2 1.6 1.6 0 0 0 0 3.2Zm0-14C7.7 6 3.8 7.6 1 10.2l1.8 2c2.4-2.2 5.6-3.6 9.2-3.6s6.8 1.4 9.2 3.6l1.8-2C20.2 7.6 16.3 6 12 6Zm0 5.4c-2.5 0-4.7 1-6.4 2.5l1.8 2c1.2-1.1 2.9-1.8 4.6-1.8s3.4.7 4.6 1.8l1.8-2c-1.7-1.5-3.9-2.5-6.4-2.5Z" fill="currentColor"/></svg></h1>
     <div class="by" id="brandSub">360 Übungen · Kalender bis 2031 · alles offline</div>
   </div>
   <div class="top">
@@ -740,7 +762,16 @@
     <p class="tiny" id="wUpdatedTxt" style="margin:8px 2px 0"></p>
   </div>
 
-  <div class="card" id="readinessCard" style="display:none">
+  <div class="card sick-checkin" id="sickCheckIn" style="display:none">
+    <div class="card-h"><h2>🤒 Bist du noch krank?</h2></div>
+    <p class="muted" style="margin-bottom:14px">Seit deiner letzten Angabe hat sich der Tag geändert. Für heute nur ein leichtes Dehnprogramm, oder wieder normal weitermachen?</p>
+    <div class="btn-row">
+      <button class="btn secondary sm" id="btnStillSickNo">Nein, wieder fit</button>
+      <button class="btn accent sm" id="btnStillSickYes">Ja, noch krank</button>
+    </div>
+  </div>
+
+  <div class="card" id="readinessCard" data-sec="readiness" style="display:none">
     <div class="card-h"><h2>Trainingsbereitschaft</h2><span id="readyScoreTxt">–</span></div>
     <div class="meter"><div class="lbl"><span id="readyLabel">–</span><span id="readyPct">–</span></div>
       <div class="track"><i id="readyBar" style="width:0%"></i></div></div>
@@ -748,7 +779,7 @@
     <p class="tiny" id="readyTimeTip" style="margin-top:8px;display:none"></p>
   </div>
 
-  <div class="hero" id="hero">
+  <div class="hero" id="hero" data-sec="hero">
     <div class="kicker" id="heroKicker">Tagestraining</div>
     <h2 id="heroTitle">Ganzkörper</h2>
     <p class="meta" id="heroMeta">–</p>
@@ -758,20 +789,21 @@
       <button class="btn secondary" style="flex:0 0 52px" id="btnToggleDone" title="Als erledigt markieren">✓</button>
     </div>
     <button class="btn ghost block sm rest-toggle" id="btnRest">Heute als Ruhetag</button>
+    <button class="btn ghost block sm" id="btnTrainedElsewhere" style="margin-top:8px">Heute schon trainiert</button>
   </div>
 
-  <div class="stat-row">
+  <div class="stat-row" data-sec="stats">
     <div class="stat"><b id="stFit">0</b><span>Fitness</span></div>
     <div class="stat"><b id="stWeek">0/7</b><span>Diese Woche</span></div>
     <div class="stat"><b id="stTotal">0</b><span>Einheiten</span></div>
   </div>
 
-  <div class="card">
+  <div class="card" data-sec="exercises">
     <div class="card-h"><h2>Deine Übungen heute</h2><span id="exCount"></span></div>
     <div class="ex-list" id="todayList"></div>
   </div>
 
-  <div class="card">
+  <div class="card" data-sec="weekbar">
     <div class="card-h"><h2>Diese Woche</h2><span id="weekRange"></span></div>
     <div class="week" id="weekBar"></div>
   </div>
@@ -781,12 +813,12 @@
     <p class="muted" id="importSummary"></p>
   </div>
 
-  <div class="card tight">
+  <div class="card tight" data-sec="tip">
     <p class="muted" id="tipText"></p>
   </div>
 
   <div class="widget-area" id="widgetArea-heute"></div>
-  <button class="btn ghost block sm widget-edit-btn" data-screen="heute">🧩 Widgets bearbeiten</button>
+  <button class="btn ghost block sm widget-edit-btn" data-screen="heute">🧩 Seite bearbeiten</button>
 </section>
 
 <!-- ==================== KALENDER ==================== -->
@@ -795,18 +827,18 @@
     <div><h1>Kalender</h1><p>2026 bis 2031 &middot; jeder Tag ist geplant</p></div>
   </div>
 
-  <div class="stat-row">
+  <div class="stat-row" data-sec="calstats">
     <div class="stat"><b id="calStreak">0</b><span>Streak</span></div>
     <div class="stat"><b id="calBest">0</b><span>Rekord</span></div>
     <div class="stat"><b id="calDone">0</b><span>Tage gesamt</span></div>
   </div>
 
-  <div class="card" id="weatherStripCard" style="display:none">
+  <div class="card" id="weatherStripCard" data-sec="calweather" style="display:none">
     <div class="card-h"><h2>Wetter · nächste 14 Tage</h2><span id="weatherStripUpdated">–</span></div>
     <div class="wstrip" id="weatherStrip"></div>
   </div>
 
-  <div class="card">
+  <div class="card" data-sec="calgrid">
     <div class="cal-nav">
       <button class="nav-btn" id="calPrev">‹</button>
       <b id="calTitle">–</b>
@@ -818,13 +850,14 @@
       <span><i style="background:var(--work)"></i>erledigt</span>
       <span><i style="background:var(--run)"></i>Lauftag</span>
       <span><i style="background:#8B8FA3"></i>Ruhetag</span>
+      <span><i style="background:#E8B33D"></i>Krank</span>
       <span><i style="background:var(--panel-3)"></i>geplant</span>
     </div>
   </div>
   <button class="btn ghost block sm" id="calToday">Zu heute springen</button>
 
   <div class="widget-area" id="widgetArea-kalender"></div>
-  <button class="btn ghost block sm widget-edit-btn" data-screen="kalender">🧩 Widgets bearbeiten</button>
+  <button class="btn ghost block sm widget-edit-btn" data-screen="kalender">🧩 Seite bearbeiten</button>
 </section>
 
 <!-- ==================== LAUF ==================== -->
@@ -833,19 +866,19 @@
     <div><h1>Training</h1><p id="runDayInfo">–</p></div>
   </div>
 
-  <div class="card">
+  <div class="card" data-sec="stretch">
     <div class="card-h"><h2>Aktiv Dehnen &amp; Mobility</h2><span>120 Übungen</span></div>
     <p class="muted" style="margin-bottom:12px">Wähle einen Bereich und wie lange du Zeit hast. Die App führt dich mit Timer, Ton und Animation durch.</p>
     <button class="btn accent block" id="btnStretchStart">Dehnprogramm starten</button>
   </div>
 
-  <div class="card">
+  <div class="card" data-sec="rodeln">
     <div class="card-h"><h2>Programm starten</h2><span>Rodeln vorbereiten</span></div>
     <p class="muted" style="margin-bottom:12px">15 Minuten, extra für Rennrodeln: Rumpf, Beine, Hüfte, Schulter/Arme, Nacken und Füße – Aufwärmen und Mobilisieren gemischt, keine Halteposition. Jede Übung mit genauer Anleitung.</p>
     <button class="btn accent block" id="btnRodelnStart">Aktiv Vorbereitung Rodeln</button>
   </div>
 
-  <div id="runBlocks">
+  <div id="runBlocks" data-sec="distance">
   <div class="card">
     <div class="card-h"><h2>Distanz wählen</h2></div>
     <div class="dist-row" id="distRow">
@@ -863,7 +896,7 @@
   </div>
   </div><!-- /runBlocks -->
 
-  <div class="card" id="sportLogCard">
+  <div class="card" id="sportLogCard" data-sec="sportlog">
     <div class="card-h"><h2>Zuletzt erfasst</h2><span id="sportLogCount">0</span></div>
     <div id="sportLog"></div>
   </div>
@@ -871,7 +904,7 @@
   <button class="fab" id="fabAdd" title="Einheit hinzufügen">+</button>
 
   <div class="widget-area" id="widgetArea-lauf"></div>
-  <button class="btn ghost block sm widget-edit-btn" data-screen="lauf">🧩 Widgets bearbeiten</button>
+  <button class="btn ghost block sm widget-edit-btn" data-screen="lauf">🧩 Seite bearbeiten</button>
 </section>
 
 <!-- ==================== DATEN ==================== -->
@@ -1009,7 +1042,7 @@
 
 
   <div class="widget-area" id="widgetArea-daten"></div>
-  <button class="btn ghost block sm widget-edit-btn" data-screen="daten">🧩 Widgets bearbeiten</button>
+  <button class="btn ghost block sm widget-edit-btn" data-screen="daten">🧩 Seite bearbeiten</button>
 </section>
 
 <!-- ==================== FITNESS ==================== -->
@@ -1018,7 +1051,7 @@
     <div><h1>Fitness</h1><p>Dein aktueller Stand</p></div>
   </div>
 
-  <div class="card">
+  <div class="card" data-sec="fitscore">
     <div class="score-wrap">
       <div class="ring-wrap" style="width:96px;height:96px">
         <svg viewBox="0 0 100 100">
@@ -1037,22 +1070,22 @@
     </div>
   </div>
 
-  <div class="card">
+  <div class="card" data-sec="fitweek">
     <div class="card-h"><h2>Wochenrückblick</h2></div>
     <p class="muted" id="weekSummaryText">–</p>
   </div>
 
-  <div class="card">
+  <div class="card" data-sec="fitpr">
     <div class="card-h"><h2>Persönliche Rekorde</h2></div>
     <div id="prList"></div>
   </div>
 
-  <div class="card">
+  <div class="card" data-sec="fitach">
     <div class="card-h"><h2>Abzeichen</h2><span id="achCount">0/0</span></div>
     <div class="ach-grid" id="achGrid"></div>
   </div>
 
-  <div class="card">
+  <div class="card" data-sec="fitreadiness">
     <div class="card-h"><h2>Readiness &amp; Recovery</h2><span id="rdLabel">–</span></div>
     <div class="meter"><div class="lbl"><span>Bereitschaft heute</span><span id="rdVal">–</span></div>
       <div class="gauge"><i id="rdBar" style="width:0%"></i></div></div>
@@ -1060,7 +1093,7 @@
     <p class="tiny" style="margin-top:10px">Belastung der letzten 7 Tage aus Training und importierten Aktivitäten.</p>
   </div>
 
-  <div class="card">
+  <div class="card" data-sec="fitfatigue">
     <div class="card-h"><h2>Ermüdung nach Muskelgruppe</h2><span>letzte 5 Tage</span></div>
     <div class="anat">
       <svg viewBox="0 0 120 260" id="anatSvg">
@@ -1080,22 +1113,22 @@
     </div>
   </div>
 
-  <div class="card">
+  <div class="card" data-sec="fitwhy">
     <div class="card-h"><h2>Woraus sich das ergibt</h2></div>
     <div id="fitParts"></div>
   </div>
 
-  <div class="card">
+  <div class="card" data-sec="fitmuscles">
     <div class="card-h"><h2>Muskelgruppen</h2><span>letzte 28 Tage</span></div>
     <div id="groupBars"></div>
   </div>
 
-  <div class="card">
+  <div class="card" data-sec="fitweeks">
     <div class="card-h"><h2>Einheiten pro Woche</h2><span>letzte 8 Wochen</span></div>
     <div class="bars" id="weekBars"></div>
   </div>
 
-  <div class="card">
+  <div class="card" data-sec="fitbest">
     <div class="card-h"><h2>Bestwerte</h2></div>
     <div class="row"><div class="lab"><b>Längster Streak</b></div><span id="recStreak">0 Tage</span></div>
     <div class="row"><div class="lab"><b>Einheiten gesamt</b></div><span id="recTotal">0</span></div>
@@ -1104,7 +1137,7 @@
   </div>
 
   <div class="widget-area" id="widgetArea-fitness"></div>
-  <button class="btn ghost block sm widget-edit-btn" data-screen="fitness">🧩 Widgets bearbeiten</button>
+  <button class="btn ghost block sm widget-edit-btn" data-screen="fitness">🧩 Seite bearbeiten</button>
 </section>
 
 <!-- ==================== EINSTELLUNGEN ==================== -->
@@ -1151,7 +1184,7 @@
     <div class="card">
       <div class="row">
         <div class="lab"><b>Name</b><span>Für die Begrüßung auf der Startseite</span></div>
-        <input type="text" id="setName" placeholder="optional" style="max-width:130px">
+        <input type="text" id="setName" autocomplete="off" name="setName-nofill" placeholder="optional" style="max-width:130px">
       </div>
       <div class="row">
         <div class="lab"><b>Intensität</b><span>Steuert Wiederholungen und Dauer</span></div>
@@ -1200,7 +1233,7 @@
       </div>
       <div class="row">
         <div class="lab"><b>Eigene Distanz</b><span>Überschreibt die Standarddistanz, wenn ausgefüllt</span></div>
-        <input type="number" id="setRunCustom" min="0.5" max="200" step="0.1" placeholder="z. B. 7.5" style="max-width:96px">
+        <input type="number" id="setRunCustom" autocomplete="off" name="setRunCustom-nofill" min="0.5" max="200" step="0.1" placeholder="z. B. 7.5" style="max-width:96px">
       </div>
     </div>
 
@@ -1209,6 +1242,10 @@
       <div class="row" style="flex-direction:column;align-items:stretch;gap:9px">
         <div class="lab"><b>Feste Ruhetage</b><span>An diesen Tagen wird keine normale Einheit geplant, damit die Muskeln sich erholen</span></div>
         <div class="daypick" id="setRestDays"></div>
+      </div>
+      <div class="row" style="flex-direction:column;align-items:stretch;gap:9px;margin-top:12px">
+        <div class="lab"><b>Feste "schon trainiert"-Tage</b><span>An diesen Tagen trainierst du meist extern – zählt als Training, nicht als Erholung</span></div>
+        <div class="daypick" id="setTrainedDays"></div>
       </div>
     </div>
     <button class="btn ghost block sm" id="resetCatTraining" style="margin-top:2px">Ziel &amp; Training zurücksetzen</button>
@@ -1231,7 +1268,7 @@
       <div class="row"><div class="lab"><b>Wochenziel</b><span>Trainingseinheiten pro Woche für den Ring</span></div>
         <input type="number" id="setWeekGoal" min="0" max="14" style="max-width:96px"></div>
       <div class="row"><div class="lab"><b>Wettkampf</b><span>Distanz und Wunschzeit</span></div>
-        <input type="text" id="setRace" placeholder="z. B. 10 km in 55:00" style="max-width:150px"></div>
+        <input type="text" id="setRace" autocomplete="off" name="setRace-nofill" placeholder="z. B. 10 km in 55:00" style="max-width:150px"></div>
     </div>
     <button class="btn ghost block sm" id="resetCatKoerper">Körper zurücksetzen</button>
   </div>
@@ -1249,7 +1286,7 @@
           <button class="btn secondary sm" id="btnWeatherLocate">Jetzt orten</button></div>
         <div class="row" id="rowWeatherManual" style="flex-direction:column;align-items:stretch;gap:9px">
           <div class="lab"><b>Ort suchen</b></div>
-          <div class="btn-row"><input type="text" id="weatherCity" placeholder="Stadt, z. B. Berlin" style="flex:1"><button class="btn secondary sm" id="btnWeatherSearch">Suchen</button></div>
+          <div class="btn-row"><input type="text" id="weatherCity" autocomplete="off" name="weatherCity-nofill" placeholder="Stadt, z. B. Berlin" style="flex:1"><button class="btn secondary sm" id="btnWeatherSearch">Suchen</button></div>
           <div id="weatherResults"></div>
         </div>
         <div class="row"><div class="lab"><b>Aktueller Ort</b></div><span id="weatherPlace">–</span></div>
@@ -1270,7 +1307,7 @@
         <div class="seg" id="setThemeMode"><button data-v="dark">dunkel</button><button data-v="light">hell</button><button data-v="auto">automatisch</button></div></div>
       <div class="row"><div class="lab"><b>Neutrales Design (OS V2)</b><span>Strikt neutrales Grau, Farbe nur als Signal</span></div><button class="sw" id="setSkin"></button></div>
       <div class="row"><div class="lab"><b>Kalorien-Flamme</b><span>Anzeige auf der Startseite</span></div><button class="sw" id="setShowFlame"></button></div>
-      <div class="row"><div class="lab"><b>App-Name</b><span>Titel auf der Startseite</span></div><input type="text" id="setAppName" placeholder="Trainingsblog" style="max-width:150px"></div>
+      <div class="row"><div class="lab"><b>App-Name</b><span>Titel auf der Startseite</span></div><input type="text" id="setAppName" autocomplete="off" name="setAppName-nofill" placeholder="Trainingsblog" style="max-width:150px"></div>
       <div class="row"><div class="lab"><b>Schriftgröße</b></div>
         <div class="seg" id="setFontScale"><button data-v="klein">klein</button><button data-v="normal">normal</button><button data-v="gross">groß</button></div></div>
       <div class="row"><div class="lab"><b>Kalorien-Einheit</b></div>
@@ -1327,13 +1364,13 @@
       <p class="muted" style="margin-bottom:12px">Speichert eine Sicherungsdatei in einem GitHub-Repository deiner Wahl. Nutze am besten ein <b>privates</b> Repository – über die GitHub-Schnittstelle sind Dateiinhalte unabhängig von der Sichtbarkeit im Web genauso abrufbar.</p>
       <div class="row"><div class="lab"><b>Zugriffsschlüssel</b><span>Fine-grained Token, nur für dieses eine Repository</span></div></div>
       <div class="btn-row" style="margin-bottom:10px">
-        <input type="password" id="ghToken" placeholder="ghp_… oder github_pat_…" style="flex:1">
+        <input type="password" id="ghToken" autocomplete="off" name="ghToken-nofill" placeholder="ghp_… oder github_pat_…" style="flex:1">
         <button class="btn ghost sm" id="ghTokenShow" style="flex:0 0 44px">👁</button>
       </div>
-      <div class="row"><div class="lab"><b>Konto / Organisation</b></div><input type="text" id="ghOwner" placeholder="dein-github-name" style="max-width:170px"></div>
-      <div class="row"><div class="lab"><b>Repository</b></div><input type="text" id="ghRepo" placeholder="trainingsblog-daten" style="max-width:170px"></div>
-      <div class="row"><div class="lab"><b>Branch</b></div><input type="text" id="ghBranch" placeholder="main" style="max-width:120px"></div>
-      <div class="row"><div class="lab"><b>Dateipfad</b></div><input type="text" id="ghPath" placeholder="trainingsblog-data.json" style="max-width:200px"></div>
+      <div class="row"><div class="lab"><b>Konto / Organisation</b></div><input type="text" id="ghOwner" autocomplete="off" name="ghOwner-nofill" placeholder="dein-github-name" style="max-width:170px"></div>
+      <div class="row"><div class="lab"><b>Repository</b></div><input type="text" id="ghRepo" autocomplete="off" name="ghRepo-nofill" placeholder="trainingsblog-daten" style="max-width:170px"></div>
+      <div class="row"><div class="lab"><b>Branch</b></div><input type="text" id="ghBranch" autocomplete="off" name="ghBranch-nofill" placeholder="main" style="max-width:120px"></div>
+      <div class="row"><div class="lab"><b>Dateipfad</b></div><input type="text" id="ghPath" autocomplete="off" name="ghPath-nofill" placeholder="trainingsblog-data.json" style="max-width:200px"></div>
       <div class="row"><div class="lab"><b>Automatisch synchronisieren</b><span>Nach Änderungen und zusätzlich stündlich</span></div><button class="sw" id="ghAutoSync"></button></div>
     </div>
 
@@ -1342,7 +1379,7 @@
       <p class="muted" style="margin-bottom:12px">Optional: Verschlüsselt deine Daten, bevor sie zu GitHub gehen, mit einem Code, den nur du kennst. Auch bei einem öffentlichen Repository sind die Inhalte dann nicht lesbar. <b>Ein kurzer, nur numerischer Code schützt vor zufälligem Mitlesen, aber nicht vor einem gezielten Versuch, ihn zu erraten</b> – je länger der Code, desto sicherer. Vergisst du ihn, ist die Cloud-Sicherung unwiederbringlich verloren.</p>
       <div class="row"><div class="lab"><b>Synchronisationscode</b><span>Mindestens 4 Ziffern, leer lassen für keine Verschlüsselung</span></div></div>
       <div class="btn-row" style="margin-bottom:6px">
-        <input type="password" id="ghPin" placeholder="z. B. 4271" inputmode="numeric" pattern="[0-9]*" maxlength="12" style="flex:1">
+        <input type="password" id="ghPin" autocomplete="off" name="ghPin-nofill" placeholder="z. B. 4271" inputmode="numeric" pattern="[0-9]*" maxlength="12" style="flex:1">
         <button class="btn ghost sm" id="ghPinShow" style="flex:0 0 44px">👁</button>
       </div>
       <p class="tiny" id="ghPinHint">Keine Verschlüsselung – die Sicherung ist für jeden mit Repository-Zugriff lesbar.</p>
@@ -1382,7 +1419,7 @@
       <div class="row"><div class="lab"><b>Speicherort</b><span id="setStorage">–</span></div></div>
       <div class="meter" style="margin-top:14px"><div class="lbl"><span>Speicherplatz</span><span id="storeVal">–</span></div>
         <div class="gauge"><i id="storeBar" style="width:2%"></i></div></div>
-      <div class="row" style="margin-top:14px"><div class="lab"><b>Datenaufbewahrung</b><span>Ältere Verlaufseinträge automatisch löschen</span></div>
+      <div class="row" style="margin-top:14px"><div class="lab"><b>Datenaufbewahrung</b><span>Nur auf diesem Gerät – die Cloud-Sicherung bleibt davon unberührt und unbegrenzt vollständig</span></div>
         <select id="setRetention">
           <option value="0">Unbegrenzt</option>
           <option value="365">1 Jahr</option>
@@ -1400,7 +1437,7 @@
   <p class="tiny" style="text-align:center;margin:18px 0 4px">Trainingsblog &middot; 360 Übungen &middot; alles offline</p>
 
   <div class="widget-area" id="widgetArea-einst"></div>
-  <button class="btn ghost block sm widget-edit-btn" data-screen="einst">🧩 Widgets bearbeiten</button>
+  <button class="btn ghost block sm widget-edit-btn" data-screen="einst">🧩 Seite bearbeiten</button>
 </section>
 
 </div><!-- /shell -->
@@ -1566,12 +1603,30 @@
   <button class="btn ghost block sm" id="swapReset" style="margin-top:12px">Original wiederherstellen</button>
 </div></dialog>
 
+
+<!-- ==================== KRANKHEIT ==================== -->
+<dialog id="dlgSick"><div class="dlg" style="position:relative">
+  <button class="close" id="sickClose">✕</button>
+  <h3>🤒 Krankheit</h3>
+  <p class="muted" id="sickStatus" style="margin-bottom:14px">–</p>
+  <button class="btn accent block sm" id="btnSickToggle">–</button>
+  <div class="row" style="margin-top:16px;padding-top:14px;border-top:1px solid var(--line)">
+    <div class="lab"><b>Kranktage dieses Jahr</b></div><span id="sickYearCount">0</span>
+  </div>
+  <div id="sickRangesList" style="margin-top:10px"></div>
+</div></dialog>
+
 <!-- ==================== WIDGETS BEARBEITEN ==================== -->
 <dialog id="dlgWidgets"><div class="dlg" style="position:relative;max-height:82dvh;overflow:auto">
   <button class="close" id="widgetsClose">✕</button>
-  <h3>Widgets bearbeiten</h3>
-  <p class="muted" id="widgetsSub">Wähle, welche Kacheln hier unten angezeigt werden.</p>
-  <div id="widgetsList" style="margin-top:14px"></div>
+  <h3>Seite bearbeiten</h3>
+  <p class="muted" id="widgetsSub">Bereiche und Kacheln ein-/ausblenden und in der Reihenfolge anpassen.</p>
+  <div class="widgets-tab" id="widgetsTab">
+    <button data-v="sections" class="on">Bereiche</button>
+    <button data-v="widgets">Kacheln</button>
+  </div>
+  <div id="sectionsList" style="margin-top:6px"></div>
+  <div id="widgetsList" style="margin-top:6px;display:none"></div>
 </div></dialog>
 
 
@@ -1630,136 +1685,136 @@
    l = Belastung 1–3 | s = true → pro Seite                                   */
 var EXERCISES = [
   /* ---------------- BEINE (24) ---------------- */
-  {id:1,  g:"beine", n:"Kniebeugen",                 m:"reps", v:20, l:2, c:"Fersen am Boden, Knie nach außen, Brust auf."},
-  {id:2,  g:"beine", n:"Sumo-Kniebeugen",            m:"reps", v:18, l:2, c:"Breiter Stand, Fußspitzen nach außen, tief runter."},
-  {id:3,  g:"beine", n:"Ausfallschritt vorwärts",    m:"reps", v:8,  l:2, s:true, c:"Oberkörper aufrecht, hinteres Knie knapp über den Boden."},
-  {id:4,  g:"beine", n:"Ausfallschritt rückwärts",   m:"reps", v:8,  l:2, s:true, c:"Kontrolliert zurücksteigen, Rumpf stabil halten."},
-  {id:5,  g:"beine", n:"Seitlicher Ausfallschritt",  m:"reps", v:8,  l:2, s:true, c:"Gewicht auf dem gebeugten Bein, anderes Bein gestreckt."},
-  {id:6,  g:"beine", n:"Bulgarian Split Squat",      m:"reps", v:8,  l:3, s:true, c:"Hinterer Fuß erhöht (Stuhl/Sofa), langsam absenken."},
-  {id:7,  g:"beine", n:"Wandsitz",                   m:"time", v:45, l:2, c:"Oberschenkel parallel zum Boden, ruhig weiteratmen."},
-  {id:8,  g:"beine", n:"Sprungkniebeugen",           m:"reps", v:15, l:3, c:"Weich landen, sofort in die nächste Wiederholung."},
-  {id:9,  g:"beine", n:"Ausfallschritt-Sprünge",     m:"reps", v:16, l:3, c:"In der Luft die Beine wechseln, weich abfangen."},
-  {id:10, g:"beine", n:"Wadenheben",                 m:"reps", v:25, l:1, c:"Ganz hoch auf die Zehenspitzen, oben kurz halten."},
-  {id:11, g:"beine", n:"Einbeiniges Wadenheben",     m:"reps", v:12, l:2, s:true, c:"Mit einer Hand an der Wand abstützen."},
-  {id:12, g:"beine", n:"Glute Bridge",               m:"reps", v:20, l:1, c:"Oben Po fest anspannen, Rippen unten lassen."},
-  {id:13, g:"beine", n:"Einbeinige Glute Bridge",    m:"reps", v:10, l:2, s:true, c:"Ein Bein gestreckt, Becken waagrecht halten."},
-  {id:14, g:"beine", n:"Hip Thrust am Boden",        m:"reps", v:20, l:2, c:"Schulterblätter fixiert, Hüfte kraftvoll strecken."},
-  {id:15, g:"beine", n:"Kosaken-Kniebeuge",          m:"reps", v:6,  l:3, s:true, c:"Tief zur Seite, das andere Bein bleibt gestreckt."},
-  {id:16, g:"beine", n:"Pistol Squat (assistiert)",  m:"reps", v:5,  l:3, s:true, c:"An Türrahmen festhalten, einbeinig absenken."},
-  {id:17, g:"beine", n:"Step-ups auf Stufe",         m:"reps", v:10, l:2, s:true, c:"Ganzer Fuß auf die Stufe, aus dem Bein hochdrücken."},
-  {id:18, g:"beine", n:"Wandsitz mit Pulsen",        m:"time", v:40, l:3, c:"Aus dem Wandsitz kleine Auf-ab-Bewegungen."},
-  {id:19, g:"beine", n:"Seitliches Beinheben",       m:"reps", v:12, l:1, s:true, c:"Seitlage, Bein gestreckt anheben, Becken ruhig."},
-  {id:20, g:"beine", n:"Feuerhydrant",               m:"reps", v:12, l:1, s:true, c:"Vierfüßler, Knie seitlich anheben, Rücken flach."},
-  {id:21, g:"beine", n:"Donkey Kicks",               m:"reps", v:12, l:1, s:true, c:"Ferse Richtung Decke drücken, Po anspannen."},
-  {id:22, g:"beine", n:"Good Mornings",              m:"reps", v:18, l:2, c:"Hüfte nach hinten schieben, Rücken bleibt gerade."},
-  {id:23, g:"beine", n:"Beinbeuger negativ",         m:"reps", v:8,  l:3, c:"Aus dem Kniestand langsam nach vorn absenken, Füße fixiert."},
-  {id:24, g:"beine", n:"Frog Pumps",                 m:"reps", v:25, l:1, c:"Fußsohlen zusammen, Hüfte schnell nach oben pumpen."},
+  {id:1,  g:"beine", n:"Kniebeugen",                 m:"reps", v:20, l:2, c:"Füße hüftbreit, Zehen leicht nach außen. In der Hocke die Hüfte nach hinten schieben, bis die Oberschenkel etwa waagrecht sind, dann kraftvoll über die Fersen hochdrücken."},
+  {id:2,  g:"beine", n:"Sumo-Kniebeugen",            m:"reps", v:18, l:2, c:"Breiter Stand, Fußspitzen zeigen nach außen. Gerade nach unten sinken, Knie folgen der Fußrichtung, dann durch die Fersen zurück nach oben drücken – betont die Innenschenkel."},
+  {id:3,  g:"beine", n:"Ausfallschritt vorwärts",    m:"reps", v:8,  l:2, s:true, c:"Großer Schritt nach vorn, beide Knie beugen sich auf etwa 90 Grad, das hintere Knie schwebt knapp über dem Boden. Über die vordere Ferse zurück in den Stand drücken."},
+  {id:4,  g:"beine", n:"Ausfallschritt rückwärts",   m:"reps", v:8,  l:2, s:true, c:"Statt nach vorn einen Schritt nach hinten setzen und ebenso tief absenken – schont die vordere Kniescheibe stärker als die Vorwärts-Variante. Rumpf während der ganzen Bewegung stabil halten."},
+  {id:5,  g:"beine", n:"Seitlicher Ausfallschritt",  m:"reps", v:8,  l:2, s:true, c:"Großer Schritt zur Seite, das Gewicht wandert auf das gebeugte Bein, während das andere gestreckt bleibt. Über die Ferse des gebeugten Beins zurück zur Mitte drücken."},
+  {id:6,  g:"beine", n:"Bulgarian Split Squat",      m:"reps", v:8,  l:3, s:true, c:"Hinteren Fuß auf einem Stuhl oder Sofa ablegen, vorderes Bein trägt die Hauptlast. Langsam absenken, bis der hintere Oberschenkel fast parallel zum Boden ist, dann wieder hochdrücken."},
+  {id:7,  g:"beine", n:"Wandsitz",                   m:"time", v:45, l:2, c:"Rücken flach an der Wand, langsam absitzen bis die Oberschenkel parallel zum Boden sind, Knie über den Fersen. Position halten und ruhig weiteratmen, nicht die Luft anhalten."},
+  {id:8,  g:"beine", n:"Sprungkniebeugen",           m:"reps", v:15, l:3, c:"Aus der Kniebeuge heraus explosiv nach oben abspringen, Arme helfen beim Schwung. Weich über die Fußballen landen und direkt in die nächste Wiederholung übergehen."},
+  {id:9,  g:"beine", n:"Ausfallschritt-Sprünge",     m:"reps", v:16, l:3, c:"Aus dem Ausfallschritt hochspringen und die Beine in der Luft wechseln, sodass man in der entgegengesetzten Ausfallschritt-Position landet. Landung immer weich abfedern."},
+  {id:10, g:"beine", n:"Wadenheben",                 m:"reps", v:25, l:1, c:"Hüftbreiter Stand, langsam ganz auf die Fußballen hochdrücken, oben kurz die Spannung halten und kontrolliert wieder absenken – für den Wadenmuskel."},
+  {id:11, g:"beine", n:"Einbeiniges Wadenheben",     m:"reps", v:12, l:2, s:true, c:"Auf einem Bein stehen, mit einer Hand zur Balance an der Wand abstützen. Langsam auf den Fußballen hoch und wieder runter, doppelte Belastung pro Bein."},
+  {id:12, g:"beine", n:"Glute Bridge",               m:"reps", v:20, l:1, c:"Rückenlage, Füße hüftbreit aufgestellt. Hüfte nach oben drücken bis Schultern, Hüfte und Knie eine Linie bilden, oben den Po fest anspannen, dann kontrolliert absenken."},
+  {id:13, g:"beine", n:"Einbeinige Glute Bridge",    m:"reps", v:10, l:2, s:true, c:"Wie die Glute Bridge, aber ein Bein bleibt in der Luft gestreckt. Becken bleibt während der ganzen Bewegung waagrecht, nicht zur Seite kippen lassen."},
+  {id:14, g:"beine", n:"Hip Thrust am Boden",        m:"reps", v:20, l:2, c:"Oberer Rücken liegt erhöht (z. B. an der Couchkante), Füße hüftbreit aufgestellt. Hüfte kraftvoll nach oben strecken, oben kurz anspannen, dann absenken."},
+  {id:15, g:"beine", n:"Kosaken-Kniebeuge",          m:"reps", v:6,  l:3, s:true, c:"Sehr breiter Stand. Das Gewicht tief auf ein Bein verlagern und in die Hocke gehen, das andere Bein bleibt komplett gestreckt mit dem Fuß flach am Boden."},
+  {id:16, g:"beine", n:"Pistol Squat (assistiert)",  m:"reps", v:5,  l:3, s:true, c:"Ein Arm hält sich an einem Türrahmen fest, ein Bein wird nach vorn gestreckt. Auf dem Standbein langsam in die tiefe Hocke absenken und wieder hochdrücken."},
+  {id:17, g:"beine", n:"Step-ups auf Stufe",         m:"reps", v:10, l:2, s:true, c:"Ganzen Fuß auf eine stabile Stufe oder Bank stellen. Über dieses Bein nach oben drücken, bis man ganz oben steht, dann kontrolliert wieder abwärts steigen."},
+  {id:18, g:"beine", n:"Wandsitz mit Pulsen",        m:"time", v:40, l:3, c:"Aus der Wandsitz-Position kleine, schnelle Auf-und-ab-Bewegungen von wenigen Zentimetern machen, ohne die Grundposition zu verlassen – zusätzlicher Reiz für den Oberschenkel."},
+  {id:19, g:"beine", n:"Seitliches Beinheben",       m:"reps", v:12, l:1, s:true, c:"Seitlage, unteres Bein leicht angewinkelt. Oberes Bein gestreckt langsam nach oben heben, ohne das Becken nach hinten kippen zu lassen, dann kontrolliert absenken."},
+  {id:20, g:"beine", n:"Feuerhydrant",               m:"reps", v:12, l:1, s:true, c:"Vierfüßlerstand, Rücken flach. Ein Knie im rechten Winkel seitlich nach außen anheben, wie ein Hund am Hydranten, dann kontrolliert zurückführen."},
+  {id:21, g:"beine", n:"Donkey Kicks",               m:"reps", v:12, l:1, s:true, c:"Vierfüßlerstand. Eine Ferse Richtung Decke drücken, das Knie bleibt gebeugt, oben den Po kurz anspannen und dann kontrolliert wieder absenken."},
+  {id:22, g:"beine", n:"Good Mornings",              m:"reps", v:18, l:2, c:"Hüftbreiter Stand, Hände hinter dem Kopf oder vor der Brust. Hüfte mit geradem Rücken nach hinten schieben, leichte Kniebeugung, Oberkörper sinkt fast waagrecht, dann aufrichten."},
+  {id:23, g:"beine", n:"Beinbeuger negativ",         m:"reps", v:8,  l:3, c:"Im Kniestand die Füße fixieren (z. B. unter einem schweren Möbelstück). Den Oberkörper so langsam wie möglich nach vorn absenken, die Beinrückseite bremst die Bewegung."},
+  {id:24, g:"beine", n:"Frog Pumps",                 m:"reps", v:25, l:1, c:"Rückenlage, Fußsohlen zusammen, Knie fallen zur Seite. Hüfte in schnellem Rhythmus nach oben pumpen und wieder absenken – hohe Wiederholungszahl für die Gesäßmuskulatur."},
 
   /* ---------------- ARME & SCHULTERN (20) ---------------- */
-  {id:25, g:"arme", n:"Trizeps-Dips am Stuhl",       m:"reps", v:15, l:2, c:"Ellbogen nach hinten, Schultern weg von den Ohren."},
-  {id:26, g:"arme", n:"Diamant-Liegestütze",         m:"reps", v:10, l:3, c:"Hände bilden ein Dreieck, Ellbogen eng am Körper."},
-  {id:27, g:"arme", n:"Enge Liegestütze",            m:"reps", v:12, l:3, c:"Hände schulterbreit, Trizeps übernimmt die Arbeit."},
-  {id:28, g:"arme", n:"Pike Push-ups",               m:"reps", v:10, l:3, c:"Hüfte hoch, Kopf zwischen den Händen absenken."},
-  {id:29, g:"arme", n:"Schulterkreisen mit Spannung",m:"time", v:40, l:1, c:"Arme seitlich waagrecht, kleine schnelle Kreise."},
-  {id:30, g:"arme", n:"Armkreisen vorwärts",         m:"time", v:30, l:1, c:"Arme gestreckt, konstante Spannung halten."},
-  {id:31, g:"arme", n:"Armkreisen rückwärts",        m:"time", v:30, l:1, c:"Brustkorb offen, Schulterblätter aktiv."},
-  {id:32, g:"arme", n:"Plank Shoulder Taps",         m:"reps", v:20, l:2, c:"Hüfte möglichst ruhig, abwechselnd Schulter antippen."},
-  {id:33, g:"arme", n:"Bear Crawl vor/zurück",       m:"time", v:40, l:2, c:"Knie knapp über dem Boden, Rücken flach."},
-  {id:34, g:"arme", n:"Trizeps-Strecken im Stütz",   m:"reps", v:12, l:3, c:"Aus dem Unterarmstütz in den Handstütz und zurück."},
-  {id:35, g:"arme", n:"Handstand-Halt an der Wand",  m:"time", v:30, l:3, c:"Füße an der Wand, Körper lang, Bauch fest."},
-  {id:36, g:"arme", n:"Wand-Handstand negativ",      m:"reps", v:6,  l:3, c:"Langsam absenken, kontrolliert wieder hoch."},
-  {id:37, g:"arme", n:"Bizeps-Zug mit Handtuch",     m:"time", v:40, l:2, c:"Handtuch unter dem Fuß, gegen den eigenen Zug arbeiten."},
-  {id:38, g:"arme", n:"Curl gegen Selbstwiderstand", m:"reps", v:15, l:2, c:"Eine Hand drückt gegen die andere, langsam beugen."},
-  {id:39, g:"arme", n:"Liegestütz mit Halt unten",   m:"reps", v:8,  l:3, c:"Unten zwei Sekunden halten, dann hochdrücken."},
-  {id:40, g:"arme", n:"Scapula Push-ups",            m:"reps", v:15, l:1, c:"Arme gestreckt, nur Schulterblätter bewegen."},
-  {id:41, g:"arme", n:"Crab Walk",                   m:"time", v:40, l:2, c:"Rückwärtsstütz, Po hoch, vor und zurück laufen."},
-  {id:42, g:"arme", n:"Trizeps-Kickback ohne Gewicht",m:"reps",v:18, l:1, c:"Oberkörper vorgeneigt, Arme nach hinten strecken."},
-  {id:43, g:"arme", n:"Schulterdrücken gegen Wand",  m:"time", v:40, l:2, c:"Isometrisch gegen die Wand drücken, gleichmäßig atmen."},
-  {id:44, g:"arme", n:"Plank Walk-up",               m:"reps", v:12, l:2, c:"Unterarmstütz zu Handstütz, Seite pro Wiederholung wechseln."},
+  {id:25, g:"arme", n:"Trizeps-Dips am Stuhl",       m:"reps", v:15, l:2, c:"Hände auf die Stuhlkante stützen, Beine nach vorn gestreckt. Ellbogen zeigen nach hinten, Oberkörper absenken bis die Ellbogen etwa 90 Grad erreichen, dann hochdrücken."},
+  {id:26, g:"arme", n:"Diamant-Liegestütze",         m:"reps", v:10, l:3, c:"Hände bilden unter der Brust ein Dreieck (Daumen und Zeigefinger berühren sich). Eng am Körper absenken – belastet den Trizeps besonders stark."},
+  {id:27, g:"arme", n:"Enge Liegestütze",            m:"reps", v:12, l:3, c:"Hände etwa schulterbreit direkt unter der Brust. Ellbogen laufen eng am Körper entlang statt nach außen zu klappen, der Trizeps übernimmt den Großteil der Arbeit."},
+  {id:28, g:"arme", n:"Pike Push-ups",               m:"reps", v:10, l:3, c:"Aus dem Stütz die Hüfte hochschieben wie ein umgekehrtes V. Kopf zwischen den Händen zum Boden absenken, dann zurückdrücken – Vorstufe zum Handstand-Drücken."},
+  {id:29, g:"arme", n:"Schulterkreisen mit Spannung",m:"time", v:40, l:1, c:"Arme seitlich auf Schulterhöhe ausstrecken. Kleine, schnelle Kreise ziehen, dabei die Arme bewusst angespannt und lang halten."},
+  {id:30, g:"arme", n:"Armkreisen vorwärts",         m:"time", v:30, l:1, c:"Arme seitlich gestreckt ausstrecken und große, gleichmäßige Kreise nach vorn ziehen, die Spannung in den Armen konstant halten."},
+  {id:31, g:"arme", n:"Armkreisen rückwärts",        m:"time", v:30, l:1, c:"Wie vorwärts, nur in die andere Richtung. Brustkorb bewusst öffnen, Schulterblätter leicht zusammenziehen."},
+  {id:32, g:"arme", n:"Plank Shoulder Taps",         m:"reps", v:20, l:2, c:"Im hohen Stütz die Füße etwas breiter stellen. Abwechselnd mit einer Hand die gegenüberliegende Schulter antippen, Hüfte dabei so ruhig wie möglich halten."},
+  {id:33, g:"arme", n:"Bear Crawl vor/zurück",       m:"time", v:40, l:2, c:"Vierfüßlerstand mit angehobenen Knien knapp über dem Boden. Gegengleich Hand und Fuß nach vorn setzen, dann rückwärts, Rücken bleibt flach."},
+  {id:34, g:"arme", n:"Trizeps-Strecken im Stütz",   m:"reps", v:12, l:3, c:"Aus dem Unterarmstütz einen Arm nach dem anderen zum Handstütz durchdrücken, dann wieder zurück in den Unterarmstütz – kräftigt Trizeps und Schultern."},
+  {id:35, g:"arme", n:"Handstand-Halt an der Wand",  m:"time", v:30, l:3, c:"Füße an der Wand hochlaufen bis zum Handstand, Körper bildet eine lange Linie. Bauch fest anspannen und die Position ruhig halten."},
+  {id:36, g:"arme", n:"Wand-Handstand negativ",      m:"reps", v:6,  l:3, c:"Aus dem Handstand an der Wand langsam die Arme beugen und den Kopf kontrolliert Richtung Boden absenken, dann wieder kraftvoll hochdrücken."},
+  {id:37, g:"arme", n:"Bizeps-Zug mit Handtuch",     m:"time", v:40, l:2, c:"Handtuch unter einem Fuß einklemmen, mit beiden Händen dagegen nach oben ziehen wie bei einem Bizepscurl – der eigene Fuß liefert den Widerstand."},
+  {id:38, g:"arme", n:"Curl gegen Selbstwiderstand", m:"reps", v:15, l:2, c:"Eine Hand umgreift das andere Handgelenk und drückt dagegen, während der Arm langsam gebeugt wird – Muskelspannung statt Gewicht erzeugt den Trainingsreiz."},
+  {id:39, g:"arme", n:"Liegestütz mit Halt unten",   m:"reps", v:8,  l:3, c:"Normale Liegestütz-Ausführung, aber unten kurz vor dem Boden zwei Sekunden halten, bevor kraftvoll hochgedrückt wird – deutlich mehr Zeit unter Spannung."},
+  {id:40, g:"arme", n:"Scapula Push-ups",            m:"reps", v:15, l:1, c:"Im hohen Stütz die Arme komplett gestreckt lassen. Nur die Schulterblätter zusammenziehen und wieder auseinanderschieben, ohne die Ellbogen zu beugen."},
+  {id:41, g:"arme", n:"Crab Walk",                   m:"time", v:40, l:2, c:"Rückwärtsstütz mit angehobener Hüfte, Hände und Füße zeigen vom Körper weg. Im Krebsgang einige Schritte vor- und zurücklaufen, Hüfte bleibt oben."},
+  {id:42, g:"arme", n:"Trizeps-Kickback ohne Gewicht",m:"reps",v:18, l:1, c:"Oberkörper leicht nach vorn geneigt, Ellbogen am Körper fixiert. Unterarm nach hinten strecken bis der Arm ganz gerade ist, dann kontrolliert zurückführen."},
+  {id:43, g:"arme", n:"Schulterdrücken gegen Wand",  m:"time", v:40, l:2, c:"Rücken zur Wand, Arme wie beim Schulterdrücken nach oben gegen die Wand pressen. Isometrisch halten und dabei gleichmäßig weiteratmen."},
+  {id:44, g:"arme", n:"Plank Walk-up",               m:"reps", v:12, l:2, c:"Aus dem Unterarmstütz Hand für Hand in den hohen Stütz hochdrücken, dann wieder zurück in den Unterarmstütz – Seite pro Wiederholung wechseln."},
 
   /* ---------------- BRUST (16) ---------------- */
-  {id:45, g:"brust", n:"Liegestütze klassisch",      m:"reps", v:15, l:2, c:"Körper bleibt eine Linie, volle Bewegungsamplitude."},
-  {id:46, g:"brust", n:"Breite Liegestütze",         m:"reps", v:14, l:2, c:"Hände weiter als schulterbreit, Brust betont."},
-  {id:47, g:"brust", n:"Liegestütze erhöht",         m:"reps", v:18, l:1, c:"Hände auf Stuhl oder Tisch, leichter für viele Wdh."},
-  {id:48, g:"brust", n:"Liegestütze Füße erhöht",    m:"reps", v:10, l:3, c:"Füße auf dem Sofa, obere Brust arbeitet stärker."},
-  {id:49, g:"brust", n:"Archer-Liegestütze",         m:"reps", v:8,  l:3, c:"Ein Arm streckt sich, das Gewicht wandert zur Seite."},
-  {id:50, g:"brust", n:"Langsame Liegestütze 3-1-3", m:"reps", v:8,  l:3, c:"Drei Sekunden runter, eine halten, drei hoch."},
-  {id:51, g:"brust", n:"Hindu Push-ups",             m:"reps", v:10, l:2, c:"Im Bogen nach vorn tauchen, Brust öffnen."},
-  {id:52, g:"brust", n:"Liegestütz mit Rotation",    m:"reps", v:12, l:2, c:"Oben einen Arm zur Decke öffnen, Blick folgt."},
-  {id:53, g:"brust", n:"Klatsch-Liegestütze",        m:"reps", v:8,  l:3, c:"Explosiv abdrücken, weich abfangen."},
-  {id:54, g:"brust", n:"Versetzte Liegestütze",      m:"reps", v:12, l:2, c:"Eine Hand vor, eine zurück, nach der Hälfte wechseln."},
-  {id:55, g:"brust", n:"Knie-Liegestütze",           m:"reps", v:20, l:1, c:"Knie am Boden, Hüfte gestreckt lassen."},
-  {id:56, g:"brust", n:"Liegestütz-Halt unten",      m:"time", v:35, l:3, c:"Kurz über dem Boden halten, Spannung im ganzen Körper."},
-  {id:57, g:"brust", n:"Wand-Liegestütze",           m:"reps", v:20, l:1, c:"Sanfte Variante, langsam und kontrolliert drücken."},
-  {id:58, g:"brust", n:"Push-up to Plank Jack",      m:"reps", v:12, l:3, c:"Liegestütz, dann Beine grätschen und schließen."},
-  {id:59, g:"brust", n:"Typewriter Push-ups",        m:"reps", v:8,  l:3, c:"Unten seitlich von Hand zu Hand schieben."},
-  {id:60, g:"brust", n:"Spiderman-Liegestütze",      m:"reps", v:12, l:3, c:"Beim Absenken das Knie zum Ellbogen ziehen."},
+  {id:45, g:"brust", n:"Liegestütze klassisch",      m:"reps", v:15, l:2, c:"Hände etwas breiter als schulterbreit, Körper bildet vom Kopf bis zu den Fersen eine gerade Linie. Brust fast bis zum Boden absenken, dann kraftvoll hochdrücken."},
+  {id:46, g:"brust", n:"Breite Liegestütze",         m:"reps", v:14, l:2, c:"Hände deutlich breiter als schulterbreit aufsetzen. Durch die breitere Handstellung wird die äußere Brustmuskulatur stärker betont."},
+  {id:47, g:"brust", n:"Liegestütze erhöht",         m:"reps", v:18, l:1, c:"Hände auf einen Stuhl oder Tisch stützen, Körper bleibt gerade. Durch die erhöhte Position sinkt die Belastung – gut für viele saubere Wiederholungen."},
+  {id:48, g:"brust", n:"Liegestütze Füße erhöht",    m:"reps", v:10, l:3, c:"Füße auf ein Sofa oder eine Bank legen, Hände am Boden. Die erhöhte Fußposition verlagert mehr Last auf die obere Brust und die Schultern."},
+  {id:49, g:"brust", n:"Archer-Liegestütze",         m:"reps", v:8,  l:3, c:"Breiter Handstand, beim Absenken das Gewicht auf eine Seite verlagern, der andere Arm bleibt fast gestreckt. Seite für Seite wechseln."},
+  {id:50, g:"brust", n:"Langsame Liegestütze 3-1-3", m:"reps", v:8,  l:3, c:"Drei Sekunden lang kontrolliert absenken, unten eine Sekunde halten, dann drei Sekunden lang hochdrücken – die Langsamkeit erhöht die Muskelspannung deutlich."},
+  {id:51, g:"brust", n:"Hindu Push-ups",             m:"reps", v:10, l:2, c:"Aus der Hüfte hoch beginnend in einem fließenden Bogen nach vorn unten tauchen, bis die Brust vorn öffnet und der Blick nach oben geht, dann zurück in die Ausgangsposition."},
+  {id:52, g:"brust", n:"Liegestütz mit Rotation",    m:"reps", v:12, l:2, c:"Normale Liegestütz-Ausführung, oben angekommen den Oberkörper zur Seite drehen und einen Arm zur Decke strecken, Blick folgt der Hand."},
+  {id:53, g:"brust", n:"Klatsch-Liegestütze",        m:"reps", v:8,  l:3, c:"Explosiv aus der tiefen Position abdrücken, sodass die Hände kurz den Boden verlassen und in die Luft klatschen können, dann weich wieder auffangen."},
+  {id:54, g:"brust", n:"Versetzte Liegestütze",      m:"reps", v:12, l:2, c:"Eine Hand etwas weiter vorn, die andere etwas weiter hinten platzieren. Nach der Hälfte der Wiederholungen die Handposition tauschen."},
+  {id:55, g:"brust", n:"Knie-Liegestütze",           m:"reps", v:20, l:1, c:"Knie statt Füße am Boden, Hüfte bleibt gestreckt, Körper bildet vom Kopf bis zu den Knien eine Linie. Gute Einstiegsvariante für mehr Wiederholungen."},
+  {id:56, g:"brust", n:"Liegestütz-Halt unten",      m:"time", v:35, l:3, c:"Kurz über dem Boden in der tiefsten Liegestütz-Position verharren, Spannung im ganzen Körper halten, gleichmäßig weiteratmen."},
+  {id:57, g:"brust", n:"Wand-Liegestütze",           m:"reps", v:20, l:1, c:"Hände auf Schulterhöhe gegen eine Wand stützen, Körper schräg gerade. Langsam und kontrolliert zur Wand absenken und wieder hochdrücken – sehr gelenkschonend."},
+  {id:58, g:"brust", n:"Push-up to Plank Jack",      m:"reps", v:12, l:3, c:"Nach einer normalen Liegestütz im hohen Stütz die Beine springend auseinander- und wieder zusammenführen, dann die nächste Liegestütz."},
+  {id:59, g:"brust", n:"Typewriter Push-ups",        m:"reps", v:8,  l:3, c:"Unten in der tiefen Position von Hand zu Hand seitlich hin- und herschieben, wie ein Schreibmaschinenwagen, ohne den Oberkörper anzuheben."},
+  {id:60, g:"brust", n:"Spiderman-Liegestütze",      m:"reps", v:12, l:3, c:"Beim Absenken der Liegestütz ein Knie seitlich zum gleichseitigen Ellbogen ziehen, oben zurückführen, dann die Seite wechseln."},
 
   /* ---------------- BAUCH & RUMPF (24) ---------------- */
-  {id:61, g:"bauch", n:"Unterarmstütz (Plank)",      m:"time", v:45, l:2, c:"Ellbogen unter den Schultern, Po nicht hochschieben."},
-  {id:62, g:"bauch", n:"Seitstütz rechts",           m:"time", v:30, l:2, c:"Rechte Seite unten, Hüfte hoch, Körper lang."},
-  {id:63, g:"bauch", n:"Seitstütz links",            m:"time", v:30, l:2, c:"Linke Seite unten, Schulter über dem Ellbogen."},
-  {id:64, g:"bauch", n:"Crunches",                   m:"reps", v:25, l:1, c:"Nur die Schultern lösen, Nacken lang lassen."},
-  {id:65, g:"bauch", n:"Bicycle Crunches",           m:"reps", v:30, l:2, c:"Ellbogen zum gegenüberliegenden Knie, langsam drehen."},
-  {id:66, g:"bauch", n:"Beinheben liegend",          m:"reps", v:15, l:2, c:"Lendenwirbel bleibt am Boden, Beine gestreckt."},
-  {id:67, g:"bauch", n:"Flutter Kicks",              m:"time", v:40, l:2, c:"Kleine schnelle Scherbewegungen, Beine tief."},
-  {id:68, g:"bauch", n:"Scissor Kicks",              m:"time", v:40, l:2, c:"Beine kreuzen sich abwechselnd über- und untereinander."},
-  {id:69, g:"bauch", n:"Hollow Body Hold",           m:"time", v:35, l:3, c:"Unterer Rücken am Boden, Arme und Beine lang."},
-  {id:70, g:"bauch", n:"Russian Twists",             m:"reps", v:30, l:2, c:"Oberkörper zurückgelehnt, aus dem Rumpf drehen."},
-  {id:71, g:"bauch", n:"Sit-ups",                    m:"reps", v:20, l:2, c:"Wirbel für Wirbel aufrollen und abrollen."},
-  {id:72, g:"bauch", n:"Toe Touches",                m:"reps", v:20, l:2, c:"Beine senkrecht, Hände Richtung Zehen tippen."},
-  {id:73, g:"bauch", n:"V-Ups",                      m:"reps", v:15, l:3, c:"Arme und Beine gleichzeitig zusammenführen."},
-  {id:74, g:"bauch", n:"Dead Bug",                   m:"reps", v:20, l:1, c:"Gegengleich strecken, Rücken bleibt am Boden."},
-  {id:75, g:"bauch", n:"Mountain Climbers",          m:"time", v:40, l:2, c:"Hüfte tief, Knie schnell zur Brust ziehen."},
-  {id:76, g:"bauch", n:"Plank Jacks",                m:"reps", v:20, l:2, c:"Im Stütz die Beine springend öffnen und schließen."},
-  {id:77, g:"bauch", n:"Reverse Crunch",             m:"reps", v:18, l:2, c:"Knie zur Brust rollen, Becken abheben."},
-  {id:78, g:"bauch", n:"Heel Taps",                  m:"reps", v:30, l:1, c:"Seitlich zur Ferse tippen, seitliche Bauchmuskeln."},
-  {id:79, g:"bauch", n:"Plank mit Beinheben",        m:"reps", v:16, l:3, c:"Ein Bein anheben, Hüfte bleibt waagrecht."},
-  {id:80, g:"bauch", n:"Hollow Rocks",               m:"reps", v:20, l:3, c:"Aus der Hollow-Position leicht vor und zurück schaukeln."},
-  {id:81, g:"bauch", n:"Sitzendes Beinheben",        m:"time", v:30, l:3, c:"Aufrecht sitzen, Beine gestreckt anheben und halten."},
-  {id:82, g:"bauch", n:"Scheibenwischer",            m:"reps", v:16, l:3, c:"Beine oben, kontrolliert von Seite zu Seite senken."},
-  {id:83, g:"bauch", n:"Bauchpresse gegen die Knie", m:"time", v:40, l:1, c:"Hände drücken gegen die Knie, Bauch fest anspannen."},
-  {id:84, g:"bauch", n:"Bird Dog Crunch",            m:"reps", v:16, l:2, c:"Ellbogen und Knie unter dem Bauch zusammenführen."},
+  {id:61, g:"bauch", n:"Unterarmstütz (Plank)",      m:"time", v:45, l:2, c:"Ellbogen direkt unter den Schultern, Körper bildet eine gerade Linie von Kopf bis Ferse. Bauch fest anspannen, Po nicht hochschieben und nicht durchhängen lassen."},
+  {id:62, g:"bauch", n:"Seitstütz rechts",           m:"time", v:30, l:2, c:"Auf dem rechten Unterarm abstützen, Füße übereinander, Hüfte anheben bis der Körper eine gerade Linie bildet. Seitliche Bauchmuskulatur trägt das Gewicht."},
+  {id:63, g:"bauch", n:"Seitstütz links",            m:"time", v:30, l:2, c:"Spiegelbildlich zur rechten Seite: linker Unterarm unten, Schulter direkt über dem Ellbogen, Hüfte oben halten."},
+  {id:64, g:"bauch", n:"Crunches",                   m:"reps", v:25, l:1, c:"Rückenlage, Knie aufgestellt, Hände leicht an den Kopf. Nur Kopf und Schultern vom Boden lösen, Nacken bleibt lang, dann kontrolliert zurücksinken."},
+  {id:65, g:"bauch", n:"Bicycle Crunches",           m:"reps", v:30, l:2, c:"Rückenlage, Hände an den Schläfen. Abwechselnd Ellbogen zum gegenüberliegenden angezogenen Knie führen, dabei bewusst langsam aus dem Rumpf drehen."},
+  {id:66, g:"bauch", n:"Beinheben liegend",          m:"reps", v:15, l:2, c:"Rückenlage, Beine gestreckt. Langsam nach oben heben bis etwa 90 Grad, dann kontrolliert absenken, ohne dass sich der untere Rücken vom Boden löst."},
+  {id:67, g:"bauch", n:"Flutter Kicks",              m:"time", v:40, l:2, c:"Rückenlage, unterer Rücken in den Boden gedrückt. Gestreckte Beine knapp über dem Boden in kleinen, schnellen Scherbewegungen auf und ab bewegen."},
+  {id:68, g:"bauch", n:"Scissor Kicks",              m:"time", v:40, l:2, c:"Ähnlich wie Flutter Kicks, aber die gestreckten Beine kreuzen sich abwechselnd über- und untereinander statt nur auf und ab zu wippen."},
+  {id:69, g:"bauch", n:"Hollow Body Hold",           m:"time", v:35, l:3, c:"Rückenlage, unterer Rücken fest in den Boden gedrückt. Arme und Beine lang ausgestreckt leicht anheben, Spannung im ganzen Rumpf halten."},
+  {id:70, g:"bauch", n:"Russian Twists",             m:"reps", v:30, l:2, c:"Sitzposition, Oberkörper leicht zurückgelehnt, Füße können abheben. Aus dem Rumpf heraus abwechselnd nach links und rechts drehen, Hände berühren jeweils den Boden neben der Hüfte."},
+  {id:71, g:"bauch", n:"Sit-ups",                    m:"reps", v:20, l:2, c:"Rückenlage, Knie aufgestellt. Wirbel für Wirbel nach oben aufrollen bis zum Sitzen, dann genauso kontrolliert Wirbel für Wirbel wieder abrollen."},
+  {id:72, g:"bauch", n:"Toe Touches",                m:"reps", v:20, l:2, c:"Rückenlage, Beine senkrecht nach oben gestreckt. Mit beiden Händen versuchen, die Zehenspitzen zu berühren, nur Kopf und Schultern lösen sich vom Boden."},
+  {id:73, g:"bauch", n:"V-Ups",                      m:"reps", v:15, l:3, c:"Rückenlage, Arme über dem Kopf. Gleichzeitig Oberkörper und gestreckte Beine anheben, sodass sich Hände und Füße in der Luft treffen, dann kontrolliert zurück."},
+  {id:74, g:"bauch", n:"Dead Bug",                   m:"reps", v:20, l:1, c:"Rückenlage, Arme zeigen zur Decke, Knie im rechten Winkel angehoben. Gegengleich einen Arm und das entgegengesetzte Bein strecken, unterer Rücken bleibt am Boden."},
+  {id:75, g:"bauch", n:"Mountain Climbers",          m:"time", v:40, l:2, c:"Hoher Stütz, Hüfte tief. Knie schnell abwechselnd Richtung Brust ziehen, als würde man auf der Stelle einen Berg hochlaufen."},
+  {id:76, g:"bauch", n:"Plank Jacks",                m:"reps", v:20, l:2, c:"Hoher Stütz. Die Beine springend nach außen öffnen und wieder zusammenführen, Oberkörper bleibt dabei ruhig und stabil."},
+  {id:77, g:"bauch", n:"Reverse Crunch",             m:"reps", v:18, l:2, c:"Rückenlage, Beine angewinkelt in der Luft. Knie Richtung Brust rollen und dabei das Becken leicht vom Boden abheben, dann kontrolliert absenken."},
+  {id:78, g:"bauch", n:"Heel Taps",                  m:"reps", v:30, l:1, c:"Rückenlage, Knie aufgestellt, Schultern leicht vom Boden gelöst. Abwechselnd seitlich zur rechten und linken Ferse tippen – trainiert die seitliche Bauchmuskulatur."},
+  {id:79, g:"bauch", n:"Plank mit Beinheben",        m:"reps", v:16, l:3, c:"Hoher Stütz. Ein Bein gestreckt nach oben anheben, ohne dass die Hüfte zur Seite kippt, dann absetzen und die Seite wechseln."},
+  {id:80, g:"bauch", n:"Hollow Rocks",               m:"reps", v:20, l:3, c:"Aus der Hollow-Body-Position heraus den ganzen Körper leicht vor und zurück schaukeln, die Grundspannung bleibt dabei durchgehend erhalten."},
+  {id:81, g:"bauch", n:"Sitzendes Beinheben",        m:"time", v:30, l:3, c:"Aufrecht sitzen, Hände seitlich abgestützt. Beide gestreckten Beine anheben und die Position einige Sekunden halten, dann kontrolliert absenken."},
+  {id:82, g:"bauch", n:"Scheibenwischer",            m:"reps", v:16, l:3, c:"Rückenlage, Beine senkrecht nach oben gestreckt, Arme seitlich zur Stabilität ausgebreitet. Beine wie ein Scheibenwischer kontrolliert von einer Seite zur anderen senken."},
+  {id:83, g:"bauch", n:"Bauchpresse gegen die Knie", m:"time", v:40, l:1, c:"Sitzend oder im Stand die Hände gegen die angehobenen Knie drücken, während die Knie gleichzeitig dagegenhalten – reine isometrische Bauchspannung."},
+  {id:84, g:"bauch", n:"Bird Dog Crunch",            m:"reps", v:16, l:2, c:"Vierfüßlerstand, ein Arm und das gegenüberliegende Bein gestreckt. Ellbogen und Knie unter dem Bauch zusammenführen, dann wieder lang ausstrecken."},
 
   /* ---------------- RÜCKEN (20) ---------------- */
-  {id:85, g:"ruecken", n:"Superman",                 m:"reps", v:20, l:1, c:"Arme und Beine gleichzeitig anheben, Blick nach unten."},
-  {id:86, g:"ruecken", n:"Superman-Halt",            m:"time", v:40, l:2, c:"Position oben halten, gleichmäßig weiteratmen."},
-  {id:87, g:"ruecken", n:"Bird Dog",                 m:"reps", v:20, l:1, c:"Gegengleich strecken, Becken bleibt waagrecht."},
-  {id:88, g:"ruecken", n:"Schwimmer",                m:"time", v:40, l:2, c:"Bauchlage, Arme und Beine wechselseitig auf und ab."},
-  {id:89, g:"ruecken", n:"Reverse Snow Angel",       m:"reps", v:18, l:2, c:"Bauchlage, Arme dicht über dem Boden kreisen."},
-  {id:90, g:"ruecken", n:"Y-T-W Raises",             m:"reps", v:18, l:2, c:"Arme nacheinander in Y-, T- und W-Position heben."},
-  {id:91, g:"ruecken", n:"Prone Cobra",              m:"time", v:40, l:2, c:"Brust anheben, Daumen nach außen drehen."},
-  {id:92, g:"ruecken", n:"Rudern mit Handtuch",      m:"reps", v:18, l:2, c:"Handtuch um Türklinke, Schulterblätter zusammenziehen."},
-  {id:93, g:"ruecken", n:"Türrahmen-Rudern",         m:"reps", v:12, l:3, s:true, c:"Am Türrahmen festhalten, zurücklehnen und ziehen."},
-  {id:94, g:"ruecken", n:"Rudern unter dem Tisch",   m:"reps", v:12, l:3, c:"Unter einen stabilen Tisch legen, Brust zur Kante ziehen."},
-  {id:95, g:"ruecken", n:"Hüftheben mit Fersendruck",m:"reps", v:20, l:2, c:"Fersen in den Boden drücken, Rückseite arbeitet."},
-  {id:96, g:"ruecken", n:"Katze-Kuh",                m:"reps", v:20, l:1, c:"Wirbelsäule langsam runden und strecken."},
-  {id:97, g:"ruecken", n:"Rückenstrecker am Boden",  m:"reps", v:20, l:2, c:"Nur den Oberkörper anheben, Beine bleiben liegen."},
-  {id:98, g:"ruecken", n:"Schulterblätter zusammen", m:"reps", v:20, l:1, c:"Arme im 90-Grad-Winkel, hinten zusammenziehen."},
-  {id:99, g:"ruecken", n:"Wall Slides",              m:"reps", v:15, l:1, c:"Rücken an der Wand, Arme nach oben schieben."},
-  {id:100,g:"ruecken", n:"Brücken-Halt",             m:"time", v:40, l:2, c:"Hüfte oben halten, Schultern und Fersen tragen."},
-  {id:101,g:"ruecken", n:"Reverse Plank",            m:"time", v:35, l:3, c:"Rückwärtsstütz, Körper bildet eine gerade Linie."},
-  {id:102,g:"ruecken", n:"Reverse Plank Beinheben",  m:"reps", v:16, l:3, c:"Im Rückwärtsstütz abwechselnd ein Bein heben."},
-  {id:103,g:"ruecken", n:"Superman Pull",            m:"reps", v:18, l:2, c:"Arme nach vorn strecken und wie beim Ziehen anwinkeln."},
-  {id:104,g:"ruecken", n:"Vierfüßler-Halt",          m:"time", v:35, l:2, c:"Knie schweben knapp über dem Boden, Rücken flach."},
+  {id:85, g:"ruecken", n:"Superman",                 m:"reps", v:20, l:1, c:"Bauchlage, Arme nach vorn gestreckt. Arme und Beine gleichzeitig einige Zentimeter vom Boden abheben, Blick bleibt zum Boden gerichtet, dann kontrolliert absenken."},
+  {id:86, g:"ruecken", n:"Superman-Halt",            m:"time", v:40, l:2, c:"Wie Superman, die angehobene Position aber oben halten statt sie wiederholt aufzulösen. Gleichmäßig weiteratmen, nicht die Luft anhalten."},
+  {id:87, g:"ruecken", n:"Bird Dog",                 m:"reps", v:20, l:1, c:"Vierfüßlerstand. Einen Arm nach vorn und das gegenüberliegende Bein nach hinten strecken, Becken bleibt dabei waagrecht, dann Seite wechseln."},
+  {id:88, g:"ruecken", n:"Schwimmer",                m:"time", v:40, l:2, c:"Bauchlage, Arme nach vorn gestreckt. Gegengleich einen Arm und das entgegengesetzte Bein leicht anheben und im Wechsel wie beim Schwimmen bewegen."},
+  {id:89, g:"ruecken", n:"Reverse Snow Angel",       m:"reps", v:18, l:2, c:"Bauchlage, Arme seitlich am Körper. Arme dicht über dem Boden nach oben und wieder zurück nach unten kreisen, Schulterblätter aktiv einsetzen."},
+  {id:90, g:"ruecken", n:"Y-T-W Raises",             m:"reps", v:18, l:2, c:"Bauchlage. Nacheinander die Arme in Y-Form (schräg nach oben), T-Form (seitlich waagrecht) und W-Form (angewinkelt) anheben – trainiert die obere Rückenmuskulatur umfassend."},
+  {id:91, g:"ruecken", n:"Prone Cobra",              m:"time", v:40, l:2, c:"Bauchlage, Arme am Körper. Brust vom Boden abheben und dabei die Daumen nach außen drehen, sodass sich die Schulterblätter zusammenziehen."},
+  {id:92, g:"ruecken", n:"Rudern mit Handtuch",      m:"reps", v:18, l:2, c:"Handtuch um eine Türklinke oder einen stabilen Griff legen. Mit gestreckten Armen nach hinten lehnen, dann mit dem Rücken zur Klinke ziehen."},
+  {id:93, g:"ruecken", n:"Türrahmen-Rudern",         m:"reps", v:12, l:3, s:true, c:"Beide Hände am Türrahmen festhalten, Füße nah an der Tür, Körper nach hinten lehnen. Mit dem Rücken zur Tür ziehen und kontrolliert wieder ausstrecken."},
+  {id:94, g:"ruecken", n:"Rudern unter dem Tisch",   m:"reps", v:12, l:3, c:"Unter einen stabilen Tisch legen, Hände greifen die Tischkante. Die Brust kraftvoll zur Kante ziehen, dann die Arme wieder strecken."},
+  {id:95, g:"ruecken", n:"Hüftheben mit Fersendruck",m:"reps", v:20, l:2, c:"Rückenlage, Fersen fest in den Boden drücken. Hüfte kraftvoll nach oben strecken, dabei bewusst über die Fersen arbeiten statt über die Zehen."},
+  {id:96, g:"ruecken", n:"Katze-Kuh",                m:"reps", v:20, l:1, c:"Vierfüßlerstand. Wirbelsäule abwechselnd zur Decke runden (Katze) und zum Boden durchhängen lassen (Kuh) – mobilisiert die gesamte Wirbelsäule sanft."},
+  {id:97, g:"ruecken", n:"Rückenstrecker am Boden",  m:"reps", v:20, l:2, c:"Bauchlage, Hände neben dem Kopf. Nur den Oberkörper leicht vom Boden abheben, die Beine bleiben liegen, dann kontrolliert absenken."},
+  {id:98, g:"ruecken", n:"Schulterblätter zusammen", m:"reps", v:20, l:1, c:"Arme im rechten Winkel vor dem Körper halten. Die Schulterblätter bewusst nach hinten zusammenziehen, kurz halten, dann lösen."},
+  {id:99, g:"ruecken", n:"Wall Slides",              m:"reps", v:15, l:1, c:"Rücken und Arme an der Wand, Ellbogen im rechten Winkel. Arme an der Wand entlang nach oben schieben und wieder herunterführen, Kontakt zur Wand bleibt bestehen."},
+  {id:100,g:"ruecken", n:"Brücken-Halt",             m:"time", v:40, l:2, c:"Rückenlage, Füße aufgestellt. Hüfte nach oben drücken und oben halten, Gewicht verteilt sich auf Schultern und Fersen."},
+  {id:101,g:"ruecken", n:"Reverse Plank",            m:"time", v:35, l:3, c:"Sitzposition mit Händen hinter dem Körper aufgestützt, Beine gestreckt. Hüfte anheben, bis der Körper eine gerade Linie von den Schultern bis zu den Fersen bildet."},
+  {id:102,g:"ruecken", n:"Reverse Plank Beinheben",  m:"reps", v:16, l:3, c:"Aus der Reverse-Plank-Position abwechselnd ein Bein anheben, ohne dass die Hüfte absackt, dann wieder absetzen und die Seite wechseln."},
+  {id:103,g:"ruecken", n:"Superman Pull",            m:"reps", v:18, l:2, c:"Bauchlage, Arme nach vorn gestreckt. Arme wie beim Rudern anwinkeln und die Ellbogen nach hinten ziehen, Schulterblätter zusammenführen, dann wieder strecken."},
+  {id:104,g:"ruecken", n:"Vierfüßler-Halt",          m:"time", v:35, l:2, c:"Vierfüßlerstand, Knie schweben knapp über dem Boden, Rücken bleibt flach. Position ruhig halten, ohne den Rücken durchhängen zu lassen."},
 
   /* ---------------- CARDIO & AUSDAUER (16) ---------------- */
-  {id:105,g:"cardio", n:"Hampelmänner",              m:"time", v:45, l:1, c:"Gleichmäßiger Rhythmus, locker durch die Knie."},
-  {id:106,g:"cardio", n:"High Knees",                m:"time", v:40, l:2, c:"Knie auf Hüfthöhe, Arme aktiv mitlaufen lassen."},
-  {id:107,g:"cardio", n:"Butt Kicks",                m:"time", v:40, l:1, c:"Fersen zum Po, Oberkörper bleibt aufrecht."},
-  {id:108,g:"cardio", n:"Burpees",                   m:"reps", v:12, l:3, c:"Sauberer Ablauf statt Tempo, oben kurz strecken."},
-  {id:109,g:"cardio", n:"Half Burpees",              m:"reps", v:15, l:2, c:"Ohne Liegestütz, nur Sprung in den Stütz und zurück."},
-  {id:110,g:"cardio", n:"Skater Jumps",              m:"time", v:40, l:2, c:"Seitlich springen und weich auf einem Bein landen."},
-  {id:111,g:"cardio", n:"Seilspringen ohne Seil",    m:"time", v:45, l:1, c:"Kleine Sprünge aus dem Fußgelenk, Handgelenke kreisen."},
-  {id:112,g:"cardio", n:"Squat Jumps in Serie",      m:"reps", v:15, l:3, c:"Tief in die Hocke, explosiv nach oben."},
-  {id:113,g:"cardio", n:"Shadow Boxing",             m:"time", v:45, l:1, c:"Leichte Beinarbeit, Schläge aus der Hüfte."},
-  {id:114,g:"cardio", n:"Sprint auf der Stelle",     m:"time", v:30, l:3, c:"Maximales Tempo, Vorfußlauf, kurze Bodenkontakte."},
-  {id:115,g:"cardio", n:"Star Jumps",                m:"reps", v:20, l:2, c:"Aus der Hocke explosiv zum Stern öffnen."},
-  {id:116,g:"cardio", n:"Tuck Jumps",                m:"reps", v:12, l:3, c:"Knie in der Luft zur Brust ziehen, weich landen."},
-  {id:117,g:"cardio", n:"Lateral Shuffle",           m:"time", v:40, l:2, c:"Tiefe Position, schnelle Seitschritte hin und her."},
-  {id:118,g:"cardio", n:"Inchworm",                  m:"reps", v:10, l:2, c:"Hände nach vorn laufen bis in den Stütz, zurückwandern."},
-  {id:119,g:"cardio", n:"Bear Crawl Sprint",         m:"time", v:30, l:3, c:"Schnell im Bärengang, Hüfte niedrig halten."},
-  {id:120,g:"cardio", n:"Stufensteigen schnell",     m:"time", v:45, l:2, c:"Treppe oder Stufe im zügigen Wechseltempo."}
+  {id:105,g:"cardio", n:"Hampelmänner",              m:"time", v:45, l:1, c:"Aus dem Stand gleichzeitig die Beine seitlich öffnen und die Arme über dem Kopf zusammenführen, dann zurück in die Ausgangsposition – gleichmäßiger Rhythmus."},
+  {id:106,g:"cardio", n:"High Knees",                m:"time", v:40, l:2, c:"Auf der Stelle laufen und dabei die Knie abwechselnd bis auf Hüfthöhe hochziehen, Arme laufen aktiv mit."},
+  {id:107,g:"cardio", n:"Butt Kicks",                m:"time", v:40, l:1, c:"Auf der Stelle laufen und dabei die Fersen abwechselnd Richtung Gesäß nach hinten hochschlagen, Oberkörper bleibt aufrecht."},
+  {id:108,g:"cardio", n:"Burpees",                   m:"reps", v:12, l:3, c:"Aus dem Stand in die Hocke, Hände auf den Boden, Beine nach hinten in den Stütz springen, kurze Liegestütz-Bewegung, dann zurück in die Hocke und hoch in den Strecksprung."},
+  {id:109,g:"cardio", n:"Half Burpees",              m:"reps", v:15, l:2, c:"Wie Burpees, aber ohne die Liegestütz – nur der Sprung in den Stütz und direkt zurück in die Hocke, danach der Strecksprung nach oben."},
+  {id:110,g:"cardio", n:"Skater Jumps",              m:"time", v:40, l:2, c:"Seitlich von einem Bein auf das andere springen wie ein Eisläufer, das jeweils hintere Bein schwingt leicht nach hinten, weich landen."},
+  {id:111,g:"cardio", n:"Seilspringen ohne Seil",    m:"time", v:45, l:1, c:"Kleine, gleichmäßige Sprünge aus dem Fußgelenk simulieren, als würde tatsächlich ein Seil geschwungen, Handgelenke kreisen mit."},
+  {id:112,g:"cardio", n:"Squat Jumps in Serie",      m:"reps", v:15, l:3, c:"Tief in die Kniebeuge gehen, dann explosiv nach oben abspringen, weich landen und direkt in die nächste Wiederholung übergehen."},
+  {id:113,g:"cardio", n:"Shadow Boxing",             m:"time", v:45, l:1, c:"Lockere Grundstellung mit leichter Beinarbeit, dabei abwechselnd Schläge aus der Hüfte heraus in die Luft setzen, ständig in Bewegung bleiben."},
+  {id:114,g:"cardio", n:"Sprint auf der Stelle",     m:"time", v:30, l:3, c:"Maximales Lauftempo auf der Stelle, kurze Bodenkontakte über den Vorfuß, Arme pumpen aktiv mit."},
+  {id:115,g:"cardio", n:"Star Jumps",                m:"reps", v:20, l:2, c:"Aus der tiefen Hocke explosiv nach oben abspringen und dabei Arme und Beine sternförmig weit öffnen, dann wieder in die Hocke landen."},
+  {id:116,g:"cardio", n:"Tuck Jumps",                m:"reps", v:12, l:3, c:"Aus dem Stand hochspringen und dabei beide Knie so hoch wie möglich Richtung Brust ziehen, weich mit gebeugten Knien landen."},
+  {id:117,g:"cardio", n:"Lateral Shuffle",           m:"time", v:40, l:2, c:"Tiefe, athletische Grundposition, schnelle Seitschritte hin und her, ohne die Knie durchzustrecken – trainiert seitliche Schnelligkeit."},
+  {id:118,g:"cardio", n:"Inchworm",                  m:"reps", v:10, l:2, c:"Aus dem Stand die Hände auf den Boden bringen und langsam nach vorn wandern lassen bis zum hohen Stütz, dann die Füße wieder zu den Händen heranlaufen."},
+  {id:119,g:"cardio", n:"Bear Crawl Sprint",         m:"time", v:30, l:3, c:"Im Vierfüßlerstand mit angehobenen Knien zügig vorwärts krabbeln, Hüfte bleibt dabei nah am Boden."},
+  {id:120,g:"cardio", n:"Stufensteigen schnell",     m:"time", v:45, l:2, c:"Eine Treppenstufe oder erhöhte Fläche im zügigen Wechseltempo besteigen und wieder heruntersteigen, gleichmäßiger, schneller Rhythmus."}
 ];
 
 var GROUPS = ["beine","brust","bauch","ruecken","arme","cardio"];
@@ -1913,6 +1968,7 @@ var DEFAULT_SETTINGS = {
   runDistanceCustom: null,// benutzerdefinierte Distanz in km, überschreibt runDistance wenn gesetzt
   basePaceSec: 390,       // 6:30 min/km als Startwert
   restDays: [],           // feste wöchentliche Ruhetage (0=So … 6=Sa), hat Vorrang vor allem anderen
+  trainedDays: [],        // feste Wochentage "schon trainiert" (extern) – zählt als Training, nicht als Erholung
   sound: true,
   vibrate: true,
   keepAwake: true,
@@ -1939,6 +1995,9 @@ function normalizeSettings(s){
   }
   if (!Array.isArray(out.restDays)) out.restDays = [];
   out.restDays = out.restDays.map(Number).filter(function(d){ return d >= 0 && d <= 6; })
+                 .filter(function(d,i,a){ return a.indexOf(d) === i; }).sort();
+  if (!Array.isArray(out.trainedDays)) out.trainedDays = [];
+  out.trainedDays = out.trainedDays.map(Number).filter(function(d){ return d >= 0 && d <= 6; })
                  .filter(function(d,i,a){ return a.indexOf(d) === i; }).sort();
   out.cleared = !!out.cleared;
   out.basePaceSec = Math.min(900, Math.max(180, Number(out.basePaceSec) || 390));
@@ -2018,6 +2077,11 @@ function effectiveRunDistance(settings){
 function isFixedRestDay(dateStr, settings){
   var s = normalizeSettings(settings);
   return s.restDays.indexOf(parseYmd(dateStr).getDay()) >= 0;
+}
+function isFixedTrainedDay(dateStr, settings){
+  var s = normalizeSettings(settings);
+  if (isFixedRestDay(dateStr, s)) return false; // Ruhetag hat Vorrang
+  return s.trainedDays.indexOf(parseYmd(dateStr).getDay()) >= 0;
 }
 function isRunDay(dateStr, settings){
   var s = normalizeSettings(settings);
@@ -2455,7 +2519,7 @@ var API = {
   ymd:ymd, parseYmd:parseYmd, weekMonday:weekMonday, addDays:addDays, dayIndex:dayIndex, inRange:inRange,
   APP_VERSION:APP_VERSION,
   CHANGELOG:CHANGELOG,
-  effectiveRunDistance:effectiveRunDistance, isFixedRestDay:isFixedRestDay,
+  effectiveRunDistance:effectiveRunDistance, isFixedRestDay:isFixedRestDay, isFixedTrainedDay:isFixedTrainedDay,
   currentStreak:currentStreak, longestStreak:longestStreak, doneInLastDays:doneInLastDays,
   groupVolume:groupVolume, fitnessScore:fitnessScore, estimateRun:estimateRun,
   fmtTime:fmtTime, fmtPace:fmtPace, parseFitnessFile:parseFitnessFile,
@@ -3860,6 +3924,18 @@ function putFile(cfg, dataObj, sha){
 function push(cfg, dataObj){
   return getFile(cfg).then(function(cur){
     return putFile(cfg, dataObj, cur.exists ? cur.sha : null);
+  }).catch(function(err){
+    // Ein anderes Gerät hat zwischenzeitlich geschrieben: statt einer
+    // störenden Meldung automatisch die aktuelle Version erneut holen
+    // und den eigenen Stand einmal still nachlegen (letzter Schreiber
+    // gewinnt, aber ohne dass etwas verloren geht wie bei einem
+    // ungeprüften Überschreiben).
+    if (err.conflict){
+      return getFile(cfg).then(function(fresh){
+        return putFile(cfg, dataObj, fresh.exists ? fresh.sha : null);
+      });
+    }
+    throw err;
   });
 }
 function pull(cfg){
@@ -3954,6 +4030,12 @@ var W = root.WK;
 
 /* ---------- Sportarten trennen ---------- */
 function classify(a){
+  var sRaw = String((a && (a.rawType || a.type || a.name)) || "").toLowerCase();
+  // Nur eine ausdrücklich als Ganzkörper-/Kombi-Einheit benannte, mindestens
+  // zweistündige Aktivität zählt als Ganzkörper-Ausdauer/Kraft-Kombi – eine
+  // einfache lange Ausdauereinheit (z. B. ein 20-km-Lauf) bleibt unverändert
+  // in ihrer eigenen Kategorie.
+  if ((a && a.durationSec || 0) >= 7200 && /ganzk(ö|oe)rper|kombi|zirkel|kraftausdauer|cross-?fit|hyrox/.test(sRaw)) return "ganzkoerper";
   if (W.sportForActivity){
     var sp = W.sportForActivity(a);
     var m = {lauf:"lauf", trail:"trail", rad:"rad", schwimmen:"schwimmen",
@@ -4209,20 +4291,33 @@ function fatigue(log, activities, todayStr, settings){
       var k = classify(a);
       if (isVolume(k) || k === "rad"){ f.beine += decay[i] * 1.1; f.cardio += decay[i] * 1.2; }
       if (k === "schwimmen"){ f.ruecken += decay[i]; f.arme += decay[i]; f.cardio += decay[i]*0.8; }
+      if (k === "ganzkoerper"){ W.GROUPS.forEach(function(g){ f[g] += decay[i] * 0.405; }); } // 15% je Einheit auf jede Muskelgruppe
     });
   }
   var max = 2.7;
   W.GROUPS.forEach(function(g){ f[g] = Math.min(1, Math.round(f[g]/max*100)/100); });
   return f;
 }
+function monthlyTrainingBonus(log, todayStr){
+  // Wer im Monat oft trainiert, gilt schneller wieder als bereit: die
+  // Ermüdung wird um bis zu 30% weniger stark angerechnet, proportional
+  // zur Anzahl erledigter Tage in den letzten 30 Tagen.
+  var n = 0;
+  for (var i = 0; i < 30; i++){
+    var d = W.addDays(todayStr, -i);
+    if (log[d] && log[d].done) n++;
+  }
+  return Math.min(0.3, n / 24 * 0.3);
+}
 function readiness(log, activities, todayStr, settings){
   var f = fatigue(log, activities, todayStr, settings);
   var avg = W.GROUPS.reduce(function(a,g){ return a + f[g]; }, 0) / W.GROUPS.length;
   var lr = loadRatio(activities, todayStr);
   var pen = lr.ratio > 1.5 ? 0.25 : lr.ratio > 1.3 ? 0.15 : 0;
-  var score = Math.max(0, Math.min(100, Math.round((1 - avg*0.7 - pen) * 100)));
+  var bonus = monthlyTrainingBonus(log, todayStr);
+  var score = Math.max(0, Math.min(100, Math.round((1 - avg*0.7*(1-bonus) - pen) * 100)));
   var label = score >= 75 ? "Frisch" : score >= 55 ? "Bereit" : score >= 35 ? "Belastet" : "Erholung nötig";
-  return {score:score, label:label, fatigue:f, load:lr};
+  return {score:score, label:label, fatigue:f, load:lr, monthlyBonus:bonus};
 }
 
 /* ---------- Befund: ein Satz + drei Belegzahlen ---------- */
@@ -4682,7 +4777,9 @@ var S = {
   swaps: store.get("wk_swaps", {}),
   rests: store.get("wk_rests", {}),
   colors: store.get("wk_colors", {}),
-  skin: store.get("wk_skin", "osv2")
+  skin: store.get("wk_skin", "osv2"),
+  sickDays: store.get("wk_sickdays", {}),
+  illnessActive: store.get("wk_illness_active", false)
 };
 S.calMonth = new Date(W.parseYmd(S.today).getFullYear(), W.parseYmd(S.today).getMonth(), 1);
 S.runKm = W.effectiveRunDistance(S.settings);
@@ -4801,6 +4898,7 @@ var BREATH_STEPS = [
 function isRestDay(dateStr){
   if (S.rests[dateStr] === 0) return false; // bewusst überschrieben: "Doch normal trainieren"
   if (S.rests[dateStr] === 1) return true;  // bewusst überschrieben: "Heute schon trainiert" -> Ruhetag
+  if (isSickDay(dateStr)) return true;      // Kranktag zählt automatisch als Ruhetag
   return W.isFixedRestDay(dateStr, S.settings); // sonst: fester wöchentlicher Ruhetag
 }
 function setRestDay(dateStr, on){
@@ -4808,9 +4906,68 @@ function setRestDay(dateStr, on){
   store.set("wk_rests", S.rests);
 }
 
+/* ============================================================
+   KRANKHEIT
+   Aktivierung ausschließlich über das Kalender-Widget. Solange
+   aktiv, wird auf der Startseite jeden neuen Tag nachgefragt, ob
+   noch krank – bei "Ja" zählt der Tag als Kranktag (Ruhetag mit
+   leichtem, kranktauglichem Dehnprogramm statt reiner Atemübung),
+   bei "Nein" endet der Modus sofort wieder.
+   ============================================================ */
+function saveSickState(){
+  store.set("wk_sickdays", S.sickDays);
+  store.set("wk_illness_active", S.illnessActive);
+}
+function isSickDay(dateStr){ return !!S.sickDays[dateStr]; }
+function startIllness(){
+  S.illnessActive = true;
+  S.sickDays[S.today] = 1;
+  saveSickState();
+}
+function endIllness(){
+  S.illnessActive = false;
+  saveSickState();
+}
+function needsSickCheckIn(){
+  return S.illnessActive && !S.sickDays[S.today];
+}
+function confirmStillSick(){
+  S.sickDays[S.today] = 1;
+  saveSickState();
+}
+function sickDaysThisYear(){
+  var y = W.parseYmd(S.today).getFullYear();
+  return Object.keys(S.sickDays).filter(function(d){ return S.sickDays[d] && W.parseYmd(d).getFullYear() === y; }).length;
+}
+/* Leichtes, für Kranke geeignetes Dehnprogramm: nur ruhige, sitzend/
+   liegend machbare Übungen aus der bestehenden Dehn-Bibliothek, ohne
+   jede Anstrengung. */
+var SICK_STRETCH_IDS = null;
+function sickRoutineExercises(){
+  if (!SICK_STRETCH_IDS){
+    SICK_STRETCH_IDS = W.STRETCHES.filter(function(s){
+      return /nacken|schulter/i.test(s.g) || /sanft|leicht|ruhig|langsam/i.test(s.aus || s.cue || "");
+    }).slice(0, 40);
+    if (SICK_STRETCH_IDS.length < 6) SICK_STRETCH_IDS = W.STRETCHES.slice(0, 40);
+  }
+  var idx = W.dayIndex(S.today);
+  var picked = [];
+  for (var i = 0; i < 5; i++) picked.push(SICK_STRETCH_IDS[(idx + i * 7) % SICK_STRETCH_IDS.length]);
+  return picked;
+}
+function buildSickRoutine(){
+  var seq = [{type:"warmup", name:"Krankheitstag", cue:"Ganz ruhig, im Sitzen oder Liegen. Bei Unwohlsein sofort abbrechen.", dur:10, round:0}];
+  sickRoutineExercises().forEach(function(s, i){
+    seq.push({type:"work", name:s.n, cue:(s.pos||"") + " " + (s.aus||s.cue||""), dur:30, round:1, mode:"time", group:s.g});
+    if (i < 4) seq.push({type:"rest", name:"Kurz lockern", cue:"Ruhig weiteratmen.", dur:8, round:1});
+  });
+  seq.push({type:"cooldown", name:"Gute Besserung", cue:"Das war schonend genug für einen Krankheitstag. Streak läuft weiter.", dur:8, round:1});
+  return seq;
+}
+
 function getPlan(dateStr){
   if (isRestDay(dateStr)){
-    return {date:dateStr, weekday:W.parseYmd(dateStr).getDay(), run:false, rest:true,
+    return {date:dateStr, weekday:W.parseYmd(dateStr).getDay(), run:false, rest:true, sick:isSickDay(dateStr),
             exercises:[], warmup:null, cooldown:null};
   }
   var p = W.planForDate(dateStr, S.settings);
@@ -4894,12 +5051,16 @@ function renderHeute(){
   $("greet").textContent = gr + (S.settings.name ? ", " + S.settings.name : "");
   $("todayLine").textContent = DAYS_LONG[d.getDay()] + ", " + d.getDate() + ". " + MONTHS[d.getMonth()] + " " + d.getFullYear();
   $("streakVal").textContent = streak;
+  $("sickCheckIn").style.display = needsSickCheckIn() ? "" : "none";
 
   var done = W.currentStreak ? !!(S.log[S.today] && S.log[S.today].done) : false;
   var hero = $("hero");
   hero.classList.toggle("runday", !!(p.run || p.rest));
-  $("heroKicker").textContent = p.rest ? "Entspannungstag" : p.run ? "Lauftag" : W.GOAL_LABEL[S.settings.goal];
-  if (p.rest){
+  $("heroKicker").textContent = p.sick ? "Krankheitstag" : p.rest ? "Entspannungstag" : p.run ? "Lauftag" : W.GOAL_LABEL[S.settings.goal];
+  if (p.sick){
+    $("heroTitle").textContent = "Leichtes Dehnen für heute";
+    $("heroMeta").textContent = "5 sehr sanfte Übungen im Sitzen/Liegen · kein Leistungsdruck · Streak läuft normal weiter.";
+  } else if (p.rest){
     $("heroTitle").textContent = "Atemübung statt Training";
     $("heroMeta").textContent = "2 Minuten geführte Atmung · dein Streak läuft normal weiter.";
   } else if (p.run){
@@ -4921,6 +5082,13 @@ function renderHeute(){
   $("btnToggleDone").textContent = done ? "✓" : "✓";
   $("btnToggleDone").style.opacity = done ? "1" : ".55";
   $("btnToggleDone").style.color = done ? "var(--work)" : "";
+  var fixedTrained = W.isFixedTrainedDay(S.today, S.settings) && !done && !p.rest;
+  var bte = $("btnTrainedElsewhere");
+  if (bte){
+    bte.classList.toggle("accent", fixedTrained);
+    bte.classList.toggle("ghost", !fixedTrained);
+    bte.textContent = fixedTrained ? "Heute schon trainiert (externer Tag)" : "Heute schon trainiert";
+  }
 
   $("stFit").textContent = f.score;
   $("stWeek").textContent = W.doneInLastDays(S.log, S.today, 7) + "/7";
@@ -5022,9 +5190,11 @@ function renderKalender(){
     if (isDone) cls += " done";
     else if (ds < S.today) cls += " missed";
     if (ds === S.today) cls += " today";
+    if (isSickDay(ds)) cls += " sick";
     var c = el("div", cls, String(day));
     c.dataset.date = ds;
-    if (isRestDay(ds)) c.appendChild(el("div","rd rest-dot"));
+    if (isSickDay(ds)) c.appendChild(el("div","rd sick-dot"));
+    else if (isRestDay(ds)) c.appendChild(el("div","rd rest-dot"));
     else if (W.isRunDay(ds, S.settings)) c.appendChild(el("div","rd"));
     grid.appendChild(c);
   }
@@ -5431,6 +5601,7 @@ var OV_C = 2 * Math.PI * 44;
 
 function startToday(){
   var p = planToday();
+  if (p.rest && p.sick){ openPlayer(buildSickRoutine()); return; }
   if (p.rest){ openPlayer(buildBreath()); return; }
   if (p.run){ switchTab("lauf"); return; }
   openPlayer(W.buildSequence(p, S.settings));
@@ -5549,6 +5720,8 @@ function finishWorkout(){
   var getToneCue = (window.APP4 && window.APP4.toneCue) ? window.APP4.toneCue : function(){ return null; };
   $("ovCue").textContent = S.activeProgram === "rodeln"
     ? (getToneCue("rodeln") || "Rumpf, Beine, Schultern und Nacken sind aufgewärmt und mobilisiert. Der heutige Tag ist im Logbuch erledigt.")
+    : planToday().sick
+    ? "Gute Besserung. Das war schonend genug für einen Krankheitstag – dein Streak läuft ganz normal weiter."
     : planToday().rest
     ? (getToneCue("rest") || "Zwei Minuten bewusste Atmung sind erfasst. Dein Streak läuft weiter, morgen geht es normal weiter.")
     : (getToneCue("work") || "Du hast heute alle sechs Muskelgruppen trainiert. Morgen warten neue Übungen.");
@@ -5602,13 +5775,32 @@ function bind(){
   });
 
   $("btnStartToday").addEventListener("click", startToday);
+  $("btnStillSickYes").addEventListener("click", function(){
+    confirmStillSick(); renderAll();
+    toast("Weiterhin geschont – gute Besserung");
+  });
+  $("btnStillSickNo").addEventListener("click", function(){
+    endIllness(); renderAll();
+    toast("Schön, dass es dir besser geht!");
+  });
   $("btnRest").addEventListener("click", function(){
     var on = !isRestDay(S.today);
     setRestDay(S.today, on);
-    if (on && S.log[S.today] && S.log[S.today].done) markDone(S.today);
     renderAll();
-    toast(on ? "Entspannungstag – 2 Minuten Atemübung" : "Normales Training zurück");
+    if (on){
+      toast("Entspannungstag – 2 Minuten Atemübung");
+      openPlayer(buildBreath());
+    } else {
+      toast("Normales Training zurück");
+    }
     buzz(40);
+  });
+  $("btnTrainedElsewhere").addEventListener("click", function(){
+    markDone(S.today, {type:"extern", groups: W.GROUPS.slice(), ex: []});
+    renderAll();
+    toast("Schon trainiert – 2 Minuten Atemübung als Cool-down");
+    buzz(40);
+    openPlayer(buildBreath());
   });
   $("btnToggleDone").addEventListener("click", function(){
     if (S.log[S.today] && S.log[S.today].done){ unmark(S.today); toast("Eintrag entfernt"); }
@@ -5813,6 +6005,7 @@ window.APP = {
   handleFiles:handleFiles, player:P, renderPlayer:renderPlayer, openPlayer:openPlayer, closePlayer:closePlayer, keepAwake:keepAwake, storageOk:storageOk,
   MONTHS:MONTHS, DAYS_SHORT:DAYS_SHORT, DAYS_LONG:DAYS_LONG,
   collectFullState:collectFullState, applyFullState:applyFullState,
+  startIllness:startIllness, endIllness:endIllness, isSickDay:isSickDay,
   openSheet:openSheet, closeSheet:closeSheet
 };
 
@@ -6914,8 +7107,26 @@ function renderRestDaySettings(){
       if (i >= 0) list.splice(i,1); else list.push(d);
       S.settings.restDays = list;
       S.settings = W.normalizeSettings(S.settings);
-      A.saveSettings(); renderRestDaySettings(); A.renderAll();
+      A.saveSettings(); renderRestDaySettings(); renderTrainedDaySettings(); A.renderAll();
       A.toast(i >= 0 ? "Ruhetag entfernt" : "Ruhetag festgelegt");
+    };
+    host.appendChild(b);
+  });
+}
+function renderTrainedDaySettings(){
+  var host = $("setTrainedDays");
+  if (!host) return;
+  host.innerHTML = "";
+  DAY_ORDER.forEach(function(d){
+    var b = el("button", (S.settings.trainedDays.indexOf(d) >= 0 ? "on" : ""), A.DAYS_SHORT[d]);
+    b.onclick = function(){
+      var list = S.settings.trainedDays.slice();
+      var i = list.indexOf(d);
+      if (i >= 0) list.splice(i,1); else list.push(d);
+      S.settings.trainedDays = list;
+      S.settings = W.normalizeSettings(S.settings);
+      A.saveSettings(); renderTrainedDaySettings(); A.renderAll();
+      A.toast(i >= 0 ? "'Schon trainiert'-Tag entfernt" : "'Schon trainiert'-Tag festgelegt");
     };
     host.appendChild(b);
   });
@@ -7306,13 +7517,13 @@ window.APP3 = {
   after: function(screen){
     if (screen === "heute") applyDoneState();
     if (screen === "lauf"){ renderSportLog(); }
-    if (screen === "einst"){ renderRunDays(); renderRestDaySettings(); renderColorRows(); }
+    if (screen === "einst"){ renderRunDays(); renderRestDaySettings(); renderTrainedDaySettings(); renderColorRows(); }
     if (screen === "daten") decorateActivityList();
   },
   openSportDialog: openSportDialog,
   startCoolDown: startCoolDown,
   applyColors: applyColors,
-  renderRunDays: renderRunDays, renderRestDaySettings: renderRestDaySettings
+  renderRunDays: renderRunDays, renderRestDaySettings: renderRestDaySettings, renderTrainedDaySettings: renderTrainedDaySettings
 };
 
 applyColors();
@@ -7482,18 +7693,39 @@ function weatherStale(){
   if (S.weatherCache.unit !== S.weather.unit) return true;
   return (Date.now() - S.weatherCache.fetchedAt) >= ONE_HOUR;
 }
+/* Leise Ortung nur für die interne Aktualisierung in loadWeather(): setzt
+   bei Erfolg lat/lon, rührt aber nicht die vom Knopf "Jetzt orten"
+   verwaltete Status-Anzeige an, damit sich beide sich nicht überschreiben. */
+function silentRelocate(){
+  return new Promise(function(resolve){
+    if (!navigator.geolocation) { resolve(); return; }
+    navigator.geolocation.getCurrentPosition(function(pos){
+      S.weather.lat = Math.round(pos.coords.latitude * 1000) / 1000;
+      S.weather.lon = Math.round(pos.coords.longitude * 1000) / 1000;
+      saveWeatherSettings();
+      resolve();
+    }, function(){ resolve(); }, {timeout:8000, maximumAge:600000});
+  });
+}
 function loadWeather(force){
   if (!weatherReady()) { renderWeatherUI(); return Promise.resolve(null); }
   if (!force && !weatherStale()){ renderWeatherUI(); return Promise.resolve(S.weatherCache.data); }
   setSyncLikeStatus("weatherUpdated", "wird geladen …");
-  return WT.fetchForecast(S.weather.lat, S.weather.lon, S.weather.unit).then(function(data){
-    S.weatherCache = {fetchedAt: Date.now(), lat: S.weather.lat, lon: S.weather.lon, unit: S.weather.unit, data: data};
-    saveWeatherCache();
-    renderWeatherUI();
-    return data;
-  }).catch(function(err){
-    renderWeatherUI(err.message || "Wetterdaten nicht erreichbar");
-    return null;
+  // Im Automatik-Modus wird bei jeder Aktualisierung auch der Standort neu
+  // geholt, damit die Vorhersage bei einem Ortswechsel mitzieht. Das gilt
+  // nur, wenn ohnehin schon automatisch geortet wird – schlägt die Ortung
+  // fehl, wird einfach mit dem zuletzt bekannten Standort weitergemacht.
+  var relocate = (S.weather.mode === "auto") ? silentRelocate() : Promise.resolve(null);
+  return relocate.then(function(){
+    return WT.fetchForecast(S.weather.lat, S.weather.lon, S.weather.unit).then(function(data){
+      S.weatherCache = {fetchedAt: Date.now(), lat: S.weather.lat, lon: S.weather.lon, unit: S.weather.unit, data: data};
+      saveWeatherCache();
+      renderWeatherUI();
+      return data;
+    }).catch(function(err){
+      renderWeatherUI(err.message || "Wetterdaten nicht erreichbar");
+      return null;
+    });
   });
 }
 function ensureWeatherFresh(){
@@ -7705,6 +7937,27 @@ function doTestConnection(){
     ghStatus(err.message, "err");
   });
 }
+/* Bringt lokale und Cloud-Daten zusammen, bevor hochgeladen wird: die
+   Cloud soll auch Log-Tage und Aktivitäten behalten, die auf dem Gerät
+   durch die Datenaufbewahrung schon gelöscht wurden. So bleibt die
+   Cloud-Sicherung zeitlich unbegrenzt, während das Gerät selbst nur die
+   eingestellte Zeitspanne vorhält. */
+function buildSyncPayload(){
+  var local = A.collectFullState();
+  return GH.getFile(S.sync).then(function(cur){
+    if (!cur.exists) return local;
+    var remote = cur.content;
+    var decodeP = GH.isEncryptedPayload(remote)
+      ? (S.sync.pin ? GH.decryptPayload(remote, S.sync.pin).catch(function(){ return null; }) : Promise.resolve(null))
+      : Promise.resolve(remote);
+    return decodeP.then(function(remoteState){
+      if (!remoteState || typeof remoteState !== "object") return local;
+      local.log = Object.assign({}, remoteState.log || {}, local.log || {});
+      local.activities = W.mergeActivities(remoteState.activities || [], local.activities || []).list;
+      return local;
+    });
+  }).catch(function(){ return local; });
+}
 function doPush(){
   readSyncFieldsIntoState();
   var pin = S.sync.pin;
@@ -7713,10 +7966,9 @@ function doPush(){
     return;
   }
   ghStatus("Wird hochgeladen …", "busy");
-  var data = A.collectFullState();
-  var prep = (pin && pin.length >= 4) ? GH.encryptPayload(data, pin) : Promise.resolve(data);
-  prep.then(function(payload){
-    return GH.push(S.sync, payload);
+  buildSyncPayload().then(function(data){
+    var prep = (pin && pin.length >= 4) ? GH.encryptPayload(data, pin) : Promise.resolve(data);
+    return prep.then(function(payload){ return GH.push(S.sync, payload); });
   }).then(function(){
     S.sync.lastSync = Date.now(); saveSync();
     A.toast("Sicherung in GitHub gespeichert");
@@ -7762,10 +8014,13 @@ function runAutoSync(){
   if (!S.sync.auto || !GH.cfgComplete(S.sync)) return;
   var pin = S.sync.pin;
   if (pin && pin.length > 0 && pin.length < 4) return; // unvollständiger Code: nicht automatisch senden
-  var data = A.collectFullState();
-  var prep = (pin && pin.length >= 4) ? GH.encryptPayload(data, pin) : Promise.resolve(data);
+  var data = null;
+  var prepared = buildSyncPayload().then(function(d){
+    data = d;
+    return (pin && pin.length >= 4) ? GH.encryptPayload(d, pin) : Promise.resolve(d);
+  });
   ghStatus("Automatisch wird synchronisiert …", "busy");
-  prep.then(function(payload){ return GH.push(S.sync, payload); }).then(function(){
+  prepared.then(function(payload){ return GH.push(S.sync, payload); }).then(function(){
     S.sync.lastSync = Date.now(); saveSync(); renderSyncSettings();
   }).catch(function(err){ ghStatus(err.message, "err"); });
 }
@@ -7874,13 +8129,24 @@ function calValue(kcal){
    "NEU IN DIESER VERSION"
    ============================================================ */
 /* ============================================================
+   INTERNETVERBINDUNG ANZEIGEN
+   ============================================================ */
+function applyNetStatus(){
+  var icon = document.getElementById("netIcon");
+  if (!icon) return;
+  icon.classList.toggle("offline", !navigator.onLine);
+}
+window.addEventListener("online", applyNetStatus);
+window.addEventListener("offline", applyNetStatus);
+
+/* ============================================================
    GRANULARE RESETS PRO KATEGORIE
    ============================================================ */
 function resetCategory(cat){
   if (cat === "training"){
     var d = W.normalizeSettings({});
     ["name","goal","running","level","rounds","workSec","restSec","roundRestSec","warmup","cooldown",
-     "runMode","runDays","runPlan","runDistance","runDistanceCustom","restDays"].forEach(function(k){
+     "runMode","runDays","runPlan","runDistance","runDistanceCustom","restDays","trainedDays"].forEach(function(k){
       S.settings[k] = d[k];
     });
     S.settings = W.normalizeSettings(S.settings);
@@ -8157,6 +8423,7 @@ applyAppName();
 applyFontScale();
 applyRetention();
 checkWhatsNew();
+applyNetStatus();
 if (S.uiPrefs.themeMode === "auto") applyAutoTheme();
 if (weatherReady()) loadWeather(false);
 setInterval(ensureWeatherFresh, 5 * 60 * 1000);
@@ -8292,6 +8559,64 @@ function rainDaysNext14(){
   if (!S.weatherCache || !S.weatherCache.data) return null;
   return S.weatherCache.data.days.filter(function(d){ return d.pop != null && d.pop >= 50; }).length;
 }
+
+/* ---------- Krankheit: Hilfsfunktionen ---------- */
+function sickYearCount(){
+  var y = W.parseYmd(S.today).getFullYear();
+  return Object.keys(S.sickDays).filter(function(d){ return S.sickDays[d] && W.parseYmd(d).getFullYear() === y; }).length;
+}
+function sickDateList(){
+  var y = W.parseYmd(S.today).getFullYear();
+  return Object.keys(S.sickDays).filter(function(d){ return S.sickDays[d] && W.parseYmd(d).getFullYear() === y; }).sort();
+}
+function sickRanges(){
+  var list = sickDateList();
+  var ranges = [];
+  list.forEach(function(d){
+    var last = ranges[ranges.length-1];
+    if (last && W.addDays(last.to, 1) === d) last.to = d;
+    else ranges.push({from:d, to:d});
+  });
+  return ranges;
+}
+function sickSinceDate(){
+  var ranges = sickRanges();
+  var last = ranges[ranges.length-1];
+  return last ? last.from : null;
+}
+function openSickDialog(){
+  var host = $("sickRangesList");
+  $("sickStatus").textContent = S.illnessActive
+    ? "Aktiv seit " + fmtShortDate(sickSinceDate()) + " – auf der Startseite wird täglich nachgefragt, ob es noch anhält."
+    : "Gerade nicht aktiv. Aktivieren, wenn du dich ab heute krank fühlst – die App fragt dich danach jeden Tag, ob es noch anhält, und schlägt so lange nur ein sehr leichtes Dehnprogramm vor.";
+  $("btnSickToggle").textContent = S.illnessActive ? "Krankheitsmodus beenden" : "Ich bin ab heute krank";
+  $("sickYearCount").textContent = sickYearCount();
+  host.innerHTML = "";
+  var ranges = sickRanges();
+  if (!ranges.length){
+    host.appendChild(el("p","muted","Noch keine Kranktage in diesem Jahr erfasst."));
+  } else {
+    ranges.slice().reverse().forEach(function(r){
+      var txt = r.from === r.to ? fmtShortDate(r.from) : fmtShortDate(r.from) + " – " + fmtShortDate(r.to);
+      host.appendChild(el("p","tiny", txt));
+    });
+  }
+  var dlg = $("dlgSick");
+  dlg.showModal ? (function(){ try { dlg.showModal(); } catch(e){ dlg.setAttribute("open",""); } })() : dlg.setAttribute("open","");
+}
+document.addEventListener("click", function(e){
+  if (e.target.closest("#btnSickToggle")){
+    if (S.illnessActive){ A.endIllness(); A.toast("Krankheitsmodus beendet"); }
+    else { A.startIllness(); A.toast("Gute Besserung – für heute reicht ein leichtes Dehnprogramm"); }
+    A.renderAll();
+    openSickDialog();
+  }
+  if (e.target.closest("#sickClose")){
+    var dlg = $("dlgSick");
+    try { dlg.close(); } catch(err){}
+    dlg.removeAttribute("open");
+  }
+});
 var WT_CODE_LABEL = {0:"klar",1:"heiter",2:"bewölkt",3:"bedeckt",45:"Nebel",48:"Nebel",51:"Niesel",53:"Niesel",55:"Niesel",
   61:"Regen",63:"Regen",65:"Regen",71:"Schnee",73:"Schnee",75:"Schnee",80:"Schauer",81:"Schauer",82:"Schauer",95:"Gewitter"};
 function WT_LABEL(code){ return WT_CODE_LABEL[code] || "–"; }
@@ -8321,7 +8646,12 @@ var WIDGET_DEFS = {
     {id:"k7", t:"Erledigt-Quote Monat", v:function(){ var y=S.calMonth.getFullYear(), m=S.calMonth.getMonth(); var days=new Date(y,m+1,0).getDate(); var vergangen=0; for(var d=1; d<=days; d++){ var ds=y+"-"+String(m+1).padStart(2,"0")+"-"+String(d).padStart(2,"0"); if (ds<=S.today) vergangen++; } return vergangen? Math.round(monthDoneCount()/vergangen*100)+"%" : "–"; }},
     {id:"k8", t:"Regentage (14 Tage)", v:function(){ var r = rainDaysNext14(); return r===null ? "Wetter aus" : r + " von 14"; }},
     {id:"k9", t:"Lauftage diese Woche", v:function(){ var mon=W.weekMonday(S.today); var n=0; for(var i=0;i<7;i++){ if (W.isRunDay(W.addDays(mon,i), S.settings)) n++; } return n + ""; }},
-    {id:"k10", t:"Gesamt erledigte Tage", v:function(){ return totalDoneCount() + ""; }}
+    {id:"k10", t:"Gesamt erledigte Tage", v:function(){ return totalDoneCount() + ""; }},
+    {id:"k11", t:"Krankheit", interactive:true, v:function(){
+      if (S.illnessActive) return "Aktiv seit " + fmtShortDate(sickSinceDate());
+      var n = sickYearCount();
+      return n > 0 ? n + " Kranktage " + W.parseYmd(S.today).getFullYear() : "Nicht krank";
+    }}
   ],
   lauf: [
     {id:"l1", t:"Geschätzte Dauer heute", v:function(){ return $("setDuration") ? $("setDuration").textContent : "–"; }},
@@ -8374,7 +8704,7 @@ var WIDGET_DEFS = {
 };
 
 var DEFAULT_ON = {
-  heute: ["h1","h2","h3","h4"], kalender: ["k1","k2","k3","k4"],
+  heute: ["h1","h2","h3","h4"], kalender: ["k1","k2","k3","k11"],
   lauf: ["l1","l2","l3","l4"], daten: ["d1","d2","d3","d4"],
   fitness: ["f1","f2","f5","f6"], einst: ["e1","e2","e3","e9"]
 };
@@ -8393,36 +8723,184 @@ function renderWidgets(screen){
     if (!def) return;
     var val;
     try { val = def.v(); } catch(e){ val = "–"; }
-    var tile = el("div","widget-tile");
+    var tile = el("div","widget-tile" + (def.interactive ? " widget-tile-tap" : ""));
     tile.innerHTML = "<div class='wt-label'>" + esc(def.t) + "</div><div class='wt-value'>" + esc(String(val)) + "</div>";
+    if (def.interactive) tile.onclick = function(){ if (def.id === "k11") openSickDialog(); };
     host.appendChild(tile);
   });
 }
 function renderAllWidgets(){ Object.keys(WIDGET_DEFS).forEach(renderWidgets); }
 
+/* ============================================================
+   SEITENBEREICHE: nicht nur die Kacheln unten, sondern jeder
+   feste Abschnitt der Seite lässt sich ein-/ausblenden und in der
+   Reihenfolge anpassen. Technisch über CSS (order + eine Klasse
+   fürs Verstecken) statt echtem Verschieben im DOM, damit keine
+   bestehende Funktion durch Umsortieren beeinträchtigt wird.
+   ============================================================ */
+var SECTION_DEFS = {
+  heute: [
+    {id:"readiness", l:"Trainingsbereitschaft"},
+    {id:"hero", l:"Trainingskarte"},
+    {id:"stats", l:"Statistik-Zeile"},
+    {id:"exercises", l:"Deine Übungen heute"},
+    {id:"weekbar", l:"Diese Woche"},
+    {id:"tip", l:"Tagestipp"}
+  ],
+  kalender: [
+    {id:"calstats", l:"Statistik-Zeile"},
+    {id:"calweather", l:"Wetter-Vorschau"},
+    {id:"calgrid", l:"Kalenderraster"}
+  ],
+  lauf: [
+    {id:"stretch", l:"Dehnen & Mobility"},
+    {id:"rodeln", l:"Rodeln vorbereiten"},
+    {id:"distance", l:"Distanz wählen"},
+    {id:"sportlog", l:"Zuletzt erfasst"}
+  ],
+  fitness: [
+    {id:"fitscore", l:"Fitness-Score"},
+    {id:"fitweek", l:"Wochenrückblick"},
+    {id:"fitpr", l:"Persönliche Rekorde"},
+    {id:"fitach", l:"Abzeichen"},
+    {id:"fitreadiness", l:"Readiness & Recovery"},
+    {id:"fitfatigue", l:"Ermüdung nach Muskelgruppe"},
+    {id:"fitwhy", l:"Woraus sich das ergibt"},
+    {id:"fitmuscles", l:"Muskelgruppen"},
+    {id:"fitweeks", l:"Einheiten pro Woche"},
+    {id:"fitbest", l:"Bestwerte"}
+  ]
+};
+S.sectionsOn = A.store.get("wk_sections", null) || {};
+(function(){
+  Object.keys(SECTION_DEFS).forEach(function(scr){
+    if (!S.sectionsOn[scr]) S.sectionsOn[scr] = SECTION_DEFS[scr].map(function(d){ return d.id; });
+  });
+})();
+function saveSections(){ A.store.set("wk_sections", S.sectionsOn); }
+function applySections(screen){
+  var defs = SECTION_DEFS[screen];
+  if (!defs) return;
+  var on = S.sectionsOn[screen] || defs.map(function(d){ return d.id; });
+  defs.forEach(function(def){
+    var elx = document.querySelector('[data-sec="' + def.id + '"]');
+    if (!elx) return;
+    var idx = on.indexOf(def.id);
+    if (idx < 0){ elx.classList.add("sec-hidden"); }
+    else { elx.classList.remove("sec-hidden"); elx.style.order = idx; }
+  });
+}
+function renderSectionEditorList(screen){
+  var defs = SECTION_DEFS[screen];
+  var host = $("sectionsList");
+  host.innerHTML = "";
+  if (!defs){
+    host.appendChild(el("p","muted","Für diese Seite gibt es keine umstellbaren Bereiche, nur Kacheln."));
+    return;
+  }
+  var on = S.sectionsOn[screen] || defs.map(function(d){ return d.id; });
+  var ordered = on.map(function(id){ return defs.filter(function(d){ return d.id === id; })[0]; }).filter(Boolean);
+  var rest = defs.filter(function(d){ return on.indexOf(d.id) < 0; });
+  ordered.concat(rest).forEach(function(def){
+    var isOn = on.indexOf(def.id) >= 0;
+    var row = el("div","widget-check-row");
+    var arrows = "";
+    if (isOn){
+      var pos = on.indexOf(def.id);
+      arrows = "<button class='wmove' data-dir='up' " + (pos===0?"disabled":"") + ">▲</button>" +
+               "<button class='wmove' data-dir='down' " + (pos===on.length-1?"disabled":"") + ">▼</button>";
+    }
+    row.innerHTML = "<div class='wl'><b>" + esc(def.l) + "</b></div><div class='wmove-group'>" + arrows + "</div>";
+    var sw = document.createElement("button");
+    sw.className = "sw" + (isOn ? " on" : "");
+    sw.onclick = function(){
+      var list = S.sectionsOn[screen] || [];
+      var i = list.indexOf(def.id);
+      if (i >= 0) list.splice(i,1); else list.push(def.id);
+      S.sectionsOn[screen] = list;
+      saveSections(); applySections(screen); renderSectionEditorList(screen);
+    };
+    row.appendChild(sw);
+    Array.prototype.forEach.call(row.querySelectorAll(".wmove"), function(btn){
+      btn.onclick = function(){
+        var list = S.sectionsOn[screen] || [];
+        var i = list.indexOf(def.id);
+        var j = btn.dataset.dir === "up" ? i - 1 : i + 1;
+        if (j < 0 || j >= list.length) return;
+        var tmp = list[i]; list[i] = list[j]; list[j] = tmp;
+        S.sectionsOn[screen] = list;
+        saveSections(); applySections(screen); renderSectionEditorList(screen);
+      };
+    });
+    host.appendChild(row);
+  });
+}
+
 function openWidgetEditor(screen){
+  renderSectionEditorList(screen);
+  renderWidgetEditorList(screen);
+  var hasSections = !!SECTION_DEFS[screen];
+  var tabHost = $("widgetsTab");
+  tabHost.style.display = hasSections ? "" : "none";
+  Array.prototype.forEach.call(tabHost.children, function(b){ b.classList.toggle("on", b.dataset.v === "sections"); });
+  $("sectionsList").style.display = "";
+  $("widgetsList").style.display = "none";
+  if (!hasSections){
+    $("sectionsList").style.display = "none";
+    $("widgetsList").style.display = "";
+  }
+  Array.prototype.forEach.call(tabHost.children, function(b){
+    b.onclick = function(){
+      Array.prototype.forEach.call(tabHost.children, function(x){ x.classList.toggle("on", x === b); });
+      $("sectionsList").style.display = b.dataset.v === "sections" ? "" : "none";
+      $("widgetsList").style.display = b.dataset.v === "widgets" ? "" : "none";
+    };
+  });
+  $("dlgWidgets").showModal ? (function(){ try { $("dlgWidgets").showModal(); } catch(e){ $("dlgWidgets").setAttribute("open",""); } })() : $("dlgWidgets").setAttribute("open","");
+}
+function renderWidgetEditorList(screen){
   var defs = WIDGET_DEFS[screen] || [];
   var on = S.widgetsOn[screen] || [];
   var host = $("widgetsList"); host.innerHTML = "";
-  defs.forEach(function(def){
+  // Aktive Widgets zuerst, in ihrer aktuellen Reihenfolge, danach die noch nicht ausgewählten.
+  var ordered = on.map(function(id){ return defs.filter(function(d){ return d.id === id; })[0]; }).filter(Boolean);
+  var rest = defs.filter(function(d){ return on.indexOf(d.id) < 0; });
+  ordered.concat(rest).forEach(function(def, idx){
+    var isOn = on.indexOf(def.id) >= 0;
     var row = el("div","widget-check-row");
     var val; try { val = def.v(); } catch(e){ val = "–"; }
-    row.innerHTML = "<div class='wl'><b>" + esc(def.t) + "</b><span>" + esc(String(val)) + "</span></div>";
+    var arrows = "";
+    if (isOn){
+      var pos = on.indexOf(def.id);
+      arrows = "<button class='wmove' data-dir='up' " + (pos===0?"disabled":"") + ">▲</button>" +
+               "<button class='wmove' data-dir='down' " + (pos===on.length-1?"disabled":"") + ">▼</button>";
+    }
+    row.innerHTML = "<div class='wl'><b>" + esc(def.t) + "</b><span>" + esc(String(val)) + "</span></div>" +
+      "<div class='wmove-group'>" + arrows + "</div>";
     var sw = document.createElement("button");
-    sw.className = "sw" + (on.indexOf(def.id) >= 0 ? " on" : "");
+    sw.className = "sw" + (isOn ? " on" : "");
     sw.dataset.id = def.id;
     sw.onclick = function(){
       var list = S.widgetsOn[screen] || [];
       var i = list.indexOf(def.id);
       if (i >= 0) list.splice(i,1); else list.push(def.id);
       S.widgetsOn[screen] = list;
-      sw.classList.toggle("on");
-      saveWidgets(); renderWidgets(screen);
+      saveWidgets(); renderWidgets(screen); renderWidgetEditorList(screen);
     };
     row.appendChild(sw);
+    Array.prototype.forEach.call(row.querySelectorAll(".wmove"), function(btn){
+      btn.onclick = function(){
+        var list = S.widgetsOn[screen] || [];
+        var i = list.indexOf(def.id);
+        var j = btn.dataset.dir === "up" ? i - 1 : i + 1;
+        if (j < 0 || j >= list.length) return;
+        var tmp = list[i]; list[i] = list[j]; list[j] = tmp;
+        S.widgetsOn[screen] = list;
+        saveWidgets(); renderWidgets(screen); renderWidgetEditorList(screen);
+      };
+    });
     host.appendChild(row);
   });
-  $("dlgWidgets").showModal ? (function(){ try { $("dlgWidgets").showModal(); } catch(e){ $("dlgWidgets").setAttribute("open",""); } })() : $("dlgWidgets").setAttribute("open","");
 }
 
 document.addEventListener("click", function(e){
@@ -8437,10 +8915,11 @@ if (wc) wc.addEventListener("click", function(){
 
 /* In die bestehende Render-Kette einhängen, wie APP2/APP3/APP4 auch */
 renderAllWidgets();
+Object.keys(SECTION_DEFS).forEach(applySections);
 
 window.APP5 = {
   renderWidgets: renderWidgets, renderAllWidgets: renderAllWidgets, WIDGET_DEFS: WIDGET_DEFS,
-  after: function(screen){ renderWidgets(screen); }
+  after: function(screen){ renderWidgets(screen); applySections(screen); }
 };
 })();
 </script>
