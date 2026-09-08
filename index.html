@@ -1834,8 +1834,11 @@ var GROUP_COLOR = {
    angezeigt. Diese Zählung beginnt hier neu (erste Version mit einer
    sichtbaren Versionsnummer überhaupt); frühere Entwicklungsrunden hatten
    keine Versionsnummer. */
-var APP_VERSION = "2.1.0";
+var APP_VERSION = "2.1.1";
 var CHANGELOG = {
+  "2.1.1": [
+    "Cloud-Sicherung: die fälschliche Meldung 'neuere Version im Repository' sollte jetzt endgültig verschwunden sein – die Ursache war eine möglicherweise veraltete, zwischengespeicherte Antwort beim Prüfen des aktuellen Stands, jetzt wird das konsequent umgangen"
+  ],
   "2.1.0": [
     "Ausführliche, recherchierte Erklärungen jetzt auch für alle 240 Übungen in Muskelaufbau und Abnehmen",
     "Cloud-Sicherung noch robuster: gleicht Schreibkonflikte jetzt mehrfach automatisch aus, praktisch kein Fehlschlag mehr möglich",
@@ -3909,7 +3912,13 @@ function testConnection(cfg){
 /* Datei lesen: {exists:false} wenn noch keine Sicherung existiert */
 function getFile(cfg){
   var c = normalizeCfg(cfg);
-  return fetch(contentsUrl(c) + "?ref=" + encodeURIComponent(c.branch), {headers: ghHeaders(c.token)})
+  // "cache: no-store" + Zeitstempel im Query erzwingen eine wirklich frische
+  // Anfrage bei GitHub. Ohne das könnte der Browser eine zwischengespeicherte,
+  // veraltete Antwort liefern – dann würde der Konfliktausgleich beim Hochladen
+  // immer wieder mit derselben alten Version rechnen und am Ende doch die
+  // Fehlermeldung zeigen, obwohl in Wirklichkeit gar kein echter Konflikt mehr da ist.
+  var url = contentsUrl(c) + "?ref=" + encodeURIComponent(c.branch) + "&_=" + Date.now();
+  return fetch(url, {headers: ghHeaders(c.token), cache: "no-store"})
     .then(function(res){
       if (res.status === 404) return {exists:false};
       if (res.status === 401) throw new Error("Zugriffsschlüssel ungültig oder abgelaufen.");
