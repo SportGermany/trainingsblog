@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://api.github.com https://api.open-meteo.com https://geocoding-api.open-meteo.com; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://api.github.com https://api.open-meteo.com https://geocoding-api.open-meteo.com; worker-src 'self' blob:; manifest-src data:; object-src 'none'; base-uri 'self'; form-action 'self';">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Trainingsblog</title>
 <meta name="theme-color" content="#0A0A0A">
@@ -12,7 +12,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Trainingsblog">
-<link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%20%22Trainingsblog%22%2C%20%22short_name%22%3A%20%22Trainingsblog%22%2C%20%22description%22%3A%20%22Bodyweight-Training%20f%C3%BCr%20jeden%20Tag%3A%20360%20%C3%9Cbungen%20f%C3%BCr%20Muskelerhalt%2C%20Muskelaufbau%20und%20Abnehmen.%22%2C%20%22start_url%22%3A%20%22.%22%2C%20%22scope%22%3A%20%22.%22%2C%20%22display%22%3A%20%22standalone%22%2C%20%22orientation%22%3A%20%22portrait%22%2C%20%22background_color%22%3A%20%22%230A0A0A%22%2C%20%22theme_color%22%3A%20%22%230A0A0A%22%2C%20%22lang%22%3A%20%22de%22%2C%20%22icons%22%3A%20%5B%7B%22src%22%3A%20%22data%3Aimage/svg%2Bxml%2C%253Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2064%2064%27%253E%253Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2714%27%20fill%3D%27%252317181b%27/%253E%253Cpath%20d%3D%27M18%2026v12M46%2026v12M14%2030v4M50%2030v4M22%2032h20%27%20stroke%3D%27%25234fd1b5%27%20stroke-width%3D%275%27%20stroke-linecap%3D%27round%27/%253E%253C/svg%253E%22%2C%20%22sizes%22%3A%20%22192x192%22%2C%20%22type%22%3A%20%22image/svg%2Bxml%22%2C%20%22purpose%22%3A%20%22any%22%7D%2C%20%7B%22src%22%3A%20%22data%3Aimage/svg%2Bxml%2C%253Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2064%2064%27%253E%253Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2714%27%20fill%3D%27%252317181b%27/%253E%253Cpath%20d%3D%27M18%2026v12M46%2026v12M14%2030v4M50%2030v4M22%2032h20%27%20stroke%3D%27%25234fd1b5%27%20stroke-width%3D%275%27%20stroke-linecap%3D%27round%27/%253E%253C/svg%253E%22%2C%20%22sizes%22%3A%20%22512x512%22%2C%20%22type%22%3A%20%22image/svg%2Bxml%22%2C%20%22purpose%22%3A%20%22any%22%7D%5D%2C%20%22shortcuts%22%3A%20%5B%7B%22name%22%3A%20%22Training%20starten%22%2C%20%22short_name%22%3A%20%22Training%22%2C%20%22url%22%3A%20%22%23heute%22%2C%20%22icons%22%3A%20%5B%7B%22src%22%3A%20%22data%3Aimage/svg%2Bxml%2C%253Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2064%2064%27%253E%253Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2714%27%20fill%3D%27%252317181b%27/%253E%253Cpath%20d%3D%27M18%2026v12M46%2026v12M14%2030v4M50%2030v4M22%2032h20%27%20stroke%3D%27%25234fd1b5%27%20stroke-width%3D%275%27%20stroke-linecap%3D%27round%27/%253E%253C/svg%253E%22%2C%20%22sizes%22%3A%20%2296x96%22%7D%5D%7D%2C%20%7B%22name%22%3A%20%22Kalender%22%2C%20%22short_name%22%3A%20%22Kalender%22%2C%20%22url%22%3A%20%22%23kalender%22%2C%20%22icons%22%3A%20%5B%7B%22src%22%3A%20%22data%3Aimage/svg%2Bxml%2C%253Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2064%2064%27%253E%253Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2714%27%20fill%3D%27%252317181b%27/%253E%253Cpath%20d%3D%27M18%2026v12M46%2026v12M14%2030v4M50%2030v4M22%2032h20%27%20stroke%3D%27%25234fd1b5%27%20stroke-width%3D%275%27%20stroke-linecap%3D%27round%27/%253E%253C/svg%253E%22%2C%20%22sizes%22%3A%20%2296x96%22%7D%5D%7D%2C%20%7B%22name%22%3A%20%22Fitness%22%2C%20%22short_name%22%3A%20%22Fitness%22%2C%20%22url%22%3A%20%22%23fitness%22%2C%20%22icons%22%3A%20%5B%7B%22src%22%3A%20%22data%3Aimage/svg%2Bxml%2C%253Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2064%2064%27%253E%253Crect%20width%3D%2764%27%20height%3D%2764%27%20rx%3D%2714%27%20fill%3D%27%252317181b%27/%253E%253Cpath%20d%3D%27M18%2026v12M46%2026v12M14%2030v4M50%2030v4M22%2032h20%27%20stroke%3D%27%25234fd1b5%27%20stroke-width%3D%275%27%20stroke-linecap%3D%27round%27/%253E%253C/svg%253E%22%2C%20%22sizes%22%3A%20%2296x96%22%7D%5D%7D%5D%7D">
+<link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22Trainingsblog%22%2C%22short_name%22%3A%22Trainingsblog%22%2C%22description%22%3A%22Bodyweight-Training%20f%5Cu00fcr%20jeden%20Tag%3A%20360%20%5Cu00dcbungen%20f%5Cu00fcr%20Muskelerhalt%2C%20Muskelaufbau%20und%20Abnehmen.%22%2C%22start_url%22%3A%22.%22%2C%22scope%22%3A%22.%22%2C%22display%22%3A%22standalone%22%2C%22orientation%22%3A%22portrait%22%2C%22background_color%22%3A%22%230A0A0A%22%2C%22theme_color%22%3A%22%230A0A0A%22%2C%22lang%22%3A%22de%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fpng%3Bbase64%2CiVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3GwHAAADz0lEQVR4nO3a3W3bZgCGUcnoDjbgRbJBN%2BlQ3aQbdBED9hTuRZHASWRZFP%2F5nHMfWYjfhx8l83zamMen5%2Fe13wPzeXt9Oa%2F9Hj5a9c0YO6fTulEs%2FoONnmuWjmGxH2b4DLFUCLP%2FEMNnjLlDmO3FDZ8pzRXC5C9q%2BMxp6hAepnwx42duU29skpoMnzVMcRqMPgGMn7VMsb1RARg%2Faxu7wbsDMH62YswW7wrA%2BNmaezc5OADjZ6vu2eagAIyfrRu60ZsDMH72YshWbwrA%2BNmbWzf7ZQDGz17dst1JH4WAvbkagKs%2Fe%2FfVhj8NwPg5imtbdgtE2sUAXP05ms827QQg7bcAXP05qkvbdgKQ9lMArv4c3a8bdwKQ9iMAV38qPm7dCUCaAEh7OJ3c%2FtDzffNOANIEQJoASBMAaWcfgClzApAmANIEQJoASBMAaQIgTQCkCYA0AZAmANIEQJoASBMAaQIgTQCkCYA0AZAmANIEQJoASBMAaQIgTQCkCYA0AZAmANIEQJoASBMAaQIgTQCkCYA0AZAmANIEQJoASBMAaQIgTQCkCYA0AZD2x9pvYIxv%2F%2Fx997%2F998%2B%2FJnwnx1D8%2F3QCkCYA0gRAmgBIEwBpAiBNAKQJgDQBkCYA0nb9KMSUxjwGsFd7fXxhSpsKoDjCoxj6u9tKfG6BSBMAaQIgTQCkCYA0AZAmANIEQJoASBMAaQIgTQCkbephuKEPSHl4bju28nDbUJsKYE17%2FQUyjlsg0gRAmgBIEwBpAiBNAKQJgDQBkCYA0gRA2vnx6fl97TcBa3ECkCYA0gRAmgBIEwBpAiBNAKQJgDQBkCYA0gRAmgBIEwBpAiBNAKQJgDQBkCYA0gRAmgBIEwBpAiBNAKQJgDQBkCYA0gRAmgBIEwBpAiBNAKQJgDQBkCYA0gRAmgBIEwBpAiBNAKQJgLSHt9eX89pvAtbw9vpydgKQJgDSBECaAEh7OJ3%2B%2FzCw9huBJX3fvBOANAGQ9iMAt0FUfNy6E4C0nwJwCnB0v27cCUDabwE4BTiqS9t2ApB2MQCnAEfz2aadAKR9GoBTgKO4tuWrJ4AI2LuvNuwWiLQvA3AKsFe3bPemE0AE7M2tm735FkgE7MWQrQ76DCACtm7oRgd%2FCBYBW3XPNu%2F6FkgEbM29m7z7a1ARsBVjtjjq7wAiYG1jNzj6D2EiYC1TbG%2FS8T4%2BPb9P%2BXpwyZQX3UkfhXAaMLepNzbbYJ0GTGmui%2BvsV2whMMbcdxWL3bIIgSGWup1e%2FJ5dCFyz9OfIVT%2B0ioHTad0vTzb3rY0ojm1r3xT%2BByNZ4O%2FZIVJeAAAAAElFTkSuQmCC%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fpng%22%2C%22purpose%22%3A%22any%22%7D%2C%7B%22src%22%3A%22data%3Aimage%2Fpng%3Bbase64%2CiVBORw0KGgoAAAANSUhEUgAAAgAAAAIACAYAAAD0eNT6AAAMd0lEQVR4nO3c643bRgBGUa7hHhIgjaQDd%2BKi3Ik7SCMB4iqSH8YmcrwPPUjOkPecBiKNEH9XQ9lPC1P65dff%2Fh79GgDW8O2vP59GvwZ%2B5kMZxMADfCcQxnDoOzD2ALcRBdtzwBsw%2BADrEgTrc6ArMPgA%2BxIEj3OAdzL6AHMQA%2FdxaDcw%2BgBzEwPXc1DvMPoAxyQG3uZwXmH4Ac5BCLzMoVww%2BgDnJgb%2B4yAWww9QIwTiAWD4AdrKIZB844YfgEvFEEi9YcMPwFtKIZB4o4YfgFsUQuDD6BewNeMPwK0K23Hawil8eABs76y3Aad7U4YfgC2cLQRO9QjA%2BAOwlbNtzClq5mwfCgBzO8NtwOFvAIw%2FAHs7w%2FYcOgDO8AEAcExH36BDXmEc%2FdABOJcjPhI43A2A8QdgNkfcpkMFwBEPGICGo23UIa4sjnaoALQd4ZHA9DcAxh%2BAoznCdk0dAEc4QAB4yewbNm0AzH5wAPCembdsygCY%2BcAA4Bazbtp0ATDrQQHAvWbctqkCYMYDAoA1zLZx0wTAbAcDAGubaeumCICZDgQAtjTL5g0PgFkOAgD2MsP2DQ2AGQ4AAEYYvYHDAmD0GweA0UZu4ZAAMP4A8N2oTdw9AIw%2FAPxoxDbuGgDGHwBetvdG7hYAxh8A3rbnVu4SAMYfAK6z12YO%2F3cAAID9bR4Avv0DwG322M5NA8D4A8B9tt7QzQLA%2BAPAY7bcUr8BAICgTQLAt38AWMdWm7p6ABh%2FAFjXFtu6agAYfwDYxtob6zcAABC0WgD49g8A21pza1cJAOMPAPtYa3M9AgCAoIcDwLd%2FANjXGtvrBgAAgh4KAN%2F%2BAWCMRzf47gAw%2FgAw1iNb7BEAAATdFQC%2B%2FQPAHO7dZDcAABB0cwD49g8Ac7lnm90AAEDQTQHg2z8AzOnWjXYDAABBVweAb%2F8AMLdbttoNAAAEXRUAvv0DwDFcu9luAAAgSAAAQNC7AeD6HwCO5ZrtdgMAAEFvBoBv%2FwBwTO9tuBsAAAgSAAAQ9GoAuP4HgGN7a8vdAABAkAAAgKAXA8D1PwCcw2ub7gYAAIIEAAAE%2FRQArv8B4Fxe2nY3AAAQJAAAIEgAAEDQDwHg%2BT8AnNP%2FN94NAAAECQAACBIAABD0bwB4%2Fg8A53a59W4AACBIAABAkAAAgCABAABBH5bFDwABoOJ5890AAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQ9OTfAACAHjcAABAkAAAgSAAAQJAAAIAgAQAAQQIAAIIEAAAECQAACBIAABAkAAAgSAAAQJAAAIAgAQAAQQIAAIIEAAAECQAACBIAABAkAAAgSAAAQJAAAIAgAQAAQQIAAIIEAAAECQAACBIAABAkAAAgSAAAQJAAAIAgAQAAQQIAAIIEAAAECQAACBIAABAkAAAgSAAAQJAAAIAgAQAAQQIAAIIEAAAECQAACBIAABAkAAAgSAAAQJAAAIAgAQAAQQIAAIIEAAAECQAACBIAABAkAAAgSAAAQJAAAIAgAQAAQQIAAIIEAAAECQAACBIAABAkAAAgSAAAQJAAAIAgAQAAQQIAAIIEAAAECQAACBIAABAkAAAgSAAAQJAAAIAgAQAAQQIAAIIEAAAECQAACBIAABAkAAAgSAAAQJAAAIAgAQAAQQIAAIIEAAAECQAACBIAABAkAAAgSAAAQJAAAIAgAQAAQQIAAIIEAAAECQAACBIAABAkAAAgSAAAQJAAAIAgAQAAQQIAAIIEAAAECQAACBIAABAkAAAgSAAAQJAAAIAgAQAAQQIAAIIEAAAECQAACBIAABD0cfQLYH%2B%2Ff%2F0y%2BiW86Y9Pn0e%2FBNiM%2F%2F%2BYhRsAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAEDQx9EvAB7x%2B9cvo18CcX98%2Bjz6JcBd3AAAQJAAAIAgjwAGcG0NzGr0n08eqezHDQAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCPo5%2BAUV%2FfPo89L%2F%2F%2B9cvQ%2F%2F7wLxG%2F%2FnEftwAAECQAACAIAEAAEF%2BA8CheV4JcB83AAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAEDQ0y%2B%2F%2Fvb36BcBAOzLDQAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCPnz768%2Bn0S8CANjPt7%2F%2BfHIDAABBAgAAggQAAAQJAAAIEgAAECQAACBIAABA0Idl%2Bf73AUe%2FEABge8%2Bb7wYAAIIEAAAECQAACBIAABD0bwD4ISAAnNvl1rsBAIAgAQAAQQIAAIJ%2BCAC%2FAwCAc%2Fr%2FxrsBAIAgAQAAQQIAAIJ%2BCgC%2FAwCAc3lp290AAECQAACAoBcDwGMAADiH1zbdDQAABAkAAAh6NQA8BgCAY3try90AAECQAACAoDcDwGMAADim9zbcDQAABL0bAG4BAOBYrtluNwAAECQAACDoqgDwGAAAjuHazXYDAABBVweAWwAAmNstW%2B0GAACCbgoAtwAAMKdbN9oNAAAE3RwAbgEAYC73bLMbAAAIuisA3AIAwBzu3WQ3AAAQdHcAuAUAgLEe2eKHbgBEAACM8egGewQAAEEPB4BbAADY1xrb6wYAAIJWCQC3AACwj7U2d7UbABEAANtac2s9AgCAoFUDwC0AAGxj7Y1d%2FQZABADAurbY1k0eAYgAAFjHVpvqNwAAELRZALgFAIDHbLmlm94AiAAAuM%2FWG7r5IwARAAC32WM7%2FQYAAIJ2CQC3AABwnb02c7cbABEAAG%2Fbcyt3fQQgAgDgZXtv5O6%2FARABAPCjEds45EeAIgAAvhu1icP%2BFoAIAKBu5BYO%2FWuAIgCAqtEbOPzfARh9AACwtxm2b3gALMscBwEAe5hl86YIgGWZ50AAYCszbd00AbAscx0MAKxpto2bKgCWZb4DAoBHzbht0wXAssx5UABwj1k3bcoAWJZ5DwwArjXzlk0bAMsy98EBwFtm37CpA2BZ5j9AAPi%2FI2zX9C%2Fw0i%2B%2F%2Fvb36NcAAK85wvA%2Fm%2F4G4NKRDhaAlqNt1KECYFmOd8AAnN8Rt%2BlwL%2FiSRwIAjHTE4X92uBuAS0c%2BeACO7egbdOgAWJbjfwAAHM8Ztufwb%2BCSRwIAbOkMw%2F%2Fs8DcAl870wQAwl7NtzKnezCW3AQCs4WzD%2F%2ByUb%2BqSEADgHmcd%2FmenegTwkrN%2FgACsr7Adp3%2BDl9wGAPCWwvA%2Fy7zRS0IAgEul4X%2BWe8OXhABAW3H4n2Xf%2BCUhANBSHv5n%2BQO4JAQAzs3w%2F8dBvEIMAJyD0X%2BZQ3mHEAA4JsP%2FNodzAzEAMDejfz0HdScxADAHo38fh7YCMQCwL6P%2FOAe4AUEAsC6Dvz4HugNBAHAbg789BzyIKAD4ztiP4dAnJRCAszDwc%2FoHiCIrdQYN6jwAAAAASUVORK5CYII%3D%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%2C%22purpose%22%3A%22any%22%7D%2C%7B%22src%22%3A%22data%3Aimage%2Fpng%3Bbase64%2CiVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3GwHAAADz0lEQVR4nO3a3W3bZgCGUcnoDjbgRbJBN%2BlQ3aQbdBED9hTuRZHASWRZFP%2F5nHMfWYjfhx8l83zamMen5%2Fe13wPzeXt9Oa%2F9Hj5a9c0YO6fTulEs%2FoONnmuWjmGxH2b4DLFUCLP%2FEMNnjLlDmO3FDZ8pzRXC5C9q%2BMxp6hAepnwx42duU29skpoMnzVMcRqMPgGMn7VMsb1RARg%2Faxu7wbsDMH62YswW7wrA%2BNmaezc5OADjZ6vu2eagAIyfrRu60ZsDMH72YshWbwrA%2BNmbWzf7ZQDGz17dst1JH4WAvbkagKs%2Fe%2FfVhj8NwPg5imtbdgtE2sUAXP05ms827QQg7bcAXP05qkvbdgKQ9lMArv4c3a8bdwKQ9iMAV38qPm7dCUCaAEh7OJ3c%2FtDzffNOANIEQJoASBMAaWcfgClzApAmANIEQJoASBMAaQIgTQCkCYA0AZAmANIEQJoASBMAaQIgTQCkCYA0AZAmANIEQJoASBMAaQIgTQCkCYA0AZAmANIEQJoASBMAaQIgTQCkCYA0AZAmANIEQJoASBMAaQIgTQCkCYA0AZD2x9pvYIxv%2F%2Fx997%2F998%2B%2FJnwnx1D8%2F3QCkCYA0gRAmgBIEwBpAiBNAKQJgDQBkCYA0nb9KMSUxjwGsFd7fXxhSpsKoDjCoxj6u9tKfG6BSBMAaQIgTQCkCYA0AZAmANIEQJoASBMAaQIgTQCkbephuKEPSHl4bju28nDbUJsKYE17%2FQUyjlsg0gRAmgBIEwBpAiBNAKQJgDQBkCYA0gRA2vnx6fl97TcBa3ECkCYA0gRAmgBIEwBpAiBNAKQJgDQBkCYA0gRAmgBIEwBpAiBNAKQJgDQBkCYA0gRAmgBIEwBpAiBNAKQJgDQBkCYA0gRAmgBIEwBpAiBNAKQJgDQBkCYA0gRAmgBIEwBpAiBNAKQJgLSHt9eX89pvAtbw9vpydgKQJgDSBECaAEh7OJ3%2B%2FzCw9huBJX3fvBOANAGQ9iMAt0FUfNy6E4C0nwJwCnB0v27cCUDabwE4BTiqS9t2ApB2MQCnAEfz2aadAKR9GoBTgKO4tuWrJ4AI2LuvNuwWiLQvA3AKsFe3bPemE0AE7M2tm735FkgE7MWQrQ76DCACtm7oRgd%2FCBYBW3XPNu%2F6FkgEbM29m7z7a1ARsBVjtjjq7wAiYG1jNzj6D2EiYC1TbG%2FS8T4%2BPb9P%2BXpwyZQX3UkfhXAaMLepNzbbYJ0GTGmui%2BvsV2whMMbcdxWL3bIIgSGWup1e%2FJ5dCFyz9OfIVT%2B0ioHTad0vTzb3rY0ojm1r3xT%2BByNZ4O%2FZIVJeAAAAAElFTkSuQmCC%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fpng%22%2C%22purpose%22%3A%22maskable%22%7D%2C%7B%22src%22%3A%22data%3Aimage%2Fpng%3Bbase64%2CiVBORw0KGgoAAAANSUhEUgAAAgAAAAIACAYAAAD0eNT6AAAMd0lEQVR4nO3c643bRgBGUa7hHhIgjaQDd%2BKi3Ik7SCMB4iqSH8YmcrwPPUjOkPecBiKNEH9XQ9lPC1P65dff%2Fh79GgDW8O2vP59GvwZ%2B5kMZxMADfCcQxnDoOzD2ALcRBdtzwBsw%2BADrEgTrc6ArMPgA%2BxIEj3OAdzL6AHMQA%2FdxaDcw%2BgBzEwPXc1DvMPoAxyQG3uZwXmH4Ac5BCLzMoVww%2BgDnJgb%2B4yAWww9QIwTiAWD4AdrKIZB844YfgEvFEEi9YcMPwFtKIZB4o4YfgFsUQuDD6BewNeMPwK0K23Hawil8eABs76y3Aad7U4YfgC2cLQRO9QjA%2BAOwlbNtzClq5mwfCgBzO8NtwOFvAIw%2FAHs7w%2FYcOgDO8AEAcExH36BDXmEc%2FdABOJcjPhI43A2A8QdgNkfcpkMFwBEPGICGo23UIa4sjnaoALQd4ZHA9DcAxh%2BAoznCdk0dAEc4QAB4yewbNm0AzH5wAPCembdsygCY%2BcAA4Bazbtp0ATDrQQHAvWbctqkCYMYDAoA1zLZx0wTAbAcDAGubaeumCICZDgQAtjTL5g0PgFkOAgD2MsP2DQ2AGQ4AAEYYvYHDAmD0GweA0UZu4ZAAMP4A8N2oTdw9AIw%2FAPxoxDbuGgDGHwBetvdG7hYAxh8A3rbnVu4SAMYfAK6z12YO%2F3cAAID9bR4Avv0DwG322M5NA8D4A8B9tt7QzQLA%2BAPAY7bcUr8BAICgTQLAt38AWMdWm7p6ABh%2FAFjXFtu6agAYfwDYxtob6zcAABC0WgD49g8A21pza1cJAOMPAPtYa3M9AgCAoIcDwLd%2FANjXGtvrBgAAgh4KAN%2F%2BAWCMRzf47gAw%2FgAw1iNb7BEAAATdFQC%2B%2FQPAHO7dZDcAABB0cwD49g8Ac7lnm90AAEDQTQHg2z8AzOnWjXYDAABBVweAb%2F8AMLdbttoNAAAEXRUAvv0DwDFcu9luAAAgSAAAQNC7AeD6HwCO5ZrtdgMAAEFvBoBv%2FwBwTO9tuBsAAAgSAAAQ9GoAuP4HgGN7a8vdAABAkAAAgKAXA8D1PwCcw2ub7gYAAIIEAAAE%2FRQArv8B4Fxe2nY3AAAQJAAAIEgAAEDQDwHg%2BT8AnNP%2FN94NAAAECQAACBIAABD0bwB4%2Fg8A53a59W4AACBIAABAkAAAgCABAABBH5bFDwABoOJ5890AAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQ9OTfAACAHjcAABAkAAAgSAAAQJAAAIAgAQAAQQIAAIIEAAAECQAACBIAABAkAAAgSAAAQJAAAIAgAQAAQQIAAIIEAAAECQAACBIAABAkAAAgSAAAQJAAAIAgAQAAQQIAAIIEAAAECQAACBIAABAkAAAgSAAAQJAAAIAgAQAAQQIAAIIEAAAECQAACBIAABAkAAAgSAAAQJAAAIAgAQAAQQIAAIIEAAAECQAACBIAABAkAAAgSAAAQJAAAIAgAQAAQQIAAIIEAAAECQAACBIAABAkAAAgSAAAQJAAAIAgAQAAQQIAAIIEAAAECQAACBIAABAkAAAgSAAAQJAAAIAgAQAAQQIAAIIEAAAECQAACBIAABAkAAAgSAAAQJAAAIAgAQAAQQIAAIIEAAAECQAACBIAABAkAAAgSAAAQJAAAIAgAQAAQQIAAIIEAAAECQAACBIAABAkAAAgSAAAQJAAAIAgAQAAQQIAAIIEAAAECQAACBIAABAkAAAgSAAAQJAAAIAgAQAAQQIAAIIEAAAECQAACBIAABAkAAAgSAAAQJAAAIAgAQAAQQIAAIIEAAAECQAACBIAABD0cfQLYH%2B%2Ff%2F0y%2BiW86Y9Pn0e%2FBNiM%2F%2F%2BYhRsAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAEDQx9EvAB7x%2B9cvo18CcX98%2Bjz6JcBd3AAAQJAAAIAgjwAGcG0NzGr0n08eqezHDQAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCPo5%2BAUV%2FfPo89L%2F%2F%2B9cvQ%2F%2F7wLxG%2F%2FnEftwAAECQAACAIAEAAEF%2BA8CheV4JcB83AAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAEDQ0y%2B%2F%2Fvb36BcBAOzLDQAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCBAAABAkAAAgSAAAQJAAAIEgAAECQAACAIAEAAEECAACCPnz768%2Bn0S8CANjPt7%2F%2BfHIDAABBAgAAggQAAAQJAAAIEgAAECQAACBIAABA0Idl%2Bf73AUe%2FEABge8%2Bb7wYAAIIEAAAECQAACBIAABD0bwD4ISAAnNvl1rsBAIAgAQAAQQIAAIJ%2BCAC%2FAwCAc%2Fr%2FxrsBAIAgAQAAQQIAAIJ%2BCgC%2FAwCAc3lp290AAECQAACAoBcDwGMAADiH1zbdDQAABAkAAAh6NQA8BgCAY3try90AAECQAACAoDcDwGMAADim9zbcDQAABL0bAG4BAOBYrtluNwAAECQAACDoqgDwGAAAjuHazXYDAABBVweAWwAAmNstW%2B0GAACCbgoAtwAAMKdbN9oNAAAE3RwAbgEAYC73bLMbAAAIuisA3AIAwBzu3WQ3AAAQdHcAuAUAgLEe2eKHbgBEAACM8egGewQAAEEPB4BbAADY1xrb6wYAAIJWCQC3AACwj7U2d7UbABEAANtac2s9AgCAoFUDwC0AAGxj7Y1d%2FQZABADAurbY1k0eAYgAAFjHVpvqNwAAELRZALgFAIDHbLmlm94AiAAAuM%2FWG7r5IwARAAC32WM7%2FQYAAIJ2CQC3AABwnb02c7cbABEAAG%2Fbcyt3fQQgAgDgZXtv5O6%2FARABAPCjEds45EeAIgAAvhu1icP%2BFoAIAKBu5BYO%2FWuAIgCAqtEbOPzfARh9AACwtxm2b3gALMscBwEAe5hl86YIgGWZ50AAYCszbd00AbAscx0MAKxpto2bKgCWZb4DAoBHzbht0wXAssx5UABwj1k3bcoAWJZ5DwwArjXzlk0bAMsy98EBwFtm37CpA2BZ5j9AAPi%2FI2zX9C%2Fw0i%2B%2F%2Fvb36NcAAK85wvA%2Fm%2F4G4NKRDhaAlqNt1KECYFmOd8AAnN8Rt%2BlwL%2FiSRwIAjHTE4X92uBuAS0c%2BeACO7egbdOgAWJbjfwAAHM8Ztufwb%2BCSRwIAbOkMw%2F%2Fs8DcAl870wQAwl7NtzKnezCW3AQCs4WzD%2F%2ByUb%2BqSEADgHmcd%2FmenegTwkrN%2FgACsr7Adp3%2BDl9wGAPCWwvA%2Fy7zRS0IAgEul4X%2BWe8OXhABAW3H4n2Xf%2BCUhANBSHv5n%2BQO4JAQAzs3w%2F8dBvEIMAJyD0X%2BZQ3mHEAA4JsP%2FNodzAzEAMDejfz0HdScxADAHo38fh7YCMQCwL6P%2FOAe4AUEAsC6Dvz4HugNBAHAbg789BzyIKAD4ztiP4dAnJRCAszDwc%2FoHiCIrdQYN6jwAAAAASUVORK5CYII%3D%22%2C%22sizes%22%3A%22512x512%22%2C%22type%22%3A%22image%2Fpng%22%2C%22purpose%22%3A%22maskable%22%7D%5D%2C%22shortcuts%22%3A%5B%7B%22name%22%3A%22Training%20starten%22%2C%22short_name%22%3A%22Training%22%2C%22url%22%3A%22%23heute%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fpng%3Bbase64%2CiVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAAADimHc4AAAB00lEQVR4nO3d203DQBBAUduiB5BohA7ohKLohA5oJFJSBXwlysO7zG5mc4Hc85un5nocK1KUeUrw%2BPT8lfE8f81uu5mvfY7uJ7jXoZf0xmh%2BkIOvaw0RvrODbxMNsUTu5PDbRWdWreTgc9S2obgBDj9PbZarARx%2BvtJMQ58BGucigEf%2FOGuzXX66g3Kdz9hTEOwQwKP%2Fdo5n7QbAlmny6CfsZ%2B4GwAwAmz39sNwAmAFgBoAZAGYAmAFgBoAZAGYAmAFgBoAZAGYAmAFgBoAZAGYAmAFgBoAZAGYA2MPoF3j5eC%2Fe9vn6Nvrlw6j36QbADAAzAMwAMAPA0q6CalcRIx97rcgVTun9ZVwduQEwA8AMADMAzAAwA8DSLkNLl2SRS8zf9KXcGr%2BM%2B8cMADMAzAAwA8D8oTbMDYAZAGYAmAFgBoAZAGYAmAFgBoAZAGYAmAFgBoAZAGYAmAFgBoAZAGYAmAFgS8ZfsqrPbruZ3QCYAWDLNOX8M7Ta7GfuBsAOAdyC2zmetRsAOwngFox3PuOLDTDCOGuz9RQEWw3gFuQrzbS4AUbIU5tlaMj%2BiKNP5CAOfQa4De2iM2serNtQ13qwdh%2FZhjjVe5ZIObXca4yMU%2FM3Ie54Mc9belwAAAAASUVORK5CYII%3D%22%2C%22sizes%22%3A%2296x96%22%7D%5D%7D%2C%7B%22name%22%3A%22Kalender%22%2C%22short_name%22%3A%22Kalender%22%2C%22url%22%3A%22%23kalender%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fpng%3Bbase64%2CiVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAAADimHc4AAAB00lEQVR4nO3d203DQBBAUduiB5BohA7ohKLohA5oJFJSBXwlysO7zG5mc4Hc85un5nocK1KUeUrw%2BPT8lfE8f81uu5mvfY7uJ7jXoZf0xmh%2BkIOvaw0RvrODbxMNsUTu5PDbRWdWreTgc9S2obgBDj9PbZarARx%2BvtJMQ58BGucigEf%2FOGuzXX66g3Kdz9hTEOwQwKP%2Fdo5n7QbAlmny6CfsZ%2B4GwAwAmz39sNwAmAFgBoAZAGYAmAFgBoAZAGYAmAFgBoAZAGYAmAFgBoAZAGYAmAFgBoAZAGYA2MPoF3j5eC%2Fe9vn6Nvrlw6j36QbADAAzAMwAMAPA0q6CalcRIx97rcgVTun9ZVwduQEwA8AMADMAzAAwA8DSLkNLl2SRS8zf9KXcGr%2BM%2B8cMADMAzAAwA8D8oTbMDYAZAGYAmAFgBoAZAGYAmAFgBoAZAGYAmAFgBoAZAGYAmAFgBoAZAGYAmAFgS8ZfsqrPbruZ3QCYAWDLNOX8M7Ta7GfuBsAOAdyC2zmetRsAOwngFox3PuOLDTDCOGuz9RQEWw3gFuQrzbS4AUbIU5tlaMj%2BiKNP5CAOfQa4De2iM2serNtQ13qwdh%2FZhjjVe5ZIObXca4yMU%2FM3Ie54Mc9belwAAAAASUVORK5CYII%3D%22%2C%22sizes%22%3A%2296x96%22%7D%5D%7D%2C%7B%22name%22%3A%22Fitness%22%2C%22short_name%22%3A%22Fitness%22%2C%22url%22%3A%22%23fitness%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fpng%3Bbase64%2CiVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAAADimHc4AAAB00lEQVR4nO3d203DQBBAUduiB5BohA7ohKLohA5oJFJSBXwlysO7zG5mc4Hc85un5nocK1KUeUrw%2BPT8lfE8f81uu5mvfY7uJ7jXoZf0xmh%2BkIOvaw0RvrODbxMNsUTu5PDbRWdWreTgc9S2obgBDj9PbZarARx%2BvtJMQ58BGucigEf%2FOGuzXX66g3Kdz9hTEOwQwKP%2Fdo5n7QbAlmny6CfsZ%2B4GwAwAmz39sNwAmAFgBoAZAGYAmAFgBoAZAGYAmAFgBoAZAGYAmAFgBoAZAGYAmAFgBoAZAGYA2MPoF3j5eC%2Fe9vn6Nvrlw6j36QbADAAzAMwAMAPA0q6CalcRIx97rcgVTun9ZVwduQEwA8AMADMAzAAwA8DSLkNLl2SRS8zf9KXcGr%2BM%2B8cMADMAzAAwA8D8oTbMDYAZAGYAmAFgBoAZAGYAmAFgBoAZAGYAmAFgBoAZAGYAmAFgBoAZAGYAmAFgS8ZfsqrPbruZ3QCYAWDLNOX8M7Ta7GfuBsAOAdyC2zmetRsAOwngFox3PuOLDTDCOGuz9RQEWw3gFuQrzbS4AUbIU5tlaMj%2BiKNP5CAOfQa4De2iM2serNtQ13qwdh%2FZhjjVe5ZIObXca4yMU%2FM3Ie54Mc9belwAAAAASUVORK5CYII%3D%22%2C%22sizes%22%3A%2296x96%22%7D%5D%7D%5D%7D">
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2317181b'/%3E%3Cpath d='M18 26v12M46 26v12M14 30v4M50 30v4M22 32h20' stroke='%234fd1b5' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E">
 <style>
   :root{
@@ -173,6 +173,8 @@
   .cal-cell.frozen{ background:rgba(139,92,246,.16); border-color:rgba(139,92,246,.4); }
   .cal-cell .rd.frozen-dot{ background:#8B5CF6; }
   .cal-cell.done .rd.frozen-dot{ background:#8B5CF6; }
+  .cal-cell .rd.trained-dot{ background:#4ADE80; }
+  .cal-cell.done .rd.trained-dot{ background:#4ADE80; }
   .legend{ display:flex; flex-wrap:wrap; gap:12px; margin-top:12px; font-size:11.5px; color:var(--text-faint); }
   .legend i{ display:inline-block; width:9px; height:9px; border-radius:3px; margin-right:5px; vertical-align:middle; font-style:normal; }
 
@@ -1267,6 +1269,7 @@
       <span><i style="background:#E8B33D"></i>Krank</span>
       <span><i style="background:#4FA9D9"></i>Urlaub</span>
       <span><i style="background:#8B5CF6"></i>Freeze</span>
+      <span><i style="background:#4ADE80"></i>Extern trainiert</span>
       <span><i style="background:var(--panel-3)"></i>geplant</span>
     </div>
   </div>
@@ -2365,6 +2368,26 @@
   <button class="btn accent block sm" id="btnVacationSave" style="margin-top:16px">Urlaub speichern</button>
 </div></dialog>
 
+<!-- ==================== RUHETAGE FÜR ZEITRAUM DEAKTIVIEREN ==================== -->
+<dialog id="dlgRestOverride"><div class="dlg" style="position:relative">
+  <button class="close" id="restOverrideClose">✕</button>
+  <h3>🏃 Ruhetage für Zeitraum deaktivieren</h3>
+  <p class="muted" id="restOverrideSub" style="margin-bottom:14px">–</p>
+  <div class="row"><div class="lab"><b>Bis wann?</b></div><input type="date" id="restOverrideEndDate"></div>
+  <p class="tiny" style="margin-top:10px">Für diesen Zeitraum gilt normales Training statt fester Ruhetage – einzelne Tage lassen sich danach jederzeit wieder im Kalender anpassen.</p>
+  <button class="btn accent block sm" id="btnRestOverrideSave" style="margin-top:16px">Für Zeitraum deaktivieren</button>
+</div></dialog>
+
+<!-- ==================== "SCHON TRAINIERT"-TAGE FÜR ZEITRAUM DEAKTIVIEREN ==================== -->
+<dialog id="dlgTrainedOverride"><div class="dlg" style="position:relative">
+  <button class="close" id="trainedOverrideClose">✕</button>
+  <h3>💪 "Schon trainiert"-Tage für Zeitraum deaktivieren</h3>
+  <p class="muted" id="trainedOverrideSub" style="margin-bottom:14px">–</p>
+  <div class="row"><div class="lab"><b>Bis wann?</b></div><input type="date" id="trainedOverrideEndDate"></div>
+  <p class="tiny" style="margin-top:10px">Für diesen Zeitraum gilt wieder normales Training über die App statt der festen externen Tage – einzelne Tage lassen sich danach jederzeit wieder im Kalender anpassen.</p>
+  <button class="btn accent block sm" id="btnTrainedOverrideSave" style="margin-top:16px">Für Zeitraum deaktivieren</button>
+</div></dialog>
+
 <!-- ==================== KRANKHEIT ==================== -->
 <dialog id="dlgSick"><div class="dlg" style="position:relative">
   <button class="close" id="sickClose">✕</button>
@@ -2616,8 +2639,32 @@ var GROUP_COLOR = {
    angezeigt. Diese Zählung beginnt hier neu (erste Version mit einer
    sichtbaren Versionsnummer überhaupt); frühere Entwicklungsrunden hatten
    keine Versionsnummer. */
-var APP_VERSION = "2.13.2";
+var APP_VERSION = "2.17.1";
 var CHANGELOG = {
+  "2.17.1": [
+    "Echten Fehler behoben: Tage mit festem 'schon trainiert' zeigten weiterhin normale Übungen statt der passenden 2-Minuten-Cool-down-Atemübung – jetzt korrekt sowohl auf der Startseite als auch im Kalender-Tagesblatt"
+  ],
+  "2.17.0": [
+    "'Schon trainiert' markiert den Tag jetzt korrekt als erledigt – mit einem echten Ganzkörper-Belastungsprofil (Beine 20%, restlicher Körper 15%) statt nur einem allgemeinen Hinweis",
+    "Das neue Profil fließt direkt in die Ermüdungsberechnung nach Muskelgruppe ein: Beine gelten danach spürbar stärker belastet als der Rest",
+    "Gilt jetzt einheitlich sowohl für den Knopf auf der Startseite als auch für das Festlegen/Entfernen einzelner Tage im Kalender"
+  ],
+  "2.16.0": [
+    "Feste 'schon trainiert'-Tage funktionieren jetzt genau wie feste Ruhetage: zukünftige Tage werden im Kalender mit einem eigenen grünen Punkt angezeigt, einzelne Tage lassen sich im Tagesblatt umschalten, und ein ganzer Zeitraum lässt sich auf einmal deaktivieren",
+    "Eigener Legenden-Eintrag 'Extern trainiert' zur klaren Unterscheidung von Ruhetagen"
+  ],
+  "2.15.0": [
+    "Neu: feste Ruhetage lassen sich jetzt für einen ganzen Zeitraum deaktivieren, direkt im Kalender – Tag antippen, 'Ruhetage ab hier für Zeitraum deaktivieren', Enddatum wählen",
+    "Zukünftige feste Ruhetage waren im Kalender bereits vorher sichtbar (bestätigt) – einzelne Tage ließen sich auch schon vorher direkt im Tagesblatt umschalten"
+  ],
+  "2.14.1": [
+    "Sehr wahrscheinlich der eigentliche, seit langem bestehende Grund gefunden, warum Chrome nur 'Verknüpfung erstellen' statt 'App installieren' anbot: Die Sicherheits-Richtlinie (CSP) der App erlaubte 'manifest-src' nicht ausdrücklich, wodurch der Browser das Manifest vermutlich seit dem Sicherheits-Umbau in Version 2.1 nie richtig laden durfte",
+    "Zur Sicherheit zusätzlich die App-Icons von SVG auf echte PNG-Dateien umgestellt (inklusive 'maskable'-Variante für Android), da ältere Chrome-Versionen SVG-Icons für die Installierbarkeits-Prüfung nicht immer zuverlässig erkennen"
+  ],
+  "2.14.0": [
+    "Vermutlich der eigentliche Grund, warum Chrome auf Android nur 'Verknüpfung erstellen' statt 'App installieren' anbot: Es gab überhaupt keinen Service Worker – den verlangt Chrome zusätzlich zum Manifest für die echte Installations-Option",
+    "Neuer Service Worker registriert sich automatisch auf der echten (HTTPS-)Seite und speichert die App zusätzlich für die Nutzung ganz ohne Internetverbindung"
+  ],
   "2.13.2": [
     "Echter Fehler behoben, warum Chrome nur noch 'Verknüpfung erstellen' statt 'App installieren' anbot: Ein zweites, unvollständiges Manifest wurde zusätzlich zur Laufzeit erzeugt und überschrieb das eigentlich vollständige – jetzt gibt es nur noch das eine, vollständige Manifest mit beiden nötigen Symbolgrößen",
     "Zusätzlich ein eigenes Symbol für iOS (Zum Home-Bildschirm hinzufügen) ergänzt, das vorher nirgends vorhanden war"
@@ -6002,7 +6049,12 @@ function dayBurn(dateStr, log, activities, settings, body){
   return out;
 }
 
-/* ---------- Ermüdung je Muskelgruppe (0..1) ---------- */
+/* Ermüdung je Muskelgruppe, jetzt mit optionaler Intensitäts-Gewichtung
+   pro Gruppe: ein Log-Eintrag kann statt der einfachen Gruppenliste auch
+   ein groupIntensity-Objekt mitbringen (0..1 je Gruppe), z. B. für ein
+   extern absolviertes Ganzkörpertraining mit ungleicher Belastung
+   (Beine stärker gefordert als der restliche Körper). Ohne dieses Feld
+   bleibt das Verhalten wie bisher: volle Gewichtung je gelisteter Gruppe. */
 function fatigue(log, activities, todayStr, settings){
   var f = {};
   W.GROUPS.forEach(function(g){ f[g] = 0; });
@@ -6010,7 +6062,12 @@ function fatigue(log, activities, todayStr, settings){
   for (var i = 0; i < 5; i++){
     var ds = W.addDays(todayStr, -i);
     var e = log[ds];
-    if (e && e.done && Array.isArray(e.groups)){
+    if (e && e.done && e.groupIntensity && typeof e.groupIntensity === "object"){
+      W.GROUPS.forEach(function(g){
+        var w = e.groupIntensity[g];
+        if (typeof w === "number") f[g] += decay[i] * w * 2.7; // auf dieselbe Skala wie die Vollgewichtung gebracht
+      });
+    } else if (e && e.done && Array.isArray(e.groups)){
       e.groups.forEach(function(g){ if (f[g] !== undefined) f[g] += decay[i]; });
     }
     (activities||[]).forEach(function(a){
@@ -6503,6 +6560,7 @@ var S = {
   race: store.get("wk_race", ""),
   swaps: store.get("wk_swaps", {}),
   rests: store.get("wk_rests", {}),
+  trainedOverride: store.get("wk_trainedoverride", {}),
   colors: store.get("wk_colors", {}),
   skin: store.get("wk_skin", "osv2"),
   sickDays: store.get("wk_sickdays", {}),
@@ -6883,6 +6941,53 @@ function setRestDay(dateStr, on){
   S.rests[dateStr] = on ? 1 : 0;
   store.set("wk_rests", S.rests);
 }
+/* Feste "schon trainiert"-Wochentage (extern, z. B. Vereinstraining) nach
+   exakt demselben Muster wie die festen Ruhetage: eine bewusste
+   Überschreibung pro Tag hat immer Vorrang vor der festen Wochentag-Regel.
+   Der wichtige Unterschied bleibt inhaltlich bestehen – ein Ruhetag bedeutet
+   keine Belastung, ein "schon trainiert"-Tag bedeutet Belastung, nur eben
+   nicht über diese App nachverfolgt. */
+/* "Schon trainiert" bedeutet inhaltlich: An diesem Tag wurde bereits
+   trainiert – nur eben nicht über diese App, sondern z. B. ein rund
+   zweistündiges externes Ganzkörpertraining mit unterschiedlicher
+   Belastung: die Beine deutlich stärker gefordert (Kniebeugen, Ausfall-
+   schritte & Co.), der restliche Körper moderater mitbelastet. Der Tag
+   zählt deshalb als erledigt, mit genau dieser Gewichtung statt einer
+   gleichmäßigen Vollbelastung aller Gruppen. */
+var TRAINED_ELSEWHERE_INTENSITY = {beine:0.20, brust:0.15, bauch:0.15, ruecken:0.15, arme:0.15, cardio:0.15};
+function markTrainedElsewhere(dateStr){
+  markDone(dateStr, {type:"extern", groups: W.GROUPS.slice(), groupIntensity: TRAINED_ELSEWHERE_INTENSITY, ex: []});
+}
+function isTrainedElsewhereDay(dateStr){
+  if (S.trainedOverride[dateStr] === 0) return false; // bewusst überschrieben: "Heute doch nicht extern"
+  if (S.trainedOverride[dateStr] === 1) return true;  // bewusst überschrieben: manuell gesetzt
+  return W.isFixedTrainedDay(dateStr, S.settings);     // sonst: fester wöchentlicher "schon trainiert"-Tag
+}
+function setTrainedElsewhereDay(dateStr, on){
+  S.trainedOverride[dateStr] = on ? 1 : 0;
+  store.set("wk_trainedoverride", S.trainedOverride);
+}
+function addTrainedOverrideRange(fromDate, toDate){
+  var d = fromDate;
+  var guard = 0;
+  while (d <= toDate && guard < 366){
+    S.trainedOverride[d] = 0;
+    d = W.addDays(d, 1);
+    guard++;
+  }
+  store.set("wk_trainedoverride", S.trainedOverride);
+}
+function openTrainedOverrideDialog(fromDate){
+  var d = W.parseYmd(fromDate);
+  $("trainedOverrideSub").textContent = "Ab " + d.getDate() + "." + (d.getMonth()+1) + "." + d.getFullYear() +
+    ". Bis wann sollen deine festen \"schon trainiert\"-Tage nicht gelten?";
+  var endInput = $("trainedOverrideEndDate");
+  endInput.min = fromDate;
+  endInput.value = fromDate;
+  endInput.dataset.from = fromDate;
+  var dlg = $("dlgTrainedOverride");
+  dlg.showModal ? (function(){ try { dlg.showModal(); } catch(e){ dlg.setAttribute("open",""); } })() : dlg.setAttribute("open","");
+}
 
 /* ============================================================
    KRANKHEIT
@@ -6976,6 +7081,33 @@ function openVacationDialog(fromDate){
   endInput.value = fromDate;
   endInput.dataset.from = fromDate;
   var dlg = $("dlgVacation");
+  dlg.showModal ? (function(){ try { dlg.showModal(); } catch(e){ dlg.setAttribute("open",""); } })() : dlg.setAttribute("open","");
+}
+
+/* Feste Ruhetage für einen ganzen Zeitraum deaktivieren, z. B. für eine
+   intensive Trainingsphase oder ein Lauf-Event. Setzt für jeden Tag im
+   Zeitraum explizit "normal trainieren" (S.rests[d] = 0), was denselben
+   Vorrang hat wie eine Einzeltag-Änderung im Kalender – einzelne Tage
+   lassen sich hinterher jederzeit wieder zurückändern. */
+function addRestOverrideRange(fromDate, toDate){
+  var d = fromDate;
+  var guard = 0;
+  while (d <= toDate && guard < 366){
+    S.rests[d] = 0;
+    d = W.addDays(d, 1);
+    guard++;
+  }
+  store.set("wk_rests", S.rests);
+}
+function openRestOverrideDialog(fromDate){
+  var d = W.parseYmd(fromDate);
+  $("restOverrideSub").textContent = "Ab " + d.getDate() + "." + (d.getMonth()+1) + "." + d.getFullYear() +
+    ". Bis wann sollen deine festen Ruhetage nicht gelten?";
+  var endInput = $("restOverrideEndDate");
+  endInput.min = fromDate;
+  endInput.value = fromDate;
+  endInput.dataset.from = fromDate;
+  var dlg = $("dlgRestOverride");
   dlg.showModal ? (function(){ try { dlg.showModal(); } catch(e){ dlg.setAttribute("open",""); } })() : dlg.setAttribute("open","");
 }
 
@@ -7083,6 +7215,7 @@ function getPlan(dateStr){
             exercises:[], warmup:null, cooldown:null};
   }
   var p = W.planForDate(dateStr, S.settings);
+  p.trainedElsewhere = isTrainedElsewhereDay(dateStr);
   var sw = S.swaps && S.swaps[dateStr];
   if (sw){
     p.exercises = p.exercises.map(function(e){
@@ -7167,14 +7300,17 @@ function renderHeute(){
 
   var done = W.currentStreak ? !!(S.log[S.today] && S.log[S.today].done) : false;
   var hero = $("hero");
-  hero.classList.toggle("runday", !!(p.run || p.rest));
-  $("heroKicker").textContent = p.sick ? "Krankheitstag" : p.rest ? "Entspannungstag" : p.run ? "Lauftag" : W.GOAL_LABEL[S.settings.goal];
+  hero.classList.toggle("runday", !!(p.run || p.rest || p.trainedElsewhere));
+  $("heroKicker").textContent = p.sick ? "Krankheitstag" : p.rest ? "Entspannungstag" : p.trainedElsewhere ? "Extern trainiert" : p.run ? "Lauftag" : W.GOAL_LABEL[S.settings.goal];
   if (p.sick){
     $("heroTitle").textContent = "Leichtes Dehnen für heute";
     $("heroMeta").textContent = "5 sehr sanfte Übungen im Sitzen/Liegen · kein Leistungsdruck · Streak läuft normal weiter.";
   } else if (p.rest){
     $("heroTitle").textContent = "Atemübung statt Training";
     $("heroMeta").textContent = "2 Minuten geführte Atmung · dein Streak läuft normal weiter.";
+  } else if (p.trainedElsewhere){
+    $("heroTitle").textContent = "Cool-down statt Training";
+    $("heroMeta").textContent = "Heute zählt dein externes Ganzkörpertraining – nur 2 Minuten Cool-down-Atmung hier in der App.";
   } else if (p.run){
     $("heroTitle").textContent = "Dein Wochenlauf";
     $("heroMeta").textContent = "5, 10 oder 15 km – Zielzeit wird aus deinen Daten berechnet.";
@@ -7185,16 +7321,16 @@ function renderHeute(){
       Math.round(todayDuration()/60) + " Minuten";
   }
   var chips = $("heroChips"); chips.innerHTML = "";
-  (p.rest ? ["Entspannung","Atmung","Regeneration"] : p.run ? ["Ausdauer","Beine","Kopf frei"] : p.exercises.map(function(e){ return e.groupLabel; }))
+  (p.rest ? ["Entspannung","Atmung","Regeneration"] : p.trainedElsewhere ? ["Extern trainiert","Cool-down","Regeneration"] : p.run ? ["Ausdauer","Beine","Kopf frei"] : p.exercises.map(function(e){ return e.groupLabel; }))
     .forEach(function(c){ chips.appendChild(el("span","chip",esc(c))); });
 
-  $("btnStartToday").textContent = p.rest ? "Atemübung starten" : p.run ? "Zum Lauf" : (done ? "Nochmal trainieren" : "Training starten");
+  $("btnStartToday").textContent = p.rest ? "Atemübung starten" : p.trainedElsewhere ? "Cool-down starten" : p.run ? "Zum Lauf" : (done ? "Nochmal trainieren" : "Training starten");
   $("btnRest").classList.toggle("on", !!p.rest);
   $("btnRest").textContent = p.rest ? "Ruhetag aufheben" : "Heute als Ruhetag";
   $("btnToggleDone").textContent = done ? "✓" : "✓";
   $("btnToggleDone").style.opacity = done ? "1" : ".55";
   $("btnToggleDone").style.color = done ? "var(--work)" : "";
-  var fixedTrained = W.isFixedTrainedDay(S.today, S.settings) && !done && !p.rest && !isVacationDay(S.today);
+  var fixedTrained = isTrainedElsewhereDay(S.today) && !done && !p.rest && !isVacationDay(S.today);
   var bte = $("btnTrainedElsewhere");
   if (bte){
     bte.classList.toggle("accent", fixedTrained);
@@ -7208,8 +7344,8 @@ function renderHeute(){
 
   // Übungsliste
   var list = $("todayList"); list.innerHTML = "";
-  $("exCount").textContent = p.rest ? "2 Minuten" : p.run ? "Lauftag" : p.exercises.length + " Übungen";
-  if (p.rest){
+  $("exCount").textContent = p.rest ? "2 Minuten" : p.trainedElsewhere ? "2 Minuten" : p.run ? "Lauftag" : p.exercises.length + " Übungen";
+  if (p.rest || p.trainedElsewhere){
     BREATH_STEPS.forEach(function(b){ list.appendChild(row(b[0], b[1], b[2], "var(--run)")); });
     list.appendChild(row("Wiederholung", "Der Zyklus läuft " + BREATH_CYCLES + "-mal", "8×", "var(--run)"));
   } else if (p.run){
@@ -7311,6 +7447,7 @@ function renderKalender(){
     else if (isVacationDay(ds)) c.appendChild(el("div","rd vacation-dot"));
     else if (isFrozenDay(ds)) c.appendChild(el("div","rd frozen-dot"));
     else if (isRestDay(ds)) c.appendChild(el("div","rd rest-dot"));
+    else if (isTrainedElsewhereDay(ds)) c.appendChild(el("div","rd trained-dot"));
     else if (W.isRunDay(ds, S.settings)) c.appendChild(el("div","rd"));
     grid.appendChild(c);
   }
@@ -7324,16 +7461,19 @@ function openSheet(dateStr){
   var p = getPlan(dateStr);
   var d = W.parseYmd(dateStr);
   var isDone = !!(S.log[dateStr] && S.log[dateStr].done);
+  var isTrainedElsewhere = p.trainedElsewhere;
   $("sheetTitle").textContent = DAYS_LONG[d.getDay()] + ", " + d.getDate() + ". " + MONTHS[d.getMonth()] + " " + d.getFullYear();
   $("sheetSub").textContent = p.rest
     ? "Entspannungstag · 2 Minuten Atemübung · " + (isDone ? "erledigt" : "offen")
+    : isTrainedElsewhere
+    ? "Extern trainiert · 2 Minuten Cool-down · " + (isDone ? "erledigt" : "offen")
     : p.run
     ? "Lauftag · " + (isDone ? "erledigt" : "offen")
     : S.settings.rounds + " Runden · ca. " + Math.round(W.sequenceDuration(W.buildSequence(p,S.settings))/60) +
       " Minuten · " + (isDone ? "erledigt" : "offen");
 
   var list = $("sheetList"); list.innerHTML = "";
-  if (p.rest){
+  if (p.rest || isTrainedElsewhere){
     BREATH_STEPS.forEach(function(b){ list.appendChild(row(b[0], b[1], b[2], "var(--run)")); });
   } else if (p.run){
     list.appendChild(row("Wochenlauf", "5, 10 oder 15 km nach Wahl", "Lauf", "var(--run)"));
@@ -7356,6 +7496,33 @@ function openSheet(dateStr){
     toast(p.rest ? "Normales Training zurück" : (dateStr > S.today ? "Ruhetag für diesen Tag geplant" : "Entspannungstag gesetzt"));
   };
   act.appendChild(bR);
+  if (W.isFixedRestDay(dateStr, S.settings) && dateStr >= S.today){
+    var bRO = el("button","btn ghost","Ruhetage ab hier für Zeitraum deaktivieren");
+    bRO.style.gridColumn = "1 / -1";
+    bRO.onclick = function(){ closeSheet(); openRestOverrideDialog(dateStr); };
+    act.appendChild(bRO);
+  }
+  var isTrainedElsewhere = isTrainedElsewhereDay(dateStr);
+  if (isTrainedElsewhere || W.isFixedTrainedDay(dateStr, S.settings)){
+    var bTE = el("button","btn ghost", isTrainedElsewhere ? "\"Schon trainiert\"-Tag entfernen" : "Als \"schon trainiert\"-Tag festlegen");
+    bTE.onclick = function(){
+      setTrainedElsewhereDay(dateStr, !isTrainedElsewhere);
+      if (!isTrainedElsewhere){
+        markTrainedElsewhere(dateStr);
+      } else if (S.log[dateStr] && S.log[dateStr].type === "extern"){
+        unmark(dateStr);
+      }
+      renderAll(); openSheet(dateStr);
+      toast(isTrainedElsewhere ? "Normales Training zurück" : "Als erledigt markiert – Ganzkörpertraining extern");
+    };
+    act.appendChild(bTE);
+  }
+  if (W.isFixedTrainedDay(dateStr, S.settings) && dateStr >= S.today){
+    var bTO = el("button","btn ghost","\"Schon trainiert\"-Tage ab hier für Zeitraum deaktivieren");
+    bTO.style.gridColumn = "1 / -1";
+    bTO.onclick = function(){ closeSheet(); openTrainedOverrideDialog(dateStr); };
+    act.appendChild(bTO);
+  }
   if (S.settings.running){
     var isFixedRest = W.isFixedRestDay(dateStr, S.settings);
     var bL = el("button","btn ghost", p.run ? "Lauftag entfernen" : "Als Lauftag festlegen");
@@ -7579,7 +7746,7 @@ function collectFullState(){
     __trainingsblog: 3, exported: new Date().toISOString(),
     settings: S.settings, log: S.log, activities: S.activities,
     body: S.body, weekGoal: S.weekGoal, race: S.race, swaps: S.swaps,
-    skin: S.skin, rests: S.rests, colors: S.colors
+    skin: S.skin, rests: S.rests, trainedOverride: S.trainedOverride, colors: S.colors
   };
 }
 /* ============================================================
@@ -7615,6 +7782,7 @@ function applyFullState(data){
   if (data.swaps && typeof data.swaps === "object") S.swaps = data.swaps;
   if (["osv2","classic","modern","navy"].indexOf(data.skin) >= 0) S.skin = data.skin;
   if (data.rests && typeof data.rests === "object") S.rests = data.rests;
+  if (data.trainedOverride && typeof data.trainedOverride === "object") S.trainedOverride = data.trainedOverride;
   if (data.colors && typeof data.colors === "object") S.colors = data.colors;
   saveSettings(); saveLog(); saveAct();
   store.set("wk_body", S.body); store.set("wk_weekgoal", S.weekGoal);
@@ -8006,7 +8174,7 @@ function bind(){
     buzz(40);
   });
   $("btnTrainedElsewhere").addEventListener("click", function(){
-    markDone(S.today, {type:"extern", groups: W.GROUPS.slice(), ex: []});
+    markTrainedElsewhere(S.today);
     renderAll();
     toast("Schon trainiert – 2 Minuten Atemübung als Cool-down");
     buzz(40);
@@ -8042,6 +8210,40 @@ function bind(){
   });
   $("vacationClose").addEventListener("click", function(){
     var dlg = $("dlgVacation");
+    try { dlg.close(); } catch(e){}
+    dlg.removeAttribute("open");
+  });
+  $("btnRestOverrideSave").addEventListener("click", function(){
+    var endInput = $("restOverrideEndDate");
+    var from = endInput.dataset.from;
+    var to = endInput.value;
+    if (!to || to < from){ toast("Bitte ein gültiges Enddatum wählen"); return; }
+    addRestOverrideRange(from, to);
+    var dlg = $("dlgRestOverride");
+    try { dlg.close(); } catch(e){}
+    dlg.removeAttribute("open");
+    renderAll(); openSheet(from);
+    toast("Ruhetage für diesen Zeitraum deaktiviert");
+  });
+  $("restOverrideClose").addEventListener("click", function(){
+    var dlg = $("dlgRestOverride");
+    try { dlg.close(); } catch(e){}
+    dlg.removeAttribute("open");
+  });
+  $("btnTrainedOverrideSave").addEventListener("click", function(){
+    var endInput = $("trainedOverrideEndDate");
+    var from = endInput.dataset.from;
+    var to = endInput.value;
+    if (!to || to < from){ toast("Bitte ein gültiges Enddatum wählen"); return; }
+    addTrainedOverrideRange(from, to);
+    var dlg = $("dlgTrainedOverride");
+    try { dlg.close(); } catch(e){}
+    dlg.removeAttribute("open");
+    renderAll(); openSheet(from);
+    toast("\"Schon trainiert\"-Tage für diesen Zeitraum deaktiviert");
+  });
+  $("trainedOverrideClose").addEventListener("click", function(){
+    var dlg = $("dlgTrainedOverride");
     try { dlg.close(); } catch(e){}
     dlg.removeAttribute("open");
   });
@@ -8212,10 +8414,10 @@ function bind(){
   $("btnResetAll").addEventListener("click", function(){
     if (confirm("Alles zurücksetzen? Einstellungen, Verlauf, importierte Daten, Farben, Wetter-Standort und Cloud-Zugangsdaten gehen verloren. Eine stille Sicherung wird vorher angelegt und lässt sich über 'Letzte Sicherung vor Reset wiederherstellen' zurückholen.")){
       try { store.set("wk_lastResetBackup", collectFullState()); } catch(e){}
-      ["wk_settings","wk_log","wk_activities","wk_rests","wk_swaps","wk_body","wk_weekgoal",
+      ["wk_settings","wk_log","wk_activities","wk_rests","wk_trainedoverride","wk_swaps","wk_body","wk_weekgoal",
        "wk_race","wk_skin","wk_colors","wk_weather","wk_weather_cache","wk_sync","wk_uiprefs"]
         .forEach(function(k){ store.del(k); });
-      S.settings = W.normalizeSettings({}); S.log = {}; S.activities = []; S.rests = {}; S.swaps = {};
+      S.settings = W.normalizeSettings({}); S.log = {}; S.activities = []; S.rests = {}; S.trainedOverride = {}; S.swaps = {};
       S.body = {}; S.weekGoal = 0; S.race = ""; S.skin = "osv2"; S.colors = {};
       applyTheme(); renderAll(); toast("Zurückgesetzt");
       if (window.APP4 && window.APP4.hardReset) window.APP4.hardReset();
@@ -8353,6 +8555,44 @@ setInterval(function(){
    Chrome nur noch "Verknüpfung erstellen" statt "App installieren"
    anbot, weil dem zur Laufzeit erzeugten Manifest ein 192×192-Symbol
    und die Verknüpfungen fehlten. */
+
+/* Service Worker registrieren: Chrome auf Android verlangt für die
+   echte "App installieren"-Option (statt nur "Verknüpfung erstellen")
+   einen aktiven Service Worker mit einer fetch-Behandlung – das war
+   bisher komplett unabhängig vom Manifest gefehlt. Da die App eine
+   einzige Datei bleiben soll, wird der Service Worker als Blob zur
+   Laufzeit erzeugt statt als separate Datei ausgeliefert. Er speichert
+   die Seite beim ersten Laden im Cache und liefert sie danach auch
+   ganz ohne Internetverbindung aus – passend zum "alles offline"-Motto.
+   Nur über eine echte HTTPS-Adresse wirksam, nicht bei lokalem
+   Öffnen der Datei (file://) oder auf reinem HTTP. */
+try{
+  if ("serviceWorker" in navigator && window.isSecureContext){
+    var swSource = [
+      "var CACHE = 'trainingsblog-shell-v1';",
+      "self.addEventListener('install', function(e){ self.skipWaiting(); });",
+      "self.addEventListener('activate', function(e){ e.waitUntil(self.clients.claim()); });",
+      "self.addEventListener('fetch', function(e){",
+      "  if (e.request.method !== 'GET') return;",
+      "  e.respondWith(",
+      "    caches.open(CACHE).then(function(cache){",
+      "      return fetch(e.request).then(function(res){",
+      "        if (res && res.ok) cache.put(e.request, res.clone());",
+      "        return res;",
+      "      }).catch(function(){ return cache.match(e.request); });",
+      "    })",
+      "  );",
+      "});"
+    ].join("\n");
+    var swBlob = new Blob([swSource], {type: "application/javascript"});
+    var swUrl = URL.createObjectURL(swBlob);
+    // scope muss ausdrücklich gesetzt werden – sonst würde sich ein aus
+    // einem Blob registrierter Service Worker nur auf die technische
+    // Blob-Adresse selbst beziehen und nicht auf die eigentliche Seite,
+    // wodurch er für die Installierbarkeit wirkungslos bliebe.
+    navigator.serviceWorker.register(swUrl, {scope: "./"}).catch(function(){});
+  }
+}catch(e){}
 })();
 </script>
 <script>
