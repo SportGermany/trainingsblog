@@ -1215,6 +1215,7 @@
     <div><h1>Training</h1><p id="runDayInfo">–</p></div>
   </div>
 
+  <div class="sec-label">Programme starten</div>
   <div class="card" data-sec="stretch">
     <div class="card-h"><h2>Aktiv Dehnen &amp; Mobility</h2><span>120 Übungen</span></div>
     <p class="muted" style="margin-bottom:12px">Wähle einen Bereich und wie lange du Zeit hast. Die App führt dich mit Timer, Ton und Animation durch.</p>
@@ -1239,6 +1240,7 @@
     <button class="btn accent block" id="btnRunTrackStart">🏃 Lauf starten</button>
   </div>
 
+  <div class="sec-label" style="order:4">Manuell erfassen</div>
   <div id="runBlocks" data-sec="distance">
   <div class="card">
     <div class="card-h"><h2>Distanz wählen</h2></div>
@@ -1262,6 +1264,7 @@
     <div id="sportLog"></div>
   </div>
 
+  <div class="sec-label" style="order:6">Verlauf &amp; Statistik</div>
   <div class="card" data-sec="runstats">
     <div class="card-h"><h2>Lauf-Statistik</h2></div>
     <p class="muted" id="runStatsText">–</p>
@@ -1492,7 +1495,7 @@
     <button class="btn ghost sm block" id="btnShareProgress" style="margin-top:12px">📤 Fortschritt teilen</button>
   </div>
 
-  <button class="btn accent block" id="btnYearWrap" style="margin-bottom:14px">🎉 Jahresrückblick ansehen</button>
+  <button class="btn accent block" id="btnYearWrap" style="margin-bottom:14px;order:3">🎉 Jahresrückblick ansehen</button>
 
   <div class="card" data-sec="fitreadiness">
     <div class="card-h"><h2>Readiness &amp; Recovery</h2><span id="rdLabel">–</span></div>
@@ -2505,8 +2508,42 @@ var GROUP_COLOR = {
    angezeigt. Diese Zählung beginnt hier neu (erste Version mit einer
    sichtbaren Versionsnummer überhaupt); frühere Entwicklungsrunden hatten
    keine Versionsnummer. */
-var APP_VERSION = "2.11.0";
+var APP_VERSION = "2.11.9";
 var CHANGELOG = {
+  "2.11.9": [
+    "Wichtigste Dialoge einzeln durchgeprüft: Jahresrückblick (rechnet korrekt mit echten Daten), Zurücksetzen-Sicherheitsnetz samt Wiederherstellung, Tagesblatt-Aktionen für vergangene Tage, PDF-Trainingsbericht – keine Fehler gefunden"
+  ],
+  "2.11.8": [
+    "Onboarding-Einrichtung vollständig durchgeprüft, erstmals auch der komplette Pfad mit echtem CSV-Import über alle fünf Schritte getestet",
+    "Zahlenfelder markieren jetzt beim Antippen ihren gesamten Inhalt, damit eine neue Eingabe korrekt überschreibt statt sich an die vorhandene Zahl anzuhängen (z. B. beim Wochenziel oder Körpergewicht)"
+  ],
+  "2.11.7": [
+    "Einstellungen-Bildschirm gründlich durchgeprüft, alle sieben Kategorien einzeln fotografiert und die Einstellungs-Suche getestet",
+    "Bedeutender Fehler behoben: Die Suche kannte über die Hälfte aller Einstellungen nicht – keine der seit Version 2.6 hinzugekommenen Funktionen (Herzfrequenz-Kopplung, Bewegung reduzieren, Gym-Einstellungen, Modern-Design u.v.m.) war auffindbar. Suchindex jetzt vollständig auf 77 Einträge erweitert",
+    "Zusätzlich einen stillen toten Verweis behoben (alte 'setSkin'-Einstellung existierte nach dem Drei-Wege-Design-Umbau gar nicht mehr)"
+  ],
+  "2.11.6": [
+    "Fitness-Bildschirm gründlich durchgeprüft: echten Positionsfehler gefunden und behoben – 'Jahresrückblick ansehen' sprang fälschlich ganz nach oben statt hinter die Abzeichen-Karte zu stehen (gleiche Ursache wie ein früherer, bereits behobener Fall)",
+    "Systematisch alle Bildschirme auf denselben Fehlertyp durchsucht – keine weiteren Fälle gefunden"
+  ],
+  "2.11.5": [
+    "Analyse-Bildschirm gründlich durchgeprüft: beide Unter-Reiter, alle elf Bereiche, PDF-Export-Zeitraum, Wochentag-Aufklapp-Funktion – keine Fehler gefunden"
+  ],
+  "2.11.4": [
+    "Training-Bildschirm gründlich durchgeprüft: Dehnen, Distanz-Auswahl, Gym-Modul und Lauf-Tracking im Zusammenspiel getestet, keine Konflikte oder Fehler gefunden"
+  ],
+  "2.11.3": [
+    "Kalender-Bildschirm gründlich durchgeprüft: Monatsnavigation, alle zehn Bereiche, Zusammenspiel von Ruhetag/Krankheit/Urlaub/Streak-Freeze im Stresstest bestätigt – keine Fehler gefunden"
+  ],
+  "2.11.2": [
+    "Home-Bildschirm gründlich durchgeprüft: alle zwölf Bereiche einzeln getestet",
+    "Fehlerbehebung: 'Wochenfortschritt' zeigte verwirrend '0/0 Einheiten' ohne gesetztes Wochenziel, jetzt klarer Hinweis 'kein Ziel gesetzt'"
+  ],
+  "2.11.1": [
+    "Trainings-Bildschirm neu gruppiert: klare Überschriften für 'Programme starten', 'Manuell erfassen' und 'Verlauf & Statistik' statt 13 unsortierter Karten hintereinander",
+    "Fehlerbehebung: eine versehentliche Korrektur an einer bereits funktionierenden Stelle rückgängig gemacht (Kalorien-Kacheln in Kalender/Fitness)",
+    "Systematische Durchsicht auf gleichartige Programmfehler wie zuletzt gefunden – keine weiteren entdeckt"
+  ],
   "2.11.0": [
     "Neue Funktion: Lauf live tracken mit echtem GPS – Distanz, Tempo, Zeit und Kalorien in Echtzeit, plus Herzfrequenz, falls dein Bluetooth-Brustgurt gekoppelt ist",
     "Automatische Kilometer-Splits, einfache Streckenzeichnung und Speicherung wie eine importierte Aktivität",
@@ -8057,6 +8094,15 @@ bind();
 applyRunningVisibility();
 fillSettings();
 W.setCustomExercises(S.customExercises);
+// Zahlenfelder beim Antippen komplett markieren, damit ein neuer Wert
+// direkt überschrieben werden kann, statt sich an die bestehende Zahl
+// anzuhängen (z. B. "5" + "4" getippt würde sonst "54" ergeben).
+document.addEventListener("focus", function(e){
+  if (e.target && e.target.tagName === "INPUT" && e.target.type === "number") {
+    e.target.select();
+  }
+}, true);
+
 grantMonthlyFreezeIfDue();
 switchTab("heute");
 /* App-Shortcuts vom Homescreen (siehe Manifest im <head>) springen per
@@ -10371,6 +10417,9 @@ var SETTINGS_INDEX = [
   {l:"Standarddistanz Lauf km", cat:"training", a:"setRunDist"},
   {l:"Eigene Distanz", cat:"training", a:"setRunCustom"},
   {l:"Feste Ruhetage", cat:"training", a:"setRestDays"},
+  {l:"Feste schon-trainiert-Tage Wochentage", cat:"training", a:"setTrainedDays"},
+  {l:"Laufplan variabel Wochentage", cat:"training", a:"setRunPlan"},
+  {l:"Eigene Übungen erstellen hinzufügen", cat:"training", a:"customExName"},
   {l:"Gewicht Körpergewicht", cat:"koerper", a:"setWeight"},
   {l:"Größe Körpergröße", cat:"koerper", a:"setHeight"},
   {l:"Alter", cat:"koerper", a:"setAge"},
@@ -10380,30 +10429,56 @@ var SETTINGS_INDEX = [
   {l:"Wetter anzeigen", cat:"wetter", a:"setWeatherOn"},
   {l:"Standort automatisch manuell", cat:"wetter", a:"setWeatherMode"},
   {l:"Ort suchen Stadt", cat:"wetter", a:"weatherCity"},
+  {l:"Jetzt orten GPS Standort", cat:"wetter", a:"btnWeatherLocate"},
   {l:"Einheit Celsius Fahrenheit", cat:"wetter", a:"setWeatherUnit"},
   {l:"Design hell dunkel automatisch Theme", cat:"aussehen", a:"setThemeMode"},
-  {l:"Neutrales Design OS V2 Skin", cat:"aussehen", a:"setSkin"},
+  {l:"Neutral Klassisch Modern Design Glasmorphismus", cat:"aussehen", a:"setSkinMode"},
+  {l:"Akzentfarbe Modern Cyan Orange Grün Violett", cat:"aussehen", a:"setModernAccent"},
   {l:"Kalorien-Flamme", cat:"aussehen", a:"setShowFlame"},
   {l:"Farben Akzentfarbe", cat:"aussehen", a:"colorRows"},
   {l:"App-Name eigener Name", cat:"aussehen", a:"setAppName"},
   {l:"Schriftgröße Textgröße", cat:"aussehen", a:"setFontScale"},
   {l:"Kalorieneinheit kcal kJ", cat:"aussehen", a:"setCalUnit"},
   {l:"Startkategorie Einstellungen", cat:"aussehen", a:"setStartCat"},
+  {l:"Plus-Knopf FAB anzeigen Training", cat:"aussehen", a:"setShowFab"},
+  {l:"Akzentfarbe je Trainingsziel", cat:"aussehen", a:"setAccentPerGoal"},
   {l:"Signalton Ton auswählen", cat:"verhalten", a:"setSound"},
+  {l:"Klangfarbe sanft klar markant", cat:"verhalten", a:"setSoundStyle"},
+  {l:"Countdown-Piepser letzte Sekunden", cat:"verhalten", a:"setCountdownBeep"},
   {l:"Vibration Muster", cat:"verhalten", a:"setVibrate"},
+  {l:"Vibrationsmuster kurz lang doppelt", cat:"verhalten", a:"setVibrationStyle"},
+  {l:"Sprachausgabe Übungsnamen vorlesen", cat:"verhalten", a:"setSpeech"},
+  {l:"Bewegung reduzieren Animationen", cat:"verhalten", a:"setReduceMotion"},
   {l:"Bildschirm anlassen wach", cat:"verhalten", a:"setAwake"},
+  {l:"Herzfrequenz Brustgurt Polar Bluetooth koppeln", cat:"verhalten", a:"setBtnHrConnect"},
   {l:"Cool-down-Vorschlag", cat:"verhalten", a:"setAutoCooldown"},
+  {l:"Plus-Knopf Startbildschirm", cat:"verhalten", a:"setStartScreen"},
   {l:"Erinnerung Benachrichtigung Uhrzeit", cat:"verhalten", a:"setReminder"},
   {l:"Tonfall Motivationstexte", cat:"verhalten", a:"setTone"},
+  {l:"Eigene Zitate Impuls des Tages", cat:"verhalten", a:"setQuoteInput"},
+  {l:"Gym-Training Pausenzeit Standard", cat:"verhalten", a:"setGymRest"},
+  {l:"Warm-up-Sätze Gym erfassen", cat:"verhalten", a:"setGymWarmup"},
   {l:"Zugriffsschlüssel Token GitHub", cat:"sync", a:"ghToken"},
   {l:"Repository Konto GitHub", cat:"sync", a:"ghOwner"},
+  {l:"Repository Name Datenrepository", cat:"sync", a:"ghRepo"},
+  {l:"Branch Zweig GitHub", cat:"sync", a:"ghBranch"},
+  {l:"Dateipfad Datenpfad", cat:"sync", a:"ghPath"},
+  {l:"Verbindung testen GitHub", cat:"sync", a:"ghTest"},
+  {l:"Zugangsdaten löschen GitHub", cat:"sync", a:"ghClear"},
+  {l:"Jetzt hochladen herunterladen Sync", cat:"sync", a:"ghPush"},
   {l:"Passphrase Synchronisationscode Verschlüsselung", cat:"sync", a:"ghPin"},
   {l:"Automatisch synchronisieren", cat:"sync", a:"ghAutoSync"},
   {l:"Sicherung Datei exportieren", cat:"sync", a:"syncMethod"},
+  {l:"App aktualisieren neue Version hochladen index.html", cat:"sync", a:"btnAppUpdate"},
+  {l:"Sicherung teilen Backup GitHub", cat:"sync", a:"btnShareBackup"},
   {l:"Version", cat:"daten", a:"setVersion"},
   {l:"Speicherplatz Speicherort", cat:"daten", a:"setStorage"},
   {l:"Verlauf löschen zurücksetzen", cat:"daten", a:"btnResetLog"},
-  {l:"Datenaufbewahrung alte Einträge", cat:"daten", a:"setRetention"}
+  {l:"Datenaufbewahrung alte Einträge", cat:"daten", a:"setRetention"},
+  {l:"Exportieren Backup Datei", cat:"daten", a:"btnBackup"},
+  {l:"Wiederherstellen Backup einspielen", cat:"daten", a:"btnRestore"},
+  {l:"Alles zurücksetzen Reset komplett", cat:"daten", a:"btnResetAll"},
+  {l:"Letzte Sicherung vor Reset wiederherstellen", cat:"daten", a:"btnUndoReset"}
 ];
 function renderSearchResults(q){
   var host = $("setSearchResults");
@@ -11656,7 +11731,12 @@ function isLeap(dateStr){ var y = W.parseYmd(dateStr).getFullYear(); return (y%4
 /* ---------- Widget-Definitionen je Bildschirm ---------- */
 var WIDGET_DEFS = {
   heute: [
-    {id:"h1", t:"Wochenfortschritt", v:function(){ var mon=W.weekMonday(S.today); var n=0; for(var i=0;i<7;i++){var d=W.addDays(mon,i); if(d<=S.today && S.log[d] && S.log[d].done) n++;} return n + " / " + (S.weekGoal||0) + " Einheiten"; }},
+    {id:"h1", t:"Wochenfortschritt", v:function(){
+      var mon=W.weekMonday(S.today); var n=0;
+      for(var i=0;i<7;i++){var d=W.addDays(mon,i); if(d<=S.today && S.log[d] && S.log[d].done) n++;}
+      if (!S.weekGoal) return n + " Einheiten (kein Ziel gesetzt)";
+      return n + " / " + S.weekGoal + " Einheiten";
+    }},
     {id:"h2", t:"Kalorien heute", v:function(){ return fc(OS.dayBurn(S.today, S.log, S.activities, S.settings, body()).total); }},
     {id:"h3", t:"Aktuelle Serie", v:function(){ return A.currentStreakF() + " Tage"; }},
     {id:"h4", t:"Nächster Ruhetag", v:function(){ return fmtShortDate(nextRestDay()); }},
