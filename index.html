@@ -2508,8 +2508,14 @@ var GROUP_COLOR = {
    angezeigt. Diese Zählung beginnt hier neu (erste Version mit einer
    sichtbaren Versionsnummer überhaupt); frühere Entwicklungsrunden hatten
    keine Versionsnummer. */
-var APP_VERSION = "2.11.9";
+var APP_VERSION = "2.12.0";
 var CHANGELOG = {
+  "2.12.0": [
+    "Kalorienberechnung grundlegend genauer: Jede der über 430 Übungen (Bodyweight, Dehnen, Rodeln, Gym) bekommt jetzt einen eigenen, am wissenschaftlichen 'Compendium of Physical Activities' orientierten MET-Wert statt eines einzigen Pauschalwerts für jedes Training",
+    "Explosive/dynamische Übungen (Sprünge, Cardio) zählen spürbar mehr Kalorien als ruhiges Halte- oder Dehntraining gleicher Dauer – bei identischen 20 Minuten z. B. 201 statt 100 kcal, je nach tatsächlichem Inhalt",
+    "Gym-Training und Rodeln-Vorbereitung speichern jetzt zusätzlich die tatsächlich absolvierten Übungen im Tagesverlauf, damit die genauere Berechnung greifen kann",
+    "Ältere, bereits gespeicherte Trainingstage funktionieren unverändert weiter (Rückwärtskompatibilität bestätigt)"
+  ],
   "2.11.9": [
     "Wichtigste Dialoge einzeln durchgeprüft: Jahresrückblick (rechnet korrekt mit echten Daten), Zurücksetzen-Sicherheitsnetz samt Wiederherstellung, Tagesblatt-Aktionen für vergangene Tage, PDF-Trainingsbericht – keine Fehler gefunden"
   ],
@@ -2678,6 +2684,88 @@ function exerciseById(id){
   for (var i = 0; i < all.length; i++) if (all[i].id === id) return all[i];
   for (var j = 0; j < CUSTOM_EXERCISES.length; j++) if (CUSTOM_EXERCISES[j].id === id) return CUSTOM_EXERCISES[j];
   return null;
+}
+
+/* ============================================================
+   MET-KLASSIFIZIERUNG PRO ÜBUNG (für genauere Kalorienschätzung)
+   Statt einen einzigen pauschalen MET-Wert für ein ganzes Training
+   anzunehmen, bekommt jede Übung anhand ihrer tatsächlichen
+   Bewegungsart eine eigene, am "Compendium of Physical Activities"
+   (Ainsworth et al.) orientierte MET-Kategorie zugeordnet:
+   - Dehnen/Halten ohne Anspannung          → 2.5 MET
+   - Isometrisches Halten unter Spannung     → 3.8 MET
+   - Gerätekrafttraining (Gym, mit Pausen)   → 4.0 MET
+   - Übliches, kontrolliertes Bodyweight-
+     Krafttraining (Standardfall)            → 4.5 MET
+   - Dynamische Mobilität/Vorbereitung
+     (z. B. Rodeln-Programm)                 → 5.5 MET
+   - Explosiv/plyometrisch oder als "Cardio"
+     eingeordnet, hohe Herzfrequenz          → 8.0 MET
+   Die Einordnung erfolgt über ID-Bereich (Dehnen/Rodeln/Gym haben
+   jeweils eigene, feste ID-Räume), Muskelgruppe und Schlüsselwörter
+   in Name/Beschreibung – nicht durch frei erfundene Einzelwerte je
+   Übungsname, da selbst das Compendium selbst nach Kategorien und
+   nicht nach jeder denkbaren Übungsvariante unterscheidet.
+   ============================================================ */
+var MET_EXPLOSIVE_RE = /sprung|sprünge|springt|hüpf|jump|explosiv|burpee|hopp|skater|plyo/i;
+var MET_HOLD_RE = /halten?|hold|isometrisch|wandsitz|plank|unterarmstütz|statisch/i;
+function findInPool(pool, id){
+  if (!pool) return null;
+  for (var i = 0; i < pool.length; i++) if (pool[i].id === id) return pool[i];
+  return null;
+}
+function metForExercise(ex){
+  if (!ex) return 4.5;
+  var id = ex.id;
+  // Dehnen (STRETCHES, IDs 3001–3120): reine Beweglichkeit, kein Kraftaufwand
+  if (typeof id === "number" && id >= 3000 && id < 4000) return 2.5;
+  // Rodeln-Vorbereitung (IDs 4001+): durchgehende, dynamische Ganzkörperbewegung
+  if (typeof id === "number" && id >= 4000 && id < 5000) return 5.5;
+  // Gym-Gerätetraining (string-IDs wie "brustpresse" oder eigene "custom_gym_..."):
+  // Krafttraining mit Pausen zwischen den Sätzen, moderate Dauerbelastung
+  if (typeof id === "string") return 4.0;
+  // Explizit als Cardio eingeordnete oder explosive/plyometrische Bodyweight-Übungen
+  if (ex.g === "cardio") return 7.5;
+  var text = ((ex.n || "") + " " + (ex.c || "")).toLowerCase();
+  if (MET_EXPLOSIVE_RE.test(text)) return 8.0;
+  if (MET_HOLD_RE.test(text) || ex.m === "time") return 3.8;
+  return 4.5;
+}
+/* Übungs-Objekt zu einer ID finden – sucht zusätzlich zu den normalen
+   Trainings-Pools auch in Dehnen und Rodeln, da deren Übungs-IDs ebenfalls
+   für die Kalorienschätzung aufgelöst werden müssen. Bewusst NICHT über
+   exerciseById() gelöst, um dessen (an vielen Stellen genutzte und
+   ausgiebig getestete) Suche nicht durch zusätzliche Pools zu verändern. */
+function findExerciseForMet(id){
+  var direct = exerciseById(id);
+  if (direct) return direct;
+  var wk = root.WK;
+  if (!wk) return null;
+  return findInPool(wk.STRETCHES, id) || findInPool(wk.RODELN, id) || (wk.gymExerciseById ? wk.gymExerciseById(id) : null);
+}
+/* Zeitgewichteter Durchschnitts-MET-Wert über eine Liste von Übungs-IDs,
+   z. B. für ein tatsächlich absolviertes Tagestraining. Übungen mit
+   Zeit-Modus zählen mit ihrer Zielzeit, Wiederholungs-Übungen pauschal
+   mit 35 Sekunden (typische Ausführungszeit), damit längere/kürzere
+   Übungen im Schnitt richtig gewichtet werden statt alle gleich zu zählen. */
+function avgMetForExerciseIds(ids){
+  if (!ids || !ids.length) return null;
+  var totalW = 0, totalMet = 0;
+  ids.forEach(function(id){
+    // String-IDs sind immer Gym-Übungen (auch eigene, nicht im Kern bekannte) –
+    // die bekommen ohnehin pauschal den Gym-MET-Wert, eine volle Objektsuche
+    // ist dafür nicht nötig.
+    if (typeof id === "string"){
+      totalW += 35; totalMet += 4.0 * 35;
+      return;
+    }
+    var ex = findExerciseForMet(id);
+    if (!ex) return;
+    var w = ex.m === "time" ? (ex.v || 30) : 35;
+    totalW += w;
+    totalMet += metForExercise(ex) * w;
+  });
+  return totalW > 0 ? (totalMet / totalW) : null;
 }
 
 /* Aufwärmen & Cool-down (rotieren ebenfalls) */
@@ -3345,6 +3433,7 @@ var API = {
   CHANGELOG:CHANGELOG,
   effectiveRunDistance:effectiveRunDistance, isFixedRestDay:isFixedRestDay, isFixedTrainedDay:isFixedTrainedDay,
   setCustomExercises:setCustomExercises,
+  metForExercise:metForExercise, avgMetForExerciseIds:avgMetForExerciseIds,
   currentStreak:currentStreak, longestStreak:longestStreak, doneInLastDays:doneInLastDays,
   groupVolume:groupVolume, fitnessScore:fitnessScore, estimateRun:estimateRun,
   fmtTime:fmtTime, fmtPace:fmtPace, parseFitnessFile:parseFitnessFile,
@@ -4484,7 +4573,7 @@ function buildRodelnSequence(dateStr){
     seq.push({
       type:"work", name:e.n, cue:fullCue, dur:it.dur, round:1, mode:e.m,
       reps: e.m === "reps" ? e.v : undefined,
-      exIndex:i+1, exTotal:items.length, groupLabel:label, group:e.g
+      exIndex:i+1, exTotal:items.length, groupLabel:label, group:e.g, id:e.id
     });
     if (i < items.length - 1){
       seq.push({type:"rest", name:"Wechsel", cue:"Kurz lockern, nächste Übung vorbereiten.", dur:6, round:1});
@@ -5732,7 +5821,8 @@ function bmrPerDay(body){
   var v = 10*b.weightKg + 6.25*b.heightCm - 5*b.age;
   return Math.round(b.sex === "m" ? v + 5 : v - 161);
 }
-function metFor(kind, kmh){
+function metFor(kind, kmh, override){
+  if (kind === "custom" && override != null) return Math.max(1.5, Math.min(12, override));
   if (kind === "lauf" || kind === "trail"){
     var m = 0.95 * (kmh || 9) + 0.7;
     if (kind === "trail") m += 1.2;
@@ -5750,9 +5840,9 @@ function metFor(kind, kmh){
 function calories(met, weightKg, minutes){
   return Math.round(met * 3.5 * (weightKg/200) * minutes);
 }
-function burnFor(kind, minutes, body, kmh){
+function burnFor(kind, minutes, body, kmh, metOverride){
   var b = normalizeBody(body);
-  var met = metFor(kind, kmh);
+  var met = metFor(kind, kmh, metOverride);
   var total = calories(met, b.weightKg, minutes);
   var bmrShare = Math.round(bmrPerDay(b) / 1440 * minutes);
   var active = Math.max(0, total - bmrShare);
@@ -5764,9 +5854,14 @@ function dayBurn(dateStr, log, activities, settings, body){
   var e = log && log[dateStr];
   if (e && e.done && !e.km){
     var min = (e.sec || 780) / 60;
-    var b = burnFor("zirkel", min, body);
+    // Genauer: Durchschnitts-MET aus den tatsächlich absolvierten Übungen
+    // berechnen, statt für jedes Training denselben Pauschalwert anzunehmen.
+    // Fällt auf die bisherige Schätzung zurück, wenn keine Übungsliste
+    // vorliegt (z. B. sehr alte, vor diesem Update gespeicherte Einträge).
+    var avgMet = (W.avgMetForExerciseIds && e.ex && e.ex.length) ? W.avgMetForExerciseIds(e.ex) : null;
+    var b = avgMet != null ? burnFor("custom", min, body, 0, avgMet) : burnFor("zirkel", min, body);
     out.workout = b.total; out.epoc += b.epoc;
-    out.items.push({name:"Tagestraining", min:Math.round(min), kcal:b.total, met:b.met});
+    out.items.push({name: e.type === "gym" ? "Gym-Training" : "Tagestraining", min:Math.round(min), kcal:b.total, met:b.met});
   }
   (activities||[]).forEach(function(a){
     if (a.date !== dateStr) return;
@@ -7688,7 +7783,7 @@ function finishWorkout(){
   var extra = {sec: W.sequenceDuration(P.seq)};
   if (S.activeProgram === "rodeln"){
     extra.type = "rodeln";
-    extra.ex = [];
+    extra.ex = P.seq.filter(function(s){ return s.type === "work" && s.id != null; }).map(function(s){ return s.id; });
     var map = {rumpf:"bauch", bein:"beine", huefte:"beine", fuss:"beine", arm:"arme", nacken:"ruecken", ganz:"cardio"};
     var seen = {};
     extra.groups = P.seq.filter(function(s){ return s.type === "work" && s.group; })
@@ -9963,7 +10058,7 @@ function finishGymWorkout(){
   var elapsedSec = GYM.startedAt ? Math.floor((Date.now() - GYM.startedAt)/1000) : 0;
   S.gymLog[S.today] = {sets: GYM.sets, totalVolume: totalVolume};
   A.store.set("wk_gymlog", S.gymLog);
-  A.markDone(S.today, {type:"gym", groups:["brust","ruecken","beine","arme"], ex:[], sec: elapsedSec});
+  A.markDone(S.today, {type:"gym", groups:["brust","ruecken","beine","arme"], ex: GYM.activeIds.slice(), sec: elapsedSec});
   closeGymOverlay();
   $("gymSummaryVolume").textContent = Math.round(totalVolume);
   $("gymSummaryDetail").textContent = doneSets + " Sätze abgeschlossen in " + Math.round(elapsedSec/60) + " Minuten.";
