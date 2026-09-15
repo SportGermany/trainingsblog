@@ -165,6 +165,7 @@
   .cal-cell .rd.rest-dot{ background:#8B8FA3; }
   .cal-cell.done .rd.rest-dot{ background:#8B8FA3; }
   .cal-cell.sick{ background:rgba(232,179,61,.16); border-color:rgba(232,179,61,.4); }
+  .cal-cell.injury{ background:rgba(239,68,68,.16); border-color:rgba(239,68,68,.4); }
   .cal-cell .rd.sick-dot{ background:#E8B33D; }
   .cal-cell.done .rd.sick-dot{ background:#E8B33D; }
   .cal-cell.vacation{ background:rgba(79,169,217,.16); border-color:rgba(79,169,217,.4); }
@@ -175,6 +176,8 @@
   .cal-cell.done .rd.frozen-dot{ background:#8B5CF6; }
   .cal-cell .rd.trained-dot{ background:#4ADE80; }
   .cal-cell.done .rd.trained-dot{ background:#4ADE80; }
+  .cal-cell .rd.injury-dot{ background:#EF4444; }
+  .cal-cell.done .rd.injury-dot{ background:#EF4444; }
   .legend{ display:flex; flex-wrap:wrap; gap:12px; margin-top:12px; font-size:11.5px; color:var(--text-faint); }
   .legend i{ display:inline-block; width:9px; height:9px; border-radius:3px; margin-right:5px; vertical-align:middle; font-style:normal; }
 
@@ -1177,6 +1180,15 @@
     </div>
   </div>
 
+  <div class="card sick-checkin" id="injuryCheckIn" data-sec="injurycheckin" style="display:none">
+    <div class="card-h"><h2>🩹 Bist du noch verletzt?</h2></div>
+    <p class="muted" style="margin-bottom:14px">Seit deiner letzten Angabe hat sich der Tag geändert. Für heute nur eine Atemübung, oder wieder normal weitermachen?</p>
+    <div class="btn-row">
+      <button class="btn secondary sm" id="btnStillInjuredNo">Nein, wieder fit</button>
+      <button class="btn accent sm" id="btnStillInjuredYes">Ja, noch verletzt</button>
+    </div>
+  </div>
+
   <div class="card" id="readinessCard" data-sec="readiness" style="display:none">
     <div class="card-h"><h2>Trainingsbereitschaft</h2><span id="readyScoreTxt">–</span></div>
     <div class="meter"><div class="lbl"><span id="readyLabel">–</span><span id="readyPct">–</span></div>
@@ -1267,6 +1279,7 @@
       <span><i style="background:var(--run)"></i>Lauftag</span>
       <span><i style="background:#8B8FA3"></i>Ruhetag</span>
       <span><i style="background:#E8B33D"></i>Krank</span>
+      <span><i style="background:#EF4444"></i>Verletzt</span>
       <span><i style="background:#4FA9D9"></i>Urlaub</span>
       <span><i style="background:#8B5CF6"></i>Freeze</span>
       <span><i style="background:#4ADE80"></i>Extern trainiert</span>
@@ -1299,6 +1312,11 @@
   <div class="card" data-sec="calsickoverview">
     <div class="card-h"><h2>Krankheitsübersicht</h2></div>
     <p class="muted" id="calSickText">–</p>
+  </div>
+
+  <div class="card" data-sec="calinjuryoverview">
+    <div class="card-h"><h2>Verletzungsübersicht</h2></div>
+    <p class="muted" id="calInjuryText">–</p>
   </div>
 
   <div class="card" data-sec="calweekoverview">
@@ -2016,6 +2034,8 @@
     <div class="sec-label">Daten</div>
     <div class="card">
       <div class="row"><div class="lab"><b>Version</b></div><span id="setVersion">–</span></div>
+      <button class="btn secondary block sm" id="btnCheckUpdate" style="margin-top:10px">Version aktualisieren</button>
+      <p class="tiny" id="checkUpdateStatus" style="margin-top:8px">Prüft bei GitHub, ob eine neuere Version bereitliegt, und lädt sie bei Bedarf sofort nach.</p>
       <div class="row"><div class="lab"><b>Gespeicherte Tage</b></div><span id="setDays">0</span></div>
       <div class="row"><div class="lab"><b>Speicherort</b><span id="setStorage">–</span></div></div>
       <div class="meter" style="margin-top:14px"><div class="lbl"><span>Speicherplatz</span><span id="storeVal">–</span></div>
@@ -2400,6 +2420,18 @@
   <div id="sickRangesList" style="margin-top:10px"></div>
 </div></dialog>
 
+<!-- ==================== VERLETZUNG ==================== -->
+<dialog id="dlgInjury"><div class="dlg" style="position:relative">
+  <button class="close" id="injuryClose">✕</button>
+  <h3>🩹 Verletzung</h3>
+  <p class="muted" id="injuryStatus" style="margin-bottom:14px">–</p>
+  <button class="btn accent block sm" id="btnInjuryToggle">–</button>
+  <div class="row" style="margin-top:16px;padding-top:14px;border-top:1px solid var(--line)">
+    <div class="lab"><b>Verletzungstage dieses Jahr</b></div><span id="injuryYearCount">0</span>
+  </div>
+  <div id="injuryRangesList" style="margin-top:10px"></div>
+</div></dialog>
+
 <!-- ==================== WIDGETS BEARBEITEN ==================== -->
 <dialog id="dlgWidgets"><div class="dlg" style="position:relative;max-height:82dvh;overflow:auto">
   <button class="close" id="widgetsClose">✕</button>
@@ -2639,8 +2671,15 @@ var GROUP_COLOR = {
    angezeigt. Diese Zählung beginnt hier neu (erste Version mit einer
    sichtbaren Versionsnummer überhaupt); frühere Entwicklungsrunden hatten
    keine Versionsnummer. */
-var APP_VERSION = "2.17.1";
+var APP_VERSION = "2.19.0";
 var CHANGELOG = {
+  "2.19.0": [
+    "Neuer Knopf 'Version aktualisieren' unter Einstellungen → Daten → Version: prüft aktiv bei GitHub, ob eine neuere Version bereitliegt, und lädt sie bei Bedarf sofort nach – kein Warten mehr auf die automatische Aktualisierung"
+  ],
+  "2.18.0": [
+    "Neue Funktion: Verletzung – exakt nach dem Muster der Krankheits-Funktion aufgebaut (Kalender-Punkt, tägliche Nachfrage, Jahresübersicht), aber mit dem inhaltlichen Unterschied: statt eines leichten Dehnprogramms zeigt ein Verletzungstag durchgehend nur die einfache 2-Minuten-Atemübung",
+    "Eigener roter Kalender-Punkt und Legenden-Eintrag 'Verletzt', eigene Widget-Kachel neben 'Krankheit'"
+  ],
   "2.17.1": [
     "Echten Fehler behoben: Tage mit festem 'schon trainiert' zeigten weiterhin normale Übungen statt der passenden 2-Minuten-Cool-down-Atemübung – jetzt korrekt sowohl auf der Startseite als auch im Kalender-Tagesblatt"
   ],
@@ -6565,6 +6604,8 @@ var S = {
   skin: store.get("wk_skin", "osv2"),
   sickDays: store.get("wk_sickdays", {}),
   illnessActive: store.get("wk_illness_active", false),
+  injuryDays: store.get("wk_injurydays", {}),
+  injuryActive: store.get("wk_injury_active", false),
   vacationDays: store.get("wk_vacation", {}),
   customExercises: store.get("wk_custom_ex", []),
   streakFreezes: store.get("wk_freezes", {frozenDays:{}, lastGrantMonth:null, available:1})
@@ -6935,6 +6976,7 @@ function isRestDay(dateStr){
   if (S.rests[dateStr] === 0) return false; // bewusst überschrieben: "Doch normal trainieren"
   if (S.rests[dateStr] === 1) return true;  // bewusst überschrieben: "Heute schon trainiert" -> Ruhetag
   if (isSickDay(dateStr)) return true;      // Kranktag zählt automatisch als Ruhetag
+  if (isInjuryDay(dateStr)) return true;    // Verletzungstag zählt automatisch als Ruhetag
   return W.isFixedRestDay(dateStr, S.settings); // sonst: fester wöchentlicher Ruhetag
 }
 function setRestDay(dateStr, on){
@@ -7021,6 +7063,38 @@ function confirmStillSick(){
 function sickDaysThisYear(){
   var y = W.parseYmd(S.today).getFullYear();
   return Object.keys(S.sickDays).filter(function(d){ return S.sickDays[d] && W.parseYmd(d).getFullYear() === y; }).length;
+}
+
+/* ============================================================
+   VERLETZUNG (exakt nach demselben Muster wie Krankheit, mit dem
+   inhaltlichen Unterschied: statt eines leichten Dehnprogramms wird
+   an einem Verletzungstag durchgehend nur die einfache Atemübung
+   gezeigt – bis "Nein, wieder fit" den Modus beendet.
+   ============================================================ */
+function saveInjuryState(){
+  store.set("wk_injurydays", S.injuryDays);
+  store.set("wk_injury_active", S.injuryActive);
+}
+function isInjuryDay(dateStr){ return !!S.injuryDays[dateStr]; }
+function startInjury(){
+  S.injuryActive = true;
+  S.injuryDays[S.today] = 1;
+  saveInjuryState();
+}
+function endInjury(){
+  S.injuryActive = false;
+  saveInjuryState();
+}
+function needsInjuryCheckIn(){
+  return S.injuryActive && !S.injuryDays[S.today];
+}
+function confirmStillInjured(){
+  S.injuryDays[S.today] = 1;
+  saveInjuryState();
+}
+function injuryDaysThisYear(){
+  var y = W.parseYmd(S.today).getFullYear();
+  return Object.keys(S.injuryDays).filter(function(d){ return S.injuryDays[d] && W.parseYmd(d).getFullYear() === y; }).length;
 }
 /* Leichtes, für Kranke geeignetes Dehnprogramm: nur ruhige, sitzend/
    liegend machbare Übungen aus der bestehenden Dehn-Bibliothek, ohne
@@ -7211,7 +7285,7 @@ function openWrapped(){
 
 function getPlan(dateStr){
   if (isRestDay(dateStr)){
-    return {date:dateStr, weekday:W.parseYmd(dateStr).getDay(), run:false, rest:true, sick:isSickDay(dateStr),
+    return {date:dateStr, weekday:W.parseYmd(dateStr).getDay(), run:false, rest:true, sick:isSickDay(dateStr), injured:isInjuryDay(dateStr),
             exercises:[], warmup:null, cooldown:null};
   }
   var p = W.planForDate(dateStr, S.settings);
@@ -7297,14 +7371,18 @@ function renderHeute(){
   $("todayLine").textContent = DAYS_LONG[d.getDay()] + ", " + d.getDate() + ". " + MONTHS[d.getMonth()] + " " + d.getFullYear();
   $("streakVal").textContent = streak;
   $("sickCheckIn").style.display = needsSickCheckIn() ? "" : "none";
+  $("injuryCheckIn").style.display = needsInjuryCheckIn() ? "" : "none";
 
   var done = W.currentStreak ? !!(S.log[S.today] && S.log[S.today].done) : false;
   var hero = $("hero");
   hero.classList.toggle("runday", !!(p.run || p.rest || p.trainedElsewhere));
-  $("heroKicker").textContent = p.sick ? "Krankheitstag" : p.rest ? "Entspannungstag" : p.trainedElsewhere ? "Extern trainiert" : p.run ? "Lauftag" : W.GOAL_LABEL[S.settings.goal];
+  $("heroKicker").textContent = p.sick ? "Krankheitstag" : p.injured ? "Verletzungspause" : p.rest ? "Entspannungstag" : p.trainedElsewhere ? "Extern trainiert" : p.run ? "Lauftag" : W.GOAL_LABEL[S.settings.goal];
   if (p.sick){
     $("heroTitle").textContent = "Leichtes Dehnen für heute";
     $("heroMeta").textContent = "5 sehr sanfte Übungen im Sitzen/Liegen · kein Leistungsdruck · Streak läuft normal weiter.";
+  } else if (p.injured){
+    $("heroTitle").textContent = "Atemübung statt Training";
+    $("heroMeta").textContent = "2 Minuten geführte Atmung, bis du wieder verletzungsfrei bist · Streak läuft normal weiter.";
   } else if (p.rest){
     $("heroTitle").textContent = "Atemübung statt Training";
     $("heroMeta").textContent = "2 Minuten geführte Atmung · dein Streak läuft normal weiter.";
@@ -7321,7 +7399,7 @@ function renderHeute(){
       Math.round(todayDuration()/60) + " Minuten";
   }
   var chips = $("heroChips"); chips.innerHTML = "";
-  (p.rest ? ["Entspannung","Atmung","Regeneration"] : p.trainedElsewhere ? ["Extern trainiert","Cool-down","Regeneration"] : p.run ? ["Ausdauer","Beine","Kopf frei"] : p.exercises.map(function(e){ return e.groupLabel; }))
+  (p.rest && p.injured ? ["Verletzungspause","Atmung","Schonung"] : p.rest ? ["Entspannung","Atmung","Regeneration"] : p.trainedElsewhere ? ["Extern trainiert","Cool-down","Regeneration"] : p.run ? ["Ausdauer","Beine","Kopf frei"] : p.exercises.map(function(e){ return e.groupLabel; }))
     .forEach(function(c){ chips.appendChild(el("span","chip",esc(c))); });
 
   $("btnStartToday").textContent = p.rest ? "Atemübung starten" : p.trainedElsewhere ? "Cool-down starten" : p.run ? "Zum Lauf" : (done ? "Nochmal trainieren" : "Training starten");
@@ -7439,11 +7517,13 @@ function renderKalender(){
     else if (ds < S.today) cls += " missed";
     if (ds === S.today) cls += " today";
     if (isSickDay(ds)) cls += " sick";
+    else if (isInjuryDay(ds)) cls += " injury";
     else if (isVacationDay(ds)) cls += " vacation";
     else if (isFrozenDay(ds)) cls += " frozen";
     var c = el("div", cls, String(day));
     c.dataset.date = ds;
     if (isSickDay(ds)) c.appendChild(el("div","rd sick-dot"));
+    else if (isInjuryDay(ds)) c.appendChild(el("div","rd injury-dot"));
     else if (isVacationDay(ds)) c.appendChild(el("div","rd vacation-dot"));
     else if (isFrozenDay(ds)) c.appendChild(el("div","rd frozen-dot"));
     else if (isRestDay(ds)) c.appendChild(el("div","rd rest-dot"));
@@ -7463,7 +7543,11 @@ function openSheet(dateStr){
   var isDone = !!(S.log[dateStr] && S.log[dateStr].done);
   var isTrainedElsewhere = p.trainedElsewhere;
   $("sheetTitle").textContent = DAYS_LONG[d.getDay()] + ", " + d.getDate() + ". " + MONTHS[d.getMonth()] + " " + d.getFullYear();
-  $("sheetSub").textContent = p.rest
+  $("sheetSub").textContent = p.sick
+    ? "Krankheitstag · 2 Minuten Atemübung · " + (isDone ? "erledigt" : "offen")
+    : p.injured
+    ? "Verletzungspause · 2 Minuten Atemübung · " + (isDone ? "erledigt" : "offen")
+    : p.rest
     ? "Entspannungstag · 2 Minuten Atemübung · " + (isDone ? "erledigt" : "offen")
     : isTrainedElsewhere
     ? "Extern trainiert · 2 Minuten Cool-down · " + (isDone ? "erledigt" : "offen")
@@ -8161,6 +8245,14 @@ function bind(){
     endIllness(); renderAll();
     toast("Schön, dass es dir besser geht!");
   });
+  $("btnStillInjuredYes").addEventListener("click", function(){
+    confirmStillInjured(); renderAll();
+    toast("Weiterhin geschont – gute Besserung");
+  });
+  $("btnStillInjuredNo").addEventListener("click", function(){
+    endInjury(); renderAll();
+    toast("Schön, dass es dir besser geht!");
+  });
   $("btnRest").addEventListener("click", function(){
     var on = !isRestDay(S.today);
     setRestDay(S.today, on);
@@ -8502,6 +8594,7 @@ window.APP = {
   MONTHS:MONTHS, DAYS_SHORT:DAYS_SHORT, DAYS_LONG:DAYS_LONG,
   collectFullState:collectFullState, applyFullState:applyFullState, stripDangerousKeys:stripDangerousKeys,
   startIllness:startIllness, endIllness:endIllness, isSickDay:isSickDay,
+  startInjury:startInjury, endInjury:endInjury, isInjuryDay:isInjuryDay,
   isVacationDay:isVacationDay, currentStreakF:currentStreakF, longestStreakF:longestStreakF,
   connectHr:connectHr, disconnectHr:disconnectHr, hrSupported:hrSupported,
   getLastHrBpm:getLastHrBpm, isHrConnected:isHrConnected,
@@ -11933,6 +12026,78 @@ function bind(){
     reader.readAsText(selectedUpdateFile);
   });
   $("ghClear").addEventListener("click", doClear);
+  var btnCheckUpdateEl = $("btnCheckUpdate");
+  if (btnCheckUpdateEl) btnCheckUpdateEl.addEventListener("click", function(){
+    var st = $("checkUpdateStatus");
+    if (!GH.cfgComplete(S.sync)){
+      st.textContent = "Bitte zuerst unter Cloud-Sync Zugriffsschlüssel, Konto und Repository eintragen.";
+      return;
+    }
+    st.textContent = "Prüfe bei GitHub …";
+    btnCheckUpdateEl.disabled = true;
+    GH.getRawFile(S.sync, "index.html").then(function(res){
+      if (!res.exists){
+        st.textContent = "Keine index.html im Repository gefunden.";
+        return;
+      }
+      var text = GH.b64decode(res.raw.content);
+      var m = text.match(/var APP_VERSION\s*=\s*"([\d.]+)"/);
+      if (!m){
+        st.textContent = "Version in der Datei bei GitHub konnte nicht erkannt werden.";
+        return;
+      }
+      var remoteVersion = m[1];
+      var cmp = compareVersions(remoteVersion, W.APP_VERSION);
+      if (cmp <= 0){
+        st.textContent = "Du hast bereits die neueste Version (" + W.APP_VERSION + ").";
+        return;
+      }
+      st.textContent = "Neue Version " + remoteVersion + " gefunden (bisher " + W.APP_VERSION + ") – wird geladen …";
+      applyRemoteUpdate(text);
+    }).catch(function(err){
+      st.textContent = "Fehlgeschlagen: " + (err && err.message ? err.message : "unbekannter Fehler");
+    }).finally(function(){
+      btnCheckUpdateEl.disabled = false;
+    });
+  });
+}
+
+/* Vergleicht zwei Versionsnummern nach dem Muster "2.18.0": gibt 1 zurück,
+   wenn a neuer ist als b, -1 wenn älter, 0 wenn gleich. Fehlt ein Teil
+   (z. B. "2.18" statt "2.18.0"), zählt er als 0. */
+function compareVersions(a, b){
+  var pa = String(a).split(".").map(Number);
+  var pb = String(b).split(".").map(Number);
+  var len = Math.max(pa.length, pb.length);
+  for (var i = 0; i < len; i++){
+    var na = pa[i] || 0, nb = pb[i] || 0;
+    if (na > nb) return 1;
+    if (na < nb) return -1;
+  }
+  return 0;
+}
+/* Übernimmt eine neu bei GitHub gefundene Version direkt: der Service
+   Worker (falls vorhanden) wird zurückgesetzt, damit er die neue Datei
+   nicht durch eine noch zwischengespeicherte alte Version ersetzt, und
+   die Seite lädt danach frisch von der echten Adresse neu. Es wird
+   bewusst kein document.write() mit dem heruntergeladenen Text verwendet
+   – ein echter Neuladevorgang von der tatsächlichen Adresse ist
+   zuverlässiger und stellt sicher, dass Skripte & Manifest sauber neu
+   initialisiert werden. */
+function applyRemoteUpdate(){
+  var clearAndReload = function(){
+    location.reload();
+  };
+  if ("serviceWorker" in navigator){
+    navigator.serviceWorker.getRegistrations().then(function(regs){
+      var caches_ = window.caches ? caches.keys().then(function(keys){
+        return Promise.all(keys.map(function(k){ return caches.delete(k); }));
+      }) : Promise.resolve();
+      Promise.all(regs.map(function(r){ return r.unregister(); }).concat([caches_])).then(clearAndReload).catch(clearAndReload);
+    }).catch(clearAndReload);
+  } else {
+    clearAndReload();
+  }
 }
 
 /* ---------- Hook aus ui.js ----------
@@ -12154,6 +12319,49 @@ function sickSinceDate(){
   var last = ranges[ranges.length-1];
   return last ? last.from : null;
 }
+function injuryYearCount(){
+  var y = W.parseYmd(S.today).getFullYear();
+  return Object.keys(S.injuryDays).filter(function(d){ return S.injuryDays[d] && W.parseYmd(d).getFullYear() === y; }).length;
+}
+function injuryDateList(){
+  var y = W.parseYmd(S.today).getFullYear();
+  return Object.keys(S.injuryDays).filter(function(d){ return S.injuryDays[d] && W.parseYmd(d).getFullYear() === y; }).sort();
+}
+function injuryRanges(){
+  var list = injuryDateList();
+  var ranges = [];
+  list.forEach(function(d){
+    var last = ranges[ranges.length-1];
+    if (last && W.addDays(last.to, 1) === d) last.to = d;
+    else ranges.push({from:d, to:d});
+  });
+  return ranges;
+}
+function injurySinceDate(){
+  var ranges = injuryRanges();
+  var last = ranges[ranges.length-1];
+  return last ? last.from : null;
+}
+function openInjuryDialog(){
+  var host = $("injuryRangesList");
+  $("injuryStatus").textContent = S.injuryActive
+    ? "Aktiv seit " + fmtShortDate(injurySinceDate()) + " – auf der Startseite wird täglich nachgefragt, ob es noch anhält."
+    : "Gerade nicht aktiv. Aktivieren, wenn du dich verletzt hast – die App fragt dich danach jeden Tag, ob es noch anhält, und schlägt so lange nur eine einfache Atemübung statt Training vor.";
+  $("btnInjuryToggle").textContent = S.injuryActive ? "Verletzungsmodus beenden" : "Ich bin ab heute verletzt";
+  $("injuryYearCount").textContent = injuryYearCount();
+  host.innerHTML = "";
+  var iranges = injuryRanges();
+  if (!iranges.length){
+    host.appendChild(el("p","muted","Noch keine Verletzungstage in diesem Jahr erfasst."));
+  } else {
+    iranges.slice().reverse().forEach(function(r){
+      var txt = r.from === r.to ? fmtShortDate(r.from) : fmtShortDate(r.from) + " – " + fmtShortDate(r.to);
+      host.appendChild(el("p","tiny", txt));
+    });
+  }
+  var idlg = $("dlgInjury");
+  idlg.showModal ? (function(){ try { idlg.showModal(); } catch(e){ idlg.setAttribute("open",""); } })() : idlg.setAttribute("open","");
+}
 function openSickDialog(){
   var host = $("sickRangesList");
   $("sickStatus").textContent = S.illnessActive
@@ -12181,10 +12389,21 @@ document.addEventListener("click", function(e){
     A.renderAll();
     openSickDialog();
   }
+  if (e.target.closest("#btnInjuryToggle")){
+    if (S.injuryActive){ A.endInjury(); A.toast("Verletzungsmodus beendet"); }
+    else { A.startInjury(); A.toast("Gute Besserung – für heute reicht eine Atemübung"); }
+    A.renderAll();
+    openInjuryDialog();
+  }
   if (e.target.closest("#sickClose")){
     var dlg = $("dlgSick");
     try { dlg.close(); } catch(err){}
     dlg.removeAttribute("open");
+  }
+  if (e.target.closest("#injuryClose")){
+    var idlg2 = $("dlgInjury");
+    try { idlg2.close(); } catch(err){}
+    idlg2.removeAttribute("open");
   }
 });
 var WT_CODE_LABEL = {0:"klar",1:"heiter",2:"bewölkt",3:"bedeckt",45:"Nebel",48:"Nebel",51:"Niesel",53:"Niesel",55:"Niesel",
@@ -12226,6 +12445,11 @@ var WIDGET_DEFS = {
       if (S.illnessActive) return "Aktiv seit " + fmtShortDate(sickSinceDate());
       var n = sickYearCount();
       return n > 0 ? n + " Kranktage " + W.parseYmd(S.today).getFullYear() : "Nicht krank";
+    }},
+    {id:"k12", t:"Verletzung", interactive:true, v:function(){
+      if (S.injuryActive) return "Aktiv seit " + fmtShortDate(injurySinceDate());
+      var n = injuryYearCount();
+      return n > 0 ? n + " Verletzungstage " + W.parseYmd(S.today).getFullYear() : "Nicht verletzt";
     }}
   ],
   lauf: [
@@ -12279,7 +12503,7 @@ var WIDGET_DEFS = {
 };
 
 var DEFAULT_ON = {
-  heute: ["h1","h2","h3","h4"], kalender: ["k1","k2","k3","k11"],
+  heute: ["h1","h2","h3","h4"], kalender: ["k1","k2","k3","k11","k12"],
   lauf: ["l1","l2","l3","l4"], daten: ["d1","d2","d3","d4"],
   fitness: ["f1","f2","f5","f6"], einst: ["e1","e2","e3","e9"]
 };
@@ -12300,7 +12524,7 @@ function renderWidgets(screen){
     try { val = def.v(); } catch(e){ val = "–"; }
     var tile = el("div","widget-tile" + (def.interactive ? " widget-tile-tap" : ""));
     tile.innerHTML = "<div class='wt-label'>" + esc(def.t) + "</div><div class='wt-value'>" + esc(String(val)) + "</div>";
-    if (def.interactive) tile.onclick = function(){ if (def.id === "k11") openSickDialog(); };
+    if (def.interactive) tile.onclick = function(){ if (def.id === "k11") openSickDialog(); else if (def.id === "k12") openInjuryDialog(); };
     host.appendChild(tile);
   });
 }
@@ -12318,6 +12542,7 @@ var SECTION_DEFS = {
     {id:"whatsnew", l:"\"Neu in dieser Version\"-Hinweis"},
     {id:"weatherwarn", l:"Wetter-Warnbanner"},
     {id:"sickcheckin", l:"Krankheits-Nachfrage"},
+    {id:"injurycheckin", l:"Verletzungs-Nachfrage"},
     {id:"importcard", l:"Import-Hinweis nach Datei-Upload"},
     {id:"readiness", l:"Trainingsbereitschaft"},
     {id:"hero", l:"Trainingskarte"},
@@ -12338,6 +12563,7 @@ var SECTION_DEFS = {
     {id:"calupcoming", l:"Nächste Termine"},
     {id:"calyearprogress", l:"Jahresfortschritt"},
     {id:"calsickoverview", l:"Krankheitsübersicht"},
+    {id:"calinjuryoverview", l:"Verletzungsübersicht"},
     {id:"calweekoverview", l:"Diese Woche im Überblick"}
   ],
   lauf: [
@@ -12476,6 +12702,11 @@ function renderCalendarSections(){
   $("calSickText").textContent = sn === 0
     ? "Keine Kranktage in diesem Jahr erfasst."
     : sn + " Kranktag" + (sn===1?"":"e") + " in diesem Jahr" + (S.illnessActive ? " · Krankheitsmodus gerade aktiv" : "") + ".";
+
+  var inj = injuryYearCount();
+  $("calInjuryText").textContent = inj === 0
+    ? "Keine Verletzungstage in diesem Jahr erfasst."
+    : inj + " Verletzungstag" + (inj===1?"":"e") + " in diesem Jahr" + (S.injuryActive ? " · Verletzungsmodus gerade aktiv" : "") + ".";
 
   var mon = W.weekMonday(S.today);
   var labels = [];
