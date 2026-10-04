@@ -1123,6 +1123,10 @@
     .shell{ max-width:1100px; }
   }
 </style>
+<!-- verbund-design:start -->
+<style id="sg-design">/* Gemeinsames Design aller SportGermany-Apps: gleiche Grundfarben und Schrift, eigene Akzentfarbe je App */
+html:root{--bg:#141412;--panel:#1c1b19;--panel-2:#252421;--panel-3:#2e2c29;--line:#353330;--text:#ebe9e4;--text-dim:#a29e95;--text-faint:#6e6a62;}html[data-theme="light"]{--bg:#f3f1ec;--panel:#ffffff;--panel-2:#ebe8e1;--panel-3:#e1ddd5;--line:#dad5cb;--text:#1d1c19;--text-dim:#67635b;--text-faint:#98938a}body,button,input,select,textarea{font-family:'Segoe UI Variable Text','Segoe UI',Roboto,'Helvetica Neue',system-ui,-apple-system,sans-serif}</style>
+<!-- verbund-design:end -->
 </head>
 <body>
 <div class="shell">
@@ -12869,34 +12873,50 @@ window.APP5 = {
 })();
 </script>
 <!-- gemeinsamer-kalender:start -->
-<script data-app="Trainingsblog">
-/* Gemeinsamer Kalender für alle SportGermany-Apps (v1)
- * Alle Apps liegen auf sportgermany.github.io und teilen sich deshalb denselben
- * localStorage. Termine werden unter einem gemeinsamen Schlüssel gespeichert und
- * in allen offenen Apps sofort aktualisiert. Mit „Cloud-Sync“ wird der Kalender zusätzlich
- * in einem privaten GitHub-Gist gespeichert und so zwischen mehreren Geräten abgeglichen.
- * Diesen Block in jeder App identisch halten.
- * API für die Apps: window.SharedCalendar.{open, list, add, update, remove, onChange}
+<script data-app="training">
+/* SportGermany-Verbund (v2): gemeinsamer Kalender, App-Wechsel und Cloud-Sync für alle Apps.
+ * Alle Apps liegen auf sportgermany.github.io und teilen sich deshalb denselben localStorage.
+ * Kalender und App-Daten werden zusätzlich in einem privaten GitHub-Gist gespeichert und so
+ * zwischen mehreren Geräten abgeglichen. Diesen Block in jeder App identisch halten –
+ * er wird aus verbund.js erzeugt, nur das data-app-Attribut unterscheidet sich.
+ * API: window.SharedCalendar.{open, list, add, update, remove, onChange, sync}
  */
 (function () {
   "use strict";
   if (window.SharedCalendar) return;
+
+  /* ---------- Die Apps des Verbunds ----------
+   * keys: localStorage-Schlüssel, deren Inhalt der Cloud-Sync geräteübergreifend abgleicht.
+   * Lernplan und Trainingsblog haben einen eigenen GitHub-Sync und bleiben hier deshalb außen vor. */
+  var APPS = [
+    { id: "lernplan", name: "Lernplan", path: "Schulplaner", color: "#2b5fd9", info: "Schule, Stundenplan, Aufgaben", keys: [] },
+    { id: "training", name: "Trainingsblog", path: "trainingsblog", color: "#2f7d57", info: "Tägliches Bodyweight-Training", keys: [] },
+    { id: "rodeln", name: "Rodel-Mobility", path: "Rodeln", color: "#c0303f", info: "Mobility für Rennrodler", keys: ["rodelmobility.v1"] },
+    { id: "puls", name: "Pulsplan", path: "Pulsplan", color: "#b4532a", info: "Atmung und Puls", keys: ["pulsplan.v1"] },
+    { id: "denkpause", name: "Denkpause", path: "Ablenkung", color: "#8a6d1f", info: "Wissen statt Kurzvideos", keys: ["denkpause.v1"] },
+    { id: "maulwurf", name: "Maulwurf", path: "Splash", color: "#4b5b66", info: "Party-Ratespiel", keys: [] },
+    { id: "bibel", name: "Bibel", path: "Bibel", color: "#6b4a3a", info: "Zwei Minuten Bibel", keys: ["zweiminutenbibel_v2"] }
+  ];
   var KEY = "sg-shared-calendar-v1";
   var POS_KEY = "sg-shared-calendar-btn";
   var SYNC_KEY = "sg-shared-calendar-sync";
+  var META_KEY = "sg-verbund-sync-meta";
   var GIST_FILE = "kalender.json";
   var GIST_DESC = "Gemeinsamer Kalender (SportGermany-Apps)";
   var GH = "https://api.github.com";
   var script = document.currentScript;
-  var APP = (script && script.getAttribute("data-app")) || document.title || "App";
+  var APP_ID = (script && script.getAttribute("data-app")) || "";
+  var ME = APPS.find(function (a) { return a.id === APP_ID; }) || { id: APP_ID || "app", name: document.title || "App", color: "#2b5fd9", keys: [] };
+  var APP = ME.name;
   var MON = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
   var WD = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
-  var COLORS = ["#2f6fed", "#1aa179", "#e0892b", "#d64545", "#8e5bd6", "#c2418d", "#3a9fbf", "#7a8a2a"];
+  var COLORS = ["#2b5fd9", "#2f7d57", "#c0303f", "#b4532a", "#8a6d1f", "#6b4a3a", "#4b5b66", "#7a4fa0"];
+  var CNAMES = ["Blau", "Grün", "Rot", "Rost", "Ocker", "Braun", "Schiefer", "Violett"];
   var listeners = [];
   var chan = null;
   try { chan = new BroadcastChannel(KEY); } catch (e) {}
 
-  /* ---------- Speicher ---------- */
+  /* ---------- Kalender-Speicher ---------- */
   function load() {
     try {
       var d = JSON.parse(localStorage.getItem(KEY) || "null");
@@ -12948,6 +12968,7 @@ window.APP5 = {
 
   var api = {
     app: APP,
+    apps: APPS,
     list: function (from, to) {
       return live().filter(function (e) { return (!from || e.date >= from) && (!to || e.date <= to); });
     },
@@ -12974,16 +12995,41 @@ window.APP5 = {
       });
     },
     onChange: function (f) { listeners.push(f); return function () { listeners = listeners.filter(function (x) { return x !== f; }); }; },
-    open: function (date) { openPanel(date); },
+    open: function (date, tab) { openPanel(date, tab); },
     sync: function () { return syncNow(); }
   };
   window.SharedCalendar = api;
 
+  /* ---------- App-Daten für den Cloud-Sync ----------
+   * Pro App wird eine Datei app-<id>.json im Gist abgelegt: { changed, data: { schlüssel: inhalt } }.
+   * In meta merkt sich jedes Gerät, welchen Stand es zuletzt abgeglichen hat. Ist nur eine Seite
+   * neuer, wird sie übernommen; haben sich beide geändert, entscheidet die Person. */
+  function snapshot(app) {
+    var data = {};
+    app.keys.forEach(function (k) { var v = localStorage.getItem(k); if (v !== null) data[k] = v; });
+    return data;
+  }
+  function hash(obj) {
+    var s = JSON.stringify(obj), h = 5381;
+    for (var i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+    return s.length + ":" + h;
+  }
+  function meta() { try { return JSON.parse(localStorage.getItem(META_KEY) || "{}"); } catch (e) { return {}; } }
+  function setMeta(id, m) { var all = meta(); all[id] = m; try { localStorage.setItem(META_KEY, JSON.stringify(all)); } catch (e) {} }
+  var pending = {}; // id -> { remote } bei Konflikt oder wartender Übernahme in einer offenen App
+
+  function applyRemote(app, remote) {
+    app.keys.forEach(function (k) {
+      if (remote.data && Object.prototype.hasOwnProperty.call(remote.data, k)) localStorage.setItem(k, remote.data[k]);
+    });
+    setMeta(app.id, { hash: hash(snapshot(app)), remote: remote.changed });
+    delete pending[app.id];
+  }
+
   /* ---------- Cloud-Sync über einen privaten GitHub-Gist ----------
    * Der Zugangsschlüssel (Token) liegt im gemeinsamen Speicher, muss also pro Gerät
-   * nur einmal eingegeben werden und gilt dann für alle Apps. Ablauf bei jedem Abgleich:
-   * Gist lesen → mit den lokalen Terminen zusammenführen → nur bei Unterschied zurückschreiben. */
-  var sync = { busy: false, again: false, timer: null, error: "", last: 0 };
+   * nur einmal eingegeben werden und gilt dann für alle Apps. */
+  var sync = { busy: false, again: false, timer: null, error: "", last: 0, started: Date.now() };
   function cfg() { try { return JSON.parse(localStorage.getItem(SYNC_KEY) || "null") || {}; } catch (e) { return {}; } }
   function setCfg(c) { try { if (c) localStorage.setItem(SYNC_KEY, JSON.stringify(c)); else localStorage.removeItem(SYNC_KEY); } catch (e) {} }
   function gh(path, opt, token) {
@@ -13011,6 +13057,39 @@ window.APP5 = {
         .then(function (g) { return g.id; });
     });
   }
+  function readJSON(f) { try { return f && f.content ? JSON.parse(f.content) : null; } catch (e) { return null; } }
+
+  // Gleicht die Daten aller Verbund-Apps ab, nicht nur der gerade offenen –
+  // so landen auch Änderungen aus einer App, die lange nicht offen war, in der Cloud.
+  function syncApps(g, files) {
+    APPS.forEach(function (app) {
+      if (!app.keys.length) return;
+      var local = snapshot(app), h = hash(local), m = meta()[app.id] || {};
+      var remote = readJSON(g.files && g.files["app-" + app.id + ".json"]);
+      var localChanged = h !== m.hash && Object.keys(local).length > 0;
+      var remoteChanged = remote && remote.changed && remote.changed !== m.remote && hash(remote.data || {}) !== h;
+      if (remoteChanged && !localChanged) {
+        if (app.id === ME.id && Date.now() - sync.started > 5000) pending[app.id] = { remote: remote, kind: "update" };
+        else applyRemote(app, remote);
+        if (app.id === ME.id && !pending[app.id]) reloadSoon();
+      } else if (remoteChanged && localChanged) {
+        pending[app.id] = { remote: remote, kind: "conflict" };
+      } else if (localChanged || (!remote && Object.keys(local).length)) {
+        var out = { changed: Date.now(), device: deviceName(), data: local };
+        files["app-" + app.id + ".json"] = { content: JSON.stringify(out) };
+        setMeta(app.id, { hash: h, remote: out.changed });
+      } else if (remote && remote.changed !== m.remote) {
+        setMeta(app.id, { hash: h, remote: remote.changed });
+      }
+    });
+  }
+  var reloading = false;
+  function reloadSoon() { if (!reloading) { reloading = true; setTimeout(function () { location.reload(); }, 300); } }
+  function deviceName() {
+    var ua = navigator.userAgent;
+    return /Android/.test(ua) ? "Android" : /iPhone|iPad/.test(ua) ? "iPhone/iPad" : /Windows/.test(ua) ? "Windows-PC" : /Mac/.test(ua) ? "Mac" : "Gerät";
+  }
+
   function syncNow() {
     var c = cfg();
     if (!c.token) return Promise.resolve(false);
@@ -13022,17 +13101,16 @@ window.APP5 = {
     return idP.then(function (id) {
       if (id !== c.gist) { c = cfg(); c.gist = id; setCfg(c); }
       return gh("/gists/" + id, null, token).then(function (g) {
-        var f = g.files && g.files[GIST_FILE];
-        var remote = { events: [] };
-        try { if (f && f.content) remote = JSON.parse(f.content); } catch (e) {}
-        // Frisch lesen, damit Änderungen während der Anfrage nicht verloren gehen.
+        var files = {};
+        // Kalender: frisch lesen, damit Änderungen während der Anfrage nicht verloren gehen.
+        var remote = readJSON(g.files && g.files[GIST_FILE]) || { events: [] };
         var d = load();
         if (mergeInto(d, remote.events).changed) save(d, true);
         var local = content(load());
         var rd = { events: remote.events || [] }; purge(rd);
-        if (local !== content(rd)) {
-          return gh("/gists/" + id, { method: "PATCH", body: { files: { "kalender.json": { content: local } } } }, token);
-        }
+        if (local !== content(rd)) files[GIST_FILE] = { content: local };
+        syncApps(g, files);
+        if (Object.keys(files).length) return gh("/gists/" + id, { method: "PATCH", body: { files: files } }, token);
       });
     }).then(function () {
       sync.error = ""; sync.last = Date.now();
@@ -13056,7 +13134,8 @@ window.APP5 = {
   }
   // Regelmäßig nachsehen, ob ein anderes Gerät etwas geändert hat (nur solange die App sichtbar ist).
   setInterval(function () { if (!document.hidden) syncNow(); }, 30000);
-  document.addEventListener("visibilitychange", function () { if (!document.hidden) syncNow(); });
+  // Beim Verlassen der App die eigenen Änderungen sofort hochladen.
+  document.addEventListener("visibilitychange", function () { syncNow(); });
   window.addEventListener("online", function () { syncNow(); });
   setTimeout(syncNow, 800);
 
@@ -13066,6 +13145,8 @@ window.APP5 = {
   function parse(s) { var p = s.split("-"); return new Date(+p[0], +p[1] - 1, +p[2]); }
   function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   function appColor(name) {
+    var a = APPS.find(function (x) { return x.name === name; });
+    if (a) return a.color;
     var h = 0; for (var i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
     return COLORS[h % COLORS.length];
   }
@@ -13080,48 +13161,72 @@ window.APP5 = {
     a.download = name; document.body.appendChild(a); a.click();
     setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
   }
+  function appUrl(app) { return location.origin + "/" + app.path + "/"; }
+  // Hell oder dunkel? Richtet sich nach dem tatsächlichen Hintergrund der App, damit das Fenster passt.
+  function isDark() {
+    var c = getComputedStyle(document.body).backgroundColor.match(/\d+(\.\d+)?/g);
+    if (!c || (c.length > 3 && +c[3] === 0)) return matchMedia("(prefers-color-scheme: dark)").matches;
+    return (0.299 * c[0] + 0.587 * c[1] + 0.114 * c[2]) < 128;
+  }
+  var ICON = "<svg viewBox='0 0 24 24' width='22' height='22' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round'><rect x='3.5' y='5' width='17' height='15.5' rx='2.5'/><path d='M3.5 9.5h17M8 3v4M16 3v4'/><path d='M7.5 13.5h2M11 13.5h2M14.5 13.5h2M7.5 17h2M11 17h2'/></svg>";
 
   /* ---------- Oberfläche (Shadow DOM, damit sich die Styles der Apps nicht gegenseitig stören) ---------- */
-  var host, root, state = { month: null, sel: null, edit: null, filter: false };
+  var host, root, state = { month: null, sel: null, edit: null, filter: false, tab: "cal" };
   var CSS = [
     ":host{all:initial}",
-    "*{box-sizing:border-box;font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif}",
-    ".fab{position:fixed;z-index:2147483000;width:48px;height:48px;border-radius:50%;border:0;cursor:pointer;",
-    "background:#2f6fed;color:#fff;font-size:22px;box-shadow:0 4px 14px rgba(0,0,0,.3);touch-action:none;display:flex;align-items:center;justify-content:center}",
-    ".fab .dot{position:absolute;top:2px;right:2px;min-width:18px;height:18px;padding:0 4px;border-radius:9px;background:#d64545;font-size:11px;line-height:18px;font-weight:700}",
-    ".wrap{position:fixed;inset:0;z-index:2147483001;background:rgba(0,0,0,.45);display:flex;align-items:flex-end;justify-content:center}",
+    "*{box-sizing:border-box;font-family:'Segoe UI Variable Text','Segoe UI',Roboto,'Helvetica Neue',system-ui,sans-serif}",
+    ".v{--bg:#f3f1ec;--s1:#fff;--s2:#ebe8e1;--line:#dad5cb;--fg:#1d1c19;--mut:#67635b;--acc:" + ME.color + ";--accfg:#fff}",
+    ".v.dark{--bg:#1c1b19;--s1:#1c1b19;--s2:#2a2926;--line:#3a3833;--fg:#ebe9e4;--mut:#a29e95}",
+    ".fab{position:fixed;z-index:2147483000;width:46px;height:46px;border-radius:14px;cursor:pointer;touch-action:none;",
+    "background:var(--s1);color:var(--fg);border:1px solid var(--line);box-shadow:0 1px 2px rgba(0,0,0,.08),0 6px 18px rgba(0,0,0,.14);",
+    "display:flex;align-items:center;justify-content:center}",
+    ".fab .dot{position:absolute;top:-5px;right:-5px;min-width:19px;height:19px;padding:0 5px;border-radius:10px;background:var(--acc);color:var(--accfg);font-size:11px;line-height:19px;font-weight:700;text-align:center}",
+    ".wrap{position:fixed;inset:0;z-index:2147483001;background:rgba(20,18,15,.42);display:flex;align-items:flex-end;justify-content:center}",
     "@media(min-width:700px){.wrap{align-items:center}}",
-    ".panel{--bg:#fff;--fg:#16181d;--mut:#6b7280;--line:#e5e7eb;--soft:#f3f4f6;--acc:#2f6fed;",
-    "background:var(--bg);color:var(--fg);width:100%;max-width:520px;max-height:92vh;overflow:auto;border-radius:18px 18px 0 0;",
-    "padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px));font-size:15px;line-height:1.35}",
-    "@media(min-width:700px){.panel{border-radius:18px}}",
-    "@media(prefers-color-scheme:dark){.panel{--bg:#1b1d22;--fg:#eceef0;--mut:#9aa0a8;--line:#30333a;--soft:#262930}}",
+    ".panel{background:var(--bg);color:var(--fg);width:100%;max-width:540px;max-height:92vh;overflow:auto;border-radius:16px 16px 0 0;",
+    "padding:14px 16px calc(18px + env(safe-area-inset-bottom,0px));font-size:15px;line-height:1.4}",
+    "@media(min-width:700px){.panel{border-radius:16px}}",
+    ".top{display:flex;align-items:center;gap:8px;margin:0 0 12px}",
+    ".tabs{flex:1;display:flex;background:var(--s2);border-radius:10px;padding:3px;gap:2px}",
+    ".tabs button{flex:1;border:0;background:transparent;color:var(--mut);padding:7px 4px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer}",
+    ".tabs button.on{background:var(--s1);color:var(--fg);box-shadow:0 1px 2px rgba(0,0,0,.12)}",
     ".hd{display:flex;align-items:center;gap:8px;margin-bottom:10px}",
-    ".hd h2{flex:1;margin:0;font-size:18px}",
-    "button.b{border:1px solid var(--line);background:var(--soft);color:var(--fg);border-radius:10px;padding:7px 11px;font-size:14px;cursor:pointer}",
-    "button.p{background:var(--acc);border-color:var(--acc);color:#fff}",
-    "button.d{color:#d64545}",
-    ".grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}",
-    ".wd{text-align:center;font-size:12px;color:var(--mut);padding:2px 0}",
-    ".c{min-height:44px;border-radius:8px;padding:3px;cursor:pointer;background:var(--soft);border:2px solid transparent;display:flex;flex-direction:column;align-items:center}",
-    ".c.o{opacity:.35}.c.t .n{background:var(--acc);color:#fff;border-radius:50%}.c.s{border-color:var(--acc)}",
-    ".n{font-size:13px;width:22px;height:22px;line-height:22px;text-align:center}",
-    ".ds{display:flex;gap:2px;flex-wrap:wrap;justify-content:center;margin-top:2px}.ds i{width:6px;height:6px;border-radius:50%}",
-    ".sec{margin-top:14px}.sec h3{font-size:15px;margin:0 0 8px}",
-    ".ev{display:flex;gap:10px;align-items:flex-start;padding:9px 10px;border-radius:10px;background:var(--soft);margin-bottom:6px;cursor:pointer}",
-    ".bar{width:4px;align-self:stretch;border-radius:2px}",
-    ".ev .t{font-weight:600}.ev .m{font-size:12px;color:var(--mut)}",
-    ".empty{color:var(--mut);font-size:14px;padding:6px 0}",
-    "label{display:block;font-size:13px;color:var(--mut);margin:10px 0 4px}",
-    "input,textarea,select{width:100%;padding:9px 10px;border-radius:10px;border:1px solid var(--line);background:var(--soft);color:var(--fg);font-size:15px}",
+    ".hd h2{flex:1;margin:0;font-size:19px;font-weight:700;letter-spacing:-.01em}",
+    "button.b{border:1px solid var(--line);background:var(--s1);color:var(--fg);border-radius:9px;padding:7px 12px;font-size:14px;cursor:pointer}",
+    "button.p{background:var(--acc);border-color:var(--acc);color:var(--accfg);font-weight:600}",
+    "button.d{color:#c0303f}",
+    "button.x{border:0;background:transparent;color:var(--mut);font-size:20px;width:34px;height:34px;cursor:pointer}",
+    ".grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}",
+    ".wd{text-align:center;font-size:12px;color:var(--mut);padding:2px 0 4px}",
+    ".c{min-height:46px;border-radius:8px;padding:4px 2px;cursor:pointer;display:flex;flex-direction:column;align-items:center;border:1px solid transparent}",
+    ".c:hover{background:var(--s2)}.c.o{opacity:.35}.c.t .n{background:var(--fg);color:var(--bg)}.c.s{border-color:var(--acc);background:var(--s1)}",
+    ".n{font-size:14px;width:26px;height:26px;line-height:26px;text-align:center;border-radius:50%;font-variant-numeric:tabular-nums}",
+    ".ds{display:flex;gap:2px;flex-wrap:wrap;justify-content:center;margin-top:2px}.ds i{width:5px;height:5px;border-radius:50%}",
+    ".sec{margin-top:16px}.sec h3{font-size:13px;margin:0 0 8px;text-transform:uppercase;letter-spacing:.05em;color:var(--mut);font-weight:600}",
+    ".ev{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:10px;background:var(--s1);border:1px solid var(--line);margin-bottom:6px;cursor:pointer}",
+    ".bar{width:3px;align-self:stretch;border-radius:2px}",
+    ".ev .t{font-weight:600}.m{font-size:13px;color:var(--mut)}",
+    ".empty{color:var(--mut);font-size:14px;padding:4px 0}",
+    "label{display:block;font-size:13px;color:var(--mut);margin:12px 0 4px}",
+    "input,textarea,select{width:100%;padding:10px 11px;border-radius:9px;border:1px solid var(--line);background:var(--s1);color:var(--fg);font-size:16px}",
     "textarea{min-height:70px;resize:vertical}",
     ".row{display:flex;gap:8px}.row>*{flex:1}",
-    ".act{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}.act .sp{flex:1}",
-    ".tools{display:flex;gap:6px;flex-wrap:wrap;margin-top:16px;padding-top:12px;border-top:1px solid var(--line)}",
-    ".cl{font-size:13px;color:var(--mut);margin:10px 0 0;cursor:pointer}.cl.ok{color:#1aa179}.cl.err{color:#d64545}",
-    ".txt{font-size:14px;margin:8px 0}.txt a{color:var(--acc)}ol.txt{padding-left:20px}ol.txt li{margin:4px 0}code{background:var(--soft);padding:1px 4px;border-radius:4px}",
+    ".act{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}.act .sp{flex:1}",
+    ".tools{display:flex;gap:6px;flex-wrap:wrap;margin-top:18px;padding-top:12px;border-top:1px solid var(--line)}",
+    ".tools button.b{font-size:13px;padding:6px 10px}",
+    ".chk{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--mut);margin:8px 0 0}.chk input{width:auto}",
+    ".cl{font-size:13px;color:var(--mut);margin:10px 0 0;cursor:pointer}.cl.ok{color:#2f7d57}.cl.err{color:#c0303f}",
+    ".v.dark .cl.ok{color:#6cc79a}.v.dark .cl.err,.v.dark button.d{color:#f0727c}",
+    ".txt{font-size:14px;margin:8px 0}.txt a{color:var(--acc)}ol.txt{padding-left:20px}ol.txt li{margin:5px 0}code{background:var(--s2);padding:1px 4px;border-radius:4px}",
     "button.b[disabled]{opacity:.5}",
-    ".chk{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--mut);margin:8px 0 0}.chk input{width:auto}"
+    ".apps{display:grid;grid-template-columns:1fr 1fr;gap:8px}",
+    ".app{display:flex;gap:10px;align-items:center;padding:11px;border-radius:12px;background:var(--s1);border:1px solid var(--line);color:var(--fg);text-decoration:none}",
+    ".app.me{border-color:var(--fg)}",
+    ".mono{flex:none;width:36px;height:36px;border-radius:10px;color:#fff;font-weight:700;font-size:16px;display:flex;align-items:center;justify-content:center}",
+    ".app b{display:block;font-size:14px}.app span{display:block;font-size:12px;color:var(--mut);line-height:1.3}",
+    ".toast{position:fixed;left:12px;right:12px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:2147483002;max-width:520px;margin:0 auto;",
+    "background:var(--fg);color:var(--bg);border-radius:12px;padding:12px 14px;font-size:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;box-shadow:0 8px 24px rgba(0,0,0,.25)}",
+    ".toast span{flex:1;min-width:180px}.toast button{border:0;border-radius:8px;padding:7px 10px;font-size:13px;font-weight:600;cursor:pointer;background:var(--bg);color:var(--fg)}"
   ].join("");
 
   function mount() {
@@ -13130,11 +13235,13 @@ window.APP5 = {
     host.id = "sg-shared-calendar";
     root = host.attachShadow({ mode: "open" });
     var st = document.createElement("style"); st.textContent = CSS; root.appendChild(st);
+    var v = document.createElement("div"); v.className = "v"; root.appendChild(v);
     var fab = document.createElement("button");
-    fab.className = "fab"; fab.title = "Gemeinsamer Kalender"; fab.setAttribute("aria-label", "Gemeinsamer Kalender");
-    fab.innerHTML = "📅<span class='dot' hidden></span>";
-    root.appendChild(fab);
-    var box = document.createElement("div"); box.className = "box"; root.appendChild(box);
+    fab.className = "fab"; fab.title = "Kalender & Apps"; fab.setAttribute("aria-label", "Kalender und Apps");
+    fab.innerHTML = ICON + "<span class='dot' hidden></span>";
+    v.appendChild(fab);
+    var box = document.createElement("div"); box.className = "box"; v.appendChild(box);
+    var toast = document.createElement("div"); toast.className = "tbox"; v.appendChild(toast);
     document.body.appendChild(host);
     placeFab(fab);
     dragFab(fab);
@@ -13144,9 +13251,9 @@ window.APP5 = {
   function placeFab(fab) {
     var p = null;
     try { p = JSON.parse(localStorage.getItem(POS_KEY + ":" + APP) || "null"); } catch (e) {}
-    var x = p ? p.x : window.innerWidth - 60, y = p ? p.y : window.innerHeight - 140;
-    fab.style.left = Math.max(4, Math.min(window.innerWidth - 52, x)) + "px";
-    fab.style.top = Math.max(4, Math.min(window.innerHeight - 52, y)) + "px";
+    var x = p ? p.x : window.innerWidth - 58, y = p ? p.y : window.innerHeight - 230;
+    fab.style.left = Math.max(4, Math.min(window.innerWidth - 50, x)) + "px";
+    fab.style.top = Math.max(4, Math.min(window.innerHeight - 50, y)) + "px";
   }
   // Der Knopf lässt sich verschieben, falls er in einer App etwas verdeckt (Position wird pro App gemerkt).
   function dragFab(fab) {
@@ -13160,52 +13267,77 @@ window.APP5 = {
       var dx = e.clientX - sx, dy = e.clientY - sy;
       if (!moved && Math.abs(dx) + Math.abs(dy) < 8) return;
       moved = true;
-      fab.style.left = Math.max(4, Math.min(window.innerWidth - 52, ox + dx)) + "px";
-      fab.style.top = Math.max(4, Math.min(window.innerHeight - 52, oy + dy)) + "px";
+      fab.style.left = Math.max(4, Math.min(window.innerWidth - 50, ox + dx)) + "px";
+      fab.style.top = Math.max(4, Math.min(window.innerHeight - 50, oy + dy)) + "px";
     });
     fab.addEventListener("pointerup", function () {
       if (!down) return; down = false;
-      if (moved) {
-        try { localStorage.setItem(POS_KEY + ":" + APP, JSON.stringify({ x: fab.offsetLeft, y: fab.offsetTop })); } catch (e) {}
-      } else openPanel();
+      if (moved) try { localStorage.setItem(POS_KEY + ":" + APP, JSON.stringify({ x: fab.offsetLeft, y: fab.offsetTop })); } catch (e) {}
     });
-    fab.addEventListener("click", function (e) { if (e.detail === 0) openPanel(); }); // Tastatur
+    fab.addEventListener("pointercancel", function () { down = false; });
+    // Erst beim Klick öffnen: so landet der Tipp nicht zusätzlich auf dem Fenster, das sich gerade öffnet.
+    fab.addEventListener("click", function () { if (moved) { moved = false; return; } openPanel(); });
     window.addEventListener("resize", function () { placeFab(fab); });
   }
 
-  function openPanel(date) {
+  function openPanel(date, tab) {
     mount();
     var d = date ? parse(date) : new Date();
-    state.sel = iso(d); state.month = new Date(d.getFullYear(), d.getMonth(), 1); state.edit = null; state.cloud = false; state.open = true;
+    state.sel = iso(d); state.month = new Date(d.getFullYear(), d.getMonth(), 1);
+    state.edit = null; state.tab = tab || "cal"; state.open = true;
     render();
   }
-  function close() { state.open = false; state.edit = null; state.cloud = false; render(); }
+  function close() { state.open = false; state.edit = null; render(); }
 
   function render(bg) {
     if (!root) return;
+    root.querySelector(".v").classList.toggle("dark", isDark());
     var all = live();
     var today = iso(new Date());
     var dot = root.querySelector(".fab .dot");
     var n = all.filter(function (e) { return e.date === today; }).length;
     dot.hidden = !n; dot.textContent = n;
+    renderToast();
     var box = root.querySelector(".box");
     if (!state.open) { box.innerHTML = ""; return; }
     // Hintergrund-Updates (andere App, anderes Gerät) dürfen kein gerade ausgefülltes Formular überschreiben.
-    if (bg && (state.edit || (state.cloud && !cfg().token))) return;
+    if (bg && (state.edit || (state.tab === "sync" && !cfg().token))) return;
     var evs = state.filter ? all.filter(function (e) { return e.app === APP; }) : all;
-    var h = "<div class='wrap'><div class='panel' role='dialog' aria-label='Gemeinsamer Kalender'>";
-    h += state.cloud ? cloudView() : state.edit ? form(state.edit) : month(evs, today);
+    var h = "<div class='wrap'><div class='panel' role='dialog' aria-label='Kalender und Apps'>";
+    if (state.edit) h += form(state.edit);
+    else {
+      h += "<div class='top'><div class='tabs' role='tablist'>" +
+        [["cal", "Kalender"], ["apps", "Apps"], ["sync", "Sync"]].map(function (t) {
+          return "<button role='tab' data-tab='" + t[0] + "' class='" + (state.tab === t[0] ? "on" : "") + "'>" + t[1] + "</button>";
+        }).join("") + "</div><button class='x' data-a='close' aria-label='Schließen'>✕</button></div>";
+      h += state.tab === "apps" ? appsView() : state.tab === "sync" ? cloudView() : month(evs, today);
+    }
     h += "</div></div>";
     box.innerHTML = h;
     bind(box);
+  }
+
+  function renderToast() {
+    var tb = root.querySelector(".tbox"), p = pending[ME.id];
+    if (!p) { tb.innerHTML = ""; return; }
+    var who = p.remote.device ? " (" + esc(p.remote.device) + ")" : "";
+    tb.innerHTML = p.kind === "conflict"
+      ? "<div class='toast'><span>Deine Daten in " + esc(APP) + " wurden hier und auf einem anderen Gerät" + who + " geändert. Welche Fassung soll gelten?</span><button data-t='mine'>Diese hier</button><button data-t='theirs'>Die andere</button></div>"
+      : "<div class='toast'><span>Neue Daten von einem anderen Gerät" + who + ".</span><button data-t='theirs'>Jetzt laden</button></div>";
+    tb.querySelectorAll("[data-t]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        if (b.dataset.t === "theirs") { applyRemote(ME, p.remote); location.reload(); }
+        else { setMeta(ME.id, { hash: "", remote: p.remote.changed }); delete pending[ME.id]; renderToast(); syncNow(); }
+      });
+    });
   }
 
   function month(evs, today) {
     var m = state.month, y = m.getFullYear(), mo = m.getMonth();
     var byDay = {};
     evs.forEach(function (e) { (byDay[e.date] = byDay[e.date] || []).push(e); });
-    var h = "<div class='hd'><button class='b' data-a='prev' aria-label='Voriger Monat'>‹</button><h2>" + MON[mo] + " " + y +
-      "</h2><button class='b' data-a='next' aria-label='Nächster Monat'>›</button><button class='b' data-a='today'>Heute</button><button class='b' data-a='close' aria-label='Schließen'>✕</button></div>";
+    var h = "<div class='hd'><h2>" + MON[mo] + " " + y + "</h2><button class='b' data-a='prev' aria-label='Voriger Monat'>‹</button>" +
+      "<button class='b' data-a='today'>Heute</button><button class='b' data-a='next' aria-label='Nächster Monat'>›</button></div>";
     h += "<div class='grid'>" + WD.map(function (w) { return "<div class='wd'>" + w + "</div>"; }).join("");
     var start = new Date(y, mo, 1 - ((m.getDay() + 6) % 7));
     for (var i = 0; i < 42; i++) {
@@ -13216,15 +13348,14 @@ window.APP5 = {
       h += "<div class='" + cls + "' data-day='" + k + "'><span class='n'>" + d.getDate() + "</span><span class='ds'>" + dots + "</span></div>";
     }
     h += "</div>";
-    h += cloudLine();
-    h += "<label class='chk'><input type='checkbox' data-a='filter'" + (state.filter ? " checked" : "") + "> Nur Termine aus „" + esc(APP) + "“ zeigen</label>";
+    h += "<label class='chk'><input type='checkbox' data-a='filter'" + (state.filter ? " checked" : "") + "> Nur Termine aus „" + esc(APP) + "“</label>";
     var list = byDay[state.sel] || [];
     h += "<div class='sec'><div class='hd'><h3 style='flex:1;margin:0'>" + longDate(state.sel) + "</h3><button class='b p' data-a='new'>+ Termin</button></div>";
-    h += list.length ? list.map(item).join("") : "<div class='empty'>Keine Termine an diesem Tag.</div>";
+    h += list.length ? list.map(function (e) { return item(e); }).join("") : "<div class='empty'>Keine Termine an diesem Tag.</div>";
     h += "</div>";
     var upcoming = evs.filter(function (e) { return e.date > state.sel; }).slice(0, 5);
     if (upcoming.length) h += "<div class='sec'><h3>Danach</h3>" + upcoming.map(function (e) { return item(e, true); }).join("") + "</div>";
-    h += "<div class='tools'><button class='b' data-a='export'>Sichern</button><button class='b' data-a='import'>Importieren</button><button class='b' data-a='ics'>Als .ics exportieren</button><button class='b' data-a='cloud'>☁ Cloud-Sync</button></div>";
+    h += "<div class='tools'><button class='b' data-a='export'>Sichern</button><button class='b' data-a='import'>Importieren</button><button class='b' data-a='ics'>.ics-Export</button></div>";
     return h;
   }
 
@@ -13237,6 +13368,17 @@ window.APP5 = {
       "</div><div class='m'>" + esc(meta.join(" · ")) + "</div>" + (e.note ? "<div class='m'>" + esc(e.note) + "</div>" : "") + "</div></div>";
   }
 
+  function appsView() {
+    var h = "<div class='apps'>" + APPS.map(function (a) {
+      var me = a.id === ME.id;
+      return "<a class='app" + (me ? " me" : "") + "' href='" + (me ? "#" : esc(appUrl(a))) + "'" + (me ? " data-a='close'" : "") + ">" +
+        "<span class='mono' style='background:" + a.color + "'>" + esc(a.name.charAt(0)) + "</span><span><b>" + esc(a.name) + "</b><span>" +
+        (me ? "Du bist hier" : esc(a.info)) + "</span></span></a>";
+    }).join("") + "</div>";
+    h += "<p class='txt m'>Alle Apps teilen sich Kalender und Cloud-Sync. Jede lässt sich weiterhin einzeln installieren.</p>";
+    return h;
+  }
+
   function ago(t) {
     if (!t) return "noch nie";
     var m = Math.round((Date.now() - t) / 60000);
@@ -13244,27 +13386,30 @@ window.APP5 = {
   }
   function cloudLine() {
     var c = cfg();
-    if (!c.token) return "<div class='cl' data-a='cloud'>☁ Nur auf diesem Gerät · <u>Cloud-Sync einrichten</u></div>";
-    if (sync.busy) return "<div class='cl' data-a='cloud'>☁ Synchronisiere …</div>";
-    if (sync.error) return "<div class='cl err' data-a='cloud'>☁ " + esc(sync.error) + "</div>";
-    return "<div class='cl ok' data-a='cloud'>☁ Mit GitHub synchronisiert · " + ago(sync.last || c.last) + "</div>";
+    if (!c.token) return "<div class='cl' data-tab='sync'>Nur auf diesem Gerät gespeichert · <u>Sync einrichten</u></div>";
+    if (sync.busy) return "<div class='cl'>Synchronisiere …</div>";
+    if (sync.error) return "<div class='cl err'>" + esc(sync.error) + "</div>";
+    return "<div class='cl ok'>Synchronisiert · " + ago(sync.last || c.last) + "</div>";
   }
   function cloudView() {
     var c = cfg();
-    var h = "<div class='hd'><h2>☁ Cloud-Sync</h2><button class='b' data-a='back' aria-label='Zurück'>✕</button></div>";
+    var h = "";
     if (!c.token) {
-      h += "<p class='txt'>Damit der Kalender auf allen Handys, Tablets und Computern gleich ist, wird er in einem <b>privaten Gist</b> in deinem GitHub-Konto gespeichert. Das musst du <b>pro Gerät einmal</b> machen – danach gilt es für alle Apps auf diesem Gerät.</p>";
-      h += "<ol class='txt'><li><a href='https://github.com/settings/tokens/new?scopes=gist&amp;description=Gemeinsamer%20Kalender' target='_blank' rel='noopener'>Diesen Link öffnen</a> (bei GitHub anmelden).</li>" +
+      h += "<p class='txt'>Mit dem Sync sind <b>Kalender</b> und die Daten von <b>" + APPS.filter(function (a) { return a.keys.length; }).map(function (a) { return esc(a.name); }).join(", ") +
+        "</b> auf all deinen Geräten gleich. Gespeichert wird in einem <b>privaten Gist</b> in deinem GitHub-Konto. Einrichten musst du das <b>einmal pro Gerät</b> – danach gilt es für alle Apps.</p>";
+      h += "<ol class='txt'><li><a href='https://github.com/settings/tokens/new?scopes=gist&amp;description=SportGermany-Apps' target='_blank' rel='noopener'>Diesen Link öffnen</a> und bei GitHub anmelden.</li>" +
         "<li>Bei <b>Expiration</b> „No expiration“ wählen. Das Häkchen bei <b>gist</b> ist schon gesetzt – sonst nichts anhaken.</li>" +
-        "<li>Unten auf <b>Generate token</b> tippen und den Code (beginnt mit <code>ghp_</code>) kopieren.</li>" +
+        "<li>Unten <b>Generate token</b> tippen und den Code (beginnt mit <code>ghp_</code>) kopieren.</li>" +
         "<li>Hier einfügen und verbinden. Auf weiteren Geräten denselben Code verwenden.</li></ol>";
       h += "<label>Token</label><input name='token' type='password' autocomplete='off' placeholder='ghp_…'>";
       if (sync.error) h += "<div class='cl err'>" + esc(sync.error) + "</div>";
-      h += "<div class='act'><span class='sp'></span><button class='b' data-a='back'>Abbrechen</button><button class='b p' data-a='connect'" + (sync.busy ? " disabled" : "") + ">" + (sync.busy ? "Verbinde …" : "Verbinden") + "</button></div>";
+      h += "<div class='act'><span class='sp'></span><button class='b p' data-a='connect'" + (sync.busy ? " disabled" : "") + ">" + (sync.busy ? "Verbinde …" : "Verbinden") + "</button></div>";
     } else {
-      h += "<p class='txt'>Verbunden als <b>" + esc(c.user || "?") + "</b>. Änderungen werden sofort hochgeladen; Änderungen von anderen Geräten kommen spätestens nach 30 Sekunden an.</p>";
+      h += "<p class='txt'>Verbunden als <b>" + esc(c.user || "?") + "</b>. Änderungen werden sofort hochgeladen; was du auf anderen Geräten änderst, kommt spätestens nach 30 Sekunden an.</p>";
       h += cloudLine();
-      if (c.gist) h += "<p class='txt'><a href='https://gist.github.com/" + esc(c.gist) + "' target='_blank' rel='noopener'>Gist auf GitHub ansehen</a></p>";
+      h += "<p class='txt m'>Abgeglichen werden: Kalender, " + APPS.filter(function (a) { return a.keys.length; }).map(function (a) { return esc(a.name); }).join(", ") +
+        ". Lernplan und Trainingsblog nutzen weiter ihren eigenen Sync in den jeweiligen Einstellungen.</p>";
+      if (c.gist) h += "<p class='txt'><a href='https://gist.github.com/" + esc(c.gist) + "' target='_blank' rel='noopener'>Gespeicherte Daten auf GitHub ansehen</a></p>";
       h += "<div class='act'><button class='b d' data-a='disconnect'>Trennen</button><span class='sp'></span><button class='b p' data-a='syncnow'>Jetzt synchronisieren</button></div>";
     }
     return h;
@@ -13286,15 +13431,15 @@ window.APP5 = {
 
   function form(e) {
     var isNew = !e.id;
-    var h = "<div class='hd'><h2>" + (isNew ? "Neuer Termin" : "Termin bearbeiten") + "</h2><button class='b' data-a='back' aria-label='Zurück'>✕</button></div>";
+    var h = "<div class='hd'><h2>" + (isNew ? "Neuer Termin" : "Termin bearbeiten") + "</h2><button class='x' data-a='back' aria-label='Zurück'>✕</button></div>";
     h += "<label>Titel</label><input name='title' maxlength='120' value='" + esc(e.title || "") + "' placeholder='z. B. Training, Klassenarbeit …'>";
     h += "<label>Datum</label><input type='date' name='date' value='" + esc(e.date) + "'>";
     h += "<div class='row'><div><label>Von (optional)</label><input type='time' name='time' value='" + esc(e.time || "") + "'></div>" +
       "<div><label>Bis (optional)</label><input type='time' name='end' value='" + esc(e.end || "") + "'></div></div>";
     h += "<label>Notiz</label><textarea name='note' maxlength='1000'>" + esc(e.note || "") + "</textarea>";
     h += "<label>Farbe</label><select name='color'><option value=''>Farbe der App</option>" +
-      COLORS.map(function (c, i) { return "<option value='" + c + "'" + (e.color === c ? " selected" : "") + ">" + ["Blau", "Grün", "Orange", "Rot", "Lila", "Pink", "Türkis", "Oliv"][i] + "</option>"; }).join("") + "</select>";
-    if (!isNew) h += "<div class='m' style='margin-top:10px;font-size:12px;color:var(--mut)'>Angelegt in „" + esc(e.app) + "“</div>";
+      COLORS.map(function (c, i) { return "<option value='" + c + "'" + (e.color === c ? " selected" : "") + ">" + CNAMES[i] + "</option>"; }).join("") + "</select>";
+    if (!isNew) h += "<div class='m' style='margin-top:10px'>Angelegt in „" + esc(e.app) + "“</div>";
     h += "<div class='act'>" + (isNew ? "" : "<button class='b d' data-a='del'>Löschen</button>") + "<span class='sp'></span><button class='b' data-a='back'>Abbrechen</button><button class='b p' data-a='save'>Speichern</button></div>";
     return h;
   }
@@ -13302,20 +13447,22 @@ window.APP5 = {
   function bind(box) {
     box.querySelector(".wrap").addEventListener("click", function (ev) {
       if (ev.target.classList.contains("wrap")) { close(); return; }
-      var t = ev.target.closest("[data-a],[data-day],[data-id]");
+      var t = ev.target.closest("[data-a],[data-day],[data-id],[data-tab]");
       if (!t) return;
+      if (t.dataset.tab) { state.tab = t.dataset.tab; render(); return; }
       if (t.dataset.day) { state.sel = t.dataset.day; render(); return; }
       if (t.dataset.id && !t.dataset.a) {
         var e = live().find(function (x) { return x.id === t.dataset.id; });
         if (e) { state.edit = Object.assign({}, e); render(); }
         return;
       }
+      if (t.dataset.a === "close" && t.tagName === "A") ev.preventDefault();
       act(t.dataset.a, box);
     });
     var f = box.querySelector("[data-a=filter]");
     if (f) f.addEventListener("change", function () { state.filter = f.checked; render(); });
     var ti = box.querySelector("input[name=title]");
-    if (ti && !state.edit.id) ti.focus();
+    if (ti && state.edit && !state.edit.id) ti.focus();
   }
 
   function act(a, box) {
@@ -13324,15 +13471,14 @@ window.APP5 = {
     else if (a === "next") state.month = new Date(m.getFullYear(), m.getMonth() + 1, 1);
     else if (a === "today") { var t = new Date(); state.sel = iso(t); state.month = new Date(t.getFullYear(), t.getMonth(), 1); }
     else if (a === "close") return close();
-    else if (a === "cloud") { state.cloud = true; state.edit = null; }
     else if (a === "connect") return connect(box.querySelector("[name=token]").value);
     else if (a === "syncnow") return syncNow();
     else if (a === "disconnect") {
-      if (!confirm("Cloud-Sync auf diesem Gerät beenden? Die Termine bleiben hier und im Gist erhalten.")) return;
+      if (!confirm("Sync auf diesem Gerät beenden? Alle Daten bleiben hier und auf GitHub erhalten.")) return;
       setCfg(null); sync.error = ""; sync.last = 0;
     }
     else if (a === "new") state.edit = { date: state.sel, app: APP };
-    else if (a === "back") { if (state.cloud) state.cloud = false; else state.edit = null; }
+    else if (a === "back") state.edit = null;
     else if (a === "save") {
       var v = {};
       ["title", "date", "time", "end", "note", "color"].forEach(function (k) { v[k] = box.querySelector("[name=" + k + "]").value.trim(); });
