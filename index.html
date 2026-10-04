@@ -12889,15 +12889,18 @@ window.APP5 = {
    * keys: localStorage-Schlüssel, deren Inhalt der Cloud-Sync geräteübergreifend abgleicht.
    * Lernplan und Trainingsblog haben einen eigenen GitHub-Sync und bleiben hier deshalb außen vor. */
   var APPS = [
+    { id: "kalender", name: "Kalender", path: "Kalender", color: "#2d4a6b", info: "Großer Kalender, Aufgaben, Briefing", keys: [] },
     { id: "lernplan", name: "Lernplan", path: "Schulplaner", color: "#2b5fd9", info: "Schule, Stundenplan, Aufgaben", keys: [] },
     { id: "training", name: "Trainingsblog", path: "trainingsblog", color: "#2f7d57", info: "Tägliches Bodyweight-Training", keys: [] },
     { id: "rodeln", name: "Rodel-Mobility", path: "Rodeln", color: "#c0303f", info: "Mobility für Rennrodler", keys: ["rodelmobility.v1"] },
     { id: "puls", name: "Pulsplan", path: "Pulsplan", color: "#b4532a", info: "Atmung und Puls", keys: ["pulsplan.v1"] },
     { id: "denkpause", name: "Denkpause", path: "Ablenkung", color: "#8a6d1f", info: "Wissen statt Kurzvideos", keys: ["denkpause.v1"] },
+    { id: "focus", name: "Focus", path: "Focus", color: "#3d6b73", info: "Training und Fokus", keys: [] },
     { id: "maulwurf", name: "Maulwurf", path: "Splash", color: "#4b5b66", info: "Party-Ratespiel", keys: [] },
     { id: "bibel", name: "Bibel", path: "Bibel", color: "#6b4a3a", info: "Zwei Minuten Bibel", keys: ["zweiminutenbibel_v2"] }
   ];
   var KEY = "sg-shared-calendar-v1";
+  var TKEY = "sg-shared-tasks-v1";
   var POS_KEY = "sg-shared-calendar-btn";
   var SYNC_KEY = "sg-shared-calendar-sync";
   var META_KEY = "sg-verbund-sync-meta";
@@ -12916,19 +12919,25 @@ window.APP5 = {
   var chan = null;
   try { chan = new BroadcastChannel(KEY); } catch (e) {}
 
-  /* ---------- Kalender-Speicher ---------- */
-  function load() {
+  /* ---------- Gemeinsame Speicher: Termine (cal) und Aufgaben (todo) ----------
+   * Beide liegen als { v, events: [...] } im localStorage und als eigene Datei im Gist.
+   * Jeder Eintrag trägt "changed"; beim Zusammenführen gewinnt die neuere Fassung. */
+  var COLS = {
+    cal: { key: KEY, file: "kalender.json", ok: function (e) { return /^\d{4}-\d{2}-\d{2}$/.test(e.date); } },
+    todo: { key: TKEY, file: "aufgaben.json", ok: function (e) { return typeof e.title === "string"; } }
+  };
+  function load(c) {
     try {
-      var d = JSON.parse(localStorage.getItem(KEY) || "null");
+      var d = JSON.parse(localStorage.getItem(COLS[c || "cal"].key) || "null");
       if (d && Array.isArray(d.events)) return d;
     } catch (e) {}
     return { v: 1, events: [] };
   }
-  function save(d, fromCloud) {
+  function save(d, fromCloud, c) {
     d.updated = Date.now();
     purge(d);
-    try { localStorage.setItem(KEY, JSON.stringify(d)); }
-    catch (e) { alert("Kalender konnte nicht gespeichert werden (Speicher voll?)."); return; }
+    try { localStorage.setItem(COLS[c || "cal"].key, JSON.stringify(d)); }
+    catch (e) { alert("Konnte nicht gespeichert werden (Speicher voll?)."); return; }
     if (chan) try { chan.postMessage("changed"); } catch (e) {}
     emit();
     if (!fromCloud) schedulePush();
@@ -12938,31 +12947,61 @@ window.APP5 = {
     var limit = Date.now() - 365 * 864e5;
     d.events = d.events.filter(function (e) { return !(e.deleted && (e.changed || 0) < limit); });
   }
-  // Führt Termine zusammen: pro Termin gewinnt die zuletzt geänderte Fassung (auch Löschungen).
-  function mergeInto(d, events) {
-    var added = 0, changed = false;
+  // Führt Einträge zusammen: pro Eintrag gewinnt die zuletzt geänderte Fassung (auch Löschungen).
+  function mergeInto(d, events, c) {
+    var added = 0, changed = false, ok = COLS[c || "cal"].ok;
     (events || []).forEach(function (e) {
-      if (!e || !e.id || !/^\d{4}-\d{2}-\d{2}$/.test(e.date)) return;
+      if (!e || !e.id || !ok(e)) return;
       var i = d.events.findIndex(function (x) { return x.id === e.id; });
       if (i < 0) { d.events.push(e); added++; changed = true; }
       else if ((e.changed || 0) > (d.events[i].changed || 0)) { d.events[i] = e; changed = true; }
     });
     return { added: added, changed: changed };
   }
-  // Jede Änderung liest zuerst den aktuellen Stand, damit keine App die Termine einer anderen überschreibt.
-  function mutate(fn) { var d = load(); var r = fn(d); save(d); return r; }
+  // Jede Änderung liest zuerst den aktuellen Stand, damit keine App die Einträge einer anderen überschreibt.
+  function mutate(fn, c) { var d = load(c); var r = fn(d); save(d, false, c); return r; }
   function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
-  function live() {
-    return load().events.filter(function (e) { return !e.deleted; }).sort(function (a, b) {
-      return (a.date + (a.time || "")).localeCompare(b.date + (b.time || ""));
+  function live(c) {
+    var list = load(c).events.filter(function (e) { return !e.deleted; });
+    if (c === "todo") return list.sort(function (a, b) {
+      return (a.done ? 1 : 0) - (b.done ? 1 : 0) || (a.due || "9999").localeCompare(b.due || "9999") || (b.prio || 0) - (a.prio || 0) || (a.created || 0) - (b.created || 0);
     });
+    return list.sort(function (a, b) { return (a.date + (a.time || "")).localeCompare(b.date + (b.time || "")); });
+  }
+  // Wiederholungen ausrollen: rep = { f: "d" | "w" | "2w" | "m" | "y", until }, ex = ausgelassene Tage.
+  function occurrences(from, to) {
+    var out = [];
+    live().forEach(function (e) {
+      var f = e.rep && e.rep.f;
+      if (!f) { if (e.date >= from && e.date <= to) out.push(e); return; }
+      var until = e.rep.until && e.rep.until < to ? e.rep.until : to, ex = e.ex || [];
+      var s0 = parse(e.date), step = { d: 1, w: 7, "2w": 14 }[f];
+      function push(d) {
+        var k = iso(d);
+        if (k >= from && k <= until && k >= e.date && ex.indexOf(k) < 0) out.push(Object.assign({}, e, { date: k, sid: e.id, start: e.date }));
+      }
+      if (step) {
+        var skip = Math.max(0, Math.floor((parse(from) - s0) / 864e5 / step) - 1);
+        for (var i = skip; i < skip + 800; i++) {
+          var d = new Date(s0.getFullYear(), s0.getMonth(), s0.getDate() + i * step);
+          if (iso(d) > until) break; push(d);
+        }
+      } else {
+        for (var j = 0; j < 1200; j++) {
+          var dm = f === "m" ? new Date(s0.getFullYear(), s0.getMonth() + j, s0.getDate()) : new Date(s0.getFullYear() + j, s0.getMonth(), s0.getDate());
+          if (iso(dm) > until) break;
+          if (dm.getDate() === s0.getDate()) push(dm); // 31. gibt es nicht in jedem Monat: dann auslassen
+        }
+      }
+    });
+    return out.sort(function (a, b) { return (a.date + (a.time || "")).localeCompare(b.date + (b.time || "")); });
   }
   function emit() {
     var ev = live();
     listeners.forEach(function (f) { try { f(ev); } catch (e) {} });
     if (root) render(true);
   }
-  window.addEventListener("storage", function (e) { if (e.key === KEY || e.key === null) emit(); });
+  window.addEventListener("storage", function (e) { if (e.key === KEY || e.key === TKEY || e.key === null) emit(); });
   if (chan) chan.onmessage = emit;
   document.addEventListener("visibilitychange", function () { if (!document.hidden) emit(); });
 
@@ -12995,6 +13034,41 @@ window.APP5 = {
       });
     },
     onChange: function (f) { listeners.push(f); return function () { listeners = listeners.filter(function (x) { return x !== f; }); }; },
+    occurrences: occurrences,
+    // Einen einzelnen Termin einer Serie auslassen
+    skip: function (id, date) {
+      return mutate(function (d) {
+        var e = d.events.find(function (x) { return x.id === id; });
+        if (e) { e.ex = (e.ex || []).concat([date]); e.changed = Date.now(); }
+      });
+    },
+    tasks: {
+      list: function () { return live("todo"); },
+      add: function (t) {
+        return mutate(function (d) {
+          var n = { id: uid(), title: String(t.title || "Aufgabe"), due: t.due || "", done: false, prio: t.prio ? 1 : 0,
+            note: t.note || "", app: t.app || APP, created: Date.now(), changed: Date.now() };
+          d.events.push(n); return n;
+        }, "todo");
+      },
+      update: function (id, patch) {
+        return mutate(function (d) {
+          var e = d.events.find(function (x) { return x.id === id; });
+          if (!e) return null;
+          Object.keys(patch).forEach(function (k) { if (k !== "id") e[k] = patch[k]; });
+          if ("done" in patch) e.doneAt = patch.done ? Date.now() : 0;
+          e.changed = Date.now(); return e;
+        }, "todo");
+      },
+      remove: function (id) {
+        return mutate(function (d) {
+          var e = d.events.find(function (x) { return x.id === id; });
+          if (e) { e.deleted = true; e.changed = Date.now(); }
+        }, "todo");
+      }
+    },
+    me: ME,
+    status: function () { var c = cfg(); return { connected: !!c.token, user: c.user || "", busy: sync.busy, error: sync.error, last: sync.last || c.last || 0 }; },
     open: function (date, tab) { openPanel(date, tab); },
     sync: function () { return syncNow(); }
   };
@@ -13102,13 +13176,16 @@ window.APP5 = {
       if (id !== c.gist) { c = cfg(); c.gist = id; setCfg(c); }
       return gh("/gists/" + id, null, token).then(function (g) {
         var files = {};
-        // Kalender: frisch lesen, damit Änderungen während der Anfrage nicht verloren gehen.
-        var remote = readJSON(g.files && g.files[GIST_FILE]) || { events: [] };
-        var d = load();
-        if (mergeInto(d, remote.events).changed) save(d, true);
-        var local = content(load());
-        var rd = { events: remote.events || [] }; purge(rd);
-        if (local !== content(rd)) files[GIST_FILE] = { content: local };
+        // Termine und Aufgaben: frisch lesen, damit Änderungen während der Anfrage nicht verloren gehen.
+        Object.keys(COLS).forEach(function (c) {
+          var col = COLS[c];
+          var remote = readJSON(g.files && g.files[col.file]) || { events: [] };
+          var d = load(c);
+          if (mergeInto(d, remote.events, c).changed) save(d, true, c);
+          var local = content(load(c));
+          var rd = { events: remote.events || [] }; purge(rd);
+          if (local !== content(rd)) files[col.file] = { content: local };
+        });
         syncApps(g, files);
         if (Object.keys(files).length) return gh("/gists/" + id, { method: "PATCH", body: { files: files } }, token);
       });
@@ -13219,6 +13296,9 @@ window.APP5 = {
     ".v.dark .cl.ok{color:#6cc79a}.v.dark .cl.err,.v.dark button.d{color:#f0727c}",
     ".txt{font-size:14px;margin:8px 0}.txt a{color:var(--acc)}ol.txt{padding-left:20px}ol.txt li{margin:5px 0}code{background:var(--s2);padding:1px 4px;border-radius:4px}",
     "button.b[disabled]{opacity:.5}",
+    ".task{display:flex;gap:8px;align-items:center;padding:7px 2px;font-size:14px;cursor:pointer}.task input{width:auto;margin:0}.task em{color:#c0303f;font-style:normal;font-size:12px}",
+    ".qt{margin-top:4px;font-size:14px;padding:8px 10px}",
+    "a.b{text-decoration:none;display:inline-block}a.big{font-weight:600}",
     ".apps{display:grid;grid-template-columns:1fr 1fr;gap:8px}",
     ".app{display:flex;gap:10px;align-items:center;padding:11px;border-radius:12px;background:var(--s1);border:1px solid var(--line);color:var(--fg);text-decoration:none}",
     ".app.me{border-color:var(--fg)}",
@@ -13237,6 +13317,7 @@ window.APP5 = {
     var st = document.createElement("style"); st.textContent = CSS; root.appendChild(st);
     var v = document.createElement("div"); v.className = "v"; root.appendChild(v);
     var fab = document.createElement("button");
+    if (script && script.getAttribute("data-fab") === "off") fab.style.display = "none"; // die Kalender-App braucht den Knopf nicht
     fab.className = "fab"; fab.title = "Kalender & Apps"; fab.setAttribute("aria-label", "Kalender und Apps");
     fab.innerHTML = ICON + "<span class='dot' hidden></span>";
     v.appendChild(fab);
@@ -13292,8 +13373,8 @@ window.APP5 = {
   function render(bg) {
     if (!root) return;
     root.querySelector(".v").classList.toggle("dark", isDark());
-    var all = live();
     var today = iso(new Date());
+    var all = occurrences(iso(new Date(Date.now() - 400 * 864e5)), iso(new Date(Date.now() + 800 * 864e5)));
     var dot = root.querySelector(".fab .dot");
     var n = all.filter(function (e) { return e.date === today; }).length;
     dot.hidden = !n; dot.textContent = n;
@@ -13353,9 +13434,15 @@ window.APP5 = {
     h += "<div class='sec'><div class='hd'><h3 style='flex:1;margin:0'>" + longDate(state.sel) + "</h3><button class='b p' data-a='new'>+ Termin</button></div>";
     h += list.length ? list.map(function (e) { return item(e); }).join("") : "<div class='empty'>Keine Termine an diesem Tag.</div>";
     h += "</div>";
-    var upcoming = evs.filter(function (e) { return e.date > state.sel; }).slice(0, 5);
+    var tasks = live("todo").filter(function (t) { return !t.done && (t.due === state.sel || (state.sel === today && t.due && t.due < today)); });
+    h += "<div class='sec'><h3>Aufgaben</h3>" + tasks.map(function (t) {
+      return "<label class='task'><input type='checkbox' data-task='" + esc(t.id) + "'><span>" + esc(t.title) +
+        (t.due < today ? " <em>überfällig</em>" : "") + "</span></label>";
+    }).join("") + "<input class='qt' name='quicktask' placeholder='+ Aufgabe für diesen Tag' maxlength='120' enterkeyhint='done'></div>";
+    var seen = {}; // Serien nur mit dem nächsten Termin zeigen
+    var upcoming = evs.filter(function (e) { if (e.date <= state.sel || seen[e.id]) return false; seen[e.id] = 1; return true; }).slice(0, 5);
     if (upcoming.length) h += "<div class='sec'><h3>Danach</h3>" + upcoming.map(function (e) { return item(e, true); }).join("") + "</div>";
-    h += "<div class='tools'><button class='b' data-a='export'>Sichern</button><button class='b' data-a='import'>Importieren</button><button class='b' data-a='ics'>.ics-Export</button></div>";
+    h += "<div class='tools'><a class='b big' href='" + esc(appUrl(APPS[0])) + "'>Großer Kalender</a><button class='b' data-a='export'>Sichern</button><button class='b' data-a='import'>Importieren</button><button class='b' data-a='ics'>.ics-Export</button></div>";
     return h;
   }
 
@@ -13439,7 +13526,7 @@ window.APP5 = {
     h += "<label>Notiz</label><textarea name='note' maxlength='1000'>" + esc(e.note || "") + "</textarea>";
     h += "<label>Farbe</label><select name='color'><option value=''>Farbe der App</option>" +
       COLORS.map(function (c, i) { return "<option value='" + c + "'" + (e.color === c ? " selected" : "") + ">" + CNAMES[i] + "</option>"; }).join("") + "</select>";
-    if (!isNew) h += "<div class='m' style='margin-top:10px'>Angelegt in „" + esc(e.app) + "“</div>";
+    if (!isNew) h += "<div class='m' style='margin-top:10px'>Angelegt in „" + esc(e.app) + "“" + (e.rep && e.rep.f ? " · wiederholt sich – Wiederholung im großen Kalender ändern" : "") + "</div>";
     h += "<div class='act'>" + (isNew ? "" : "<button class='b d' data-a='del'>Löschen</button>") + "<span class='sp'></span><button class='b' data-a='back'>Abbrechen</button><button class='b p' data-a='save'>Speichern</button></div>";
     return h;
   }
@@ -13452,12 +13539,19 @@ window.APP5 = {
       if (t.dataset.tab) { state.tab = t.dataset.tab; render(); return; }
       if (t.dataset.day) { state.sel = t.dataset.day; render(); return; }
       if (t.dataset.id && !t.dataset.a) {
-        var e = live().find(function (x) { return x.id === t.dataset.id; });
+        var e = live().find(function (x) { return x.id === t.dataset.id; }); // bei Serien: die ganze Serie
         if (e) { state.edit = Object.assign({}, e); render(); }
         return;
       }
       if (t.dataset.a === "close" && t.tagName === "A") ev.preventDefault();
       act(t.dataset.a, box);
+    });
+    box.querySelectorAll("[data-task]").forEach(function (cb) {
+      cb.addEventListener("change", function () { api.tasks.update(cb.dataset.task, { done: cb.checked }); });
+    });
+    var qt = box.querySelector("[name=quicktask]");
+    if (qt) qt.addEventListener("keydown", function (ev) {
+      if (ev.key === "Enter" && qt.value.trim()) { api.tasks.add({ title: qt.value.trim(), due: state.sel }); }
     });
     var f = box.querySelector("[data-a=filter]");
     if (f) f.addEventListener("change", function () { state.filter = f.checked; render(); });
