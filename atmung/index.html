@@ -1475,7 +1475,7 @@ if ("serviceWorker" in navigator && location.protocol !== "file:") {
       sections: [["Heute", "#brief"], ["Kalender", "#cal"], ["Aufgaben", "#tasks"], ["Schule", "#schule"], ["Pause", "#pause"]], owns: ["lernplan", "denkpause"] },
     { id: "training", name: "Training", cal: "Training", path: "trainingsblog", color: "#4fc18a", info: "Training, Mobility, Atmung und HRV",
       sections: [["Heute", ""], ["Mobility", "#mobility"], ["Atmung", "#atmung"]], owns: ["training", "rodeln", "puls"] },
-    { id: "bibel", name: "Bibel", cal: "Bibel", path: "Bibel", color: "#c9a27a", info: "Zwei Minuten Bibel", sections: [], owns: ["bibel"] }
+    { id: "bibel", name: "Bibel", cal: "Bibel", path: "Bibel", color: "#c9a27a", info: "Ganze Elberfelder Bibel · ohne Cloud", sections: [], owns: [] }
   ];
   // Eingebettete Module: gehören zu einer App, haben selbst keinen Knopf und keinen eigenen Sync
   var MODULES = [
@@ -1493,8 +1493,7 @@ if ("serviceWorker" in navigator && location.protocol !== "file:") {
     { id: "denkpause", name: "Pause (Denkpause)", keys: ["denkpause.v1"] },
     { id: "training", name: "Training", keys: ["wk_settings", "wk_log", "wk_activities", "wk_runs", "wk_body", "wk_colors", "wk_custom_ex", "wk_custom_gym", "wk_freezes", "wk_gymlog", "wk_illness_active", "wk_injury_active", "wk_injurydays", "wk_onboarded", "wk_race", "wk_rests", "wk_sections", "wk_sickdays", "wk_skin", "wk_swaps", "wk_trainedoverride", "wk_vacation", "wk_weekgoal", "wk_widgets"] },
     { id: "rodeln", name: "Mobility", keys: ["rodelmobility.v1"] },
-    { id: "puls", name: "Atmung & HRV", keys: ["pulsplan.v1"] },
-    { id: "bibel", name: "Bibel", keys: ["zweiminutenbibel_v2"] }
+    { id: "puls", name: "Atmung & HRV", keys: ["pulsplan.v1"] }
   ];
   // Farben der Kalender-Quellen (Eintrag.app); alte Namen bleiben gültig
   var SOURCES = [
