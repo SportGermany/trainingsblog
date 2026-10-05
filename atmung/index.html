@@ -223,6 +223,11 @@ details ul, details ol { margin: 0; padding-left: 20px; display: flex; flex-dire
   var MODE = (script && script.getAttribute("data-design")) || "panel";
   // Als Modul in einer anderen App eingebettet? Dann übernimmt die äußere App Offline-Speicher und Installation.
   var EMBED = (function () { try { return window.self !== window.top; } catch (e) { return true; } })();
+  // Chrome bietet „App installieren“ an: Ereignis merken, damit die App einen eigenen Installieren-Knopf zeigen kann
+  if (!EMBED) {
+    window.addEventListener("beforeinstallprompt", function (e) { e.preventDefault(); window.SGInstallEvt = e; window.dispatchEvent(new Event("sg-install")); });
+    window.addEventListener("appinstalled", function () { window.SGInstallEvt = null; window.SGInstalled = true; window.dispatchEvent(new Event("sg-install")); });
+  }
   if (EMBED) {
     document.documentElement.classList.add("sg-embed");
     try { if (navigator.serviceWorker) navigator.serviceWorker.register = function () { return Promise.resolve({ scope: "" }); }; } catch (e) {}
@@ -1989,6 +1994,14 @@ if ("serviceWorker" in navigator && location.protocol !== "file:") {
     ".app b{display:block;font-size:14px}.app span{display:block;font-size:12px;color:var(--mut);line-height:1.3}",
     ".toast{position:fixed;left:12px;right:12px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:2147483002;max-width:520px;margin:0 auto;",
     "background:var(--fg);color:var(--bg);border-radius:12px;padding:12px 14px;font-size:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;box-shadow:0 8px 24px rgba(0,0,0,.25)}",
+    ".inst{bottom:calc(84px + env(safe-area-inset-bottom,0px));background:var(--s1);color:var(--fg);border:1px solid var(--line);padding:10px 12px}",
+    ".toast.inst{display:grid;grid-template-columns:40px minmax(0,1fr);gap:4px 12px;align-items:center}",
+    ".inst .mono{width:40px;height:40px;min-width:0;border-radius:11px}.inst .it{min-width:0}.inst .it b{display:block;font-size:14.5px}.inst .it small{display:block;font-size:12.5px;color:var(--mut);line-height:1.35}",
+    ".inst .ia{grid-column:1/-1;display:flex;justify-content:flex-end;gap:6px}",
+    ".inst button.go{background:var(--acc);color:var(--accfg);padding:9px 14px;font-size:14px}.inst button.no{background:transparent;color:var(--mut)}",
+    "@media(min-width:1001px){.inst{bottom:20px;left:auto;right:20px;max-width:400px}}",
+    "button.ib{width:100%;margin-top:10px;border:0;border-radius:9px;padding:10px 12px;font-size:14px;font-weight:600;cursor:pointer;background:var(--acc);color:var(--accfg)}",
+    ".ok2{margin-top:9px;font-size:12.5px;color:#6cc79a}",
     ".toast span{flex:1;min-width:180px}.toast button{border:0;border-radius:8px;padding:7px 10px;font-size:13px;font-weight:600;cursor:pointer;background:var(--bg);color:var(--fg)}"
   ].join("");
 
@@ -2006,6 +2019,7 @@ if ("serviceWorker" in navigator && location.protocol !== "file:") {
     v.appendChild(fab);
     var box = document.createElement("div"); box.className = "box"; v.appendChild(box);
     var toast = document.createElement("div"); toast.className = "tbox"; v.appendChild(toast);
+    var ib = document.createElement("div"); ib.className = "ibox"; v.appendChild(ib);
     document.body.appendChild(host);
     placeFab(fab);
     dragFab(fab);
@@ -2066,6 +2080,7 @@ if ("serviceWorker" in navigator && location.protocol !== "file:") {
     var n = all.filter(function (e) { return e.date === today; }).length;
     dot.hidden = !n; dot.textContent = n;
     renderToast();
+    renderInstall();
     var box = root.querySelector(".box");
     if (!state.open) { box.innerHTML = ""; return; }
     // Hintergrund-Updates (andere App, anderes Gerät) dürfen kein gerade ausgefülltes Formular überschreiben.
@@ -2084,6 +2099,47 @@ if ("serviceWorker" in navigator && location.protocol !== "file:") {
     box.innerHTML = h;
     bind(box);
   }
+
+  /* ---------- Als App installieren (Chrome / Samsung Internet) ---------- */
+  var IKEY = "sg-install-later:" + ME.id;
+  function standalone() {
+    try { return window.SGInstalled || matchMedia("(display-mode: standalone)").matches || matchMedia("(display-mode: minimal-ui)").matches || navigator.standalone === true; } catch (e) { return false; }
+  }
+  function installNow() {
+    var e = window.SGInstallEvt;
+    if (!e) { state.instHelp = true; openPanel(null, "apps"); return Promise.resolve(false); }
+    window.SGInstallEvt = null;
+    e.prompt();
+    return e.userChoice.then(function (r) {
+      if (r && r.outcome === "accepted") window.SGInstalled = true;
+      render(true); return !!(r && r.outcome === "accepted");
+    }).catch(function () { render(true); return false; });
+  }
+  window.SGInstall = {
+    available: function () { return !!window.SGInstallEvt; },
+    installed: standalone,
+    prompt: installNow
+  };
+  function installHelp() {
+    return "<ol class='txt'><li><b>Chrome:</b> oben rechts ⋮ → <b>„App installieren“</b> (oder „Zum Startbildschirm hinzufügen“ → „Installieren“).</li>" +
+      "<li><b>Samsung Internet:</b> unten ≡ → <b>„Seite hinzufügen zu“</b> → „Apps-Bildschirm“.</li>" +
+      "<li>Steht dort nur „Verknüpfung erstellen“: Seite einmal neu laden und kurz warten, dann erneut versuchen.</li></ol>";
+  }
+  function renderInstall() {
+    var ib = root.querySelector(".ibox");
+    var later = 0; try { later = +localStorage.getItem(IKEY) || 0; } catch (e) {}
+    if (standalone() || !window.SGInstallEvt || state.open || Date.now() - later < 7 * 864e5) { ib.innerHTML = ""; return; }
+    ib.innerHTML = "<div class='toast inst'><span class='mono' style='background:" + ME.color + "'>" + esc(ME.name.charAt(0)) + "</span>" +
+      "<div class='it'><b>" + esc(ME.name) + " als App installieren</b><small>Eigenes Symbol, startet schneller, läuft offline.</small></div>" +
+      "<div class='ia'><button class='no' data-i='later'>Später</button><button class='go' data-i='go'>Installieren</button></div></div>";
+    ib.querySelectorAll("[data-i]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        if (b.dataset.i === "go") installNow();
+        else { try { localStorage.setItem(IKEY, String(Date.now())); } catch (e) {} renderInstall(); }
+      });
+    });
+  }
+  window.addEventListener("sg-install", function () { if (root) render(true); });
 
   function renderToast() {
     var tb = root.querySelector(".tbox"), mp = myPending(), p = mp && mp[1], MYDATA = mp && mp[0];
@@ -2153,7 +2209,8 @@ if ("serviceWorker" in navigator && location.protocol !== "file:") {
       return "<div class='app" + (me ? " me" : "") + "'><a class='ah' href='" + (me ? "#" : esc(appUrl(a))) + "'" + (me ? " data-a='close'" : "") + ">" +
         "<span class='mono' style='background:" + a.color + "'>" + esc(a.name.charAt(0)) + "</span><span><b>" + esc(a.name) + "</b><span>" + (me ? "Du bist hier" : esc(a.info)) + "</span></span></a>" +
         (a.sections.length ? "<div class='secs'>" + a.sections.map(function (sct) {
-          return "<a href='" + esc(appUrl(a) + sct[1]) + "'" + (me ? " data-go='" + esc(sct[1]) + "'" : "") + ">" + esc(sct[0]) + "</a>"; }).join("") + "</div>" : "") + "</div>";
+          return "<a href='" + esc(appUrl(a) + sct[1]) + "'" + (me ? " data-go='" + esc(sct[1]) + "'" : "") + ">" + esc(sct[0]) + "</a>"; }).join("") + "</div>" : "") +
+        (me ? (standalone() ? "<div class='ok2'>✓ Als App installiert</div>" : "<button class='ib' data-a='install'>" + esc(a.name) + " als App installieren</button>" + (state.instHelp ? installHelp() : "")) : "") + "</div>";
     }).join("") + "</div>";
     h += "<p class='txt m'>Drei Apps, ein gemeinsamer Speicher: Termine, Aufgaben, Design und Sicherung gelten überall.</p>";
     return h;
@@ -2363,6 +2420,7 @@ if ("serviceWorker" in navigator && location.protocol !== "file:") {
     else if (a === "next") state.month = new Date(m.getFullYear(), m.getMonth() + 1, 1);
     else if (a === "today") { var t = new Date(); state.sel = iso(t); state.month = new Date(t.getFullYear(), t.getMonth(), 1); }
     else if (a === "close") return close();
+    else if (a === "install") { if (window.SGInstallEvt) { close(); installNow(); } else { state.instHelp = true; render(); } return; }
     else if (a === "connect") return connect(box.querySelector("[name=token]").value);
     else if (a === "syncnow") return syncNow();
     else if (a === "notify") return askNotify();
