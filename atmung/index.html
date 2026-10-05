@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#b4532a">
 <meta name="mobile-web-app-capable" content="yes">
-<title>Pulsplan</title>
+<title>Atmung &amp; HRV</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Pulsplan">
@@ -201,9 +201,22 @@ details ul, details ol { margin: 0; padding-left: 20px; display: flex; flex-dire
     kalender: { bg: "bg", s1: "s1", s2: "s2", s3: "s3", line: "line", line2: "s2", ink: "ink", muted: "muted", faint: "faint", acc: "acc", accfg: "accfg" }
   };
   // Laptop-Anpassungen: schmale Handy-Spalten verbreitern, zu breite Seiten mittig begrenzen
+  // Doppelte Design-Schalter der einzelnen Apps ausblenden: Farben kommen für alle aus dem Bereich „Design“.
   var LAYOUT = {
-    panel: "@media(min-width:900px){.onb{padding-left:max(24px,calc(50vw - 380px))!important;padding-right:max(24px,calc(50vw - 380px))!important}}",
-    bibel: "@media(min-width:900px){.app,.overlay-inner{max-width:720px}}"
+    panel: "@media(min-width:900px){.onb{padding-left:max(24px,calc(50vw - 380px))!important;padding-right:max(24px,calc(50vw - 380px))!important}}" +
+      // Training auf Tablet quer / Laptop: Karten in zwei Spalten statt einer langen Liste
+      "@media(min-width:1100px){#s-heute.active,#s-lauf.active,#s-fitness.active,#s-daten.active{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:18px;align-items:stretch;align-content:start}" +
+      "#s-heute.active>*,#s-lauf.active>*,#s-fitness.active>*,#s-daten.active>*{min-width:0}" +
+      "#s-heute>.brand,#s-heute>.top,#s-lauf>.top,#s-fitness>.top,#s-daten>.top,.screen.active>.sec-label,.screen.active>.hero,.screen.active>.stat-row,.screen.active>.bento,.screen.active>.widget-area,.screen.active>button,.screen.active>p{grid-column:1/-1}}" +
+      ".row:has(#setSkin),#themeRow,#navyPanelRow,.row:has(#setThemeMode),.row:has(#setSkinMode),#modernAccentRow,.row:has(#setAccentPerGoal){display:none!important}" +
+      // Denkpause im Planer: Wetter und eigener Verlauf-Kalender sind doppelt (Planer-Kalender, Wetter im Training)
+      "html.sg-embed .tab[data-t=kalender],html.sg-embed .card:has(#citySearchBtn),html.sg-embed .sec-label:has(+ .card #citySearchBtn){display:none!important}",
+    bibel: "@media(min-width:900px){.app,.overlay-inner{max-width:720px}}#themeRow [data-theme=light]{display:none!important}",
+    rodeln: ".set:has([data-theme-set]),.set:has(#chkBtn),#chkOut,.set:has(#instGo2),html.sg-embed .install{display:none!important}" +
+      "@media(min-width:900px){.app{max-width:780px}}" +
+      // Systemschrift ist breiter als die frühere schmale Schrift: Startknopf auf kleinen Handys anpassen
+      ".start{letter-spacing:.02em;flex-wrap:wrap}@media(max-width:400px){.start{font-size:17px;padding:13px 10px;gap:6px}}",
+    puls: "@media(min-width:900px){.wrap{max-width:820px}}"
   };
   var FONTVARS = { rodeln: ["fd", "fb"], puls: ["font-display", "font-body"], bibel: ["sans"] };
   var script = document.currentScript;
@@ -271,7 +284,7 @@ details ul, details ol { margin: 0; padding-left: 20px; display: flex; flex-dire
 <!-- ============ HEUTE ============ -->
 <section class="view" id="v-today">
   <div class="stack">
-    <div class="row between"><h1>Pulsplan</h1><span class="chip" id="phaseChip">Phase 1</span></div>
+    <div class="row between"><h1>Atmung &amp; HRV</h1><span class="chip" id="phaseChip">Phase 1</span></div>
     <p class="muted small" id="weekText">Woche 1 von 12</p>
     <div class="weekbar" id="weekbar" aria-hidden="true"></div>
     <p class="info" id="startHint" hidden>Leg im Bereich <b>Plan</b> unter Einstellungen dein Startdatum fest. Bis dahin zählt heute als Tag 1.</p>
@@ -420,16 +433,15 @@ details ul, details ol { margin: 0; padding-left: 20px; display: flex; flex-dire
     </div>
 
     <div class="panel">
-      <h2>In den Kalender</h2>
-      <p class="small">Notion Calendar kann keine Kalenderdateien direkt importieren. Die Termine laufen deshalb über deinen Google-Kalender, der in Notion verbunden ist.</p>
-      <button type="button" class="primary" id="ghPublish">Kalender-Abo aktualisieren (GitHub)</button>
-      <span class="status" id="ghStatus" role="status"></span>
+      <h2>Im Kalender</h2>
+      <p class="small">Deine geplanten Einheiten stehen automatisch im <b>Planer-Kalender</b> – zusammen mit Schule, Training und Terminen. Mit der Cloud-Sicherung auch auf deinen anderen Geräten.</p>
       <div class="row">
         <button type="button" id="icsDownload">Diese Woche als .ics</button>
         <button type="button" id="icsShare" hidden>Teilen …</button>
       </div>
       <details>
-        <summary>So kommt es in Notion Calendar</summary>
+        <summary>Zusätzlich in Google oder Notion Calendar</summary>
+        <div class="body"><p><button type="button" class="primary" id="ghPublish">Kalender-Abo aktualisieren (GitHub)</button> <span class="status" id="ghStatus" role="status"></span></p></div>
         <div class="body">
           <p><b>Weg A: Abo, einmal einrichten (empfohlen)</b></p>
           <ol>
@@ -670,7 +682,7 @@ var TYPES = ["Langsames Atmen", "Biofeedback mit H10", "Resonanztest", "Zyklisch
 var PHASES = [
   { n: 1, name: "Atmen lernen", from: 1, to: 2,
     focus: "Zweimal täglich 5 Minuten im 4-6-Takt (6 Atemzüge pro Minute). Lege den H10 an, wann immer es passt, damit du die Pulswelle siehst. An 3 Morgen eine Morgenmessung als Ausgangswert.",
-    items: [["p1a", "App auf dem Handy installiert"], ["p1b", "H10 verbunden, Live-Puls sichtbar"], ["p1c", "3 Morgenmessungen als Ausgangswert"], ["p1d", "6 Atemzüge pro Minute fühlen sich mühelos an"]] },
+    items: [["p1a", "Training-App auf dem Handy installiert"], ["p1b", "H10 verbunden, Live-Puls sichtbar"], ["p1c", "3 Morgenmessungen als Ausgangswert"], ["p1d", "6 Atemzüge pro Minute fühlen sich mühelos an"]] },
   { n: 2, name: "Biofeedback", from: 3, to: 5,
     focus: "Zu Beginn der Phase den Resonanztest machen und deinen Takt übernehmen. Danach täglich 10 bis 20 Minuten mit H10 in deinem Takt. Ziel: eine große, gleichmäßige Pulswelle.",
     items: [["p2a", "Resonanztest gemacht"], ["p2b", "Meinen Takt in den Einstellungen übernommen"], ["p2c", "Pulswelle deutlich und gleichmäßig sichtbar"], ["p2d", "Woche 5: Resonanztest wiederholt"]] },
@@ -1194,8 +1206,8 @@ function fold(line) {
 }
 function describe(e) {
   var d = e.note ? e.note + "\n" : "";
-  if (e.type === "Biofeedback mit H10" || e.type === "Langsames Atmen") d += "Takt: " + rateTxt(S.settings.rate || 6) + " Atemzüge/min. Pulsplan-App öffnen, H10 verbinden.";
-  else if (e.type === "Resonanztest") d += "Pulsplan → Üben → Resonanztest. 10 min sitzend mit H10.";
+  if (e.type === "Biofeedback mit H10" || e.type === "Langsames Atmen") d += "Takt: " + rateTxt(S.settings.rate || 6) + " Atemzüge/min. Training-App → Atmung öffnen, H10 verbinden.";
+  else if (e.type === "Resonanztest") d += "Training → Atmung → Üben → Resonanztest. 10 min sitzend mit H10.";
   else if (e.type === "PMR") d += "Progressive Muskelentspannung, 15 min.";
   else if (e.type === "Autogenes Training") d += "Formeln: Atmung ruhig. Herz schlägt ruhig.";
   else if (e.type === "Einschlaf-Routine") d += "Im Bett 15 min langsam atmen oder PMR.";
@@ -1416,7 +1428,7 @@ $("bkImport").addEventListener("change", function () {
     var d = JSON.parse(txt); if (!d || !d.settings || !Array.isArray(d.sessions)) throw new Error();
     var token = S.settings.gh.token; S = fill(d, defaults()); if (!S.settings.gh.token) S.settings.gh.token = token;
     saveNow(); curRate = S.settings.rate; renderRates(); idleOrb(); renderPlan(); renderHeaderBits(); setStatus("cfStatus", "Sicherung geladen.");
-  }).catch(function () { setStatus("cfStatus", "Die Datei ist keine Pulsplan-Sicherung.", true); });
+  }).catch(function () { setStatus("cfStatus", "Die Datei ist keine Sicherung des Atemtrainings.", true); });
   this.value = "";
 });
 
@@ -1469,7 +1481,10 @@ if ("serviceWorker" in navigator && location.protocol !== "file:") {
    * Bewusst NICHT dabei: gerätebezogene Daten wie Zugangsschlüssel, Wetter-Cache oder Fensterstellungen
    * (Lernplan: schulplaner-lokal-v1, Trainingsblog: wk_sync, wk_syncmethod, wk_weather*, wk_uiprefs …). */
   var DATA = [
-    { id: "lernplan", name: "Schule (Lernplan)", keys: ["schulkalender-bayern-v1"] },
+    // Ist im Lernplan die eigene GitHub-Synchronisierung eingerichtet (sichert auch die Dateien der Ablage),
+    // überlässt der Verbund ihr die Schul-Daten – zwei Syncs auf denselben Daten würden sich überschreiben.
+    { id: "lernplan", name: "Schule (Lernplan)", keys: ["schulkalender-bayern-v1"], own: function () {
+      try { var l = JSON.parse(localStorage.getItem("schulplaner-lokal-v1") || "{}"); return !!(l.sync && l.sync.owner && l.sync.repo && l.sync.token); } catch (e) { return false; } } },
     { id: "denkpause", name: "Pause (Denkpause)", keys: ["denkpause.v1"] },
     { id: "training", name: "Training", keys: ["wk_settings", "wk_log", "wk_activities", "wk_runs", "wk_body", "wk_colors", "wk_custom_ex", "wk_custom_gym", "wk_freezes", "wk_gymlog", "wk_illness_active", "wk_injury_active", "wk_injurydays", "wk_onboarded", "wk_race", "wk_rests", "wk_sections", "wk_sickdays", "wk_skin", "wk_swaps", "wk_trainedoverride", "wk_vacation", "wk_weekgoal", "wk_widgets"] },
     { id: "rodeln", name: "Mobility", keys: ["rodelmobility.v1"] },
@@ -1745,7 +1760,7 @@ if ("serviceWorker" in navigator && location.protocol !== "file:") {
   var EXTRA = [{ id: "einstellungen", name: "Einstellungen", keys: ["sg-design"], lww: true }];
   function syncApps(g, files) {
     DATA.concat(EXTRA).forEach(function (app) {
-      if (!app.keys.length) return;
+      if (!app.keys.length || (app.own && app.own())) return;
       var local = snapshot(app), h = hash(local), m = meta()[app.id] || {};
       var remote = readJSON(g.files && g.files["app-" + app.id + ".json"]);
       var localChanged = h !== m.hash && Object.keys(local).length > 0;
