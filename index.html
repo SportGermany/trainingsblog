@@ -1132,19 +1132,22 @@
   "use strict";
   if (window.SGTheme) return;
   var KEY = "sg-design";
+  // Schlicht nach dem Vorbild von Notion Kalender und Apple: ruhige Grautöne, eine Akzentfarbe, feine Linien
   var THEMES = [
-    { id: "mitternacht", name: "Mitternacht", info: "Tiefes Nachtblau (Standard)", bg: "#0d1117", s1: "#151b23", s2: "#1c2430", s3: "#243040", line: "#2a3646", ink: "#e6edf3", muted: "#9aa7b4", faint: "#5d6b7a", acc: "#6ea8fe" },
-    { id: "graphit", name: "Graphit", info: "Warmes Anthrazit, Bernstein", bg: "#141412", s1: "#1c1b19", s2: "#252421", s3: "#2e2c29", line: "#353330", ink: "#ebe9e4", muted: "#a29e95", faint: "#6e6a62", acc: "#e8a55a" },
-    { id: "wald", name: "Wald", info: "Moos und Tannengrün", bg: "#0f1411", s1: "#161d18", s2: "#1d2620", s3: "#253028", line: "#2c382f", ink: "#e4ece5", muted: "#9cab9f", faint: "#627066", acc: "#7cc49a" },
-    { id: "espresso", name: "Espresso", info: "Dunkle Röstung, Karamell", bg: "#15110e", s1: "#1e1814", s2: "#28201b", s3: "#322822", line: "#3a2f28", ink: "#f0e7df", muted: "#b3a497", faint: "#7a6c60", acc: "#d4915c" },
-    { id: "schiefer", name: "Schiefer", info: "Kühles Grau, Eisblau", bg: "#121417", s1: "#1a1d21", s2: "#22262b", s3: "#2b3036", line: "#33383f", ink: "#e8eaed", muted: "#a0a7b0", faint: "#69707a", acc: "#8ab4c9" },
-    { id: "aubergine", name: "Aubergine", info: "Gedämpftes Pflaume, Flieder", bg: "#141016", s1: "#1c1720", s2: "#251e2a", s3: "#2e2634", line: "#372d3d", ink: "#ece6ef", muted: "#ab9fb2", faint: "#74687b", acc: "#c99ad6" },
-    { id: "tiefsee", name: "Tiefsee", info: "Petrol und Türkis", bg: "#0b1414", s1: "#111c1c", s2: "#172525", s3: "#1e2f2f", line: "#243838", ink: "#e0eeec", muted: "#93aeab", faint: "#5b7471", acc: "#4fc1b0" },
-    { id: "oxid", name: "Oxid", info: "Kohle mit Terrakotta", bg: "#131110", s1: "#1c1917", s2: "#25211e", s3: "#2e2925", line: "#36302b", ink: "#efe9e4", muted: "#ab9f95", faint: "#75695f", acc: "#e07a52" },
-    { id: "oled", name: "OLED Schwarz", info: "Reines Schwarz, Signalgelb – spart Akku", bg: "#000000", s1: "#0d0d0d", s2: "#171717", s3: "#212121", line: "#2a2a2a", ink: "#f2f2f2", muted: "#a3a3a3", faint: "#6b6b6b", acc: "#ffcc4d" },
-    { id: "bordeaux", name: "Bordeaux", info: "Weinrot und Rosé", bg: "#140f10", s1: "#1d1517", s2: "#271c1f", s3: "#312327", line: "#3a2a2e", ink: "#f0e6e7", muted: "#b39fa3", faint: "#7b676b", acc: "#e0707e" }
+    { id: "notion", name: "Notion", info: "Neutrales Grau, klares Blau (Standard)", bg: "#191919", s1: "#202020", s2: "#272727", s3: "#2f2f2f", line: "#2c2c2c", ink: "#ebebea", muted: "#9b9a97", faint: "#6b6a67", acc: "#529cca" },
+    { id: "apple", name: "Apple", info: "Tiefschwarz mit Systemblau", bg: "#000000", s1: "#1c1c1e", s2: "#2c2c2e", s3: "#3a3a3c", line: "#2c2c2e", ink: "#f5f5f7", muted: "#98989d", faint: "#636366", acc: "#0a84ff" },
+    { id: "graphit", name: "Graphit", info: "Anthrazit mit Orange", bg: "#161616", s1: "#1e1e1e", s2: "#272727", s3: "#313131", line: "#2d2d2d", ink: "#ececec", muted: "#a0a0a0", faint: "#6a6a6a", acc: "#ff9f0a" },
+    { id: "mitternacht", name: "Mitternacht", info: "Nachtblau", bg: "#0d1117", s1: "#151b23", s2: "#1c2430", s3: "#243040", line: "#232c38", ink: "#e6edf3", muted: "#9aa7b4", faint: "#5d6b7a", acc: "#6ea8fe" },
+    { id: "schiefer", name: "Schiefer", info: "Kühles Blaugrau, Petrol", bg: "#121417", s1: "#1a1d21", s2: "#22262b", s3: "#2b3036", line: "#2a2f35", ink: "#e8eaed", muted: "#a0a7b0", faint: "#69707a", acc: "#5ac8c8" },
+    { id: "salbei", name: "Salbei", info: "Gedämpftes Grün", bg: "#121513", s1: "#191d1a", s2: "#212622", s3: "#2a302b", line: "#272d28", ink: "#e6ebe6", muted: "#9eaa9f", faint: "#667067", acc: "#7fbf95" },
+    { id: "sand", name: "Sand", info: "Warmes Dunkelbraun, Karamell", bg: "#171513", s1: "#1f1c19", s2: "#282420", s3: "#322d28", line: "#2e2a25", ink: "#efe9e2", muted: "#aca295", faint: "#766d62", acc: "#d6a26b" },
+    { id: "lavendel", name: "Lavendel", info: "Dunkles Violettgrau", bg: "#151419", s1: "#1c1b22", s2: "#24222b", s3: "#2d2b35", line: "#2b2932", ink: "#ece9f2", muted: "#a49fb0", faint: "#6d6878", acc: "#a78bfa" },
+    { id: "koralle", name: "Koralle", info: "Warmes Grau mit Korallrot", bg: "#161414", s1: "#1e1b1b", s2: "#272323", s3: "#312c2c", line: "#2d2828", ink: "#efe8e7", muted: "#ab9f9d", faint: "#756a68", acc: "#ff7a6b" },
+    { id: "oled", name: "OLED", info: "Reines Schwarz, Gelb – spart Akku", bg: "#000000", s1: "#0c0c0c", s2: "#161616", s3: "#202020", line: "#1f1f1f", ink: "#f2f2f2", muted: "#a3a3a3", faint: "#6b6b6b", acc: "#ffd60a" }
   ];
-  var FONT = "'Segoe UI Variable Text','Segoe UI',Roboto,'Helvetica Neue',system-ui,-apple-system,sans-serif";
+  // frühere Namen weiter verstehen
+  var ALIAS = { wald: "salbei", espresso: "sand", aubergine: "lavendel", tiefsee: "schiefer", oxid: "koralle", bordeaux: "koralle" };
+  var FONT = "-apple-system,BlinkMacSystemFont,'SF Pro Text','Inter','Segoe UI Variable Text','Segoe UI',Roboto,'Helvetica Neue',system-ui,sans-serif";
   // App-Variable -> Farbrolle der Farbwelt
   var MAPS = {
     panel: { bg: "bg", panel: "s1", "panel-2": "s2", "panel-3": "s3", line: "line", text: "ink", "text-dim": "muted", "text-faint": "faint" },
@@ -1172,6 +1175,14 @@
       ".start{letter-spacing:.02em;flex-wrap:wrap}@media(max-width:400px){.start{font-size:17px;padding:13px 10px;gap:6px}}",
     puls: "@media(min-width:900px){.wrap{max-width:820px}}"
   };
+  // Schlicht statt verspielt: keine Großbuchstaben-Überschriften mit Sperrschrift, keine Verläufe und Kartenschatten,
+  // ruhigere Rundungen. Gilt in allen Apps und Bereichen.
+  var PLAIN = "body *{text-transform:none!important;letter-spacing:normal!important}" +
+    "h1,h2,h3{letter-spacing:-.01em!important}" +
+    ".card,.hero,.stat,.feed-card,.widget-tile,.tile,.bento>*,.stat-row>*,.panel,.set,.wk-card,.kpi,.mini,.quote-card,.settings-section,.stat-box,.passage{box-shadow:none!important;background-image:none!important}" +
+    ".card,.hero,.feed-card,.widget-tile,.tile,.quote-card,.settings-section,.stat-box,.passage{border-radius:12px!important}" +
+    ".hero{border:1px solid var(--sg-line)!important}" +
+    "button,.btn,.chip{box-shadow:none!important;background-image:none!important}";
   var FONTVARS = { rodeln: ["fd", "fb"], puls: ["font-display", "font-body"], bibel: ["sans"] };
   var script = document.currentScript;
   var MODE = (script && script.getAttribute("data-design")) || "panel";
@@ -1204,16 +1215,18 @@
   })();
 
   function rgba(hex, a) { var n = parseInt(hex.slice(1), 16); return "rgba(" + (n >> 16) + "," + (n >> 8 & 255) + "," + (n & 255) + "," + a + ")"; }
-  function get(id) { return THEMES.find(function (t) { return t.id === id; }) || THEMES[0]; }
-  function currentId() { try { return localStorage.getItem(KEY) || "mitternacht"; } catch (e) { return "mitternacht"; } }
+  function get(id) { id = ALIAS[id] || id; return THEMES.find(function (t) { return t.id === id; }) || THEMES[0]; }
+  // Umstellung auf den schlichten Stil: einmalig auf das neue Standard-Design wechseln (danach frei wählbar)
+  try { if (!localStorage.getItem("sg-design-v2")) { localStorage.setItem("sg-design-v2", "1"); localStorage.setItem(KEY, "notion"); } } catch (e) {}
+  function currentId() { try { return localStorage.getItem(KEY) || "notion"; } catch (e) { return "notion"; } }
   function css(t) {
     var roles = Object.assign({ accsoft: rgba(t.acc, .16), accfg: "#14120f" }, t), map = MAPS[MODE] || MAPS.panel;
     var vars = Object.keys(map).map(function (k) { return "--" + k + ":" + roles[map[k]]; }).join(";");
-    vars += ";" + (FONTVARS[MODE] || []).map(function (v) { return "--" + v + ":" + FONT; }).join(";") + ";--sg-acc:" + t.acc + ";color-scheme:dark";
+    vars += ";" + (FONTVARS[MODE] || []).map(function (v) { return "--" + v + ":" + FONT; }).join(";") + ";--sg-acc:" + t.acc + ";--sg-line:" + t.line + ";color-scheme:dark";
     // :not(#sg) hebt die Regel über alle Hell/Dunkel-Regeln der Apps – alle Apps bleiben dunkel.
     // In der Bibel bleiben Sepia- und Nachtmodus als Lesemodi erhalten.
     var sel = MODE === "bibel" ? "html:root:not(#sg):not([data-theme=\"sepia\"]):not([data-theme=\"night\"])" : "html:root:not(#sg)";
-    return sel + "{" + vars + "}html:not(#sg) body{background-color:var(--bg)}body,button,input,select,textarea{font-family:" + FONT + "}" + (LAYOUT[MODE] || "");
+    return sel + "{" + vars + "}html:not(#sg) body{background-color:var(--bg)}body,button,input,select,textarea{font-family:" + FONT + "}" + PLAIN + (LAYOUT[MODE] || "");
   }
   function apply(id) {
     var t = get(id || currentId());
@@ -13809,7 +13822,7 @@ window.APP5 = {
   var host, root, state = { month: null, sel: null, edit: null, filter: false, tab: "cal" };
   var CSS = [
     ":host{all:initial}",
-    "*{box-sizing:border-box;font-family:'Segoe UI Variable Text','Segoe UI',Roboto,'Helvetica Neue',system-ui,sans-serif}",
+    "*{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Inter','Segoe UI Variable Text','Segoe UI',Roboto,'Helvetica Neue',system-ui,sans-serif}",
     ".v{--bg:#f3f1ec;--s1:#fff;--s2:#ebe8e1;--line:#dad5cb;--fg:#1d1c19;--mut:#67635b;--acc:" + ME.color + ";--accfg:#fff}",
     ".v.dark{--bg:#1c1b19;--s1:#1c1b19;--s2:#2a2926;--line:#3a3833;--fg:#ebe9e4;--mut:#a29e95}",
     ".fab{position:fixed;z-index:2147483000;width:46px;height:46px;border-radius:14px;cursor:pointer;touch-action:none;",
@@ -13883,6 +13896,13 @@ window.APP5 = {
     ".ok2{margin-top:9px;font-size:12.5px;color:#6cc79a}",
     ".wpw .panel{max-width:560px}.wpprog{display:flex;gap:4px;margin:-4px 0 12px}.wpprog i{flex:1;height:4px;border-radius:2px;background:var(--s2)}.wpprog i.on{background:var(--acc)}",
     "h3.q{font-size:16px;margin:16px 0 4px;font-weight:700}",
+    ".prows{display:flex;flex-direction:column;margin-top:6px}.prow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:7px 0;border-top:1px solid var(--line)}.prow.past{opacity:.4}",
+    ".prow .pd{width:52px;font-weight:600;font-size:14px;display:flex;flex-direction:column;line-height:1.15}.prow .pd small{font-weight:400;font-size:11px;color:var(--mut)}",
+    ".prow{display:grid;grid-template-columns:52px minmax(0,1fr) minmax(0,1fr);gap:6px 8px}.prow.k-run{grid-template-columns:52px minmax(0,1fr) minmax(0,1fr) 64px}",
+    ".prow.k-train .pd{grid-row:span 2}.prow.k-train select[data-p=kind]{grid-column:2/4}",
+    "@media(min-width:560px){.prow.k-train{grid-template-columns:52px minmax(0,1.4fr) minmax(0,1fr) minmax(0,1fr)}.prow.k-train .pd{grid-row:auto}.prow.k-train select[data-p=kind]{grid-column:auto}}",
+    ".prow select,.prow input{min-width:0;width:100%;padding:8px;min-height:40px;font-size:15px}",
+    "button.same{border:0;background:none;color:var(--acc);font-size:13px;padding:6px 0;cursor:pointer}",
     ".wdays{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin:8px 0 4px}",
     ".wd{border:1px solid var(--line);background:var(--s1);color:var(--fg);border-radius:10px;padding:8px 0 6px;font-size:14px;font-weight:600;cursor:pointer;display:flex;flex-direction:column;align-items:center;min-height:48px}",
     ".wd small{font-size:10.5px;font-weight:400;color:var(--mut);margin-top:1px}.wd.on{background:var(--acc);border-color:var(--acc);color:var(--accfg)}.wd.on small{color:var(--accfg);opacity:.8}.wd.past{opacity:.35}",
@@ -14409,6 +14429,34 @@ window.APP5 = {
   function mondayOf(k) { var d = parse(k); d.setDate(d.getDate() - (d.getDay() + 6) % 7); return iso(d); }
   function kw(k) { var d = parse(k), t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())), n = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - n); return Math.ceil(((t - Date.UTC(t.getUTCFullYear(), 0, 1)) / 864e5 + 1) / 7); }
   function shortDate(k) { var d = parse(k); return d.getDate() + "." + (d.getMonth() + 1) + "."; }
+  var WKINDS = ["Zirkeltraining", "Krafttraining", "Gym", "Laufen", "Radfahren", "Schwimmen", "Rodeln", "Mannschaftssport", "Yoga", "Sonstiges"];
+  var WDURS = { train: [15, 20, 30, 45, 60, 75, 90, 120], run: [15, 20, 30, 45, 60, 75, 90, 120], mob: [5, 10, 15, 20, 30], learn: [20, 30, 45, 60, 90, 120] };
+  var WDEF = { train: 45, run: 45, mob: 5, learn: 45 };
+  // Einstellung eines Tages: eigene Werte dieses Wochentags, sonst die zuletzt benutzten
+  function perOf(a, key, i) {
+    var x = a[key] || {}, p = (x.per || {})[i] || {};
+    return { time: p.time || x.time || "17:00", dur: +(p.dur || x.dur || WDEF[key]), kind: p.kind || x.kind || "Zirkeltraining", km: p.km != null ? p.km : (x.km || "") };
+  }
+  function durLabel(m) { return m < 60 ? m + " Min." : Math.floor(m / 60) + (m % 60 ? ":" + pad(m % 60) : "") + " Std."; }
+  function dayRows(key) {
+    var x = wp.a[key];
+    if (!x.days.length) return "<p class='txt m'>Keine Tage gewählt.</p>";
+    // schon gewählte Tage behalten ihre Werte; nur neu dazugewählte übernehmen die zuletzt eingestellten
+    x.per = x.per || {};
+    x.days.forEach(function (i) { if (!x.per[i]) x.per[i] = perOf(wp.a, key, i); });
+    var h = "<div class='prows'>" + x.days.slice().sort().map(function (i) {
+      var p = perOf(wp.a, key, i), past = wpPast(i);
+      var r = "<div class='prow k-" + key + (past ? " past" : "") + "' data-k='" + key + "' data-i='" + i + "'><span class='pd'>" + WDN[i] + "<small>" + shortDate(plusDays(wp.mon, i)) + "</small></span>";
+      if (key === "train") r += "<select data-p='kind' aria-label='Art'>" + WKINDS.map(function (k) { return "<option" + (k === p.kind ? " selected" : "") + ">" + k + "</option>"; }).join("") + "</select>";
+      r += "<input type='time' data-p='time' value='" + esc(p.time) + "' aria-label='Uhrzeit'>";
+      var durs = WDURS[key].indexOf(p.dur) < 0 ? WDURS[key].concat([p.dur]).sort(function (m, n) { return m - n; }) : WDURS[key];
+      r += "<select data-p='dur' aria-label='Dauer'>" + durs.map(function (m) { return "<option value='" + m + "'" + (m === p.dur ? " selected" : "") + ">" + durLabel(m) + "</option>"; }).join("") + "</select>";
+      if (key === "run") r += "<input type='number' inputmode='decimal' min='0' step='0.5' data-p='km' value='" + esc(p.km) + "' placeholder='km' aria-label='Distanz in km'>";
+      return r + "</div>";
+    }).join("") + "</div>";
+    if (x.days.length > 1) h += "<button type='button' class='same' data-w='same' data-k='" + key + "'>Wie " + WDN[x.days.slice().sort()[0]] + " für alle Tage übernehmen</button>";
+    return h;
+  }
   var wp = null; // offener Assistent: { step, mon, a: Antworten }
   function wpSteps() {
     var c = wpCfg(), s = ["start"];
@@ -14472,13 +14520,10 @@ window.APP5 = {
       h += "<div class='act'><span class='sp'></span><button class='b p' data-w='next'" + (topics.length ? "" : " disabled") + ">Los geht's</button></div>";
     } else if (st === "training") {
       var ws = jkey("wk_settings") || {}, rest = (ws.restDays || []).map(function (d) { return WDN[(d + 6) % 7]; });
-      h += "<h3 class='q'>An welchen Tagen trainierst du?</h3><p class='txt m'>Kraft- bzw. Zirkeltraining" + (rest.length ? " · feste Ruhetage: " + rest.join(", ") : "") + "</p>" + dayChips("train", a.train.days);
-      h += "<div class='row'><div><label>Uhrzeit</label><input type='time' data-f='train.time' value='" + esc(a.train.time) + "'></div><div></div></div>";
-      h += "<h3 class='q'>Wann gehst du laufen?</h3>" + dayChips("run", a.run.days);
-      h += "<div class='row'><div><label>Uhrzeit</label><input type='time' data-f='run.time' value='" + esc(a.run.time) + "'></div><div></div></div>";
+      h += "<h3 class='q'>An welchen Tagen trainierst du?</h3><p class='txt m'>Für jeden Tag Art, Uhrzeit und Dauer" + (rest.length ? " · feste Ruhetage: " + rest.join(", ") : "") + "</p>" + dayChips("train", a.train.days) + dayRows("train");
+      h += "<h3 class='q'>Wann gehst du laufen?</h3><p class='txt m'>Uhrzeit, Dauer und – wenn du magst – Distanz</p>" + dayChips("run", a.run.days) + dayRows("run");
     } else if (st === "mobility") {
-      h += "<h3 class='q'>Mobility-Block (ca. 5 Min.)</h3><p class='txt m'>An welchen Tagen und um wie viel Uhr?</p>" + dayChips("mob", a.mob.days);
-      h += "<div class='row'><div><label>Uhrzeit</label><input type='time' data-f='mob.time' value='" + esc(a.mob.time) + "'></div><div></div></div>";
+      h += "<h3 class='q'>Mobility</h3><p class='txt m'>An welchen Tagen, wann und wie lange? Der Tagesblock dauert etwa 5 Minuten.</p>" + dayChips("mob", a.mob.days) + dayRows("mob");
       var ph = atmPhase(wp.mon);
       h += "<h3 class='q'>Atemübungen nach deinem Atemplan</h3><p class='txt m'>" + esc(ph.label) + "</p>";
       h += "<label class='chk'><input type='checkbox' data-f='atm.on'" + (a.atm.on ? " checked" : "") + "> Atemübungen für diese Woche eintragen</label>";
@@ -14488,9 +14533,7 @@ window.APP5 = {
       h += "<h3 class='q'>Was steht an?</h3>";
       h += ex.length ? "<div class='bl'>" + ex.map(function (e) { return "<span>" + shortDate(e.date) + " " + esc(e.title) + "</span>"; }).join("") + "</div>" : "<p class='txt m'>In den nächsten drei Wochen sind keine Prüfungen eingetragen.</p>";
       if (hw.length) h += "<p class='txt m'>Offene Hausaufgaben bis " + shortDate(end) + ": " + hw.map(function (x) { return esc((x.subject ? x.subject + ": " : "") + x.title); }).join(" · ") + "</p>";
-      h += "<h3 class='q'>An welchen Tagen lernst du?</h3><p class='txt m'>Vor einer Prüfung wird die Lernzeit automatisch diesem Fach zugeordnet.</p>" + dayChips("learn", a.learn.days);
-      h += "<div class='row'><div><label>Uhrzeit</label><input type='time' data-f='learn.time' value='" + esc(a.learn.time) + "'></div><div><label>Dauer</label><select data-f='learn.dur'>" +
-        [30, 45, 60, 90].map(function (m) { return "<option value='" + m + "'" + (+a.learn.dur === m ? " selected" : "") + ">" + m + " Min.</option>"; }).join("") + "</select></div></div>";
+      h += "<h3 class='q'>An welchen Tagen lernst du?</h3><p class='txt m'>Vor einer Prüfung wird die Lernzeit automatisch diesem Fach zugeordnet.</p>" + dayChips("learn", a.learn.days) + dayRows("learn");
     } else if (st === "done") {
       var r = wp.result || { list: [], notes: [] };
       h += "<p class='txt'><b>KW " + kw(wp.mon) + " ist geplant.</b> " + r.list.length + " Einträge stehen jetzt in deinem Kalender.</p>";
@@ -14540,12 +14583,17 @@ window.APP5 = {
       if (t.dataset.wd !== undefined) {
         var k = t.parentNode.dataset.k, i = +t.dataset.wd, arr = wp.a[k].days, pos = arr.indexOf(i);
         if (pos > -1) arr.splice(pos, 1); else arr.push(i);
-        arr.sort(); t.classList.toggle("on", pos < 0); return;
+        arr.sort(); wpRender(); return;
       }
       ev.preventDefault();
       var a = t.dataset.w;
       if (a === "close") closeWeekPlan();
       else if (a === "settings") { wp.view = "settings"; wpRender(); }
+      else if (a === "same") {
+        var k = t.dataset.k, x = wp.a[k], first = perOf(wp.a, k, x.days.slice().sort()[0]);
+        x.per = x.per || {}; x.days.forEach(function (i) { x.per[i] = Object.assign({}, first); });
+        wpRender();
+      }
       else if (a === "back") { wp.view = ""; wpRender(); }
       else if (a === "next") { wp.step++; wpRender(); }
       else if (a === "prev") { wp.step = Math.max(0, wp.step - 1); wpRender(); }
@@ -14558,6 +14606,14 @@ window.APP5 = {
       });
     });
     box.querySelectorAll("[data-s]").forEach(function (inp) { inp.addEventListener("change", function () { wpSetting(inp); }); });
+    box.querySelectorAll("[data-p]").forEach(function (inp) {
+      inp.addEventListener("change", function () {
+        var row = inp.closest(".prow"), k = row.dataset.k, i = +row.dataset.i, x = wp.a[k], f = inp.dataset.p;
+        x.per = x.per || {}; x.per[i] = Object.assign(perOf(wp.a, k, i), x.per[i] || {});
+        var val = f === "dur" ? +inp.value : f === "km" ? inp.value.replace(",", ".") : inp.value;
+        x.per[i][f] = val; x[f] = val; // neu gewählte Tage übernehmen den zuletzt eingestellten Wert
+      });
+    });
   }
   // Atemübungen nach Phase des Atemplans (wie „Vorschlag aus dem Plan“ in Atmung & HRV)
   function atmEntries(mon, a, days) {
@@ -14581,15 +14637,16 @@ window.APP5 = {
         color: "", app: app, created: Date.now(), changed: Date.now(), remind: null, wp: mon });
     }
     if (c.topics.training) {
-      live(a.train.days).forEach(function (i) { ev(i, a.train.time, 45, "Training", "Training"); });
-      live(a.run.days).forEach(function (i) { ev(i, a.run.time, 45, "Laufen", "Training"); });
+      live(a.train.days).forEach(function (i) { var p = perOf(a, "train", i); ev(i, p.time, p.dur, p.kind, "Training", durLabel(p.dur) + " · aus der Wochenplanung"); });
+      live(a.run.days).forEach(function (i) { var p = perOf(a, "run", i), km = parseFloat(p.km); ev(i, p.time, p.dur, "Laufen" + (km > 0 ? " · " + String(km).replace(".", ",") + " km" : ""), "Training", durLabel(p.dur) + " · aus der Wochenplanung"); });
     }
-    if (c.topics.mobility) live(a.mob.days).forEach(function (i) { ev(i, a.mob.time, 5, "Mobility-Block", "Mobility"); });
+    if (c.topics.mobility) live(a.mob.days).forEach(function (i) { var p = perOf(a, "mob", i); ev(i, p.time, p.dur, p.dur > 5 ? "Mobility · " + durLabel(p.dur) : "Mobility-Block", "Mobility"); });
     if (c.topics.lernen) {
       var exams = wpExams(mon);
       live(a.learn.days).forEach(function (i) {
         var d = plusDays(mon, i), nx = exams.find(function (e) { return e.date > d && e.date <= plusDays(d, 14); });
-        ev(i, a.learn.time, +a.learn.dur || 45, nx ? "Lernen: " + nx.title : "Lernen & Hausaufgaben", "Lernplan", nx ? "Prüfung am " + shortDate(nx.date) : "Aus der Wochenplanung");
+        var p = perOf(a, "learn", i);
+        ev(i, p.time, p.dur, nx ? "Lernen: " + nx.title : "Lernen & Hausaufgaben", "Lernplan", nx ? "Prüfung am " + shortDate(nx.date) : "Aus der Wochenplanung");
       });
     }
     // gemeinsamer Kalender: frühere Einträge dieser Wochenplanung ersetzen
