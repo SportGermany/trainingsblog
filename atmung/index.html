@@ -1,0 +1,2431 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#b4532a">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Pulsplan</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Pulsplan">
+<meta name="description" content="Atem- und Pulstraining">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+/* Layout: one phone column, five views switched by a bottom tab bar. */
+:root {
+  --bg: #F3F5F8; --surface: #FFFFFF; --ink: #15202B; --muted: #5A6774; --line: #DBE1E8;
+  --breath: #2D57CC; --breath-soft: rgba(45, 87, 204, 0.12);
+  --pulse: #CF3F37; --pulse-soft: rgba(207, 63, 55, 0.12);
+  --good: #23804F; --good-soft: rgba(35, 128, 79, 0.12);
+  --font-display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+  --font-data: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  --radius: 14px; --nav-h: 64px;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0E141A; --surface: #161F28; --ink: #E5ECF2; --muted: #95A3B0; --line: #2A3642;
+    --breath: #86A6FF; --breath-soft: rgba(134, 166, 255, 0.14);
+    --pulse: #FF7D72; --pulse-soft: rgba(255, 125, 114, 0.14);
+    --good: #5CC48A; --good-soft: rgba(92, 196, 138, 0.14);
+    color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.5; -webkit-tap-highlight-color: transparent; }
+.wrap { max-width: 640px; margin: 0 auto; padding-inline: 16px; padding-top: calc(env(safe-area-inset-top, 0px) + 18px); padding-bottom: calc(var(--nav-h) + env(safe-area-inset-bottom, 0px) + 32px); display: flex; flex-direction: column; gap: 22px; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; letter-spacing: -0.01em; }
+h1 { font-size: 1.9rem; line-height: 1.1; }
+h2 { font-size: 1.25rem; }
+h3 { font-size: 1.05rem; }
+p { margin: 0; }
+a { color: var(--breath); }
+.muted { color: var(--muted); }
+.small { font-size: 0.875rem; }
+.num { font-family: var(--font-data); font-variant-numeric: tabular-nums; }
+.row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.between { justify-content: space-between; }
+.stack { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: var(--breath-soft); color: var(--breath); font-weight: 700; font-size: 0.85rem; }
+.chip.pulse { background: var(--pulse-soft); color: var(--pulse); }
+.chip.good { background: var(--good-soft); color: var(--good); }
+.weekbar { display: grid; grid-template-columns: repeat(12, 1fr); gap: 3px; }
+.weekbar span { height: 6px; border-radius: 3px; background: var(--line); }
+.weekbar span.done { background: var(--breath); opacity: 0.45; }
+.weekbar span.now { background: var(--breath); }
+.notice { padding: 10px 12px; border-radius: 10px; background: var(--pulse-soft); font-size: 0.9rem; }
+.info { padding: 10px 12px; border-radius: 10px; background: var(--breath-soft); font-size: 0.9rem; }
+[hidden] { display: none !important; }
+
+/* Controls */
+button, .btn { font: inherit; cursor: pointer; border-radius: 10px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); padding: 8px 14px; min-height: 42px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, .btn:focus-visible { outline: 2px solid var(--breath); outline-offset: 2px; }
+button.primary, .btn.primary { background: var(--breath); border-color: var(--breath); color: var(--surface); font-weight: 700; }
+button.on { background: var(--breath-soft); border-color: var(--breath); color: var(--breath); font-weight: 700; }
+button.danger { color: var(--pulse); border-color: var(--pulse); }
+button:disabled { opacity: 0.45; cursor: not-allowed; }
+button.wide { width: 100%; }
+.link-btn { border: none; background: none; padding: 4px 6px; min-height: 0; color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
+.seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; background: var(--line); padding: 4px; border-radius: 12px; }
+.seg button { border: none; background: transparent; min-height: 38px; font-size: 0.9rem; padding: 6px 8px; }
+.seg button.on { background: var(--surface); color: var(--ink); }
+form { display: flex; flex-direction: column; gap: 12px; }
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+label { display: flex; flex-direction: column; gap: 4px; font-size: 0.85rem; font-weight: 700; min-width: 0; }
+label .hint { font-weight: 400; color: var(--muted); }
+input, select, textarea { font: inherit; font-weight: 400; font-size: 1rem; color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 9px 10px; width: 100%; min-width: 0; }
+input[type="number"], input[type="time"] { font-family: var(--font-data); }
+textarea { resize: vertical; min-height: 56px; }
+.toggle { flex-direction: row; align-items: center; gap: 10px; font-weight: 400; font-size: 0.95rem; }
+.toggle input { width: 22px; height: 22px; accent-color: var(--breath); flex: none; }
+.status { font-size: 0.875rem; color: var(--good); }
+.status.err { color: var(--pulse); }
+
+/* Bottom nav */
+nav.tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; background: var(--surface); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom, 0px); }
+nav.tabs .in { max-width: 640px; margin: 0 auto; display: grid; grid-template-columns: repeat(5, 1fr); height: var(--nav-h); }
+nav.tabs button { border: none; border-radius: 0; background: none; flex-direction: column; gap: 2px; font-size: 0.72rem; color: var(--muted); padding: 6px 2px; min-height: 0; }
+nav.tabs button svg { width: 24px; height: 24px; }
+nav.tabs button.on { color: var(--breath); font-weight: 700; }
+
+/* H10 bar */
+.h10 { display: flex; align-items: center; gap: 12px; justify-content: space-between; flex-wrap: wrap; }
+.h10 .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--line); flex: none; }
+.h10 .dot.ok { background: var(--good); }
+.h10 .bpm { font-family: var(--font-data); font-size: 1.6rem; color: var(--pulse); font-variant-numeric: tabular-nums; }
+
+/* Pacer */
+.pacer { align-items: center; text-align: center; }
+.rates { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+.rates button { font-family: var(--font-data); min-height: 38px; padding: 6px 10px; }
+.orb-stage { width: 200px; max-width: 70vw; aspect-ratio: 1; display: grid; place-items: center; position: relative; }
+.orb-ring { position: absolute; inset: 0; border-radius: 50%; border: 1.5px dashed var(--line); }
+.orb { position: absolute; inset: 0; border-radius: 50%; background: var(--breath-soft); border: 2px solid var(--breath); transform: scale(0.45); }
+.orb-text { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; pointer-events: none; }
+.orb-label { font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; color: var(--breath); }
+.orb-count { font-family: var(--font-data); color: var(--muted); font-size: 0.9rem; }
+.blind .orb-stage { visibility: hidden; height: 0; }
+.progress { width: 100%; height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; }
+.progress div { height: 100%; width: 0; background: var(--breath); }
+canvas.live { width: 100%; height: 150px; display: block; background: var(--bg); border-radius: 10px; }
+.metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; width: 100%; }
+.metric { display: flex; flex-direction: column; gap: 0; min-width: 0; text-align: left; }
+.metric b { font-family: var(--font-data); font-weight: 500; font-size: 1.3rem; font-variant-numeric: tabular-nums; }
+.metric span { font-size: 0.75rem; color: var(--muted); }
+
+/* Lists */
+.list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.list li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; padding: 10px 0; border-top: 1px solid var(--line); align-items: center; }
+.list li:first-child { border-top: none; }
+.list .t { font-weight: 700; }
+.list .r { text-align: right; font-family: var(--font-data); font-size: 0.9rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.list .sub { grid-column: 1 / -1; color: var(--muted); font-size: 0.875rem; overflow-wrap: anywhere; }
+.list .acts { grid-column: 1 / -1; display: flex; gap: 6px; justify-content: flex-end; flex-wrap: wrap; }
+.list .acts button, .list .acts a { min-height: 34px; padding: 4px 10px; font-size: 0.85rem; }
+.day-h { font-family: var(--font-display); font-weight: 700; font-size: 0.95rem; padding-top: 6px; display: flex; justify-content: space-between; }
+.day-h span { font-family: var(--font-data); font-weight: 500; color: var(--muted); font-size: 0.8rem; }
+.empty { padding: 16px; border: 1.5px dashed var(--line); border-radius: var(--radius); color: var(--muted); text-align: center; font-size: 0.95rem; }
+.drop { color: var(--good); }
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.stat b { display: block; font-family: var(--font-data); font-size: 1.4rem; font-weight: 500; font-variant-numeric: tabular-nums; }
+.stat span { font-size: 0.78rem; color: var(--muted); }
+.chart-box { overflow-x: auto; }
+.chart-box svg { display: block; width: 100%; min-width: 300px; height: auto; }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 0.8rem; color: var(--muted); }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 5px; vertical-align: -1px; }
+.table-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+th, td { text-align: left; padding: 7px 6px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+td.n { font-family: var(--font-data); font-variant-numeric: tabular-nums; }
+.bars { display: flex; flex-direction: column; gap: 6px; }
+.bar { display: grid; grid-template-columns: 64px minmax(0, 1fr) 64px; gap: 8px; align-items: center; font-family: var(--font-data); font-size: 0.85rem; }
+.bar .track { height: 14px; background: var(--line); border-radius: 7px; overflow: hidden; }
+.bar .fill { height: 100%; background: var(--breath); opacity: 0.55; border-radius: 7px; }
+.bar.best .fill { opacity: 1; }
+.bar.best { font-weight: 700; }
+
+/* Guide */
+.phase { display: flex; flex-direction: column; gap: 6px; }
+.phase h3 { display: flex; justify-content: space-between; gap: 10px; }
+.phase h3 small { font-family: var(--font-data); font-size: 0.78rem; color: var(--muted); font-weight: 500; }
+.phase.current h3 { color: var(--breath); }
+.phase p { font-size: 0.95rem; }
+.check { flex-direction: row; align-items: flex-start; gap: 10px; font-weight: 400; font-size: 0.95rem; padding: 3px 0; cursor: pointer; }
+.check input { width: 20px; height: 20px; flex: none; margin-top: 2px; accent-color: var(--breath); }
+.check input:checked + span { color: var(--muted); text-decoration: line-through; }
+details { border-top: 1px solid var(--line); padding-top: 10px; }
+details:first-of-type { border-top: none; padding-top: 0; }
+summary { font-family: var(--font-display); font-weight: 700; cursor: pointer; padding: 4px 0; }
+details .body { display: flex; flex-direction: column; gap: 8px; padding: 6px 0 4px; font-size: 0.95rem; }
+details ul, details ol { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 4px; }
+.copybox { display: flex; gap: 6px; }
+.copybox input { font-family: var(--font-data); font-size: 0.8rem; }
+@media (max-width: 380px) { .metric b { font-size: 1.1rem; } .stat b { font-size: 1.2rem; } h1 { font-size: 1.6rem; } }
+</style>
+<!-- verbund-design:start -->
+<script data-design="puls" data-sync="puls">
+/* SportGermany-Design: 10 dunkle Farbwelten für alle Apps. Läuft im <head>, damit beim Laden nichts aufblitzt.
+ * Die Wahl liegt im gemeinsamen Speicher (gilt sofort für alle Apps) und wird vom Verbund-Sync mit abgeglichen.
+ * data-design nennt, welche CSS-Variablen die jeweilige App benutzt. */
+(function () {
+  "use strict";
+  if (window.SGTheme) return;
+  var KEY = "sg-design";
+  var THEMES = [
+    { id: "mitternacht", name: "Mitternacht", info: "Tiefes Nachtblau (Standard)", bg: "#0d1117", s1: "#151b23", s2: "#1c2430", s3: "#243040", line: "#2a3646", ink: "#e6edf3", muted: "#9aa7b4", faint: "#5d6b7a", acc: "#6ea8fe" },
+    { id: "graphit", name: "Graphit", info: "Warmes Anthrazit, Bernstein", bg: "#141412", s1: "#1c1b19", s2: "#252421", s3: "#2e2c29", line: "#353330", ink: "#ebe9e4", muted: "#a29e95", faint: "#6e6a62", acc: "#e8a55a" },
+    { id: "wald", name: "Wald", info: "Moos und Tannengrün", bg: "#0f1411", s1: "#161d18", s2: "#1d2620", s3: "#253028", line: "#2c382f", ink: "#e4ece5", muted: "#9cab9f", faint: "#627066", acc: "#7cc49a" },
+    { id: "espresso", name: "Espresso", info: "Dunkle Röstung, Karamell", bg: "#15110e", s1: "#1e1814", s2: "#28201b", s3: "#322822", line: "#3a2f28", ink: "#f0e7df", muted: "#b3a497", faint: "#7a6c60", acc: "#d4915c" },
+    { id: "schiefer", name: "Schiefer", info: "Kühles Grau, Eisblau", bg: "#121417", s1: "#1a1d21", s2: "#22262b", s3: "#2b3036", line: "#33383f", ink: "#e8eaed", muted: "#a0a7b0", faint: "#69707a", acc: "#8ab4c9" },
+    { id: "aubergine", name: "Aubergine", info: "Gedämpftes Pflaume, Flieder", bg: "#141016", s1: "#1c1720", s2: "#251e2a", s3: "#2e2634", line: "#372d3d", ink: "#ece6ef", muted: "#ab9fb2", faint: "#74687b", acc: "#c99ad6" },
+    { id: "tiefsee", name: "Tiefsee", info: "Petrol und Türkis", bg: "#0b1414", s1: "#111c1c", s2: "#172525", s3: "#1e2f2f", line: "#243838", ink: "#e0eeec", muted: "#93aeab", faint: "#5b7471", acc: "#4fc1b0" },
+    { id: "oxid", name: "Oxid", info: "Kohle mit Terrakotta", bg: "#131110", s1: "#1c1917", s2: "#25211e", s3: "#2e2925", line: "#36302b", ink: "#efe9e4", muted: "#ab9f95", faint: "#75695f", acc: "#e07a52" },
+    { id: "oled", name: "OLED Schwarz", info: "Reines Schwarz, Signalgelb – spart Akku", bg: "#000000", s1: "#0d0d0d", s2: "#171717", s3: "#212121", line: "#2a2a2a", ink: "#f2f2f2", muted: "#a3a3a3", faint: "#6b6b6b", acc: "#ffcc4d" },
+    { id: "bordeaux", name: "Bordeaux", info: "Weinrot und Rosé", bg: "#140f10", s1: "#1d1517", s2: "#271c1f", s3: "#312327", line: "#3a2a2e", ink: "#f0e6e7", muted: "#b39fa3", faint: "#7b676b", acc: "#e0707e" }
+  ];
+  var FONT = "'Segoe UI Variable Text','Segoe UI',Roboto,'Helvetica Neue',system-ui,-apple-system,sans-serif";
+  // App-Variable -> Farbrolle der Farbwelt
+  var MAPS = {
+    panel: { bg: "bg", panel: "s1", "panel-2": "s2", "panel-3": "s3", line: "line", text: "ink", "text-dim": "muted", "text-faint": "faint" },
+    bibel: { bg: "bg", surface: "s1", surface2: "s2", ink: "ink", muted: "muted", accent: "acc", "accent-bright": "acc" },
+    rodeln: { bg: "bg", surface: "s1", surface2: "s2", ink: "ink", muted: "muted", line: "line", accent: "acc", "accent-soft": "accsoft", "accent-ink": "accfg", mat: "s2", floor: "s3", far: "faint" },
+    lernplan: { bg: "bg", surface: "s1", surface2: "s2", text: "ink", muted: "muted", line: "line", weekend: "bg", grid: "line", accent: "acc", "accent-soft": "accsoft" },
+    puls: { bg: "bg", surface: "s1", ink: "ink", muted: "muted", line: "line", breath: "acc", "breath-soft": "accsoft" },
+    kalender: { bg: "bg", s1: "s1", s2: "s2", s3: "s3", line: "line", line2: "s2", ink: "ink", muted: "muted", faint: "faint", acc: "acc", accfg: "accfg" }
+  };
+  // Laptop-Anpassungen: schmale Handy-Spalten verbreitern, zu breite Seiten mittig begrenzen
+  var LAYOUT = {
+    panel: "@media(min-width:900px){.onb{padding-left:max(24px,calc(50vw - 380px))!important;padding-right:max(24px,calc(50vw - 380px))!important}}",
+    bibel: "@media(min-width:900px){.app,.overlay-inner{max-width:720px}}"
+  };
+  var FONTVARS = { rodeln: ["fd", "fb"], puls: ["font-display", "font-body"], bibel: ["sans"] };
+  var script = document.currentScript;
+  var MODE = (script && script.getAttribute("data-design")) || "panel";
+  // Als Modul in einer anderen App eingebettet? Dann übernimmt die äußere App Offline-Speicher und Installation.
+  var EMBED = (function () { try { return window.self !== window.top; } catch (e) { return true; } })();
+  if (EMBED) {
+    document.documentElement.classList.add("sg-embed");
+    try { if (navigator.serviceWorker) navigator.serviceWorker.register = function () { return Promise.resolve({ scope: "" }); }; } catch (e) {}
+  }
+  // Daten, die der Cloud-Sync kurz vor einem Neuladen übernommen hat, zurückschreiben, BEVOR die App startet –
+  // so kann die App sie beim Schließen nicht mit ihrem alten Stand überschreiben.
+  (function () {
+    var sid = script && script.getAttribute("data-sync");
+    try {
+      Object.keys(localStorage).forEach(function (k) {
+        if (k.indexOf("sg-apply-on-boot:") !== 0) return;
+        var e = JSON.parse(localStorage.getItem(k) || "null");
+        if (!e || Date.now() - e.t > 10 * 60000) { localStorage.removeItem(k); return; }
+        if (sid && k === "sg-apply-on-boot:" + sid) {
+          Object.keys(e.data || {}).forEach(function (d) { localStorage.setItem(d, e.data[d]); });
+          localStorage.removeItem(k);
+        }
+      });
+    } catch (e) {}
+  })();
+
+  function rgba(hex, a) { var n = parseInt(hex.slice(1), 16); return "rgba(" + (n >> 16) + "," + (n >> 8 & 255) + "," + (n & 255) + "," + a + ")"; }
+  function get(id) { return THEMES.find(function (t) { return t.id === id; }) || THEMES[0]; }
+  function currentId() { try { return localStorage.getItem(KEY) || "mitternacht"; } catch (e) { return "mitternacht"; } }
+  function css(t) {
+    var roles = Object.assign({ accsoft: rgba(t.acc, .16), accfg: "#14120f" }, t), map = MAPS[MODE] || MAPS.panel;
+    var vars = Object.keys(map).map(function (k) { return "--" + k + ":" + roles[map[k]]; }).join(";");
+    vars += ";" + (FONTVARS[MODE] || []).map(function (v) { return "--" + v + ":" + FONT; }).join(";") + ";--sg-acc:" + t.acc + ";color-scheme:dark";
+    // :not(#sg) hebt die Regel über alle Hell/Dunkel-Regeln der Apps – alle Apps bleiben dunkel.
+    // In der Bibel bleiben Sepia- und Nachtmodus als Lesemodi erhalten.
+    var sel = MODE === "bibel" ? "html:root:not(#sg):not([data-theme=\"sepia\"]):not([data-theme=\"night\"])" : "html:root:not(#sg)";
+    return sel + "{" + vars + "}html:not(#sg) body{background-color:var(--bg)}body,button,input,select,textarea{font-family:" + FONT + "}" + (LAYOUT[MODE] || "");
+  }
+  function apply(id) {
+    var t = get(id || currentId());
+    var st = document.getElementById("sg-theme");
+    if (!st) { st = document.createElement("style"); st.id = "sg-theme"; (document.head || document.documentElement).appendChild(st); }
+    st.textContent = css(t);
+    document.querySelectorAll("meta[name=theme-color]").forEach(function (m) { m.setAttribute("content", t.bg); m.removeAttribute("media"); });
+    window.dispatchEvent(new CustomEvent("sg-theme", { detail: t }));
+    return t;
+  }
+  window.SGTheme = {
+    list: THEMES,
+    current: function () { return get(currentId()); },
+    set: function (id) { try { localStorage.setItem(KEY, id); } catch (e) {} apply(id); window.dispatchEvent(new CustomEvent("sg-theme-set", { detail: id })); }
+  };
+  // ?design=… in der Adresse: zum Ausprobieren ohne zu speichern
+  var q = /[?&]design=([a-z]+)/.exec(location.search);
+  apply(q ? q[1] : null);
+  window.addEventListener("storage", function (e) { if (e.key === KEY || e.key === null) apply(); });
+})();
+</script>
+<!-- verbund-design:end -->
+</head>
+<body>
+<div class="wrap">
+
+<!-- ============ HEUTE ============ -->
+<section class="view" id="v-today">
+  <div class="stack">
+    <div class="row between"><h1>Pulsplan</h1><span class="chip" id="phaseChip">Phase 1</span></div>
+    <p class="muted small" id="weekText">Woche 1 von 12</p>
+    <div class="weekbar" id="weekbar" aria-hidden="true"></div>
+    <p class="info" id="startHint" hidden>Leg im Bereich <b>Plan</b> unter Einstellungen dein Startdatum fest. Bis dahin zählt heute als Tag 1.</p>
+    <div class="panel">
+      <div class="row between"><h2>Heute</h2><span class="small muted num" id="todayDate"></span></div>
+      <ul class="list" id="todayList"></ul>
+      <div class="empty" id="todayEmpty">Für heute ist nichts geplant. Plan deine Woche unter <b>Woche</b> oder starte direkt eine Übung.</div>
+      <button class="primary wide" type="button" data-go="train">Übung starten</button>
+    </div>
+    <div class="panel">
+      <h2>Fokus dieser Phase</h2>
+      <p id="phaseFocus"></p>
+    </div>
+    <div class="panel">
+      <h2>Akut-Werkzeug: zyklisches Seufzen</h2>
+      <p>Zweimal kurz durch die Nase einatmen, dann lang durch den Mund ausatmen. 3 bis 5 Mal, danach 1 bis 2 Minuten im 4-6-Takt weiteratmen.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ÜBEN ============ -->
+<section class="view" id="v-train" hidden>
+  <div class="stack">
+    <h1>Üben</h1>
+    <div class="panel">
+      <div class="h10">
+        <div class="row"><span class="dot" id="h10Dot"></span><div><b id="h10Name">Polar H10</b><div class="small muted" id="h10State">nicht verbunden</div></div></div>
+        <div class="row"><span class="bpm" id="h10Bpm">--</span><button type="button" id="h10Btn">Verbinden</button></div>
+      </div>
+      <p class="notice" id="btMissing" hidden>Bluetooth ist in diesem Browser nicht verfügbar. Öffne die App in Chrome auf Android über deine GitHub-Pages-Adresse (https). Üben ohne Gurt geht trotzdem.</p>
+    </div>
+    <div class="seg" role="tablist" id="modeSeg">
+      <button type="button" class="on" data-mode="practice">Üben</button>
+      <button type="button" data-mode="rf">Resonanztest</button>
+      <button type="button" data-mode="morning">Morgenmessung</button>
+    </div>
+
+    <!-- practice -->
+    <div class="panel pacer" id="m-practice">
+      <div class="rates" id="rates" role="group" aria-label="Atemzüge pro Minute"></div>
+      <div class="row" style="justify-content:center">
+        <label class="toggle"><input type="checkbox" id="optVibrate"> Vibration</label>
+        <label class="toggle"><input type="checkbox" id="optBlind"> Ohne Taktgeber</label>
+        <label class="toggle" style="gap:6px">Ziel
+          <select id="optDur" style="width:auto;padding:6px 8px">
+            <option value="0">offen</option><option value="5">5 min</option><option value="10" selected>10 min</option><option value="15">15 min</option><option value="20">20 min</option>
+          </select></label>
+      </div>
+      <div id="pacerBox">
+        <div class="orb-stage"><div class="orb-ring"></div>
+          <div class="orb" id="orb"></div><div class="orb-text"><div><div class="orb-label" id="orbLabel">Bereit</div><div class="orb-count" id="orbCount"></div></div></div>
+        </div>
+      </div>
+      <div class="progress" aria-hidden="true"><div id="phaseBar"></div></div>
+      <canvas class="live" id="liveCanvas" aria-label="Live-Pulskurve"></canvas>
+      <div class="metrics">
+        <div class="metric"><b class="num" id="mTime">00:00</b><span>Zeit</span></div>
+        <div class="metric"><b class="num" id="mWave">–</b><span>Pulswelle bpm</span></div>
+        <div class="metric"><b class="num" id="mRmssd">–</b><span>RMSSD ms (60 s)</span></div>
+      </div>
+      <button type="button" class="primary wide" id="practiceBtn">Start</button>
+    </div>
+
+    <!-- session summary -->
+    <div class="panel" id="summary" hidden>
+      <h2>Einheit speichern</h2>
+      <div class="metrics" id="sumMetrics"></div>
+      <form id="sumForm">
+        <div class="grid2">
+          <label>Übung<select id="sType"></select></label>
+          <label>Dauer <span class="hint">min</span><input type="number" id="sMin" min="1" max="180" inputmode="numeric"></label>
+          <label>Puls Anfang <span class="hint">bpm</span><input type="number" id="sHr0" min="30" max="220" inputmode="numeric"></label>
+          <label>Puls Ende <span class="hint">bpm</span><input type="number" id="sHr1" min="30" max="220" inputmode="numeric"></label>
+          <label>Anspannung vorher <span class="hint">0–10</span><input type="number" id="sT0" min="0" max="10" inputmode="numeric"></label>
+          <label>Anspannung nachher <span class="hint">0–10</span><input type="number" id="sT1" min="0" max="10" inputmode="numeric"></label>
+        </div>
+        <label>Notiz <span class="hint">optional</span><textarea id="sNote" maxlength="400"></textarea></label>
+        <div class="row"><button type="submit" class="primary">Speichern</button><button type="button" id="sDiscard" class="link-btn">Verwerfen</button></div>
+      </form>
+    </div>
+
+    <!-- resonance test -->
+    <div class="panel pacer" id="m-rf" hidden>
+      <p class="small muted" style="text-align:left">Du atmest je 2 Minuten bei 6,5 · 6 · 5,5 · 5 · 4,5 Atemzügen pro Minute. Die App misst, bei welchem Takt dein Puls am stärksten mitschwingt. Dauer 10 Minuten, sitzend, Gurt angelegt.</p>
+      <div class="orb-stage"><div class="orb-ring"></div>
+        <div class="orb" id="orbRf"></div><div class="orb-text"><div><div class="orb-label" id="orbRfLabel">Bereit</div><div class="orb-count" id="orbRfCount"></div></div></div>
+      </div>
+      <div class="progress" aria-hidden="true"><div id="rfBar"></div></div>
+      <p class="num" id="rfStep">Block – von 5</p>
+      <button type="button" class="primary wide" id="rfBtn">Test starten</button>
+      <div class="stack" id="rfResult" hidden style="width:100%;text-align:left"></div>
+    </div>
+
+    <!-- morning -->
+    <div class="panel" id="m-morning" hidden>
+      <p>Direkt nach dem Aufwachen, liegend, Gurt angefeuchtet angelegt. 2 Minuten ruhig und normal atmen, nicht steuern. So misst du deine Erholung über die Wochen.</p>
+      <p class="num" style="font-size:2rem;text-align:center" id="mmTime">02:00</p>
+      <div class="metrics">
+        <div class="metric"><b class="num" id="mmHr">–</b><span>Ø Puls</span></div>
+        <div class="metric"><b class="num" id="mmRmssd">–</b><span>RMSSD ms</span></div>
+        <div class="metric"><b class="num" id="mmBeats">0</b><span>Schläge</span></div>
+      </div>
+      <button type="button" class="primary wide" id="mmBtn">Messung starten</button>
+      <span class="status" id="mmStatus" role="status"></span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ WOCHE ============ -->
+<section class="view" id="v-week" hidden>
+  <div class="stack">
+    <h1>Woche planen</h1>
+    <div class="panel">
+      <div class="row between">
+        <button type="button" id="wkPrev" aria-label="Vorherige Woche">‹</button>
+        <div style="text-align:center"><b id="wkTitle">KW</b><div class="small muted num" id="wkRange"></div></div>
+        <button type="button" id="wkNext" aria-label="Nächste Woche">›</button>
+      </div>
+      <p class="small" id="wkPhase"></p>
+      <div class="grid2">
+        <label>Morgens um<input type="time" id="tMorning"></label>
+        <label>Abends um<input type="time" id="tEvening"></label>
+      </div>
+      <button type="button" id="wkSuggest">Vorschlag aus dem Plan einfügen</button>
+      <div id="wkConfirm" class="info" hidden>Diese Woche hat schon Termine. Vorschlag zusätzlich einfügen? <div class="row" style="margin-top:8px"><button type="button" class="primary" id="wkConfirmYes">Ja, ersetzen</button><button type="button" id="wkConfirmNo">Abbrechen</button></div></div>
+    </div>
+
+    <div class="panel">
+      <h2>Termine</h2>
+      <div id="wkList"></div>
+      <div class="empty" id="wkEmpty">Noch keine Termine in dieser Woche. Füg den Vorschlag ein oder leg unten einzelne Termine an.</div>
+    </div>
+
+    <div class="panel">
+      <h2 id="addTitle">Termin hinzufügen</h2>
+      <form id="addForm">
+        <div class="grid2">
+          <label>Tag<select id="aDay"></select></label>
+          <label>Uhrzeit<input type="time" id="aTime" required value="07:00"></label>
+          <label>Übung<select id="aType"></select></label>
+          <label>Dauer <span class="hint">min</span><input type="number" id="aDur" min="2" max="180" value="10" inputmode="numeric"></label>
+        </div>
+        <label>Notiz <span class="hint">optional, landet im Kalendertermin</span><input type="text" id="aNote" maxlength="200"></label>
+        <div class="row"><button type="submit" class="primary" id="addBtn">Hinzufügen</button><button type="button" class="link-btn" id="addCancel" hidden>Bearbeiten abbrechen</button></div>
+      </form>
+    </div>
+
+    <div class="panel">
+      <h2>In den Kalender</h2>
+      <p class="small">Notion Calendar kann keine Kalenderdateien direkt importieren. Die Termine laufen deshalb über deinen Google-Kalender, der in Notion verbunden ist.</p>
+      <button type="button" class="primary" id="ghPublish">Kalender-Abo aktualisieren (GitHub)</button>
+      <span class="status" id="ghStatus" role="status"></span>
+      <div class="row">
+        <button type="button" id="icsDownload">Diese Woche als .ics</button>
+        <button type="button" id="icsShare" hidden>Teilen …</button>
+      </div>
+      <details>
+        <summary>So kommt es in Notion Calendar</summary>
+        <div class="body">
+          <p><b>Weg A: Abo, einmal einrichten (empfohlen)</b></p>
+          <ol>
+            <li>Unter <b>Plan → Einstellungen</b> GitHub-Repo und Token eintragen.</li>
+            <li>„Kalender-Abo aktualisieren“ tippen. Die App schreibt alle Termine in eine Datei in deinem Repo.</li>
+            <li>Abo-Adresse kopieren (steht in den Einstellungen).</li>
+            <li>Google Kalender im Browser öffnen (in Chrome „Desktopversion“ aktivieren): Einstellungen → Kalender hinzufügen → Per URL → Adresse einfügen.</li>
+            <li>Ist dein Google-Konto in Notion Calendar verbunden, erscheint der Kalender dort automatisch.</li>
+          </ol>
+          <p>Danach reicht jede Woche ein Tipp auf „Kalender-Abo aktualisieren“. Google lädt abonnierte Kalender nur in Abständen neu, Änderungen können einige Stunden dauern.</p>
+          <p><b>Weg B: Datei</b>: .ics herunterladen, dann in Google Kalender (Desktopversion) Einstellungen → Importieren &amp; Exportieren → Datei wählen. Laut Google geht der Import nur in der Browser-Version, nicht in der Kalender-App.</p>
+          <p><b>Weg C: einzeln</b>: Das „G“ neben jedem Termin öffnet Google Kalender mit dem fertig ausgefüllten Termin.</p>
+          <p class="small muted">Quellen: <a href="https://www.notion.com/help/manage-your-calendars-and-events" target="_blank" rel="noopener">Notion-Hilfe</a> · <a href="https://support.google.com/calendar/answer/37118?hl=de" target="_blank" rel="noopener">Google-Hilfe Import</a></p>
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============ VERLAUF ============ -->
+<section class="view" id="v-log" hidden>
+  <div class="stack">
+    <h1>Verlauf</h1>
+    <div class="panel">
+      <div class="stats">
+        <div class="stat"><b id="stWeek">0</b><span>Einheiten diese Woche</span></div>
+        <div class="stat"><b id="stDrop">–</b><span>Ø Pulsabfall bpm</span></div>
+        <div class="stat"><b id="stTense">–</b><span>Ø weniger Anspannung</span></div>
+      </div>
+      <div id="chartSessWrap" hidden>
+        <div class="legend"><span><i style="background:var(--pulse)"></i>Puls Anfang</span><span><i style="background:var(--breath)"></i>Puls Ende</span></div>
+        <div class="chart-box" id="chartSess"></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="row between"><h2>Morgenmessung</h2><span class="small muted">RMSSD = HRV in Ruhe</span></div>
+      <div id="chartMornWrap" hidden>
+        <div class="legend"><span><i style="background:var(--good)"></i>RMSSD ms</span><span><i style="background:var(--pulse)"></i>Ø Puls</span></div>
+        <div class="chart-box" id="chartMorn"></div>
+      </div>
+      <div class="empty" id="mornEmpty">Noch keine Morgenmessung. Ab 3 Messungen siehst du hier deinen Trend.</div>
+    </div>
+    <div class="panel">
+      <h2>Einheiten</h2>
+      <ul class="list" id="sessList"></ul>
+      <div class="empty" id="sessEmpty">Noch keine Einheit gespeichert. Nach jeder Übung speicherst du sie mit einem Tipp.</div>
+    </div>
+    <div class="panel">
+      <div class="row between"><h2>Wochen-Check</h2><span class="small muted">einmal pro Woche</span></div>
+      <form id="weekForm">
+        <div class="grid2">
+          <label>Woche <span class="hint">1–12</span><input type="number" id="wNum" min="1" max="52" inputmode="numeric"></label>
+          <label>Schlaf <span class="hint">0–10</span><input type="number" id="wSleep" min="0" max="10" inputmode="numeric"></label>
+          <label>Stress im Alltag <span class="hint">0–10</span><input type="number" id="wStress" min="0" max="10" inputmode="numeric"></label>
+          <label>Garmin HRV-Status
+            <select id="wHrv"><option value="">–</option><option>Ausgewogen</option><option>Unausgewogen</option><option>Niedrig</option><option>Schwach</option></select>
+          </label>
+        </div>
+        <div class="row"><button type="submit" class="primary">Woche speichern</button><span class="status" id="wStatus" role="status"></span></div>
+      </form>
+      <div class="table-wrap" id="weeksWrap" hidden>
+        <table><thead><tr><th>Woche</th><th>Schlaf</th><th>Stress</th><th>HRV-Status</th></tr></thead><tbody id="weeksBody"></tbody></table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PLAN ============ -->
+<section class="view" id="v-plan" hidden>
+  <div class="stack">
+    <div class="row between"><h1>Plan</h1><span class="small muted num" id="planCount">0 / 0</span></div>
+    <div class="panel" id="phases"></div>
+    <div class="panel">
+      <h2>Wissen kompakt</h2>
+      <details>
+        <summary>Warum Atmen den Puls steuert</summary>
+        <div class="body">
+          <p>Einatmen bremst den Vagusnerv kurz, der Puls steigt. Ausatmen gibt ihn frei, der Puls sinkt. Der Baroreflex regelt den Blutdruck in einem Takt von etwa 10 Sekunden.</p>
+          <p>Atmest du rund 6-mal pro Minute, schwingen beide zusammen (Resonanz): Der Puls schwankt stark und gleichmäßig, das trainiert die Regulation. Längeres Ausatmen verstärkt die Bremswirkung.</p>
+          <p>Den Herzschlag direkt per Gedanken steuern oder anhalten kann niemand. Labortests an Yogis mit dieser Behauptung fanden keinen Herzstillstand.</p>
+        </div>
+      </details>
+      <details>
+        <summary>Was die Zahlen bedeuten</summary>
+        <div class="body">
+          <p><b>Pulswelle:</b> Wie stark dein Puls im Atemtakt schwankt (höchster minus niedrigster Wert je Atemzug). Je größer und gleichmäßiger, desto besser triffst du die Resonanz.</p>
+          <p><b>RMSSD:</b> Ein Standardmaß der Herzratenvariabilität aus den Schlag-zu-Schlag-Abständen. Vergleiche nur deine eigenen Werte unter gleichen Bedingungen, am besten die Morgenmessung.</p>
+          <p>Ruhepuls und HRV ändern sich oft langsam. In einer Stanford-Studie besserte sich die Stimmung deutlich, Ruhepuls und HRV aber nicht. Dein Gefühl ist ein echter Messwert.</p>
+        </div>
+      </details>
+      <details>
+        <summary>Akut-Werkzeuge</summary>
+        <div class="body">
+          <ul>
+            <li><b>Stress:</b> 3–5 zyklische Seufzer, dann 1–2 min im 4-6-Takt.</li>
+            <li><b>Einschlafen:</b> 15–20 min langsames Atmen im Bett oder PMR.</li>
+            <li><b>Vor dem Wettkampf:</b> 2–3 min Resonanzatmen, dann bewusst normal weiteratmen. Ziel ist kontrollierte Spannung, nicht maximale Entspannung. Erst im Training testen.</li>
+            <li><b>Nach Belastung:</b> 3–5 min langsam mit langem Ausatmen, Puls in der App beobachten.</li>
+          </ul>
+        </div>
+      </details>
+      <details>
+        <summary>Sicherheit</summary>
+        <div class="body">
+          <ul>
+            <li>Nie Hyperventilation oder Atemanhalten im oder am Wasser, auch nicht in der Badewanne. Ohnmacht kommt ohne Vorwarnung.</li>
+            <li>Nicht beim Autofahren üben.</li>
+            <li>Schwindel oder Kribbeln: kleiner und sanfter atmen.</li>
+            <li>Bei Herzrhythmusstörungen, Herz- oder Lungenerkrankungen, Schwangerschaft oder pulsbeeinflussenden Medikamenten vorher ärztlich abklären.</li>
+          </ul>
+        </div>
+      </details>
+      <details>
+        <summary>Quellen</summary>
+        <div class="body">
+          <ul class="small">
+            <li><a href="https://pubmed.ncbi.nlm.nih.gov/28478782/" target="_blank" rel="noopener">Goessl et al. 2017: HRV-Biofeedback, Meta-Analyse</a></li>
+            <li><a href="https://link.springer.com/article/10.1007/s10484-020-09466-z" target="_blank" rel="noopener">Lehrer et al. 2020: HRV-Biofeedback, Meta-Analyse</a></li>
+            <li><a href="https://www.nature.com/articles/s41598-022-27247-y" target="_blank" rel="noopener">Fincham et al. 2023: Breathwork und Stress</a></li>
+            <li><a href="https://www.cell.com/cell-reports-medicine/pdfExtended/S2666-3791(22)00474-8" target="_blank" rel="noopener">Balban et al. 2023: zyklisches Seufzen</a></li>
+            <li><a href="https://www.nature.com/articles/s41598-021-87867-8" target="_blank" rel="noopener">Resonanzfrequenz ist nicht immer stabil (2021)</a></li>
+            <li><a href="https://pubmed.ncbi.nlm.nih.gov/41633054/" target="_blank" rel="noopener">PMR und Schlaf, Meta-Analyse</a></li>
+            <li><a href="https://onlinelibrary.wiley.com/doi/10.1111/psyp.12333" target="_blank" rel="noopener">Tsai et al. 2015: langsames Atmen vor dem Schlafen</a></li>
+            <li><a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC12583207/" target="_blank" rel="noopener">Biofeedback bei Sportlern, Meta-Analyse 2025</a></li>
+            <li><a href="https://www.ahajournals.org/doi/pdf/10.1161/01.cir.24.6.1319" target="_blank" rel="noopener">Wenger et al. 1961: „Herzstopp“ bei Yogis</a></li>
+            <li><a href="https://www.ncbi.nlm.nih.gov/books/NBK554620/" target="_blank" rel="noopener">StatPearls: Shallow Water Blackout</a></li>
+          </ul>
+        </div>
+      </details>
+    </div>
+
+    <div class="panel" id="settings">
+      <h2>Einstellungen</h2>
+      <div class="grid2">
+        <label>Startdatum<input type="date" id="cfStart"></label>
+        <label>Mein Takt <span class="hint">Atemzüge/min</span><input type="number" id="cfRate" min="3" max="10" step="0.5" inputmode="decimal"></label>
+        <label>Erinnerung <span class="hint">min vorher</span><input type="number" id="cfRemind" min="0" max="120" inputmode="numeric"></label>
+      </div>
+      <h3>GitHub-Kalender-Abo</h3>
+      <p class="small muted">Die App schreibt die Termine als .ics-Datei in dein Repository. Nimm am besten das Repo, in dem auch diese App liegt. Der Token bleibt nur auf diesem Handy.</p>
+      <div class="grid2">
+        <label>GitHub-Name<input type="text" id="ghOwner" autocomplete="off" autocapitalize="off" spellcheck="false"></label>
+        <label>Repository<input type="text" id="ghRepo" autocomplete="off" autocapitalize="off" spellcheck="false"></label>
+        <label>Dateiname<input type="text" id="ghPath" autocomplete="off" autocapitalize="off" spellcheck="false"></label>
+        <label>Token<input type="password" id="ghToken" autocomplete="off"></label>
+      </div>
+      <p class="small muted">Token anlegen: GitHub → Settings → Developer settings → Fine-grained tokens. Nur dieses Repository, Berechtigung „Contents: Read and write“.</p>
+      <label>Abo-Adresse für Google Kalender
+        <div class="copybox"><input type="text" id="ghUrl" readonly><button type="button" id="ghCopy">Kopieren</button></div>
+      </label>
+      <h3>Datensicherung</h3>
+      <p class="small muted">Alle Daten liegen nur in diesem Browser. Sichere sie ab und zu als Datei.</p>
+      <div class="row">
+        <button type="button" id="bkExport">Sicherung herunterladen</button>
+        <label class="btn" for="bkImport" style="font-weight:400;font-size:1rem">Sicherung laden</label>
+        <input type="file" id="bkImport" accept="application/json,.json" hidden>
+      </div>
+      <span class="status" id="cfStatus" role="status"></span>
+    </div>
+  </div>
+</section>
+</div>
+
+<nav class="tabs" aria-label="Bereiche">
+  <div class="in">
+    <button type="button" data-go="today" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>Heute</button>
+    <button type="button" data-go="train"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h4l2-5 3 10 3-8 2 3h6"/></svg>Üben</button>
+    <button type="button" data-go="week"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Woche</button>
+    <button type="button" data-go="log"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Verlauf</button>
+    <button type="button" data-go="plan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4 6l1 1 2-2M4 12l1 1 2-2M4 18l1 1 2-2"/></svg>Plan</button>
+  </div>
+</nav>
+
+<script>
+(function () {
+"use strict";
+
+/* =========================================================
+   Basics
+   ========================================================= */
+var $ = function (id) { return document.getElementById(id); };
+var pad = function (n) { return String(n).padStart(2, "0"); };
+function ymd(d) { return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
+function parseYmd(s) { var p = s.split("-"); return new Date(+p[0], +p[1] - 1, +p[2]); }
+function addDays(d, n) { var x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate() + n); return x; }
+function mondayOf(d) { var wd = (d.getDay() + 6) % 7; return addDays(d, -wd); }
+function isoWeek(d) { var t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())); var day = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - day); var y0 = new Date(Date.UTC(t.getUTCFullYear(), 0, 1)); return Math.ceil(((t - y0) / 864e5 + 1) / 7); }
+function fmtDay(s) { var p = s.split("-"); return +p[2] + "." + +p[1] + "."; }
+function fmtDayY(s) { var p = s.split("-"); return +p[2] + "." + +p[1] + "." + p[0]; }
+var WD = ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"];
+var WDS = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
+function wdIndex(s) { return (parseYmd(s).getDay() + 6) % 7; }
+function de(n, d) { return Number(n).toFixed(d).replace(".", ","); }
+function rateTxt(r) { return de(r, r % 1 ? 1 : 0); }
+function numOrNull(v) { if (v === "" || v == null) return null; var n = Number(v); return isFinite(n) ? n : null; }
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
+function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+function css(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+function setStatus(id, msg, err) { var el = $(id); el.textContent = msg; el.className = "status" + (err ? " err" : ""); }
+
+/* =========================================================
+   Storage
+   ========================================================= */
+var LS = "pulsplan.v1";
+function defaults() {
+  return {
+    settings: { start: null, rate: 6, morning: "07:00", evening: "21:30", remind: 10, vibrate: true,
+      gh: { owner: "", repo: "", path: "atemtraining.ics", token: "" } },
+    entries: [], sessions: [], morning: [], tests: [], weeks: [], checked: {}
+  };
+}
+function fill(target, def) {
+  Object.keys(def).forEach(function (k) {
+    if (target[k] === undefined || target[k] === null && def[k] !== null) target[k] = def[k];
+    else if (def[k] && typeof def[k] === "object" && !Array.isArray(def[k]) && typeof target[k] === "object") fill(target[k], def[k]);
+  });
+  return target;
+}
+function load() {
+  try { var raw = localStorage.getItem(LS); if (raw) return fill(JSON.parse(raw), defaults()); } catch (e) {}
+  return defaults();
+}
+var S = load();
+var saveTimer = 0;
+function save() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(function () {
+    try { localStorage.setItem(LS, JSON.stringify(S)); } catch (e) { setStatus("cfStatus", "Speichern im Browser fehlgeschlagen.", true); }
+  }, 150);
+}
+function saveNow() { clearTimeout(saveTimer); try { localStorage.setItem(LS, JSON.stringify(S)); } catch (e) {} }
+window.addEventListener("pagehide", saveNow);
+
+/* =========================================================
+   Plan model
+   ========================================================= */
+var TYPES = ["Langsames Atmen", "Biofeedback mit H10", "Resonanztest", "Zyklisches Seufzen", "PMR", "Autogenes Training", "Einschlaf-Routine", "Wettkampf-Routine", "Nach Belastung", "Morgenmessung"];
+var PHASES = [
+  { n: 1, name: "Atmen lernen", from: 1, to: 2,
+    focus: "Zweimal täglich 5 Minuten im 4-6-Takt (6 Atemzüge pro Minute). Lege den H10 an, wann immer es passt, damit du die Pulswelle siehst. An 3 Morgen eine Morgenmessung als Ausgangswert.",
+    items: [["p1a", "App auf dem Handy installiert"], ["p1b", "H10 verbunden, Live-Puls sichtbar"], ["p1c", "3 Morgenmessungen als Ausgangswert"], ["p1d", "6 Atemzüge pro Minute fühlen sich mühelos an"]] },
+  { n: 2, name: "Biofeedback", from: 3, to: 5,
+    focus: "Zu Beginn der Phase den Resonanztest machen und deinen Takt übernehmen. Danach täglich 10 bis 20 Minuten mit H10 in deinem Takt. Ziel: eine große, gleichmäßige Pulswelle.",
+    items: [["p2a", "Resonanztest gemacht"], ["p2b", "Meinen Takt in den Einstellungen übernommen"], ["p2c", "Pulswelle deutlich und gleichmäßig sichtbar"], ["p2d", "Woche 5: Resonanztest wiederholt"]] },
+  { n: 3, name: "Vertiefen", from: 6, to: 9,
+    focus: "Morgens 10 Minuten Biofeedback, abends PMR oder Autogenes Training. Am Ende jeder Einheit 2 Minuten „Ohne Taktgeber“: Kannst du die Pulswelle allein halten?",
+    items: [["p3a", "PMR abends eingeführt"], ["p3b", "Autogenes Training mit Atmungs- und Herzformel geübt"], ["p3c", "Pulswelle ohne Taktgeber gehalten"]] },
+  { n: 4, name: "Anwenden", from: 10, to: 12,
+    focus: "Die Werkzeuge im echten Leben einsetzen: vor Gesprächen, beim Einschlafen, im Training. In Woche 12 Resonanztest wiederholen und mit Woche 1 vergleichen.",
+    items: [["p4a", "Zyklisches Seufzen in einer echten Stresssituation genutzt"], ["p4b", "Einschlaf-Routine eine Woche lang durchgezogen"], ["p4c", "Wettkampf-Routine im Training getestet"], ["p4d", "Woche 12: Resonanztest wiederholt"], ["p4e", "Bilanz: Werte mit Woche 1 verglichen"]] }
+];
+function startDate() { return S.settings.start ? parseYmd(S.settings.start) : parseYmd(ymd(new Date())); }
+function weekOf(date) { return Math.floor(Math.round((date - startDate()) / 864e5) / 7) + 1; }
+function phaseOf(w) { for (var i = 0; i < PHASES.length; i++) if (w >= PHASES[i].from && w <= PHASES[i].to) return PHASES[i]; return null; }
+function phaseLabel(w) { var p = phaseOf(w); if (w < 1) return "vor dem Start"; return p ? "Phase " + p.n + " · " + p.name : "Erhalt: täglich 10 Minuten"; }
+
+/* =========================================================
+   Navigation
+   ========================================================= */
+var views = ["today", "train", "week", "log", "plan"];
+function go(v) {
+  views.forEach(function (x) { $("v-" + x).hidden = x !== v; });
+  document.querySelectorAll("nav.tabs button").forEach(function (b) { b.classList.toggle("on", b.dataset.go === v); });
+  if (v === "today") renderToday();
+  if (v === "week") renderWeek();
+  if (v === "log") renderLog();
+  if (v === "plan") renderPlan();
+  if (v === "train") resizeCanvas();
+  window.scrollTo(0, 0);
+}
+document.addEventListener("click", function (e) { var b = e.target.closest("[data-go]"); if (b) go(b.dataset.go); });
+
+/* =========================================================
+   Today
+   ========================================================= */
+function renderHeaderBits() {
+  var w = weekOf(parseYmd(ymd(new Date())));
+  $("phaseChip").textContent = phaseOf(w) ? "Phase " + phaseOf(w).n : (w > 12 ? "Erhalt" : "Start");
+  $("weekText").textContent = (w >= 1 && w <= 12 ? "Woche " + w + " von 12 · " : "") + phaseLabel(w);
+  var bar = $("weekbar"); bar.innerHTML = "";
+  for (var i = 1; i <= 12; i++) { var s = document.createElement("span"); if (i < w) s.className = "done"; else if (i === w) s.className = "now"; bar.appendChild(s); }
+  $("startHint").hidden = !!S.settings.start;
+  var p = phaseOf(w);
+  $("phaseFocus").textContent = p ? p.focus : "Halte das Gelernte mit dem täglichen 10-Minuten-Kern im eigenen Takt. Teste den Resonanztakt etwa einmal im Monat neu.";
+}
+function renderToday() {
+  renderHeaderBits();
+  var t = ymd(new Date());
+  $("todayDate").textContent = WD[wdIndex(t)] + ", " + fmtDay(t);
+  var list = S.entries.filter(function (e) { return e.date === t; }).sort(function (a, b) { return a.time < b.time ? -1 : 1; });
+  var ul = $("todayList"); ul.innerHTML = "";
+  $("todayEmpty").hidden = list.length > 0;
+  list.forEach(function (e) {
+    var li = document.createElement("li");
+    li.innerHTML = '<div><div class="t">' + esc(e.type) + '</div></div><div class="r">' + esc(e.time) + " · " + e.dur + " min</div>" +
+      (e.note ? '<div class="sub">' + esc(e.note) + "</div>" : "") +
+      '<div class="acts"><button type="button" class="primary">Starten</button></div>';
+    li.querySelector("button").addEventListener("click", function () { startFromEntry(e); });
+    ul.appendChild(li);
+  });
+}
+function startFromEntry(e) {
+  go("train");
+  if (e.type === "Resonanztest") { setMode("rf"); return; }
+  if (e.type === "Morgenmessung") { setMode("morning"); return; }
+  setMode("practice");
+  pendingType = e.type;
+  var d = [5, 10, 15, 20].indexOf(e.dur) >= 0 ? e.dur : 0;
+  $("optDur").value = String(d);
+}
+
+/* =========================================================
+   H10 / Web Bluetooth
+   ========================================================= */
+var H = { dev: null, char: null, hr: null, samples: [], lastRR: null, listeners: [] };
+var hasBT = !!(navigator.bluetooth && navigator.bluetooth.requestDevice);
+if (!hasBT) { $("btMissing").hidden = false; $("h10Btn").disabled = true; }
+
+function parseHRM(dv) {
+  var flags = dv.getUint8(0), i = 1, hr, rr = [];
+  if (flags & 0x01) { hr = dv.getUint16(i, true); i += 2; } else { hr = dv.getUint8(i); i += 1; }
+  if (flags & 0x08) i += 2;
+  if (flags & 0x10) { for (; i + 1 < dv.byteLength; i += 2) rr.push(dv.getUint16(i, true) / 1024 * 1000); }
+  return { hr: hr, rr: rr };
+}
+function onHRM(ev) {
+  var m = parseHRM(ev.target.value), now = Date.now();
+  H.hr = m.hr;
+  $("h10Bpm").textContent = m.hr || "--";
+  if (m.rr.length) {
+    var tot = m.rr.reduce(function (a, b) { return a + b; }, 0), t = now - tot;
+    m.rr.forEach(function (rr) {
+      t += rr;
+      var ok = rr >= 300 && rr <= 2000 && (H.lastRR == null || Math.abs(rr - H.lastRR) / H.lastRR <= 0.25);
+      H.lastRR = rr;
+      if (ok) H.samples.push({ t: Math.round(t), rr: rr, hr: 60000 / rr });
+    });
+  } else if (m.hr) {
+    H.samples.push({ t: now, rr: null, hr: m.hr });
+  }
+  var cut = now - 20 * 60 * 1000;
+  while (H.samples.length && H.samples[0].t < cut) H.samples.shift();
+}
+function setH10State(txt, ok) {
+  $("h10State").textContent = txt; $("h10Dot").classList.toggle("ok", !!ok);
+  $("h10Btn").textContent = ok ? "Trennen" : "Verbinden";
+  if (!ok) $("h10Bpm").textContent = "--";
+  updateMorningBtn();
+}
+async function connectH10() {
+  try {
+    setH10State("suche …", false);
+    var dev = H.dev;
+    if (!dev) {
+      dev = await navigator.bluetooth.requestDevice({ filters: [{ services: ["heart_rate"] }], optionalServices: ["battery_service"] });
+      H.dev = dev;
+      dev.addEventListener("gattserverdisconnected", function () { H.char = null; setH10State("Verbindung getrennt", false); });
+    }
+    $("h10Name").textContent = dev.name || "Pulsgurt";
+    var server = await dev.gatt.connect();
+    var svc = await server.getPrimaryService("heart_rate");
+    var ch = await svc.getCharacteristic("heart_rate_measurement");
+    ch.addEventListener("characteristicvaluechanged", onHRM);
+    await ch.startNotifications();
+    H.char = ch; H.lastRR = null;
+    var batt = "";
+    try { var bs = await server.getPrimaryService("battery_service"); var bc = await bs.getCharacteristic("battery_level"); var v = await bc.readValue(); batt = " · Akku " + v.getUint8(0) + " %"; } catch (e) {}
+    setH10State("verbunden" + batt, true);
+  } catch (err) {
+    if (err && err.name === "NotFoundError") setH10State("keine Auswahl getroffen", false);
+    else setH10State("Verbindung fehlgeschlagen. Gurt anfeuchten, anlegen, andere Verbindungen trennen.", false);
+  }
+}
+$("h10Btn").addEventListener("click", function () {
+  if (H.char && H.dev && H.dev.gatt.connected) { H.dev.gatt.disconnect(); return; }
+  connectH10();
+});
+function connected() { return !!(H.char && H.dev && H.dev.gatt.connected); }
+
+/* metrics */
+function since(t0, t1) { return H.samples.filter(function (s) { return s.t >= t0 && (!t1 || s.t <= t1); }); }
+function avg(a) { return a.length ? a.reduce(function (x, y) { return x + y; }, 0) / a.length : null; }
+function avgHR(arr) { return avg(arr.map(function (s) { return s.hr; })); }
+function rmssd(arr) {
+  var rr = arr.filter(function (s) { return s.rr; }), d = [];
+  for (var i = 1; i < rr.length; i++) d.push(Math.pow(rr[i].rr - rr[i - 1].rr, 2));
+  return d.length >= 10 ? Math.sqrt(avg(d)) : null;
+}
+function waveByCycle(arr, t0, cycleMs, skipFirst) {
+  var groups = {};
+  arr.forEach(function (s) { var k = Math.floor((s.t - t0) / cycleMs); (groups[k] = groups[k] || []).push(s.hr); });
+  var keys = Object.keys(groups).map(Number).sort(function (a, b) { return a - b; });
+  if (skipFirst) keys = keys.slice(1);
+  var last = keys[keys.length - 1];
+  var amps = keys.filter(function (k) { return k !== last && groups[k].length >= 3; }).map(function (k) { return Math.max.apply(null, groups[k]) - Math.min.apply(null, groups[k]); });
+  return amps.length ? avg(amps) : null;
+}
+
+/* =========================================================
+   Pacer
+   ========================================================= */
+var RATES = [6.5, 6, 5.5, 5, 4.5];
+var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+function pacerState(rate, elapsedMs) {
+  var c = 60000 / rate, inh = c * 0.4, pos = elapsedMs % c, inhale = pos < inh;
+  var frac = inhale ? pos / inh : (pos - inh) / (c - inh);
+  var ease = 0.5 - 0.5 * Math.cos(Math.PI * frac);
+  return { inhale: inhale, frac: frac, scale: inhale ? 0.45 + 0.55 * ease : 1 - 0.55 * ease, left: (inhale ? inh - pos : c - pos) / 1000, cycle: Math.floor(elapsedMs / c) };
+}
+function drawOrb(orb, label, count, st) {
+  if (!reduceMotion) orb.style.transform = "scale(" + st.scale.toFixed(3) + ")";
+  label.textContent = st.inhale ? "Ein" : "Aus";
+  count.textContent = de(Math.max(st.left, 0), 1) + " s";
+}
+var curRate = S.settings.rate || 6;
+function renderRates() {
+  var box = $("rates"); box.innerHTML = "";
+  RATES.forEach(function (r) {
+    var b = document.createElement("button"); b.type = "button";
+    b.textContent = rateTxt(r) + (r === S.settings.rate ? " ★" : "");
+    b.className = r === curRate ? "on" : ""; b.setAttribute("aria-pressed", String(r === curRate));
+    b.addEventListener("click", function () { if (P.running) return; curRate = r; renderRates(); idleOrb(); });
+    box.appendChild(b);
+  });
+  if (RATES.indexOf(S.settings.rate) < 0 && S.settings.rate) {
+    var m = document.createElement("button"); m.type = "button"; m.textContent = rateTxt(S.settings.rate) + " ★";
+    m.className = curRate === S.settings.rate ? "on" : "";
+    m.addEventListener("click", function () { if (P.running) return; curRate = S.settings.rate; renderRates(); idleOrb(); });
+    box.appendChild(m);
+  }
+}
+function idleOrb() {
+  var c = 60 / curRate;
+  $("orbLabel").textContent = "Bereit";
+  $("orbCount").innerHTML = de(c * 0.4, 1) + " s ein<br>" + de(c * 0.6, 1) + " s aus";
+  $("orb").style.transform = "scale(0.62)";
+}
+
+/* wake lock + vibration */
+var wakeLock = null;
+async function lockScreen() { try { if (navigator.wakeLock) wakeLock = await navigator.wakeLock.request("screen"); } catch (e) {} }
+function unlockScreen() { try { if (wakeLock) wakeLock.release(); } catch (e) {} wakeLock = null; }
+function buzz(p) { if ($("optVibrate").checked && navigator.vibrate) { try { navigator.vibrate(p); } catch (e) {} } }
+$("optVibrate").checked = !!S.settings.vibrate;
+$("optVibrate").addEventListener("change", function () { S.settings.vibrate = this.checked; save(); });
+$("optBlind").addEventListener("change", function () { $("m-practice").classList.toggle("blind", this.checked); });
+
+/* live canvas */
+var cv = $("liveCanvas"), ctx = cv.getContext("2d");
+function resizeCanvas() { var r = cv.getBoundingClientRect(), dpr = window.devicePixelRatio || 1; if (!r.width) return; cv.width = Math.round(r.width * dpr); cv.height = Math.round(r.height * dpr); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); drawLive(); }
+window.addEventListener("resize", resizeCanvas);
+function drawLive() {
+  var w = cv.clientWidth, h = cv.clientHeight; if (!w) return;
+  ctx.clearRect(0, 0, w, h);
+  var now = Date.now(), win = 60000, pts = H.samples.filter(function (s) { return s.t > now - win; });
+  ctx.font = "11px " + css("--font-data");
+  if (pts.length < 2) {
+    ctx.fillStyle = css("--muted"); ctx.textAlign = "center";
+    ctx.fillText(connected() ? "Warte auf Pulsdaten …" : "Live-Pulskurve: H10 verbinden", w / 2, h / 2 + 4);
+    return;
+  }
+  var lo = Math.min.apply(null, pts.map(function (p) { return p.hr; })), hi = Math.max.apply(null, pts.map(function (p) { return p.hr; }));
+  lo = Math.floor(lo / 5) * 5 - 5; hi = Math.ceil(hi / 5) * 5 + 5;
+  var L = 30, R = 8, T = 8, B = 8;
+  var X = function (t) { return L + (t - (now - win)) / win * (w - L - R); };
+  var Y = function (v) { return T + (hi - v) / (hi - lo) * (h - T - B); };
+  ctx.strokeStyle = css("--line"); ctx.lineWidth = 1; ctx.fillStyle = css("--muted"); ctx.textAlign = "right";
+  var step = hi - lo > 40 ? 20 : 10;
+  for (var v = Math.ceil(lo / step) * step; v <= hi; v += step) { ctx.beginPath(); ctx.moveTo(L, Y(v)); ctx.lineTo(w - R, Y(v)); ctx.stroke(); ctx.fillText(v, L - 5, Y(v) + 4); }
+  ctx.strokeStyle = css("--pulse"); ctx.lineWidth = 2; ctx.lineJoin = "round"; ctx.beginPath();
+  pts.forEach(function (p, i) { var x = X(p.t), y = Y(p.hr); if (i) ctx.lineTo(x, y); else ctx.moveTo(x, y); });
+  ctx.stroke();
+}
+
+/* =========================================================
+   Practice session
+   ========================================================= */
+var P = { running: false, t0: 0, raf: 0, lastInhale: null, rate: 6 };
+var pendingType = null;
+var lastSession = null;
+function practiceTick() {
+  if (!P.running) return;
+  var el = Date.now() - P.t0, st = pacerState(P.rate, el);
+  drawOrb($("orb"), $("orbLabel"), $("orbCount"), st);
+  if (P.lastInhale !== null && P.lastInhale !== st.inhale) buzz(st.inhale ? 80 : [40, 80, 40]);
+  P.lastInhale = st.inhale;
+  $("phaseBar").style.width = (st.frac * 100).toFixed(1) + "%";
+  $("mTime").textContent = pad(Math.floor(el / 60000)) + ":" + pad(Math.floor(el / 1000) % 60);
+  if (!P.metricTick || Date.now() - P.metricTick > 1000) {
+    P.metricTick = Date.now();
+    var last = since(Date.now() - 60000);
+    var wv = waveByCycle(since(Math.max(P.t0, Date.now() - 60000)), P.t0, 60000 / P.rate, false);
+    $("mWave").textContent = wv != null ? de(wv, 1) : "–";
+    var rm = rmssd(last); $("mRmssd").textContent = rm != null ? Math.round(rm) : "–";
+    drawLive();
+    var target = +$("optDur").value;
+    if (target && el >= target * 60000) { buzz([200, 100, 200]); stopPractice(); return; }
+  }
+  P.raf = requestAnimationFrame(practiceTick);
+}
+function startPractice() {
+  P.running = true; P.t0 = Date.now(); P.rate = curRate; P.lastInhale = null; P.metricTick = 0;
+  $("practiceBtn").textContent = "Beenden"; $("summary").hidden = true;
+  document.querySelectorAll("#rates button").forEach(function (b) { b.disabled = true; });
+  lockScreen(); buzz(80);
+  P.raf = requestAnimationFrame(practiceTick);
+}
+function stopPractice() {
+  P.running = false; cancelAnimationFrame(P.raf); unlockScreen();
+  $("practiceBtn").textContent = "Start";
+  document.querySelectorAll("#rates button").forEach(function (b) { b.disabled = false; });
+  $("phaseBar").style.width = "0"; idleOrb();
+  var t1 = Date.now(), dur = t1 - P.t0;
+  if (dur < 30000) return;
+  var all = since(P.t0, t1);
+  var first = since(P.t0, P.t0 + 30000), lastS = since(t1 - 30000, t1);
+  lastSession = {
+    start: P.t0, durMin: Math.max(1, Math.round(dur / 60000)), rate: P.rate,
+    hr0: avgHR(first), hr1: avgHR(lastS), hrAvg: avgHR(all),
+    rm0: rmssd(since(P.t0, P.t0 + 60000)), rm1: rmssd(since(t1 - 60000, t1)),
+    wave: waveByCycle(all, P.t0, 60000 / P.rate, true), blind: $("optBlind").checked
+  };
+  openSummary();
+}
+$("practiceBtn").addEventListener("click", function () { if (P.running) stopPractice(); else startPractice(); });
+
+function fillTypeSelect(sel, val) {
+  sel.innerHTML = TYPES.map(function (t) { return "<option" + (t === val ? " selected" : "") + ">" + esc(t) + "</option>"; }).join("");
+}
+function openSummary() {
+  var s = lastSession;
+  var m = [];
+  m.push(['<b class="num">' + s.durMin + '</b><span>Minuten</span>']);
+  m.push(['<b class="num">' + (s.wave != null ? de(s.wave, 1) : "–") + '</b><span>Ø Pulswelle bpm</span>']);
+  m.push(['<b class="num">' + (s.rm0 != null && s.rm1 != null ? Math.round(s.rm0) + "→" + Math.round(s.rm1) : "–") + '</b><span>RMSSD Anfang→Ende</span>']);
+  $("sumMetrics").innerHTML = m.map(function (x) { return '<div class="metric">' + x[0] + "</div>"; }).join("");
+  var type = pendingType || (connected() ? "Biofeedback mit H10" : "Langsames Atmen");
+  fillTypeSelect($("sType"), type);
+  $("sMin").value = s.durMin;
+  $("sHr0").value = s.hr0 != null ? Math.round(s.hr0) : "";
+  $("sHr1").value = s.hr1 != null ? Math.round(s.hr1) : "";
+  $("sT0").value = ""; $("sT1").value = ""; $("sNote").value = s.blind ? "Ohne Taktgeber" : "";
+  $("summary").hidden = false;
+  $("summary").scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+}
+$("sumForm").addEventListener("submit", function (e) {
+  e.preventDefault();
+  var s = lastSession || {};
+  S.sessions.push({
+    id: uid(), date: ymd(new Date(s.start || Date.now())), type: $("sType").value, minutes: numOrNull($("sMin").value),
+    rate: s.rate || null, hrBefore: numOrNull($("sHr0").value), hrAfter: numOrNull($("sHr1").value),
+    rmssd0: s.rm0 != null ? Math.round(s.rm0) : null, rmssd1: s.rm1 != null ? Math.round(s.rm1) : null,
+    wave: s.wave != null ? Math.round(s.wave * 10) / 10 : null,
+    tenseBefore: numOrNull($("sT0").value), tenseAfter: numOrNull($("sT1").value), note: $("sNote").value.trim()
+  });
+  save(); $("summary").hidden = true; lastSession = null; pendingType = null;
+  go("log");
+});
+$("sDiscard").addEventListener("click", function () { $("summary").hidden = true; lastSession = null; pendingType = null; });
+
+/* =========================================================
+   Mode switch
+   ========================================================= */
+function setMode(m) {
+  if (P.running || RF.running || MM.running) return;
+  document.querySelectorAll("#modeSeg button").forEach(function (b) { b.classList.toggle("on", b.dataset.mode === m); });
+  $("m-practice").hidden = m !== "practice"; $("m-rf").hidden = m !== "rf"; $("m-morning").hidden = m !== "morning";
+  if (m !== "practice") $("summary").hidden = true;
+  if (m === "practice") resizeCanvas();
+}
+$("modeSeg").addEventListener("click", function (e) { var b = e.target.closest("button"); if (b) setMode(b.dataset.mode); });
+
+/* =========================================================
+   Resonance test
+   ========================================================= */
+var RF = { running: false, t0: 0, raf: 0, blockMs: 120000, idx: -1, lastInhale: null };
+function rfTick() {
+  if (!RF.running) return;
+  var el = Date.now() - RF.t0, idx = Math.floor(el / RF.blockMs);
+  if (idx >= RATES.length) { finishRF(); return; }
+  if (idx !== RF.idx) { RF.idx = idx; buzz([60, 60, 60]); }
+  var rate = RATES[idx], st = pacerState(rate, el - idx * RF.blockMs);
+  drawOrb($("orbRf"), $("orbRfLabel"), $("orbRfCount"), st);
+  if (RF.lastInhale !== null && RF.lastInhale !== st.inhale) buzz(st.inhale ? 80 : [40, 80, 40]);
+  RF.lastInhale = st.inhale;
+  $("rfBar").style.width = (el / (RF.blockMs * RATES.length) * 100).toFixed(1) + "%";
+  $("rfStep").textContent = "Block " + (idx + 1) + " von " + RATES.length + " · " + rateTxt(rate) + " Atemzüge/min";
+  RF.raf = requestAnimationFrame(rfTick);
+}
+function startRF() {
+  if (!connected()) { $("rfStep").textContent = "Bitte zuerst den H10 verbinden."; return; }
+  RF.running = true; RF.t0 = Date.now(); RF.idx = -1; RF.lastInhale = null;
+  $("rfBtn").textContent = "Abbrechen"; $("rfResult").hidden = true;
+  lockScreen(); RF.raf = requestAnimationFrame(rfTick);
+}
+function stopRF(msg) {
+  RF.running = false; cancelAnimationFrame(RF.raf); unlockScreen();
+  $("rfBtn").textContent = "Test starten"; $("rfBar").style.width = "0";
+  $("orbRf").style.transform = "scale(0.45)"; $("orbRfLabel").textContent = "Bereit"; $("orbRfCount").textContent = "";
+  $("rfStep").textContent = msg || "Block – von 5";
+}
+function finishRF() {
+  var res = RATES.map(function (r, i) {
+    var b0 = RF.t0 + i * RF.blockMs, b1 = b0 + RF.blockMs, arr = since(b0, b1);
+    return { rate: r, wave: waveByCycle(arr, b0, 60000 / r, true), rmssd: rmssd(arr) };
+  });
+  stopRF("Test abgeschlossen");
+  buzz([200, 100, 200]);
+  var valid = res.filter(function (x) { return x.wave != null; });
+  if (valid.length < 3) { $("rfResult").hidden = false; $("rfResult").innerHTML = '<p class="notice">Zu wenige Pulsdaten. Sitzt der Gurt gut und war er die ganze Zeit verbunden?</p>'; return; }
+  var best = valid.reduce(function (a, b) { return b.wave > a.wave ? b : a; });
+  var max = best.wave;
+  S.tests.push({ date: ymd(new Date()), best: best.rate, results: res.map(function (x) { return { rate: x.rate, wave: x.wave != null ? Math.round(x.wave * 10) / 10 : null }; }) });
+  save();
+  var html = "<h3>Dein Resonanztakt: " + rateTxt(best.rate) + " Atemzüge pro Minute</h3><div class=\"bars\">";
+  res.forEach(function (x) {
+    var pct = x.wave != null ? Math.max(4, x.wave / max * 100) : 0;
+    html += '<div class="bar' + (x === best ? " best" : "") + '"><span>' + rateTxt(x.rate) + '/min</span><div class="track"><div class="fill" style="width:' + pct.toFixed(0) + '%"></div></div><span style="text-align:right">' + (x.wave != null ? de(x.wave, 1) : "–") + "</span></div>";
+  });
+  html += '</div><p class="small muted">Balken = Ø Pulswelle in bpm je Block. Liegen zwei Takte fast gleichauf, nimm den, der sich angenehmer anfühlt.</p>';
+  html += '<button type="button" class="primary" id="rfApply">' + rateTxt(best.rate) + "/min als meinen Takt übernehmen</button>";
+  $("rfResult").innerHTML = html; $("rfResult").hidden = false;
+  $("rfApply").addEventListener("click", function () { S.settings.rate = best.rate; curRate = best.rate; save(); renderRates(); idleOrb(); this.textContent = "Übernommen"; this.disabled = true; });
+}
+$("rfBtn").addEventListener("click", function () { if (RF.running) stopRF("Abgebrochen"); else startRF(); });
+
+/* =========================================================
+   Morning measurement
+   ========================================================= */
+var MM = { running: false, t0: 0, timer: 0, dur: 120000 };
+function updateMorningBtn() { if (!MM.running) $("mmBtn").disabled = !connected(); if (!connected() && !MM.running) setStatus("mmStatus", hasBT ? "H10 verbinden, um zu messen." : "Bluetooth nicht verfügbar.", true); else if (!MM.running) setStatus("mmStatus", ""); }
+function mmTick() {
+  var el = Date.now() - MM.t0, left = Math.max(0, MM.dur - el), arr = since(MM.t0);
+  var secLeft = Math.ceil(left / 1000);
+  $("mmTime").textContent = pad(Math.floor(secLeft / 60)) + ":" + pad(secLeft % 60);
+  var a = avgHR(arr), r = rmssd(arr);
+  $("mmHr").textContent = a != null ? Math.round(a) : "–"; $("mmRmssd").textContent = r != null ? Math.round(r) : "–"; $("mmBeats").textContent = arr.length;
+  if (el >= MM.dur) {
+    clearInterval(MM.timer); MM.running = false; unlockScreen(); buzz([200, 100, 200]);
+    $("mmBtn").textContent = "Messung starten"; $("mmTime").textContent = "02:00";
+    if (r == null || arr.length < 60) { setStatus("mmStatus", "Zu wenige saubere Schläge. Gurt anfeuchten und neu messen.", true); updateMorningBtn(); return; }
+    S.morning.push({ date: ymd(new Date()), hr: Math.round(a), rmssd: Math.round(r), ln: Math.round(Math.log(r) * 100) / 100 });
+    save(); setStatus("mmStatus", "Gespeichert: Ø " + Math.round(a) + " bpm, RMSSD " + Math.round(r) + " ms."); updateMorningBtn();
+  }
+}
+$("mmBtn").addEventListener("click", function () {
+  if (MM.running) { clearInterval(MM.timer); MM.running = false; unlockScreen(); $("mmBtn").textContent = "Messung starten"; $("mmTime").textContent = "02:00"; setStatus("mmStatus", "Abgebrochen.", true); return; }
+  if (!connected()) return;
+  MM.running = true; MM.t0 = Date.now(); $("mmBtn").textContent = "Abbrechen"; setStatus("mmStatus", "Ruhig liegen bleiben …");
+  lockScreen(); MM.timer = setInterval(mmTick, 500);
+});
+
+/* =========================================================
+   Week planning
+   ========================================================= */
+var wkMonday = mondayOf(addDays(new Date(), 7));
+var editId = null;
+function weekEntries() {
+  var a = ymd(wkMonday), b = ymd(addDays(wkMonday, 6));
+  return S.entries.filter(function (e) { return e.date >= a && e.date <= b; }).sort(function (x, y) { return (x.date + x.time) < (y.date + y.time) ? -1 : 1; });
+}
+function renderWeek() {
+  var sun = addDays(wkMonday, 6);
+  $("wkTitle").textContent = "KW " + isoWeek(wkMonday) + (ymd(mondayOf(new Date())) === ymd(wkMonday) ? " · diese Woche" : ymd(mondayOf(addDays(new Date(), 7))) === ymd(wkMonday) ? " · nächste Woche" : "");
+  $("wkRange").textContent = fmtDay(ymd(wkMonday)) + " – " + fmtDayY(ymd(sun));
+  var w = weekOf(wkMonday);
+  $("wkPhase").textContent = (w >= 1 && w <= 12 ? "Planwoche " + w + ": " : "") + phaseLabel(w);
+  $("tMorning").value = S.settings.morning; $("tEvening").value = S.settings.evening;
+  var daySel = $("aDay"), cur = daySel.value; daySel.innerHTML = "";
+  for (var i = 0; i < 7; i++) { var d = ymd(addDays(wkMonday, i)); var o = document.createElement("option"); o.value = d; o.textContent = WDS[i] + " " + fmtDay(d); daySel.appendChild(o); }
+  if (cur && cur >= ymd(wkMonday) && cur <= ymd(sun)) daySel.value = cur;
+  if (!$("aType").options.length) fillTypeSelect($("aType"), "Biofeedback mit H10");
+  var list = weekEntries(), box = $("wkList"); box.innerHTML = "";
+  $("wkEmpty").hidden = list.length > 0;
+  var byDay = {};
+  list.forEach(function (e) { (byDay[e.date] = byDay[e.date] || []).push(e); });
+  Object.keys(byDay).sort().forEach(function (d) {
+    var h = document.createElement("div"); h.className = "day-h"; h.innerHTML = WD[wdIndex(d)] + "<span>" + fmtDay(d) + "</span>"; box.appendChild(h);
+    var ul = document.createElement("ul"); ul.className = "list";
+    byDay[d].forEach(function (e) {
+      var li = document.createElement("li");
+      li.innerHTML = '<div><div class="t">' + esc(e.type) + '</div></div><div class="r">' + esc(e.time) + " · " + e.dur + " min</div>" +
+        (e.note ? '<div class="sub">' + esc(e.note) + "</div>" : "") +
+        '<div class="acts"><a class="btn" target="_blank" rel="noopener" title="In Google Kalender eintragen" href="' + esc(gcalLink(e)) + '">G</a><button type="button" data-a="edit">Ändern</button><button type="button" data-a="del">Löschen</button></div>';
+      li.querySelector('[data-a="edit"]').addEventListener("click", function () { startEdit(e); });
+      var del = li.querySelector('[data-a="del"]'), armed = false;
+      del.addEventListener("click", function () {
+        if (!armed) { armed = true; del.textContent = "Wirklich?"; del.classList.add("danger"); return; }
+        S.entries = S.entries.filter(function (x) { return x.id !== e.id; }); save(); renderWeek();
+      });
+      ul.appendChild(li);
+    });
+    box.appendChild(ul);
+  });
+  $("icsShare").hidden = !canShareFiles();
+}
+$("wkPrev").addEventListener("click", function () { wkMonday = addDays(wkMonday, -7); cancelEdit(); renderWeek(); });
+$("wkNext").addEventListener("click", function () { wkMonday = addDays(wkMonday, 7); cancelEdit(); renderWeek(); });
+$("tMorning").addEventListener("change", function () { if (this.value) { S.settings.morning = this.value; save(); } });
+$("tEvening").addEventListener("change", function () { if (this.value) { S.settings.evening = this.value; save(); } });
+
+function suggestFor(monday) {
+  var w = weekOf(monday), p = phaseOf(w), mo = S.settings.morning, ev = S.settings.evening, out = [];
+  var rate = rateTxt(S.settings.rate || 6) + " Atemzüge/min";
+  function add(i, time, type, dur, note) { out.push({ id: uid(), date: ymd(addDays(monday, i)), time: time, type: type, dur: dur, note: note || "" }); }
+  for (var i = 0; i < 7; i++) {
+    if (!p) { add(i, mo, "Biofeedback mit H10", 10, "Erhalt im eigenen Takt (" + rate + ")"); continue; }
+    if (p.n === 1) {
+      add(i, mo, "Langsames Atmen", 5, "4 s ein, 6 s aus" + (i < 3 && w === 1 ? ". Vorher 2 min Morgenmessung" : ""));
+      add(i, ev, "Langsames Atmen", 5, "4 s ein, 6 s aus");
+    } else if (p.n === 2) {
+      if (i === 0 && (w === 3 || w === 5)) add(i, mo, "Resonanztest", 12, "Sitzend, H10 angelegt");
+      else add(i, mo, "Biofeedback mit H10", w === 3 ? 10 : 15, "Im eigenen Takt (" + rate + "). Mo und Do vorher Morgenmessung");
+    } else if (p.n === 3) {
+      add(i, mo, "Biofeedback mit H10", 10, "Zum Schluss 2 min ohne Taktgeber");
+      add(i, ev, i % 2 === 0 ? "PMR" : "Autogenes Training", 15, "");
+    } else {
+      if (i === 0 && w === 12) add(i, mo, "Resonanztest", 12, "Mit Woche 3 vergleichen");
+      else add(i, mo, "Biofeedback mit H10", 10, "Im eigenen Takt (" + rate + ")");
+      add(i, ev, "Einschlaf-Routine", 15, "Im Bett, langsam atmen oder PMR");
+      if (i === 5) add(i, "10:00", "Wettkampf-Routine", 5, "Im Training testen: 2–3 min Resonanzatmen, dann normal");
+    }
+  }
+  return out;
+}
+function insertSuggestion(replace) {
+  if (replace) { var a = ymd(wkMonday), b = ymd(addDays(wkMonday, 6)); S.entries = S.entries.filter(function (e) { return e.date < a || e.date > b; }); }
+  S.entries = S.entries.concat(suggestFor(wkMonday)); save(); $("wkConfirm").hidden = true; renderWeek();
+}
+$("wkSuggest").addEventListener("click", function () { if (weekEntries().length) $("wkConfirm").hidden = false; else insertSuggestion(false); });
+$("wkConfirmYes").addEventListener("click", function () { insertSuggestion(true); });
+$("wkConfirmNo").addEventListener("click", function () { $("wkConfirm").hidden = true; });
+
+function startEdit(e) {
+  editId = e.id; $("aDay").value = e.date; $("aTime").value = e.time; fillTypeSelect($("aType"), e.type); $("aDur").value = e.dur; $("aNote").value = e.note || "";
+  $("addTitle").textContent = "Termin ändern"; $("addBtn").textContent = "Änderung speichern"; $("addCancel").hidden = false;
+  $("addForm").scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "center" });
+}
+function cancelEdit() { editId = null; $("addTitle").textContent = "Termin hinzufügen"; $("addBtn").textContent = "Hinzufügen"; $("addCancel").hidden = true; $("aNote").value = ""; }
+$("addCancel").addEventListener("click", cancelEdit);
+$("addForm").addEventListener("submit", function (ev) {
+  ev.preventDefault();
+  var rec = { date: $("aDay").value, time: $("aTime").value || "07:00", type: $("aType").value, dur: Math.max(2, numOrNull($("aDur").value) || 10), note: $("aNote").value.trim() };
+  if (editId) { var x = S.entries.filter(function (e) { return e.id === editId; })[0]; if (x) Object.assign(x, rec); }
+  else { rec.id = uid(); S.entries.push(rec); }
+  save(); cancelEdit(); renderWeek();
+});
+
+/* ---------- Calendar export ---------- */
+function startOf(e) { var p = e.date.split("-"), t = e.time.split(":"); return new Date(+p[0], +p[1] - 1, +p[2], +t[0], +t[1]); }
+function utcStamp(d) { return d.getUTCFullYear() + pad(d.getUTCMonth() + 1) + pad(d.getUTCDate()) + "T" + pad(d.getUTCHours()) + pad(d.getUTCMinutes()) + pad(d.getUTCSeconds()) + "Z"; }
+function icsText(s) { return String(s).replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n"); }
+function fold(line) {
+  var out = [], cur = "", bytes = 0, enc = new TextEncoder();
+  for (var ch of line) {
+    var b = enc.encode(ch).length;
+    if (bytes + b > (out.length ? 74 : 75)) { out.push(cur); cur = ""; bytes = 0; }
+    cur += ch; bytes += b;
+  }
+  out.push(cur);
+  return out.join("\r\n ");
+}
+function describe(e) {
+  var d = e.note ? e.note + "\n" : "";
+  if (e.type === "Biofeedback mit H10" || e.type === "Langsames Atmen") d += "Takt: " + rateTxt(S.settings.rate || 6) + " Atemzüge/min. Pulsplan-App öffnen, H10 verbinden.";
+  else if (e.type === "Resonanztest") d += "Pulsplan → Üben → Resonanztest. 10 min sitzend mit H10.";
+  else if (e.type === "PMR") d += "Progressive Muskelentspannung, 15 min.";
+  else if (e.type === "Autogenes Training") d += "Formeln: Atmung ruhig. Herz schlägt ruhig.";
+  else if (e.type === "Einschlaf-Routine") d += "Im Bett 15 min langsam atmen oder PMR.";
+  return d.trim();
+}
+function buildICS(entries, name) {
+  var now = utcStamp(new Date()), L = [
+    "BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Pulsplan//Atemtraining//DE", "CALSCALE:GREGORIAN", "METHOD:PUBLISH",
+    "X-WR-CALNAME:" + icsText(name || "Atemtraining"), "X-WR-TIMEZONE:Europe/Berlin"];
+  entries.forEach(function (e) {
+    var s = startOf(e), en = new Date(s.getTime() + e.dur * 60000);
+    L.push("BEGIN:VEVENT", "UID:" + e.id + "@pulsplan", "DTSTAMP:" + now, "DTSTART:" + utcStamp(s), "DTEND:" + utcStamp(en),
+      "SUMMARY:" + icsText(e.type + " (" + e.dur + " min)"), "DESCRIPTION:" + icsText(describe(e)), "CATEGORIES:Atemtraining");
+    if (S.settings.remind > 0) L.push("BEGIN:VALARM", "ACTION:DISPLAY", "DESCRIPTION:" + icsText(e.type), "TRIGGER:-PT" + Math.round(S.settings.remind) + "M", "END:VALARM");
+    L.push("END:VEVENT");
+  });
+  L.push("END:VCALENDAR");
+  return L.map(fold).join("\r\n") + "\r\n";
+}
+function gcalLink(e) {
+  var s = startOf(e), en = new Date(s.getTime() + e.dur * 60000);
+  return "https://calendar.google.com/calendar/render?action=TEMPLATE&text=" + encodeURIComponent(e.type + " (" + e.dur + " min)") +
+    "&dates=" + utcStamp(s) + "/" + utcStamp(en) + "&details=" + encodeURIComponent(describe(e)) + "&ctz=Europe/Berlin";
+}
+function weekFileName() { return "atemtraining-kw" + pad(isoWeek(wkMonday)) + "-" + wkMonday.getFullYear() + ".ics"; }
+function downloadBlob(blob, name) {
+  var url = URL.createObjectURL(blob), a = document.createElement("a");
+  a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+}
+function canShareFiles() { try { return !!(navigator.canShare && navigator.canShare({ files: [new File(["x"], "t.ics", { type: "text/calendar" })] })); } catch (e) { return false; } }
+$("icsDownload").addEventListener("click", function () {
+  var list = weekEntries(); if (!list.length) { setStatus("ghStatus", "Diese Woche hat noch keine Termine.", true); return; }
+  downloadBlob(new Blob([buildICS(list, "Atemtraining KW " + isoWeek(wkMonday))], { type: "text/calendar;charset=utf-8" }), weekFileName());
+  setStatus("ghStatus", "Datei gespeichert: " + weekFileName());
+});
+$("icsShare").addEventListener("click", function () {
+  var list = weekEntries(); if (!list.length) { setStatus("ghStatus", "Diese Woche hat noch keine Termine.", true); return; }
+  var f = new File([buildICS(list, "Atemtraining KW " + isoWeek(wkMonday))], weekFileName(), { type: "text/calendar" });
+  navigator.share({ files: [f], title: "Atemtraining KW " + isoWeek(wkMonday) }).catch(function () {});
+});
+
+/* ---------- GitHub subscription ---------- */
+function ghCfg() { return S.settings.gh; }
+function ghPagesUrl() {
+  var g = ghCfg(); if (!g.owner || !g.repo || !g.path) return "";
+  var base = g.repo.toLowerCase() === (g.owner + ".github.io").toLowerCase() ? "https://" + g.owner.toLowerCase() + ".github.io/" : "https://" + g.owner.toLowerCase() + ".github.io/" + g.repo + "/";
+  return base + g.path.replace(/^\/+/, "");
+}
+function b64utf8(str) { var bytes = new TextEncoder().encode(str), bin = ""; for (var i = 0; i < bytes.length; i += 0x8000) bin += String.fromCharCode.apply(null, bytes.subarray(i, i + 0x8000)); return btoa(bin); }
+async function publishGH() {
+  var g = ghCfg();
+  if (!g.owner || !g.repo || !g.path || !g.token) { setStatus("ghStatus", "Erst unter Plan → Einstellungen GitHub-Name, Repository und Token eintragen.", true); return; }
+  var from = ymd(addDays(new Date(), -28));
+  var list = S.entries.filter(function (e) { return e.date >= from; }).sort(function (a, b) { return (a.date + a.time) < (b.date + b.time) ? -1 : 1; });
+  if (!list.length) { setStatus("ghStatus", "Es gibt noch keine Termine zum Veröffentlichen.", true); return; }
+  var api = "https://api.github.com/repos/" + encodeURIComponent(g.owner) + "/" + encodeURIComponent(g.repo) + "/contents/" + g.path.replace(/^\/+/, "").split("/").map(encodeURIComponent).join("/");
+  var headers = { "Authorization": "Bearer " + g.token, "Accept": "application/vnd.github+json", "X-GitHub-Api-Version": "2022-11-28" };
+  $("ghPublish").disabled = true; setStatus("ghStatus", "Wird hochgeladen …");
+  try {
+    var sha = null, r = await fetch(api, { headers: headers, cache: "no-store" });
+    if (r.status === 200) sha = (await r.json()).sha;
+    else if (r.status === 401) throw new Error("Token ungültig oder abgelaufen.");
+    else if (r.status !== 404) throw new Error("GitHub antwortet mit Fehler " + r.status + ".");
+    var body = { message: "Atemtraining-Kalender aktualisiert", content: b64utf8(buildICS(list, "Atemtraining")) };
+    if (sha) body.sha = sha;
+    var p = await fetch(api, { method: "PUT", headers: headers, body: JSON.stringify(body) });
+    if (p.status === 401 || p.status === 403) throw new Error("Keine Schreibrechte. Token braucht „Contents: Read and write“ für dieses Repo.");
+    if (p.status === 404) throw new Error("Repository nicht gefunden. Name und Repo prüfen.");
+    if (!p.ok) throw new Error("Hochladen fehlgeschlagen (Fehler " + p.status + ").");
+    setStatus("ghStatus", list.length + " Termine veröffentlicht. Google übernimmt sie beim nächsten Abgleich.");
+  } catch (err) {
+    setStatus("ghStatus", (err && err.message) || "Keine Verbindung zu GitHub.", true);
+  }
+  $("ghPublish").disabled = false;
+}
+$("ghPublish").addEventListener("click", publishGH);
+
+/* =========================================================
+   Log
+   ========================================================= */
+function renderLog() {
+  var list = S.sessions.slice().sort(function (a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : 0; });
+  var mon = ymd(mondayOf(new Date()));
+  $("stWeek").textContent = S.sessions.filter(function (s) { return s.date >= mon; }).length;
+  var drops = S.sessions.filter(function (s) { return s.hrBefore != null && s.hrAfter != null; }).map(function (s) { return s.hrBefore - s.hrAfter; });
+  $("stDrop").textContent = drops.length ? de(avg(drops), 1) : "–";
+  var tens = S.sessions.filter(function (s) { return s.tenseBefore != null && s.tenseAfter != null; }).map(function (s) { return s.tenseBefore - s.tenseAfter; });
+  $("stTense").textContent = tens.length ? de(avg(tens), 1) : "–";
+  renderSessChart(list); renderMornChart();
+  var ul = $("sessList"); ul.innerHTML = ""; $("sessEmpty").hidden = list.length > 0;
+  list.slice(0, 40).forEach(function (s) {
+    var li = document.createElement("li"), bits = [fmtDayY(s.date)];
+    if (s.minutes) bits.push(s.minutes + " min");
+    if (s.rate) bits.push(rateTxt(s.rate) + "/min");
+    if (s.wave != null) bits.push("Welle " + de(s.wave, 1));
+    if (s.rmssd0 != null && s.rmssd1 != null) bits.push("RMSSD " + s.rmssd0 + "→" + s.rmssd1);
+    if (s.tenseBefore != null && s.tenseAfter != null) bits.push("Anspannung " + s.tenseBefore + "→" + s.tenseAfter);
+    var hr = "–", diff = "";
+    if (s.hrBefore != null && s.hrAfter != null) { hr = s.hrBefore + "→" + s.hrAfter; var d = s.hrBefore - s.hrAfter; diff = '<div class="' + (d > 0 ? "drop" : "muted") + '">' + (d > 0 ? "−" : d < 0 ? "+" : "±") + Math.abs(d) + " bpm</div>"; }
+    li.innerHTML = '<div><div class="t">' + esc(s.type) + '</div><div class="small muted">' + esc(bits.join(" · ")) + '</div></div><div class="r">' + hr + diff + "</div>" +
+      (s.note ? '<div class="sub">' + esc(s.note) + "</div>" : "") + '<div class="acts"><button type="button" class="link-btn">Löschen</button></div>';
+    var del = li.querySelector("button"), armed = false;
+    del.addEventListener("click", function () {
+      if (!armed) { armed = true; del.textContent = "Wirklich löschen?"; del.className = "danger"; return; }
+      S.sessions = S.sessions.filter(function (x) { return x.id !== s.id; }); save(); renderLog();
+    });
+    ul.appendChild(li);
+  });
+  renderWeeksTable();
+  if (!$("wNum").value) $("wNum").value = Math.max(1, weekOf(parseYmd(ymd(new Date()))));
+}
+function axisText(x, y, t, anchor) { return '<text x="' + x + '" y="' + y + '" text-anchor="' + (anchor || "middle") + '" font-size="11" fill="var(--muted)" font-family="JetBrains Mono, monospace">' + t + "</text>"; }
+function renderSessChart(sorted) {
+  var rows = sorted.filter(function (s) { return s.hrBefore != null && s.hrAfter != null; }).slice(0, 14).reverse();
+  $("chartSessWrap").hidden = rows.length < 2; if (rows.length < 2) return;
+  var W = 600, Hh = 210, L = 38, R = 12, T = 12, B = 30, vals = [];
+  rows.forEach(function (r) { vals.push(r.hrBefore, r.hrAfter); });
+  var lo = Math.floor((Math.min.apply(null, vals) - 3) / 10) * 10, hi = Math.ceil((Math.max.apply(null, vals) + 3) / 10) * 10; if (hi - lo < 20) hi = lo + 20;
+  var y = function (v) { return T + (hi - v) / (hi - lo) * (Hh - T - B); }, step = (W - L - R) / rows.length, x = function (i) { return L + step * (i + 0.5); };
+  var svg = '<svg viewBox="0 0 ' + W + " " + Hh + '" role="img" aria-label="Puls am Anfang und Ende der letzten Einheiten">';
+  for (var t = lo; t <= hi; t += (hi - lo > 60 ? 20 : 10)) svg += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y(t) + '" y2="' + y(t) + '" stroke="var(--line)"/>' + axisText(L - 6, y(t) + 4, t, "end");
+  rows.forEach(function (r, i) {
+    var cx = x(i).toFixed(1);
+    svg += '<line x1="' + cx + '" x2="' + cx + '" y1="' + y(r.hrBefore) + '" y2="' + y(r.hrAfter) + '" stroke="var(--muted)" stroke-width="2" stroke-opacity="0.45"/>';
+    svg += '<circle cx="' + cx + '" cy="' + y(r.hrBefore) + '" r="5" fill="var(--pulse)"/><circle cx="' + cx + '" cy="' + y(r.hrAfter) + '" r="5" fill="var(--breath)"/>';
+    if (rows.length <= 8 || i % 2 === 0 || i === rows.length - 1) svg += axisText(cx, Hh - 10, fmtDay(r.date));
+  });
+  $("chartSess").innerHTML = svg + "</svg>";
+}
+function renderMornChart() {
+  var rows = S.morning.slice().sort(function (a, b) { return a.date < b.date ? -1 : 1; }).slice(-30);
+  $("mornEmpty").hidden = rows.length >= 3; $("chartMornWrap").hidden = rows.length < 3; if (rows.length < 3) return;
+  var W = 600, Hh = 210, L = 38, R = 38, T = 12, B = 30;
+  var rm = rows.map(function (r) { return r.rmssd; }), hr = rows.map(function (r) { return r.hr; });
+  var rlo = Math.floor(Math.min.apply(null, rm) / 10) * 10, rhi = Math.ceil(Math.max.apply(null, rm) / 10) * 10; if (rhi - rlo < 20) rhi = rlo + 20;
+  var hlo = Math.floor(Math.min.apply(null, hr) / 5) * 5 - 5, hhi = Math.ceil(Math.max.apply(null, hr) / 5) * 5 + 5;
+  var x = function (i) { return L + (rows.length === 1 ? 0 : i / (rows.length - 1)) * (W - L - R); };
+  var yr = function (v) { return T + (rhi - v) / (rhi - rlo) * (Hh - T - B); }, yh = function (v) { return T + (hhi - v) / (hhi - hlo) * (Hh - T - B); };
+  var svg = '<svg viewBox="0 0 ' + W + " " + Hh + '" role="img" aria-label="Morgenmessung: RMSSD und Ruhepuls">';
+  [0, 0.5, 1].forEach(function (f) {
+    var yy = T + f * (Hh - T - B);
+    svg += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + yy + '" y2="' + yy + '" stroke="var(--line)"/>';
+    svg += axisText(L - 6, yy + 4, Math.round(rhi - f * (rhi - rlo)), "end") + axisText(W - R + 6, yy + 4, Math.round(hhi - f * (hhi - hlo)), "start");
+  });
+  var pr = rows.map(function (r, i) { return x(i).toFixed(1) + "," + yr(r.rmssd).toFixed(1); }).join(" ");
+  var ph = rows.map(function (r, i) { return x(i).toFixed(1) + "," + yh(r.hr).toFixed(1); }).join(" ");
+  svg += '<polyline points="' + ph + '" fill="none" stroke="var(--pulse)" stroke-width="1.5" stroke-opacity="0.7"/>';
+  svg += '<polyline points="' + pr + '" fill="none" stroke="var(--good)" stroke-width="2.5"/>';
+  var li = rows.length - 1; svg += '<circle cx="' + x(li) + '" cy="' + yr(rows[li].rmssd) + '" r="4.5" fill="var(--good)"/>';
+  svg += axisText(x(0), Hh - 10, fmtDay(rows[0].date), "start") + axisText(x(li), Hh - 10, fmtDay(rows[li].date), "end");
+  $("chartMorn").innerHTML = svg + "</svg>";
+}
+$("weekForm").addEventListener("submit", function (e) {
+  e.preventDefault();
+  var n = numOrNull($("wNum").value) || 1;
+  S.weeks = S.weeks.filter(function (w) { return w.week !== n; });
+  S.weeks.push({ week: n, sleep: numOrNull($("wSleep").value), stress: numOrNull($("wStress").value), hrv: $("wHrv").value || null });
+  save(); setStatus("wStatus", "Woche " + n + " gespeichert."); renderWeeksTable();
+});
+function renderWeeksTable() {
+  var rows = S.weeks.slice().sort(function (a, b) { return b.week - a.week; });
+  $("weeksWrap").hidden = !rows.length; var body = $("weeksBody"); body.innerHTML = "";
+  rows.forEach(function (r) {
+    var tr = document.createElement("tr");
+    tr.innerHTML = "<td>Woche " + r.week + '</td><td class="n">' + (r.sleep != null ? r.sleep + "/10" : "–") + '</td><td class="n">' + (r.stress != null ? r.stress + "/10" : "–") + "</td><td>" + esc(r.hrv || "–") + "</td>";
+    body.appendChild(tr);
+  });
+}
+
+/* =========================================================
+   Plan + settings
+   ========================================================= */
+function renderPlan() {
+  var box = $("phases"); box.innerHTML = "<h2>12 Wochen in 4 Phasen</h2>";
+  var w = weekOf(parseYmd(ymd(new Date()))), total = 0, done = 0;
+  PHASES.forEach(function (ph) {
+    var div = document.createElement("div"); div.className = "phase" + (w >= ph.from && w <= ph.to ? " current" : "");
+    div.innerHTML = "<h3><span>Phase " + ph.n + " · " + ph.name + "</span><small>Woche " + ph.from + "–" + ph.to + "</small></h3><p>" + esc(ph.focus) + "</p>";
+    ph.items.forEach(function (it) {
+      total++; if (S.checked[it[0]]) done++;
+      var lab = document.createElement("label"); lab.className = "check";
+      lab.innerHTML = '<input type="checkbox" id="chk-' + it[0] + '"' + (S.checked[it[0]] ? " checked" : "") + "><span>" + esc(it[1]) + "</span>";
+      lab.querySelector("input").addEventListener("change", function () { if (this.checked) S.checked[it[0]] = true; else delete S.checked[it[0]]; save(); countPlan(); });
+      div.appendChild(lab);
+    });
+    box.appendChild(div);
+  });
+  $("planCount").textContent = done + " / " + total;
+  $("cfStart").value = S.settings.start || ""; $("cfRate").value = S.settings.rate; $("cfRemind").value = S.settings.remind;
+  var g = S.settings.gh; $("ghOwner").value = g.owner; $("ghRepo").value = g.repo; $("ghPath").value = g.path; $("ghToken").value = g.token;
+  $("ghUrl").value = ghPagesUrl();
+}
+function countPlan() { var t = 0, d = 0; PHASES.forEach(function (p) { p.items.forEach(function (it) { t++; if (S.checked[it[0]]) d++; }); }); $("planCount").textContent = d + " / " + t; }
+$("cfStart").addEventListener("change", function () { S.settings.start = this.value || null; save(); renderHeaderBits(); renderPlan(); setStatus("cfStatus", "Startdatum gespeichert."); });
+$("cfRate").addEventListener("change", function () { var v = numOrNull(this.value); if (v && v >= 3 && v <= 10) { S.settings.rate = v; curRate = v; save(); renderRates(); idleOrb(); setStatus("cfStatus", "Takt gespeichert."); } });
+$("cfRemind").addEventListener("change", function () { var v = numOrNull(this.value); S.settings.remind = v == null ? 0 : Math.max(0, Math.min(120, v)); save(); });
+["ghOwner", "ghRepo", "ghPath", "ghToken"].forEach(function (id) {
+  $(id).addEventListener("change", function () {
+    var key = { ghOwner: "owner", ghRepo: "repo", ghPath: "path", ghToken: "token" }[id];
+    S.settings.gh[key] = this.value.trim(); if (key === "path" && !S.settings.gh.path) S.settings.gh.path = "atemtraining.ics";
+    save(); $("ghUrl").value = ghPagesUrl();
+  });
+});
+$("ghCopy").addEventListener("click", function () {
+  var v = $("ghUrl").value; if (!v) { setStatus("cfStatus", "Erst GitHub-Name und Repository eintragen.", true); return; }
+  (navigator.clipboard ? navigator.clipboard.writeText(v) : Promise.reject()).then(function () { setStatus("cfStatus", "Abo-Adresse kopiert."); })
+    .catch(function () { $("ghUrl").select(); setStatus("cfStatus", "Adresse markiert, bitte manuell kopieren.", true); });
+});
+$("bkExport").addEventListener("click", function () {
+  var copy = JSON.parse(JSON.stringify(S)); copy.settings.gh.token = "";
+  downloadBlob(new Blob([JSON.stringify(copy, null, 1)], { type: "application/json" }), "pulsplan-sicherung-" + ymd(new Date()) + ".json");
+  setStatus("cfStatus", "Sicherung gespeichert (ohne Token).");
+});
+$("bkImport").addEventListener("change", function () {
+  var f = this.files && this.files[0]; if (!f) return;
+  f.text().then(function (txt) {
+    var d = JSON.parse(txt); if (!d || !d.settings || !Array.isArray(d.sessions)) throw new Error();
+    var token = S.settings.gh.token; S = fill(d, defaults()); if (!S.settings.gh.token) S.settings.gh.token = token;
+    saveNow(); curRate = S.settings.rate; renderRates(); idleOrb(); renderPlan(); renderHeaderBits(); setStatus("cfStatus", "Sicherung geladen.");
+  }).catch(function () { setStatus("cfStatus", "Die Datei ist keine Pulsplan-Sicherung.", true); });
+  this.value = "";
+});
+
+/* Installation: manifest.json, Icons und sw.js liegen als eigene Dateien neben index.html. */
+
+/* =========================================================
+   Boot
+   ========================================================= */
+renderRates(); idleOrb(); renderHeaderBits(); renderToday(); updateMorningBtn();
+document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible" && (P.running || RF.running || MM.running)) lockScreen(); });
+window.__pulsplan = { H: H, parseHRM: parseHRM, buildICS: buildICS, waveByCycle: waveByCycle, rmssd: rmssd, suggestFor: suggestFor, S: function () { return S; } };
+})();
+</script>
+<script>
+// Offline-Betrieb und "App installieren": Service Worker anmelden (nur über https bzw. localhost)
+if ("serviceWorker" in navigator && location.protocol !== "file:") {
+  window.addEventListener("load", function () { navigator.serviceWorker.register("sw.js").catch(function () {}); });
+}
+</script>
+<!-- gemeinsamer-kalender:start -->
+<script data-app="puls">
+/* SportGermany-Verbund (v2): gemeinsamer Kalender, App-Wechsel und Cloud-Sync für alle Apps.
+ * Alle Apps liegen auf sportgermany.github.io und teilen sich deshalb denselben localStorage.
+ * Kalender und App-Daten werden zusätzlich in einem privaten GitHub-Gist gespeichert und so
+ * zwischen mehreren Geräten abgeglichen. Diesen Block in jeder App identisch halten –
+ * er wird aus verbund.js erzeugt, nur das data-app-Attribut unterscheidet sich.
+ * API: window.SharedCalendar.{open, list, add, update, remove, onChange, sync}
+ */
+(function () {
+  "use strict";
+  if (window.SharedCalendar) return;
+
+  /* ---------- Die drei Apps und ihre Bereiche ----------
+   * Planer = Kalender + Schule (Lernplan) + Pause (Denkpause); Training = Trainingsblog + Mobility (Rodel-Mobility)
+   * + Atmung (Pulsplan); Bibel bleibt eigenständig. Module laufen eingebettet in ihrer App.
+   * owns: Datengruppen, deren Seiten in dieser App offen sein können (wichtig für Neuladen nach dem Sync). */
+  var APPS = [
+    { id: "planer", name: "Planer", cal: "Kalender", path: "Schulplaner", color: "#6ea8fe", info: "Kalender, Schule, Aufgaben, Pausen",
+      sections: [["Heute", "#brief"], ["Kalender", "#cal"], ["Aufgaben", "#tasks"], ["Schule", "#schule"], ["Pause", "#pause"]], owns: ["lernplan", "denkpause"] },
+    { id: "training", name: "Training", cal: "Training", path: "trainingsblog", color: "#4fc18a", info: "Training, Mobility, Atmung und HRV",
+      sections: [["Heute", ""], ["Mobility", "#mobility"], ["Atmung", "#atmung"]], owns: ["training", "rodeln", "puls"] },
+    { id: "bibel", name: "Bibel", cal: "Bibel", path: "Bibel", color: "#c9a27a", info: "Zwei Minuten Bibel", sections: [], owns: ["bibel"] }
+  ];
+  // Eingebettete Module: gehören zu einer App, haben selbst keinen Knopf und keinen eigenen Sync
+  var MODULES = [
+    { id: "lernplan", name: "Lernplan", app: "planer" }, { id: "denkpause", name: "Denkpause", app: "planer" },
+    { id: "rodeln", name: "Rodel-Mobility", app: "training" }, { id: "puls", name: "Pulsplan", app: "training" }
+  ];
+  /* Datengruppen für den Cloud-Sync (Dateiname im Gist: app-<id>.json).
+   * Bewusst NICHT dabei: gerätebezogene Daten wie Zugangsschlüssel, Wetter-Cache oder Fensterstellungen
+   * (Lernplan: schulplaner-lokal-v1, Trainingsblog: wk_sync, wk_syncmethod, wk_weather*, wk_uiprefs …). */
+  var DATA = [
+    { id: "lernplan", name: "Schule (Lernplan)", keys: ["schulkalender-bayern-v1"] },
+    { id: "denkpause", name: "Pause (Denkpause)", keys: ["denkpause.v1"] },
+    { id: "training", name: "Training", keys: ["wk_settings", "wk_log", "wk_activities", "wk_runs", "wk_body", "wk_colors", "wk_custom_ex", "wk_custom_gym", "wk_freezes", "wk_gymlog", "wk_illness_active", "wk_injury_active", "wk_injurydays", "wk_onboarded", "wk_race", "wk_rests", "wk_sections", "wk_sickdays", "wk_skin", "wk_swaps", "wk_trainedoverride", "wk_vacation", "wk_weekgoal", "wk_widgets"] },
+    { id: "rodeln", name: "Mobility", keys: ["rodelmobility.v1"] },
+    { id: "puls", name: "Atmung & HRV", keys: ["pulsplan.v1"] },
+    { id: "bibel", name: "Bibel", keys: ["zweiminutenbibel_v2"] }
+  ];
+  // Farben der Kalender-Quellen (Eintrag.app); alte Namen bleiben gültig
+  var SOURCES = [
+    ["Kalender", "#6ea8fe"], ["Lernplan", "#2b5fd9"], ["Training", "#4fc18a"], ["Trainingsblog", "#2f7d57"], ["Rodel-Mobility", "#c0303f"],
+    ["Pulsplan", "#b4532a"], ["Denkpause", "#8a6d1f"], ["Focus", "#3d6b73"], ["Bibel", "#6b4a3a"]
+  ];
+  var EMBED = (function () { try { return window.self !== window.top; } catch (e) { return true; } })();
+  var KEY = "sg-shared-calendar-v1";
+  var TKEY = "sg-shared-tasks-v1";
+  var POS_KEY = "sg-shared-calendar-btn";
+  var SYNC_KEY = "sg-shared-calendar-sync";
+  var META_KEY = "sg-verbund-sync-meta";
+  var GIST_FILE = "kalender.json";
+  var GIST_DESC = "Gemeinsamer Kalender (SportGermany-Apps)";
+  var GH = "https://api.github.com";
+  var script = document.currentScript;
+  var APP_ID = (script && script.getAttribute("data-app")) || "";
+  var MOD = MODULES.find(function (m) { return m.id === APP_ID; });
+  var ME = APPS.find(function (a) { return a.id === (MOD ? MOD.app : APP_ID); }) || { id: APP_ID || "app", name: document.title || "App", cal: document.title || "App", color: "#6ea8fe", owns: [], sections: [] };
+  var APP = MOD ? MOD.name : ME.cal; // Name, unter dem neue Termine/Aufgaben gespeichert werden
+  var MON = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
+  var WD = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
+  var COLORS = ["#2b5fd9", "#2f7d57", "#c0303f", "#b4532a", "#8a6d1f", "#6b4a3a", "#4b5b66", "#7a4fa0"];
+  var CNAMES = ["Blau", "Grün", "Rot", "Rost", "Ocker", "Braun", "Schiefer", "Violett"];
+  var listeners = [];
+  var chan = null;
+  try { chan = new BroadcastChannel(KEY); } catch (e) {}
+
+  /* ---------- Gemeinsame Speicher: Termine (cal) und Aufgaben (todo) ----------
+   * Beide liegen als { v, events: [...] } im localStorage und als eigene Datei im Gist.
+   * Jeder Eintrag trägt "changed"; beim Zusammenführen gewinnt die neuere Fassung. */
+  var COLS = {
+    cal: { key: KEY, file: "kalender.json", ok: function (e) { return /^\d{4}-\d{2}-\d{2}$/.test(e.date); } },
+    todo: { key: TKEY, file: "aufgaben.json", ok: function (e) { return typeof e.title === "string"; } }
+  };
+  function load(c) {
+    try {
+      var d = JSON.parse(localStorage.getItem(COLS[c || "cal"].key) || "null");
+      if (d && Array.isArray(d.events)) return d;
+    } catch (e) {}
+    return { v: 1, events: [] };
+  }
+  function save(d, fromCloud, c) {
+    d.updated = Date.now();
+    purge(d);
+    try { localStorage.setItem(COLS[c || "cal"].key, JSON.stringify(d)); }
+    catch (e) { alert("Konnte nicht gespeichert werden (Speicher voll?)."); return; }
+    if (chan) try { chan.postMessage("changed"); } catch (e) {}
+    emit();
+    if (!fromCloud) schedulePush();
+  }
+  // Löschmarkierungen nach einem Jahr endgültig entfernen, damit die Datei nicht endlos wächst.
+  function purge(d) {
+    var limit = Date.now() - 365 * 864e5;
+    d.events = d.events.filter(function (e) { return !(e.deleted && (e.changed || 0) < limit); });
+  }
+  // Führt Einträge zusammen: pro Eintrag gewinnt die zuletzt geänderte Fassung (auch Löschungen).
+  function mergeInto(d, events, c) {
+    var added = 0, changed = false, ok = COLS[c || "cal"].ok;
+    (events || []).forEach(function (e) {
+      if (!e || !e.id || !ok(e)) return;
+      var i = d.events.findIndex(function (x) { return x.id === e.id; });
+      if (i < 0) { d.events.push(e); added++; changed = true; }
+      else if ((e.changed || 0) > (d.events[i].changed || 0)) { d.events[i] = e; changed = true; }
+    });
+    return { added: added, changed: changed };
+  }
+  // Jede Änderung liest zuerst den aktuellen Stand, damit keine App die Einträge einer anderen überschreibt.
+  function mutate(fn, c) { var d = load(c); var r = fn(d); save(d, false, c); return r; }
+  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
+  function live(c) {
+    var list = load(c).events.filter(function (e) { return !e.deleted; });
+    if (c === "todo") return list.sort(function (a, b) {
+      return (a.done ? 1 : 0) - (b.done ? 1 : 0) || (a.due || "9999").localeCompare(b.due || "9999") || (b.prio || 0) - (a.prio || 0) || (a.created || 0) - (b.created || 0);
+    });
+    return list.sort(function (a, b) { return (a.date + (a.time || "")).localeCompare(b.date + (b.time || "")); });
+  }
+  // Wiederholungen ausrollen: rep = { f: "d" | "w" | "2w" | "m" | "y", until }, ex = ausgelassene Tage.
+  function occurrences(from, to) {
+    var out = [];
+    live().forEach(function (e) {
+      var f = e.rep && e.rep.f;
+      if (!f) { if (e.date >= from && e.date <= to) out.push(e); return; }
+      var until = e.rep.until && e.rep.until < to ? e.rep.until : to, ex = e.ex || [];
+      var s0 = parse(e.date), step = { d: 1, w: 7, "2w": 14 }[f];
+      function push(d) {
+        var k = iso(d);
+        if (k >= from && k <= until && k >= e.date && ex.indexOf(k) < 0) out.push(Object.assign({}, e, { date: k, sid: e.id, start: e.date }));
+      }
+      if (step) {
+        var skip = Math.max(0, Math.floor((parse(from) - s0) / 864e5 / step) - 1);
+        for (var i = skip; i < skip + 800; i++) {
+          var d = new Date(s0.getFullYear(), s0.getMonth(), s0.getDate() + i * step);
+          if (iso(d) > until) break; push(d);
+        }
+      } else {
+        for (var j = 0; j < 1200; j++) {
+          var dm = f === "m" ? new Date(s0.getFullYear(), s0.getMonth() + j, s0.getDate()) : new Date(s0.getFullYear() + j, s0.getMonth(), s0.getDate());
+          if (iso(dm) > until) break;
+          if (dm.getDate() === s0.getDate()) push(dm); // 31. gibt es nicht in jedem Monat: dann auslassen
+        }
+      }
+    });
+    return out.sort(function (a, b) { return (a.date + (a.time || "")).localeCompare(b.date + (b.time || "")); });
+  }
+  function emit() {
+    var ev = live();
+    listeners.forEach(function (f) { try { f(ev); } catch (e) {} });
+    if (root) render(true);
+  }
+  window.addEventListener("storage", function (e) { if (e.key === KEY || e.key === TKEY || e.key === null) emit(); });
+  if (chan) chan.onmessage = function (m) {
+    if (m.data && m.data.applied) {
+      var a = DATA.find(function (x) { return x.id === m.data.applied; });
+      if (a && isMe(a) && root) { bootApply(a); pending[a.id] = { kind: "reload", remote: {} }; render(true); }
+      return;
+    }
+    emit();
+  };
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) emit(); });
+
+  var api = {
+    app: APP,
+    apps: APPS,
+    sources: SOURCES,
+    embedded: EMBED,
+    list: function (from, to) {
+      return live().filter(function (e) { return (!from || e.date >= from) && (!to || e.date <= to); });
+    },
+    add: function (ev) {
+      return mutate(function (d) {
+        var n = { id: uid(), title: String(ev.title || "Termin"), date: ev.date, time: ev.time || "", end: ev.end || "",
+          note: ev.note || "", color: ev.color || "", app: ev.app || APP, created: Date.now(), changed: Date.now(),
+          remind: ev.remind === "" || ev.remind == null ? null : +ev.remind };
+        d.events.push(n); return n;
+      });
+    },
+    update: function (id, patch) {
+      return mutate(function (d) {
+        var e = d.events.find(function (x) { return x.id === id; });
+        if (!e) return null;
+        Object.keys(patch).forEach(function (k) { if (k !== "id") e[k] = patch[k]; });
+        e.changed = Date.now(); return e;
+      });
+    },
+    remove: function (id) {
+      // Gelöschte Termine bleiben als Markierung erhalten, damit ein Import sie nicht wiederbelebt.
+      return mutate(function (d) {
+        var e = d.events.find(function (x) { return x.id === id; });
+        if (e) { e.deleted = true; e.changed = Date.now(); }
+      });
+    },
+    onChange: function (f) { listeners.push(f); return function () { listeners = listeners.filter(function (x) { return x !== f; }); }; },
+    occurrences: occurrences,
+    // Einen einzelnen Termin einer Serie auslassen
+    skip: function (id, date) {
+      return mutate(function (d) {
+        var e = d.events.find(function (x) { return x.id === id; });
+        if (e) { e.ex = (e.ex || []).concat([date]); e.changed = Date.now(); }
+      });
+    },
+    tasks: {
+      list: function () { return live("todo"); },
+      add: function (t) {
+        return mutate(function (d) {
+          var n = { id: uid(), title: String(t.title || "Aufgabe"), due: t.due || "", done: false, prio: t.prio ? 1 : 0,
+            note: t.note || "", app: t.app || APP, created: Date.now(), changed: Date.now() };
+          d.events.push(n); return n;
+        }, "todo");
+      },
+      update: function (id, patch) {
+        return mutate(function (d) {
+          var e = d.events.find(function (x) { return x.id === id; });
+          if (!e) return null;
+          Object.keys(patch).forEach(function (k) { if (k !== "id") e[k] = patch[k]; });
+          if ("done" in patch) e.doneAt = patch.done ? Date.now() : 0;
+          e.changed = Date.now(); return e;
+        }, "todo");
+      },
+      remove: function (id) {
+        return mutate(function (d) {
+          var e = d.events.find(function (x) { return x.id === id; });
+          if (e) { e.deleted = true; e.changed = Date.now(); }
+        }, "todo");
+      }
+    },
+    me: ME,
+    status: function () { var c = cfg(); return { connected: !!c.token, user: c.user || "", busy: sync.busy, error: sync.error, last: sync.last || c.last || 0 }; },
+    open: function (date, tab) { openPanel(date, tab); },
+    sync: function () { return syncNow(); }
+  };
+  window.SharedCalendar = api;
+
+  /* ---------- App-Daten für den Cloud-Sync ----------
+   * Pro App wird eine Datei app-<id>.json im Gist abgelegt: { changed, data: { schlüssel: inhalt } }.
+   * In meta merkt sich jedes Gerät, welchen Stand es zuletzt abgeglichen hat. Ist nur eine Seite
+   * neuer, wird sie übernommen; haben sich beide geändert, entscheidet die Person. */
+  function snapshot(app) {
+    var data = {};
+    app.keys.forEach(function (k) { var v = localStorage.getItem(k); if (v !== null) data[k] = v; });
+    return data;
+  }
+  function hash(obj) {
+    var s = JSON.stringify(obj), h = 5381;
+    for (var i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+    return s.length + ":" + h;
+  }
+  function meta() { try { return JSON.parse(localStorage.getItem(META_KEY) || "{}"); } catch (e) { return {}; } }
+  function setMeta(id, m) { var all = meta(); all[id] = m; try { localStorage.setItem(META_KEY, JSON.stringify(all)); } catch (e) {} }
+  var pending = {}; // id -> { remote } bei Konflikt oder wartender Übernahme in einer offenen App
+  function bootApply(app) { try { localStorage.setItem("sg-apply-on-boot:" + app.id, JSON.stringify({ t: Date.now(), data: snapshot(app) })); } catch (e) {} }
+  function isMe(group) { return !EMBED && ME.owns.indexOf(group.id) > -1; }
+  function myPending() { var g = DATA.find(function (d) { return isMe(d) && pending[d.id]; }); return g ? [g, pending[g.id]] : null; }
+
+  function applyRemote(app, remote) {
+    app.keys.forEach(function (k) {
+      if (remote.data && Object.prototype.hasOwnProperty.call(remote.data, k)) localStorage.setItem(k, remote.data[k]);
+    });
+    setMeta(app.id, { hash: hash(snapshot(app)), remote: remote.changed });
+    delete pending[app.id];
+    if (isMe(app)) bootApply(app);
+    // Ist diese App gerade in einem anderen Fenster offen, muss sie neu laden, sonst überschreibt sie die neuen Daten.
+    if (chan) try { chan.postMessage({ applied: app.id }); } catch (e) {}
+  }
+
+  /* ---------- Cloud-Sync über einen privaten GitHub-Gist ----------
+   * Der Zugangsschlüssel (Token) liegt im gemeinsamen Speicher, muss also pro Gerät
+   * nur einmal eingegeben werden und gilt dann für alle Apps. */
+  var sync = { busy: false, again: false, timer: null, error: "", last: 0, started: Date.now() };
+  function cfg() { try { return JSON.parse(localStorage.getItem(SYNC_KEY) || "null") || {}; } catch (e) { return {}; } }
+  function setCfg(c) { try { if (c) localStorage.setItem(SYNC_KEY, JSON.stringify(c)); else localStorage.removeItem(SYNC_KEY); } catch (e) {} }
+  function gh(path, opt, token) {
+    opt = opt || {};
+    return fetch(GH + path, {
+      method: opt.method || "GET", cache: "no-store",
+      headers: { "Authorization": "Bearer " + token, "Accept": "application/vnd.github+json", "Content-Type": "application/json" },
+      body: opt.body ? JSON.stringify(opt.body) : undefined
+    }).then(function (r) {
+      if (r.status === 401) throw new Error("Der Token ist ungültig oder abgelaufen.");
+      if (r.status === 403 || r.status === 404) throw new Error("Kein Zugriff – hat der Token das Recht „gist“?");
+      if (!r.ok) throw new Error("GitHub antwortet mit Fehler " + r.status + ".");
+      return r.json();
+    });
+  }
+  function content(d) {
+    var events = d.events.slice().sort(function (a, b) { return a.id < b.id ? -1 : 1; });
+    return JSON.stringify({ v: 1, events: events }, null, 1);
+  }
+  function findOrCreateGist(token, d) {
+    return gh("/gists?per_page=100", null, token).then(function (list) {
+      var hit = list.find(function (g) { return g.files && g.files[GIST_FILE] && g.description === GIST_DESC; });
+      if (hit) return hit.id;
+      return gh("/gists", { method: "POST", body: { description: GIST_DESC, "public": false, files: { "kalender.json": { content: content(d) } } } }, token)
+        .then(function (g) { return g.id; });
+    });
+  }
+  // Die GitHub-API kürzt Dateien über 1 MB; dann den vollständigen Inhalt nachladen.
+  function fullGist(g) {
+    var cut = Object.keys(g.files || {}).filter(function (k) { return g.files[k].truncated && g.files[k].raw_url; });
+    return Promise.all(cut.map(function (k) {
+      return fetch(g.files[k].raw_url, { cache: "no-store" }).then(function (r) { return r.text(); }).then(function (t) { g.files[k].content = t; });
+    })).then(function () { return g; });
+  }
+  function readJSON(f) { try { return f && f.content ? JSON.parse(f.content) : null; } catch (e) { return null; } }
+
+  // Gleicht die Daten aller Verbund-Apps ab, nicht nur der gerade offenen –
+  // so landen auch Änderungen aus einer App, die lange nicht offen war, in der Cloud.
+  var EXTRA = [{ id: "einstellungen", name: "Einstellungen", keys: ["sg-design"], lww: true }];
+  function syncApps(g, files) {
+    DATA.concat(EXTRA).forEach(function (app) {
+      if (!app.keys.length) return;
+      var local = snapshot(app), h = hash(local), m = meta()[app.id] || {};
+      var remote = readJSON(g.files && g.files["app-" + app.id + ".json"]);
+      var localChanged = h !== m.hash && Object.keys(local).length > 0;
+      if (sync.adopt && remote && remote.data) { // neues Gerät: Cloud-Stand übernehmen
+        applyRemote(app, remote);
+        if (isMe(app)) reloadSoon();
+        if (app.id === "einstellungen" && window.SGTheme) window.SGTheme.set(localStorage.getItem("sg-design") || "mitternacht");
+        return;
+      }
+      var remoteChanged = (!m.force || !Object.keys(local).length) && remote && remote.changed && remote.changed !== m.remote && hash(remote.data || {}) !== h;
+      if (remoteChanged && !localChanged) {
+        if (isMe(app) && Date.now() - sync.started > 5000) pending[app.id] = { remote: remote, kind: "update" };
+        else applyRemote(app, remote);
+        if (isMe(app) && !pending[app.id]) reloadSoon();
+        if (app.id === "einstellungen" && window.SGTheme) window.SGTheme.set(localStorage.getItem("sg-design") || "mitternacht");
+      } else if (remoteChanged && localChanged && !app.lww) {
+        pending[app.id] = { remote: remote, kind: "conflict" };
+      } else if (localChanged || (!remote && Object.keys(local).length)) { // bei lww: eigene neuere Wahl gewinnt
+        var out = { changed: Date.now(), device: deviceName(), data: local };
+        files["app-" + app.id + ".json"] = { content: JSON.stringify(out) };
+        setMeta(app.id, { hash: h, remote: out.changed });
+      } else if (remote && remote.changed !== m.remote) {
+        setMeta(app.id, { hash: h, remote: remote.changed });
+      }
+    });
+  }
+  var reloading = false;
+  function reloadSoon() { if (!reloading) { reloading = true; setTimeout(function () { location.reload(); }, 300); } }
+  function deviceName() {
+    var ua = navigator.userAgent;
+    return /Android/.test(ua) ? "Android" : /iPhone|iPad/.test(ua) ? "iPhone/iPad" : /Windows/.test(ua) ? "Windows-PC" : /Mac/.test(ua) ? "Mac" : "Gerät";
+  }
+
+  function syncNow() {
+    if (EMBED) return Promise.resolve(false); // eingebettete Module: die App drumherum synchronisiert
+    var c = cfg();
+    if (!c.token) return Promise.resolve(false);
+    if (!navigator.onLine) { sync.error = "Offline – wird nachgeholt, sobald Internet da ist."; render(true); return Promise.resolve(false); }
+    if (sync.busy) { sync.again = true; return Promise.resolve(false); }
+    sync.busy = true; render(true);
+    var token = c.token;
+    var idP = c.gist ? Promise.resolve(c.gist) : findOrCreateGist(token, load());
+    return idP.then(function (id) {
+      if (id !== c.gist) { c = cfg(); c.gist = id; setCfg(c); }
+      return gh("/gists/" + id, null, token).then(fullGist).then(function (g) {
+        var files = {};
+        // Termine und Aufgaben: frisch lesen, damit Änderungen während der Anfrage nicht verloren gehen.
+        Object.keys(COLS).forEach(function (c) {
+          var col = COLS[c];
+          var remote = readJSON(g.files && g.files[col.file]) || { events: [] };
+          var d = load(c);
+          if (mergeInto(d, remote.events, c).changed) save(d, true, c);
+          var local = content(load(c));
+          var rd = { events: remote.events || [] }; purge(rd);
+          if (local !== content(rd)) files[col.file] = { content: local };
+        });
+        syncApps(g, files);
+        if (Object.keys(files).length) return gh("/gists/" + id, { method: "PATCH", body: { files: files } }, token);
+      });
+    }).then(function () {
+      sync.error = ""; sync.last = Date.now();
+      var c2 = cfg(); if (c2.token) { c2.last = sync.last; setCfg(c2); }
+      return true;
+    }).catch(function (e) {
+      sync.error = (e && e.message && !/fetch|network/i.test(e.message)) ? e.message : "Keine Verbindung zu GitHub.";
+      // Gist wurde womöglich gelöscht: beim nächsten Mal neu suchen.
+      if (/Kein Zugriff/.test(sync.error)) { var c3 = cfg(); delete c3.gist; setCfg(c3); }
+      return false;
+    }).then(function (ok) {
+      sync.busy = false; render(true);
+      if (sync.again) { sync.again = false; syncNow(); }
+      return ok;
+    });
+  }
+  function schedulePush() {
+    if (!cfg().token) return;
+    clearTimeout(sync.timer);
+    sync.timer = setTimeout(syncNow, 1500);
+  }
+  // Regelmäßig nachsehen, ob ein anderes Gerät etwas geändert hat (nur solange die App sichtbar ist).
+  setInterval(function () { if (!document.hidden) syncNow(); }, 30000);
+  // Beim Verlassen der App die eigenen Änderungen sofort hochladen.
+  document.addEventListener("visibilitychange", function () { syncNow(); });
+  window.addEventListener("online", function () { syncNow(); });
+  setTimeout(syncNow, 800);
+
+  /* ---------- Erinnerungen ----------
+   * remind = Minuten vor Beginn (ganztägig: bezogen auf 8 Uhr). Solange irgendeine App offen ist,
+   * wird alle 30 Sekunden geprüft. Was schon gemeldet wurde, steht im gemeinsamen Speicher –
+   * so meldet sich jeder Termin nur einmal, egal wie viele Apps offen sind. */
+  var FIRED_KEY = "sg-reminders-fired";
+  var REMIND = [["", "Keine"], ["0", "Zu Beginn"], ["5", "5 Min. vorher"], ["10", "10 Min. vorher"], ["15", "15 Min. vorher"], ["30", "30 Min. vorher"],
+    ["60", "1 Std. vorher"], ["120", "2 Std. vorher"], ["1440", "1 Tag vorher"]];
+  function notifyOk() { return "Notification" in window && Notification.permission === "granted"; }
+  function askNotify() {
+    if (!("Notification" in window) || Notification.permission !== "default") return Promise.resolve(notifyOk());
+    return Promise.resolve(Notification.requestPermission()).then(function () { render(); return notifyOk(); });
+  }
+  function show(title, body, tag) {
+    var opt = { body: body, tag: tag, icon: location.origin + "/Schulplaner/icon-192.png", data: { url: location.origin + "/Schulplaner/#cal" } };
+    var fallback = function () { try { new Notification(title, opt); } catch (e) {} };
+    if (navigator.serviceWorker && navigator.serviceWorker.controller) navigator.serviceWorker.ready.then(function (r) { return r.showNotification(title, opt); }).catch(fallback);
+    else fallback();
+  }
+  function checkReminders() {
+    if (EMBED || !notifyOk()) return;
+    var now = Date.now(), fired;
+    try { fired = JSON.parse(localStorage.getItem(FIRED_KEY) || "{}"); } catch (e) { fired = {}; }
+    var t = iso(new Date()), list = occurrences(iso(new Date(now - 864e5)), iso(new Date(now + 2 * 864e5)));
+    list.forEach(function (e) {
+      if (e.remind == null || e.remind === "") return;
+      var p = e.date.split("-"), hm = (e.time || "08:00").split(":");
+      var start = new Date(+p[0], +p[1] - 1, +p[2], +hm[0], +hm[1]).getTime(), at = start - e.remind * 60000, key = e.id + "@" + e.date;
+      // nur melden, wenn der Zeitpunkt erreicht ist, aber höchstens 2 Stunden zu spät
+      if (fired[key] || now < at || now > at + 2 * 3600000) return;
+      fired[key] = now;
+      var when = e.date === t ? "Heute" : "Morgen";
+      show(e.title, (e.time ? when + " um " + e.time + " Uhr" + (e.end ? " bis " + e.end : "") : when + ", ganztägig") + " · " + e.app, key);
+    });
+    Object.keys(fired).forEach(function (k) { if (now - fired[k] > 4 * 864e5) delete fired[k]; });
+    try { localStorage.setItem(FIRED_KEY, JSON.stringify(fired)); } catch (e) {}
+  }
+  setInterval(checkReminders, 30000);
+  setTimeout(checkReminders, 1500);
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) checkReminders(); });
+  api.remindOptions = REMIND;
+  api.askNotify = askNotify;
+  api.notifyState = function () { return "Notification" in window ? Notification.permission : "unsupported"; };
+
+  /* ---------- Hilfen ---------- */
+  function pad(n) { return (n < 10 ? "0" : "") + n; }
+  function iso(d) { return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
+  function parse(s) { var p = s.split("-"); return new Date(+p[0], +p[1] - 1, +p[2]); }
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function appColor(name) {
+    var a = SOURCES.find(function (x) { return x[0] === name; });
+    if (a) return a[1];
+    var h = 0; for (var i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
+    return COLORS[h % COLORS.length];
+  }
+  function colorOf(e) { return e.color || appColor(e.app || ""); }
+  function longDate(s) {
+    var d = parse(s);
+    return ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"][d.getDay()] + ", " + d.getDate() + ". " + MON[d.getMonth()] + " " + d.getFullYear();
+  }
+  function download(name, type, text) {
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([text], { type: type }));
+    a.download = name; document.body.appendChild(a); a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  }
+  function appUrl(app) { return location.origin + "/" + app.path + "/"; }
+  // Hell oder dunkel? Richtet sich nach dem tatsächlichen Hintergrund der App, damit das Fenster passt.
+  function isDark() { return true; } // alle Apps laufen im Dunkelmodus
+  function themeVars() {
+    var t = window.SGTheme ? window.SGTheme.current() : { s1: "#151b23", s2: "#1c2430", s3: "#243040", line: "#2a3646", ink: "#e6edf3", muted: "#9aa7b4", acc: "#6ea8fe" };
+    return "--bg:" + t.s1 + ";--s1:" + t.s2 + ";--s2:" + t.s3 + ";--line:" + t.line + ";--fg:" + t.ink + ";--mut:" + t.muted + ";--acc:" + t.acc + ";--accfg:#14120f";
+  }
+  var ICON = "<svg viewBox='0 0 24 24' width='22' height='22' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round'><rect x='3.5' y='5' width='17' height='15.5' rx='2.5'/><path d='M3.5 9.5h17M8 3v4M16 3v4'/><path d='M7.5 13.5h2M11 13.5h2M14.5 13.5h2M7.5 17h2M11 17h2'/></svg>";
+
+  /* ---------- Oberfläche (Shadow DOM, damit sich die Styles der Apps nicht gegenseitig stören) ---------- */
+  var host, root, state = { month: null, sel: null, edit: null, filter: false, tab: "cal" };
+  var CSS = [
+    ":host{all:initial}",
+    "*{box-sizing:border-box;font-family:'Segoe UI Variable Text','Segoe UI',Roboto,'Helvetica Neue',system-ui,sans-serif}",
+    ".v{--bg:#f3f1ec;--s1:#fff;--s2:#ebe8e1;--line:#dad5cb;--fg:#1d1c19;--mut:#67635b;--acc:" + ME.color + ";--accfg:#fff}",
+    ".v.dark{--bg:#1c1b19;--s1:#1c1b19;--s2:#2a2926;--line:#3a3833;--fg:#ebe9e4;--mut:#a29e95}",
+    ".fab{position:fixed;z-index:2147483000;width:46px;height:46px;border-radius:14px;cursor:pointer;touch-action:none;",
+    "background:var(--s1);color:var(--fg);border:1px solid var(--line);box-shadow:0 1px 2px rgba(0,0,0,.08),0 6px 18px rgba(0,0,0,.14);",
+    "display:flex;align-items:center;justify-content:center}",
+    ".fab.edge{width:30px;height:54px;border-radius:12px 0 0 12px;border-right:0;box-shadow:-2px 2px 10px rgba(0,0,0,.3)}.fab.edge svg{width:18px;height:18px}.fab.edge .dot{top:-6px;right:auto;left:-6px}",
+    ".fab .dot{position:absolute;top:-5px;right:-5px;min-width:19px;height:19px;padding:0 5px;border-radius:10px;background:var(--acc);color:var(--accfg);font-size:11px;line-height:19px;font-weight:700;text-align:center}",
+    ".wrap{position:fixed;inset:0;z-index:2147483001;background:rgba(20,18,15,.42);display:flex;align-items:flex-end;justify-content:center}",
+    "@media(min-width:700px){.wrap{align-items:center}}",
+    ".panel{background:var(--bg);color:var(--fg);width:100%;max-width:540px;max-height:92vh;overflow:auto;border-radius:16px 16px 0 0;",
+    "padding:14px 16px calc(18px + env(safe-area-inset-bottom,0px));font-size:15px;line-height:1.4}",
+    "@media(min-width:700px){.panel{border-radius:16px}}",
+    ".top{display:flex;align-items:center;gap:8px;margin:0 0 12px}",
+    ".tabs{flex:1;display:flex;background:var(--s2);border-radius:10px;padding:3px;gap:2px}",
+    ".tabs button{flex:1;border:0;background:transparent;color:var(--mut);padding:7px 4px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer}",
+    ".tabs button.on{background:var(--s1);color:var(--fg);box-shadow:0 1px 2px rgba(0,0,0,.12)}",
+    ".hd{display:flex;align-items:center;gap:8px;margin-bottom:10px}",
+    ".hd h2{flex:1;margin:0;font-size:19px;font-weight:700;letter-spacing:-.01em}",
+    "button.b{border:1px solid var(--line);background:var(--s1);color:var(--fg);border-radius:9px;padding:7px 12px;font-size:14px;cursor:pointer}",
+    "button.p{background:var(--acc);border-color:var(--acc);color:var(--accfg);font-weight:600}",
+    "button.d{color:#c0303f}",
+    "button.x{border:0;background:transparent;color:var(--mut);font-size:20px;width:34px;height:34px;cursor:pointer}",
+    ".grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}",
+    ".wd{text-align:center;font-size:12px;color:var(--mut);padding:2px 0 4px}",
+    ".c{min-height:46px;border-radius:8px;padding:4px 2px;cursor:pointer;display:flex;flex-direction:column;align-items:center;border:1px solid transparent}",
+    ".c:hover{background:var(--s2)}.c.o{opacity:.35}.c.t .n{background:var(--fg);color:var(--bg)}.c.s{border-color:var(--acc);background:var(--s1)}",
+    ".n{font-size:14px;width:26px;height:26px;line-height:26px;text-align:center;border-radius:50%;font-variant-numeric:tabular-nums}",
+    ".ds{display:flex;gap:2px;flex-wrap:wrap;justify-content:center;margin-top:2px}.ds i{width:5px;height:5px;border-radius:50%}",
+    ".sec{margin-top:16px}.sec h3{font-size:13px;margin:0 0 8px;text-transform:uppercase;letter-spacing:.05em;color:var(--mut);font-weight:600}",
+    ".ev{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:10px;background:var(--s1);border:1px solid var(--line);margin-bottom:6px;cursor:pointer}",
+    ".bar{width:3px;align-self:stretch;border-radius:2px}",
+    ".ev .t{font-weight:600}.m{font-size:13px;color:var(--mut)}",
+    ".empty{color:var(--mut);font-size:14px;padding:4px 0}",
+    "label{display:block;font-size:13px;color:var(--mut);margin:12px 0 4px}",
+    "input,textarea,select{width:100%;padding:10px 11px;border-radius:9px;border:1px solid var(--line);background:var(--s1);color:var(--fg);font-size:16px}",
+    "textarea{min-height:70px;resize:vertical}",
+    ".row{display:flex;gap:8px}.row>*{flex:1}",
+    ".act{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}.act .sp{flex:1}",
+    ".tools{display:flex;gap:6px;flex-wrap:wrap;margin-top:18px;padding-top:12px;border-top:1px solid var(--line)}",
+    ".tools button.b{font-size:13px;padding:6px 10px}",
+    ".chk{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--mut);margin:8px 0 0}.chk input{width:auto}",
+    ".cl{font-size:13px;color:var(--mut);margin:10px 0 0;cursor:pointer}.cl.ok{color:#2f7d57}.cl.err{color:#c0303f}",
+    ".v.dark .cl.ok{color:#6cc79a}.v.dark .cl.err,.v.dark button.d{color:#f0727c}",
+    ".txt{font-size:14px;margin:8px 0}.txt a{color:var(--acc)}ol.txt{padding-left:20px}ol.txt li{margin:5px 0}code{background:var(--s2);padding:1px 4px;border-radius:4px}",
+    "button.b[disabled]{opacity:.5}",
+    ".task{display:flex;gap:8px;align-items:center;padding:7px 2px;font-size:14px;cursor:pointer}.task input{width:auto;margin:0}.task em{color:#c0303f;font-style:normal;font-size:12px}",
+    ".qt{margin-top:4px;font-size:14px;padding:8px 10px}",
+    "a.b{text-decoration:none;display:inline-block}a.big{font-weight:600}",
+    ".themes{display:grid;grid-template-columns:1fr 1fr;gap:8px}",
+    ".th{text-align:left;border:2px solid;border-radius:12px;padding:10px;cursor:pointer;display:flex;flex-direction:column;gap:3px}",
+    ".th b{font-size:14px}.th small{font-size:12px;line-height:1.3}.th.on{box-shadow:0 0 0 1px var(--acc)}",
+    ".pv{display:flex;gap:4px;margin-bottom:4px}.pv i{width:18px;height:18px;border-radius:5px;display:block}.pv i:last-child{border-radius:50%}",
+    ".hist{display:flex;flex-direction:column;gap:4px;margin-top:8px}.hist button{text-align:left;border:1px solid var(--line);background:var(--s1);color:var(--fg);border-radius:9px;padding:9px 11px;font-size:14px;cursor:pointer}",
+    ".bl{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0}.bl span{background:var(--s2);border-radius:7px;padding:3px 8px;font-size:12px}",
+    ".apps{display:flex;flex-direction:column;gap:8px}",
+    ".app .ah{display:flex;gap:10px;align-items:center;color:var(--fg);text-decoration:none}.secs{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px}",
+    ".secs a{font-size:12.5px;padding:4px 9px;border-radius:7px;background:var(--s2);color:var(--fg);text-decoration:none}",
+    ".app{display:block;padding:11px;border-radius:12px;background:var(--s1);border:1px solid var(--line);color:var(--fg);text-decoration:none}",
+    ".app.me{border-color:var(--fg)}",
+    ".mono{flex:none;width:36px;height:36px;border-radius:10px;color:#fff;font-weight:700;font-size:16px;display:flex;align-items:center;justify-content:center}",
+    ".app b{display:block;font-size:14px}.app span{display:block;font-size:12px;color:var(--mut);line-height:1.3}",
+    ".toast{position:fixed;left:12px;right:12px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:2147483002;max-width:520px;margin:0 auto;",
+    "background:var(--fg);color:var(--bg);border-radius:12px;padding:12px 14px;font-size:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;box-shadow:0 8px 24px rgba(0,0,0,.25)}",
+    ".toast span{flex:1;min-width:180px}.toast button{border:0;border-radius:8px;padding:7px 10px;font-size:13px;font-weight:600;cursor:pointer;background:var(--bg);color:var(--fg)}"
+  ].join("");
+
+  function mount() {
+    if (host) return;
+    host = document.createElement("div");
+    host.id = "sg-shared-calendar";
+    root = host.attachShadow({ mode: "open" });
+    var st = document.createElement("style"); st.textContent = CSS; root.appendChild(st);
+    var v = document.createElement("div"); v.className = "v"; root.appendChild(v);
+    var fab = document.createElement("button");
+    if (script && script.getAttribute("data-fab") === "off") fab.style.display = "none"; // die Kalender-App braucht den Knopf nicht
+    fab.className = "fab"; fab.title = "Kalender & Apps"; fab.setAttribute("aria-label", "Kalender und Apps");
+    fab.innerHTML = ICON + "<span class='dot' hidden></span>";
+    v.appendChild(fab);
+    var box = document.createElement("div"); box.className = "box"; v.appendChild(box);
+    var toast = document.createElement("div"); toast.className = "tbox"; v.appendChild(toast);
+    document.body.appendChild(host);
+    placeFab(fab);
+    dragFab(fab);
+    render();
+  }
+
+  // Handy: schmale Lasche am rechten Rand (verdeckt kaum Inhalt, nur senkrecht verschiebbar). Laptop: runder Knopf.
+  function edge() { return window.innerWidth <= 760; }
+  function placeFab(fab) {
+    var p = null;
+    try { p = JSON.parse(localStorage.getItem(POS_KEY + ":" + APP) || "null"); } catch (e) {}
+    fab.classList.toggle("edge", edge());
+    var x = edge() ? window.innerWidth - 30 : p && p.x != null ? p.x : window.innerWidth - 66, y = p ? p.y : window.innerHeight * (edge() ? .58 : 1) - (edge() ? 0 : 150);
+    if (edge()) { fab.style.left = x + "px"; fab.style.top = Math.max(60, Math.min(window.innerHeight - 140, y)) + "px"; return; }
+    fab.style.left = Math.max(4, Math.min(window.innerWidth - 50, x)) + "px";
+    fab.style.top = Math.max(4, Math.min(window.innerHeight - 50, y)) + "px";
+  }
+  // Der Knopf lässt sich verschieben, falls er in einer App etwas verdeckt (Position wird pro App gemerkt).
+  function dragFab(fab) {
+    var sx, sy, ox, oy, moved = false, down = false;
+    fab.addEventListener("pointerdown", function (e) {
+      down = true; moved = false; sx = e.clientX; sy = e.clientY; ox = fab.offsetLeft; oy = fab.offsetTop;
+      try { fab.setPointerCapture(e.pointerId); } catch (_) {}
+    });
+    fab.addEventListener("pointermove", function (e) {
+      if (!down) return;
+      var dx = e.clientX - sx, dy = e.clientY - sy;
+      if (!moved && Math.abs(dx) + Math.abs(dy) < 8) return;
+      moved = true;
+      if (!edge()) fab.style.left = Math.max(4, Math.min(window.innerWidth - 50, ox + dx)) + "px";
+      fab.style.top = Math.max(4, Math.min(window.innerHeight - 50, oy + dy)) + "px";
+    });
+    fab.addEventListener("pointerup", function () {
+      if (!down) return; down = false;
+      if (moved) try { localStorage.setItem(POS_KEY + ":" + APP, JSON.stringify({ x: edge() ? null : fab.offsetLeft, y: fab.offsetTop })); } catch (e) {}
+    });
+    fab.addEventListener("pointercancel", function () { down = false; });
+    // Erst beim Klick öffnen: so landet der Tipp nicht zusätzlich auf dem Fenster, das sich gerade öffnet.
+    fab.addEventListener("click", function () { if (moved) { moved = false; return; } openPanel(); });
+    window.addEventListener("resize", function () { placeFab(fab); });
+  }
+
+  function openPanel(date, tab) {
+    mount();
+    var d = date ? parse(date) : new Date();
+    state.sel = iso(d); state.month = new Date(d.getFullYear(), d.getMonth(), 1);
+    state.edit = null; state.tab = tab || "cal"; state.open = true;
+    render();
+  }
+  function close() { state.open = false; state.edit = null; render(); }
+
+  function render(bg) {
+    if (!root) return;
+    var vv = root.querySelector(".v"); vv.classList.add("dark"); vv.setAttribute("style", themeVars());
+    var today = iso(new Date());
+    var all = occurrences(iso(new Date(Date.now() - 400 * 864e5)), iso(new Date(Date.now() + 800 * 864e5)));
+    var dot = root.querySelector(".fab .dot");
+    var n = all.filter(function (e) { return e.date === today; }).length;
+    dot.hidden = !n; dot.textContent = n;
+    renderToast();
+    var box = root.querySelector(".box");
+    if (!state.open) { box.innerHTML = ""; return; }
+    // Hintergrund-Updates (andere App, anderes Gerät) dürfen kein gerade ausgefülltes Formular überschreiben.
+    if (bg && (state.edit || (state.tab === "sync" && !cfg().token))) return;
+    var evs = state.filter ? all.filter(function (e) { return e.app === APP; }) : all;
+    var h = "<div class='wrap'><div class='panel' role='dialog' aria-label='Kalender und Apps'>";
+    if (state.edit) h += form(state.edit);
+    else {
+      h += "<div class='top'><div class='tabs' role='tablist'>" +
+        [["cal", "Kalender"], ["apps", "Apps"], ["design", "Design"], ["sync", "Sync"]].map(function (t) {
+          return "<button role='tab' data-tab='" + t[0] + "' class='" + (state.tab === t[0] ? "on" : "") + "'>" + t[1] + "</button>";
+        }).join("") + "</div><button class='x' data-a='close' aria-label='Schließen'>✕</button></div>";
+      h += state.tab === "apps" ? appsView() : state.tab === "sync" ? cloudView() : state.tab === "design" ? designView() : month(evs, today);
+    }
+    h += "</div></div>";
+    box.innerHTML = h;
+    bind(box);
+  }
+
+  function renderToast() {
+    var tb = root.querySelector(".tbox"), mp = myPending(), p = mp && mp[1], MYDATA = mp && mp[0];
+    if (!p) { tb.innerHTML = ""; return; }
+    var who = p.remote.device ? " (" + esc(p.remote.device) + ")" : "";
+    tb.innerHTML = p.kind === "reload"
+      ? "<div class='toast'><span>Die Daten dieser App wurden gerade vom Sync aktualisiert.</span><button data-t='reload'>Neu laden</button></div>"
+      : p.kind === "conflict"
+      ? "<div class='toast'><span>Deine Daten in " + esc(MYDATA.name) + " wurden hier und auf einem anderen Gerät" + who + " geändert. Welche Fassung soll gelten?</span><button data-t='mine'>Diese hier</button><button data-t='theirs'>Die andere</button></div>"
+      : "<div class='toast'><span>Neue Daten von einem anderen Gerät" + who + ".</span><button data-t='theirs'>Jetzt laden</button></div>";
+    tb.querySelectorAll("[data-t]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        if (b.dataset.t === "reload") location.reload();
+        else if (b.dataset.t === "theirs") { applyRemote(MYDATA, p.remote); location.reload(); }
+        else { setMeta(MYDATA.id, { hash: "", remote: p.remote.changed }); delete pending[MYDATA.id]; renderToast(); syncNow(); }
+      });
+    });
+  }
+
+  function month(evs, today) {
+    var m = state.month, y = m.getFullYear(), mo = m.getMonth();
+    var byDay = {};
+    evs.forEach(function (e) { (byDay[e.date] = byDay[e.date] || []).push(e); });
+    var h = "<div class='hd'><h2>" + MON[mo] + " " + y + "</h2><button class='b' data-a='prev' aria-label='Voriger Monat'>‹</button>" +
+      "<button class='b' data-a='today'>Heute</button><button class='b' data-a='next' aria-label='Nächster Monat'>›</button></div>";
+    h += "<div class='grid'>" + WD.map(function (w) { return "<div class='wd'>" + w + "</div>"; }).join("");
+    var start = new Date(y, mo, 1 - ((m.getDay() + 6) % 7));
+    for (var i = 0; i < 42; i++) {
+      var d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i), k = iso(d);
+      if (i === 35 && d.getMonth() !== mo) break;
+      var cls = "c" + (d.getMonth() !== mo ? " o" : "") + (k === today ? " t" : "") + (k === state.sel ? " s" : "");
+      var dots = (byDay[k] || []).slice(0, 4).map(function (e) { return "<i style='background:" + colorOf(e) + "'></i>"; }).join("");
+      h += "<div class='" + cls + "' data-day='" + k + "'><span class='n'>" + d.getDate() + "</span><span class='ds'>" + dots + "</span></div>";
+    }
+    h += "</div>";
+    h += "<label class='chk'><input type='checkbox' data-a='filter'" + (state.filter ? " checked" : "") + "> Nur Termine aus „" + esc(APP) + "“</label>";
+    var list = byDay[state.sel] || [];
+    h += "<div class='sec'><div class='hd'><h3 style='flex:1;margin:0'>" + longDate(state.sel) + "</h3><button class='b p' data-a='new'>+ Termin</button></div>";
+    h += list.length ? list.map(function (e) { return item(e); }).join("") : "<div class='empty'>Keine Termine an diesem Tag.</div>";
+    h += "</div>";
+    var tasks = live("todo").filter(function (t) { return !t.done && (t.due === state.sel || (state.sel === today && t.due && t.due < today)); });
+    h += "<div class='sec'><h3>Aufgaben</h3>" + tasks.map(function (t) {
+      return "<label class='task'><input type='checkbox' data-task='" + esc(t.id) + "'><span>" + esc(t.title) +
+        (t.due < today ? " <em>überfällig</em>" : "") + "</span></label>";
+    }).join("") + "<input class='qt' name='quicktask' placeholder='+ Aufgabe für diesen Tag' maxlength='120' enterkeyhint='done'></div>";
+    var seen = {}; // Serien nur mit dem nächsten Termin zeigen
+    var upcoming = evs.filter(function (e) { if (e.date <= state.sel || seen[e.id]) return false; seen[e.id] = 1; return true; }).slice(0, 5);
+    if (upcoming.length) h += "<div class='sec'><h3>Danach</h3>" + upcoming.map(function (e) { return item(e, true); }).join("") + "</div>";
+    if ("Notification" in window && Notification.permission === "default") h += "<div class='cl' data-a='notify'>Erinnerungen als Benachrichtigung erlauben</div>";
+    h += "<div class='tools'><a class='b big' href='" + esc(appUrl(APPS[0]) + "#cal") + "'>Großer Kalender</a><button class='b' data-a='export'>Sichern</button><button class='b' data-a='import'>Importieren</button><button class='b' data-a='ics'>.ics-Export</button></div>";
+    return h;
+  }
+
+  function item(e, withDate) {
+    var meta = [];
+    if (withDate) meta.push(parse(e.date).getDate() + ". " + MON[parse(e.date).getMonth()]);
+    if (e.time) meta.push(e.time + (e.end ? "–" + e.end : "") + " Uhr");
+    meta.push(e.app);
+    return "<div class='ev' data-id='" + esc(e.id) + "'><span class='bar' style='background:" + colorOf(e) + "'></span><div><div class='t'>" + esc(e.title) +
+      "</div><div class='m'>" + esc(meta.join(" · ")) + "</div>" + (e.note ? "<div class='m'>" + esc(e.note) + "</div>" : "") + "</div></div>";
+  }
+
+  function appsView() {
+    var here = location.hash;
+    var h = "<div class='apps'>" + APPS.map(function (a) {
+      var me = a.id === ME.id;
+      return "<div class='app" + (me ? " me" : "") + "'><a class='ah' href='" + (me ? "#" : esc(appUrl(a))) + "'" + (me ? " data-a='close'" : "") + ">" +
+        "<span class='mono' style='background:" + a.color + "'>" + esc(a.name.charAt(0)) + "</span><span><b>" + esc(a.name) + "</b><span>" + (me ? "Du bist hier" : esc(a.info)) + "</span></span></a>" +
+        (a.sections.length ? "<div class='secs'>" + a.sections.map(function (sct) {
+          return "<a href='" + esc(appUrl(a) + sct[1]) + "'" + (me ? " data-go='" + esc(sct[1]) + "'" : "") + ">" + esc(sct[0]) + "</a>"; }).join("") + "</div>" : "") + "</div>";
+    }).join("") + "</div>";
+    h += "<p class='txt m'>Drei Apps, ein gemeinsamer Speicher: Termine, Aufgaben, Design und Sicherung gelten überall.</p>";
+    return h;
+  }
+  function designView() {
+    if (!window.SGTheme) return "<p class='txt'>Design nicht verfügbar.</p>";
+    var cur = window.SGTheme.current().id;
+    return "<p class='txt m'>Gilt sofort für alle Apps auf diesem Gerät – und mit Sync auch auf deinen anderen Geräten.</p><div class='themes'>" +
+      window.SGTheme.list.map(function (t) {
+        return "<button class='th" + (t.id === cur ? " on" : "") + "' data-theme='" + t.id + "' style='background:" + t.bg + ";color:" + t.ink + ";border-color:" + (t.id === cur ? t.acc : t.line) + "'>" +
+          "<span class='pv'><i style='background:" + t.s1 + "'></i><i style='background:" + t.s2 + "'></i><i style='background:" + t.s3 + "'></i><i style='background:" + t.acc + "'></i></span>" +
+          "<b>" + esc(t.name) + "</b><small style='color:" + t.muted + "'>" + esc(t.info) + "</small></button>";
+      }).join("") + "</div>";
+  }
+  function ago(t) {
+    if (!t) return "noch nie";
+    var m = Math.round((Date.now() - t) / 60000);
+    return m < 1 ? "gerade eben" : m < 60 ? "vor " + m + " Min." : new Date(t).toLocaleString("de-DE", { day: "numeric", month: "numeric", hour: "2-digit", minute: "2-digit" });
+  }
+  function cloudLine() {
+    var c = cfg();
+    if (!c.token) return "<div class='cl' data-tab='sync'>Nur auf diesem Gerät gespeichert · <u>Sync einrichten</u></div>";
+    if (sync.busy) return "<div class='cl'>Synchronisiere …</div>";
+    if (sync.error) return "<div class='cl err'>" + esc(sync.error) + "</div>";
+    return "<div class='cl ok'>Synchronisiert · " + ago(sync.last || c.last) + "</div>";
+  }
+  /* ---------- Sicherung: Übersicht, frühere Stände, Datei ---------- */
+  function backedUp() {
+    return ["Kalender & Aufgaben"].concat(DATA.map(function (a) { return a.name; })).concat(["Design"]);
+  }
+  function cloudView() {
+    var c = cfg();
+    var h = "";
+    if (state.hist) return histView();
+    if (!c.token) {
+      h += "<p class='txt'>Mit dem Sync sind <b>alle Daten aller Apps</b> auf deinen Geräten gleich und zusätzlich in der Cloud gesichert – in einem <b>privaten Gist</b> in deinem GitHub-Konto. Einrichten musst du das <b>einmal pro Gerät</b>, danach gilt es für alle Apps.</p>";
+      h += "<ol class='txt'><li><a href='https://github.com/settings/tokens/new?scopes=gist&amp;description=SportGermany-Apps' target='_blank' rel='noopener'>Diesen Link öffnen</a> und bei GitHub anmelden.</li>" +
+        "<li>Bei <b>Expiration</b> „No expiration“ wählen. Das Häkchen bei <b>gist</b> ist schon gesetzt – sonst nichts anhaken.</li>" +
+        "<li>Unten <b>Generate token</b> tippen und den Code (beginnt mit <code>ghp_</code>) kopieren.</li>" +
+        "<li>Hier einfügen und verbinden. Auf weiteren Geräten denselben Code verwenden.</li></ol>";
+      h += "<label>Token</label><input name='token' type='password' autocomplete='off' placeholder='ghp_…'>";
+      if (sync.error) h += "<div class='cl err'>" + esc(sync.error) + "</div>";
+      h += "<div class='act'><span class='sp'></span><button class='b p' data-a='connect'" + (sync.busy ? " disabled" : "") + ">" + (sync.busy ? "Verbinde …" : "Verbinden") + "</button></div>";
+    } else {
+      h += "<p class='txt'>Verbunden als <b>" + esc(c.user || "?") + "</b>. Jede Änderung wird sofort gesichert; was du auf anderen Geräten änderst, kommt spätestens nach 30 Sekunden an.</p>";
+      h += cloudLine();
+      h += "<p class='txt m' style='margin-bottom:0'>Gesichert und abgeglichen:</p><div class='bl'>" + backedUp().map(function (n) { return "<span>" + esc(n) + "</span>"; }).join("") + "</div>";
+      h += "<p class='txt m'>Den alten eigenen Sync in Lernplan und Trainingsblog brauchst du nicht mehr – du kannst ihn dort in den Einstellungen ausschalten.</p>";
+      h += "<div class='act'><button class='b' data-a='history'>Frühere Stände</button>" + (c.gist ? "<a class='b' href='https://gist.github.com/" + esc(c.gist) + "' target='_blank' rel='noopener'>Auf GitHub</a>" : "") +
+        "<span class='sp'></span><button class='b p' data-a='syncnow'>Jetzt synchronisieren</button></div>";
+    }
+    h += "<div class='tools'><button class='b' data-a='backup'>Alles als Datei sichern</button><button class='b' data-a='restorefile'>Sicherung einspielen</button>" +
+      (c.token ? "<span style='flex:1'></span><button class='b d' data-a='disconnect'>Trennen</button>" : "") + "</div>";
+    return h;
+  }
+  function histView() {
+    var H = state.hist, h = "<div class='hd'><h2>Frühere Stände</h2><button class='b' data-a='histclose'>Zurück</button></div>";
+    h += "<p class='txt m'>GitHub hebt jeden gesicherten Stand auf. Beim Zurückholen werden <b>alle Apps</b> auf diesen Stand gesetzt – auf allen verbundenen Geräten.</p>";
+    if (H.loading) return h + "<p class='txt'>Lade …</p>";
+    if (H.error) return h + "<div class='cl err'>" + esc(H.error) + "</div>";
+    return h + "<div class='hist'>" + H.list.map(function (v, i) {
+      var d = new Date(v.committed_at), when = d.toLocaleString("de-DE", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+      return "<button data-ver='" + esc(v.version) + "' data-when='" + esc(when) + "'>" + esc(when) + (i === 0 ? " · aktuell" : "") + "</button>";
+    }).join("") + "</div>";
+  }
+  function loadHistory() {
+    var c = cfg();
+    if (!c.token || !c.gist) { state.hist = { error: "Noch nichts in der Cloud gesichert." }; render(); return; }
+    gh("/gists/" + c.gist + "/commits?per_page=30", null, c.token).then(function (list) {
+      state.hist = { list: list }; render();
+    }).catch(function (e) { state.hist = { error: e.message || "Laden fehlgeschlagen." }; render(); });
+  }
+
+  // Alle Daten aller Apps in einem Objekt – für Datei-Sicherung und Wiederherstellung
+  function allKeys() {
+    var keys = [KEY, TKEY, "sg-design"];
+    DATA.forEach(function (a) { keys = keys.concat(a.keys); });
+    return keys;
+  }
+  function fullBackup() {
+    var data = {};
+    allKeys().forEach(function (k) { var v = localStorage.getItem(k); if (v !== null) data[k] = v; });
+    return { format: "sportgermany-sicherung", v: 1, created: new Date().toISOString(), device: deviceName(), data: data };
+  }
+  // Einen Stand übernehmen und dafür sorgen, dass er sich auch auf den anderen Geräten durchsetzt:
+  // Termine/Aufgaben bekommen einen frischen Zeitstempel, was im Stand fehlt, wird als gelöscht markiert.
+  function applySnapshot(data) {
+    Object.keys(COLS).forEach(function (c) {
+      var col = COLS[c], raw = data[col.key];
+      if (raw == null) return;
+      var snap; try { snap = JSON.parse(raw); } catch (e) { return; }
+      var now = Date.now(), d = load(c), keep = {};
+      (snap.events || []).forEach(function (e) { e.changed = now; keep[e.id] = 1; });
+      d.events.forEach(function (e) { if (!keep[e.id] && !e.deleted) snap.events.push(Object.assign({}, e, { deleted: true, changed: now })); });
+      save({ v: 1, events: snap.events }, false, c);
+    });
+    DATA.concat(EXTRA).forEach(function (a) {
+      var touched = false;
+      a.keys.forEach(function (k) { if (Object.prototype.hasOwnProperty.call(data, k)) { localStorage.setItem(k, data[k]); touched = true; } });
+      if (touched) setMeta(a.id, { hash: "", remote: 0, force: true }); // gilt als lokal geändert und setzt sich durch
+    });
+  }
+  function restoreVersion(ver, when) {
+    var c = cfg();
+    if (!confirm("Alle Apps auf den Stand vom " + when + " zurücksetzen? Neuere Änderungen gehen dabei verloren.")) return;
+    state.hist = { loading: true }; render();
+    gh("/gists/" + c.gist + "/" + ver, null, c.token).then(fullGist).then(function (g) {
+      var data = {}, f = g.files || {};
+      Object.keys(COLS).forEach(function (k) { var x = f[COLS[k].file]; if (x && x.content) data[COLS[k].key] = x.content; });
+      DATA.concat(EXTRA).forEach(function (a) {
+        var r = readJSON(f["app-" + a.id + ".json"]);
+        if (r && r.data) Object.keys(r.data).forEach(function (k) { data[k] = r.data[k]; });
+      });
+      applySnapshot(data);
+      return syncNow();
+    }).then(function () { alert("Stand vom " + when + " wiederhergestellt."); location.reload(); })
+      .catch(function (e) { state.hist = { error: e.message || "Wiederherstellen fehlgeschlagen." }; render(); });
+  }
+  function restoreFile() {
+    var inp = document.createElement("input");
+    inp.type = "file"; inp.accept = ".json,application/json";
+    inp.onchange = function () {
+      var file = inp.files && inp.files[0]; if (!file) return;
+      file.text().then(function (txt) {
+        var b = JSON.parse(txt);
+        if (!b || b.format !== "sportgermany-sicherung" || !b.data) throw new Error("format");
+        if (!confirm("Sicherung vom " + new Date(b.created).toLocaleString("de-DE") + " einspielen? Die aktuellen Daten aller Apps werden ersetzt.")) return;
+        applySnapshot(b.data);
+        syncNow().then(function () { location.reload(); });
+      }).catch(function () { alert("Diese Datei ist keine Gesamtsicherung der Apps."); });
+    };
+    inp.click();
+  }
+  function connect(token) {
+    token = token.trim();
+    if (!token) return;
+    sync.busy = true; sync.error = ""; render();
+    gh("/user", null, token).then(function (u) {
+      return findOrCreateGist(token, load()).then(function (id) { return gh("/gists/" + id, null, token).then(function (g) { return [u, id, g]; }); });
+    }).then(function (r) {
+      var u = r[0], g = r[2];
+      var hasData = Object.keys(g.files || {}).some(function (f) { return f.indexOf("app-") === 0; });
+      setCfg({ token: token, user: u.login, gist: r[1] });
+      sync.busy = false;
+      // Termine und Aufgaben werden ohnehin zusammengeführt; bei den App-Daten entscheidet die Person einmal.
+      sync.adopt = hasData && confirm("In deiner Cloud sind schon Daten von einem anderen Gerät gesichert.\n\nOK = diese Daten auf dieses Gerät übernehmen (empfohlen für ein neues Gerät)\nAbbrechen = die Daten dieses Geräts behalten und hochladen");
+      if (hasData && !sync.adopt) DATA.concat(EXTRA).forEach(function (a) { if (a.keys.length) setMeta(a.id, { hash: "", remote: 0, force: true }); });
+      return syncNow().then(function (ok) { sync.adopt = false; return ok; });
+    }).catch(function (e) {
+      sync.busy = false;
+      sync.error = (e && e.message && !/fetch|network/i.test(e.message)) ? e.message : "Keine Verbindung zu GitHub.";
+      render();
+    });
+  }
+
+  function form(e) {
+    var isNew = !e.id;
+    var h = "<div class='hd'><h2>" + (isNew ? "Neuer Termin" : "Termin bearbeiten") + "</h2><button class='x' data-a='back' aria-label='Zurück'>✕</button></div>";
+    h += "<label>Titel</label><input name='title' maxlength='120' value='" + esc(e.title || "") + "' placeholder='z. B. Training, Klassenarbeit …'>";
+    h += "<label>Datum</label><input type='date' name='date' value='" + esc(e.date) + "'>";
+    h += "<div class='row'><div><label>Von (optional)</label><input type='time' name='time' value='" + esc(e.time || "") + "'></div>" +
+      "<div><label>Bis (optional)</label><input type='time' name='end' value='" + esc(e.end || "") + "'></div></div>";
+    h += "<label>Erinnerung</label><select name='remind'>" + REMIND.map(function (r) {
+      return "<option value='" + r[0] + "'" + (String(e.remind == null ? "" : e.remind) === r[0] ? " selected" : "") + ">" + r[1] + "</option>"; }).join("") + "</select>";
+    h += "<label>Notiz</label><textarea name='note' maxlength='1000'>" + esc(e.note || "") + "</textarea>";
+    h += "<label>Farbe</label><select name='color'><option value=''>Farbe der App</option>" +
+      COLORS.map(function (c, i) { return "<option value='" + c + "'" + (e.color === c ? " selected" : "") + ">" + CNAMES[i] + "</option>"; }).join("") + "</select>";
+    if (!isNew) h += "<div class='m' style='margin-top:10px'>Angelegt in „" + esc(e.app) + "“" + (e.rep && e.rep.f ? " · wiederholt sich – Wiederholung im großen Kalender ändern" : "") + "</div>";
+    h += "<div class='act'>" + (isNew ? "" : "<button class='b d' data-a='del'>Löschen</button>") + "<span class='sp'></span><button class='b' data-a='back'>Abbrechen</button><button class='b p' data-a='save'>Speichern</button></div>";
+    return h;
+  }
+
+  function bind(box) {
+    box.querySelector(".wrap").addEventListener("click", function (ev) {
+      if (ev.target.classList.contains("wrap")) { close(); return; }
+      var t = ev.target.closest("[data-a],[data-day],[data-id],[data-tab],[data-theme],[data-ver],[data-go]");
+      if (!t) return;
+      if (t.dataset.go !== undefined) { close(); return; } // Bereich derselben App: Link setzt nur den #-Teil
+      if (t.dataset.tab) { state.tab = t.dataset.tab; render(); return; }
+      if (t.dataset.theme && window.SGTheme) { window.SGTheme.set(t.dataset.theme); render(); return; }
+      if (t.dataset.ver) { restoreVersion(t.dataset.ver, t.dataset.when); return; }
+      if (t.dataset.day) { state.sel = t.dataset.day; render(); return; }
+      if (t.dataset.id && !t.dataset.a) {
+        var e = live().find(function (x) { return x.id === t.dataset.id; }); // bei Serien: die ganze Serie
+        if (e) { state.edit = Object.assign({}, e); render(); }
+        return;
+      }
+      if (t.dataset.a === "close" && t.tagName === "A") ev.preventDefault();
+      act(t.dataset.a, box);
+    });
+    box.querySelectorAll("[data-task]").forEach(function (cb) {
+      cb.addEventListener("change", function () { api.tasks.update(cb.dataset.task, { done: cb.checked }); });
+    });
+    var qt = box.querySelector("[name=quicktask]");
+    if (qt) qt.addEventListener("keydown", function (ev) {
+      if (ev.key === "Enter" && qt.value.trim()) { api.tasks.add({ title: qt.value.trim(), due: state.sel }); }
+    });
+    var f = box.querySelector("[data-a=filter]");
+    if (f) f.addEventListener("change", function () { state.filter = f.checked; render(); });
+    var ti = box.querySelector("input[name=title]");
+    if (ti && state.edit && !state.edit.id) ti.focus();
+  }
+
+  function act(a, box) {
+    var m = state.month;
+    if (a === "prev") state.month = new Date(m.getFullYear(), m.getMonth() - 1, 1);
+    else if (a === "next") state.month = new Date(m.getFullYear(), m.getMonth() + 1, 1);
+    else if (a === "today") { var t = new Date(); state.sel = iso(t); state.month = new Date(t.getFullYear(), t.getMonth(), 1); }
+    else if (a === "close") return close();
+    else if (a === "connect") return connect(box.querySelector("[name=token]").value);
+    else if (a === "syncnow") return syncNow();
+    else if (a === "notify") return askNotify();
+    else if (a === "backup") return download("sportgermany-sicherung-" + iso(new Date()) + ".json", "application/json", JSON.stringify(fullBackup(), null, 1));
+    else if (a === "restorefile") return restoreFile();
+    else if (a === "history") { state.hist = { loading: true }; render(); loadHistory(); return; }
+    else if (a === "histclose") state.hist = null;
+    else if (a === "disconnect") {
+      if (!confirm("Sync auf diesem Gerät beenden? Alle Daten bleiben hier und auf GitHub erhalten.")) return;
+      setCfg(null); sync.error = ""; sync.last = 0;
+    }
+    else if (a === "new") state.edit = { date: state.sel, app: APP };
+    else if (a === "back") state.edit = null;
+    else if (a === "save") {
+      var v = {};
+      ["title", "date", "time", "end", "note", "color", "remind"].forEach(function (k) { v[k] = box.querySelector("[name=" + k + "]").value.trim(); });
+      v.remind = v.remind === "" ? null : +v.remind;
+      if (v.remind != null) askNotify();
+      if (!v.title) { box.querySelector("[name=title]").focus(); return; }
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(v.date)) { box.querySelector("[name=date]").focus(); return; }
+      if (state.edit.id) api.update(state.edit.id, v); else api.add(v);
+      state.sel = v.date; var d = parse(v.date); state.month = new Date(d.getFullYear(), d.getMonth(), 1);
+      state.edit = null;
+    }
+    else if (a === "del") {
+      if (!confirm("Termin „" + state.edit.title + "“ in allen Apps löschen?")) return;
+      api.remove(state.edit.id); state.edit = null;
+    }
+    else if (a === "export") return download("gemeinsamer-kalender-" + iso(new Date()) + ".json", "application/json", JSON.stringify(load(), null, 2));
+    else if (a === "import") return importFile();
+    else if (a === "ics") return download("gemeinsamer-kalender.ics", "text/calendar", ics());
+    render();
+  }
+
+  // Import führt zusammen: pro Termin gewinnt die zuletzt geänderte Fassung, nichts wird blind überschrieben.
+  function importFile() {
+    var inp = document.createElement("input");
+    inp.type = "file"; inp.accept = ".json,application/json";
+    inp.onchange = function () {
+      var file = inp.files && inp.files[0]; if (!file) return;
+      file.text().then(function (txt) {
+        var src = JSON.parse(txt);
+        if (!src || !Array.isArray(src.events)) throw new Error("format");
+        var added = mutate(function (d) { return mergeInto(d, src.events).added; });
+        alert("Import fertig: " + added + " neue Termine.");
+      }).catch(function () { alert("Diese Datei ist keine gültige Kalender-Sicherung."); });
+    };
+    inp.click();
+  }
+
+  function ics() {
+    function f(s) { return String(s).replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/[,;]/g, "\\$&"); }
+    function stamp(date, time) { return date.replace(/-/g, "") + "T" + time.replace(":", "") + "00"; }
+    var out = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//SportGermany//Gemeinsamer Kalender//DE"];
+    live().forEach(function (e) {
+      out.push("BEGIN:VEVENT", "UID:" + e.id + "@sportgermany", "DTSTAMP:" + new Date().toISOString().replace(/[-:]/g, "").slice(0, 15) + "Z");
+      if (e.time) {
+        out.push("DTSTART:" + stamp(e.date, e.time));
+        if (e.end) out.push("DTEND:" + stamp(e.date, e.end));
+      } else {
+        var n = parse(e.date); n.setDate(n.getDate() + 1);
+        out.push("DTSTART;VALUE=DATE:" + e.date.replace(/-/g, ""), "DTEND;VALUE=DATE:" + iso(n).replace(/-/g, ""));
+      }
+      out.push("SUMMARY:" + f(e.title), "DESCRIPTION:" + f((e.note ? e.note + "\n" : "") + "aus " + e.app));
+      if (e.rep && e.rep.f) out.push("RRULE:FREQ=" + { d: "DAILY", w: "WEEKLY", "2w": "WEEKLY;INTERVAL=2", m: "MONTHLY", y: "YEARLY" }[e.rep.f] + (e.rep.until ? ";UNTIL=" + e.rep.until.replace(/-/g, "") : ""));
+      if (e.remind != null) out.push("BEGIN:VALARM", "ACTION:DISPLAY", "DESCRIPTION:" + f(e.title), "TRIGGER:-PT" + (+e.remind) + "M", "END:VALARM");
+      out.push("END:VEVENT");
+    });
+    out.push("END:VCALENDAR");
+    return out.join("\r\n");
+  }
+
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && state.open) close(); });
+  window.addEventListener("sg-theme", function () { if (root) render(true); });
+  window.addEventListener("sg-theme-set", function () { schedulePush(); });
+  if (!EMBED) { if (document.body) mount(); else document.addEventListener("DOMContentLoaded", mount); }
+})();
+</script>
+<!-- gemeinsamer-kalender:end -->
+</body>
+</html>

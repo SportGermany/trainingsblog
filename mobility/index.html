@@ -1,0 +1,2478 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#EAF0F2">
+<meta name="description" content="Mobility-Training für Rennrodler: Tagestraining, Wettkampfprogramm, animierte Übungen.">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>html{padding-top:env(safe-area-inset-top,0px)}img{max-width:100%}</style>
+<title>Rodel-Mobility</title>
+<style>
+:root{
+  --bg:#EAF0F2; --surface:#FFFFFF; --surface2:#F3F7F8; --ink:#0E1B24; --muted:#56666F; --line:#D3DDE2;
+  --accent:#C8283A; --accent-ink:#FFFFFF; --accent-soft:#F7DDE0;
+  --r-back:#1B6C8A; --r-hip:#A15A17; --r-leg:#3B7437; --r-warm:#6A7680; --r-start:#6A4C9C;
+  --far:#A7B6BE; --floor:#B9C8CF; --mat:#DCE6EA;
+  --shadow:0 1px 2px rgba(14,27,36,.06),0 8px 24px rgba(14,27,36,.06);
+  --fd:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --fb:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#091218; --surface:#101D25; --surface2:#15252F; --ink:#E3ECF0; --muted:#8CA0AB; --line:#223540;
+    --accent:#F2515F; --accent-ink:#1A0508; --accent-soft:#3A1A20;
+    --r-back:#5DB3D3; --r-hip:#E1A061; --r-leg:#8CC47F; --r-warm:#9AA7B0; --r-start:#B7A0DE;
+    --far:#48606D; --floor:#2C4350; --mat:#15262F;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#091218; --surface:#101D25; --surface2:#15252F; --ink:#E3ECF0; --muted:#8CA0AB; --line:#223540;
+  --accent:#F2515F; --accent-ink:#1A0508; --accent-soft:#3A1A20;
+  --r-back:#5DB3D3; --r-hip:#E1A061; --r-leg:#8CC47F; --r-warm:#9AA7B0; --r-start:#B7A0DE;
+  --far:#48606D; --floor:#2C4350; --mat:#15262F;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);
+}
+[hidden]{display:none!important}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--fb);font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.app{max-width:620px;margin:0 auto;padding-inline:16px;padding-block:0 calc(92px + env(safe-area-inset-bottom,0px))}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:18px 6px}
+.brand{white-space:nowrap;font-family:var(--fd);font-weight:700;font-size:22px;letter-spacing:.02em;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.brand svg{width:26px;height:14px}
+.today{text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+h1,h2,h3{text-wrap:balance;margin:0}
+.eyebrow{font-family:var(--fd);font-weight:600;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.view{display:flex;flex-direction:column;gap:18px;padding-top:8px}
+
+/* Heute */
+.hero{background:var(--surface);border-radius:18px;padding:18px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:14px}
+.rot{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.rot button{border:1.5px solid var(--line);background:var(--surface2);border-radius:12px;padding:8px 10px;text-align:left;display:flex;flex-direction:column;gap:0}
+.rot b{font-family:var(--fd);font-size:26px;line-height:1;font-weight:700}
+.rot span{font-size:12px;color:var(--muted)}
+.rot button.on{border-color:var(--ink);background:var(--ink);color:var(--bg)}
+.rot button.on span{color:inherit;opacity:.75}
+.rot button .done{font-size:11px}
+.blk{font-family:var(--fd);font-weight:700;font-size:40px;line-height:1;text-transform:uppercase;letter-spacing:.01em}
+.meta{margin:0;color:var(--muted);font-size:14px}
+.seg{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.seg .lbl{font-size:13px;color:var(--muted)}
+.seg .opts{display:inline-flex;background:var(--surface2);border:1px solid var(--line);border-radius:10px;padding:3px;gap:2px}
+.seg .opts button{border:0;background:transparent;border-radius:7px;padding:5px 12px;font-size:14px;font-variant-numeric:tabular-nums}
+.seg .opts button.on{background:var(--surface);box-shadow:0 1px 2px rgba(0,0,0,.12);font-weight:600}
+.start{white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:10px;border:0;border-radius:14px;background:var(--accent);color:var(--accent-ink);padding:16px;font-family:var(--fd);font-weight:700;font-size:22px;letter-spacing:.06em;text-transform:uppercase}
+.start svg{width:18px;height:18px}
+.start small{font-family:var(--fb);font-weight:500;font-size:14px;letter-spacing:0;text-transform:none;opacity:.85;font-variant-numeric:tabular-nums}
+.list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.row{display:grid;grid-template-columns:64px 1fr auto;gap:12px;align-items:center;background:var(--surface);border-radius:14px;padding:8px 10px 8px 8px;border:1px solid var(--line)}
+.row .th{width:64px;height:64px;border-radius:10px;background:var(--surface2);display:block}
+.row .nm{font-weight:600;line-height:1.2}
+.row .sub{font-size:13px;color:var(--muted);line-height:1.3;margin-top:2px}
+.row .main{border:0;background:none;text-align:left;padding:0;min-width:0}
+.row .right{display:flex;align-items:center;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:3px 8px;border-radius:99px;background:var(--surface2);border:1px solid var(--line);white-space:nowrap;font-variant-numeric:tabular-nums}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex:none}
+.ibtn{width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:var(--surface2);display:grid;place-items:center}
+.ibtn svg{width:18px;height:18px}
+.note{font-size:14px;color:var(--muted);background:var(--surface2);border:1px dashed var(--line);border-radius:12px;padding:10px 12px}
+.note b{color:var(--ink)}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 12px}
+.stat b{display:block;font-family:var(--fd);font-weight:700;font-size:30px;line-height:1.05;font-variant-numeric:tabular-nums}
+.stat span{font-size:12px;color:var(--muted)}
+.linkbtn{border:0;background:none;padding:0;color:var(--accent);font-weight:600;font-size:14px;text-decoration:underline;text-underline-offset:3px}
+
+/* Wettkampf */
+.tabs2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tabs2 button{border:1.5px solid var(--line);background:var(--surface);border-radius:12px;padding:10px 12px;text-align:left}
+.tabs2 button b{display:block;font-family:var(--fd);font-size:20px;text-transform:uppercase;letter-spacing:.02em}
+.tabs2 button span{font-size:13px;color:var(--muted)}
+.tabs2 button.on{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
+.phase{display:flex;flex-direction:column;gap:8px}
+.phase h3{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--fd);font-weight:600;font-size:18px;letter-spacing:.06em;text-transform:uppercase}
+.phase h3 span{font-family:var(--fb);font-weight:500;font-size:13px;letter-spacing:0;text-transform:none;color:var(--muted);font-variant-numeric:tabular-nums}
+.warn{display:flex;gap:10px;align-items:flex-start;background:var(--accent-soft);border-radius:12px;padding:12px;font-size:14px}
+.warn svg{flex:none;width:20px;height:20px;color:var(--accent);margin-top:1px}
+
+/* Übungen */
+.search{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:0 12px}
+.search input{flex:1;border:0;background:transparent;color:var(--ink);font:inherit;padding:12px 0;min-width:0}
+.search input:focus{outline:none}
+.search:focus-within{outline:2px solid var(--accent);outline-offset:1px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chips button{border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:6px 12px;font-size:14px;display:inline-flex;align-items:center;gap:6px}
+.chips button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.grp{font-family:var(--fd);font-weight:600;font-size:15px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:8px;margin-top:4px}
+
+/* Fortschritt */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.card h2{font-family:var(--fd);font-weight:700;font-size:22px;text-transform:uppercase;letter-spacing:.02em}
+.card p{margin:0;font-size:14px;color:var(--muted)}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.cal .d{aspect-ratio:1;max-width:100%;border-radius:6px;background:var(--surface2);border:1px solid var(--line);display:grid;place-items:center;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
+.cal .d.has{background:var(--ink);color:var(--bg);border-color:var(--ink);font-weight:600}
+.cal .d.comp{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.cal .d.today{box-shadow:inset 0 0 0 2px var(--accent)}
+.cal .h{font-size:11px;color:var(--muted);text-align:center;font-weight:600}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+form.test{display:flex;gap:8px;align-items:stretch;flex-wrap:wrap}
+form.test label{flex:1 1 180px;display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+form.test input{border:1px solid var(--line);background:var(--surface2);color:var(--ink);border-radius:10px;padding:10px 12px;font:inherit;font-variant-numeric:tabular-nums}
+form.test button{align-self:flex-end;border:0;background:var(--ink);color:var(--bg);border-radius:10px;padding:11px 16px;font-weight:600}
+.chart{width:100%;height:auto;display:block}
+.entries{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;font-size:14px}
+.entries li{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+.entries li:last-child{border-bottom:0}
+.entries button{border:0;background:none;color:var(--muted);font-size:13px;padding:4px 6px}
+.entries button.really{color:var(--accent);font-weight:600}
+.set{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:6px 0;border-bottom:1px solid var(--line)}
+.set:last-child{border-bottom:0}
+.set span{font-size:15px}
+.set small{display:block;color:var(--muted);font-size:13px}
+.tog{width:48px;height:28px;border-radius:99px;border:0;background:var(--line);position:relative;flex:none}
+.tog::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:var(--surface);box-shadow:0 1px 2px rgba(0,0,0,.25);transition:transform .18s}
+.tog[aria-pressed="true"]{background:var(--accent)}
+.tog[aria-pressed="true"]::after{transform:translateX(20px)}
+
+/* Tab bar */
+.tabbar{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);z-index:20}
+.tabbar .in{max-width:620px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr)}
+.tabbar button{border:0;background:none;padding:9px 4px 10px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:12px;color:var(--muted);font-weight:500}
+.tabbar button svg{width:22px;height:22px}
+.tabbar button.on{color:var(--ink);font-weight:600}
+.tabbar button.on svg{color:var(--accent)}
+
+/* Sheet */
+.scrim{position:fixed;inset:0;background:rgba(5,12,16,.5);z-index:40;display:flex;align-items:flex-end;justify-content:center}
+.sheet{background:var(--bg);width:100%;max-width:620px;max-height:94%;overflow:auto;border-radius:20px 20px 0 0;padding-inline:16px;padding-block:0 calc(24px + env(safe-area-inset-bottom,0px));overscroll-behavior:contain}
+.sheet .grab{position:sticky;top:0;background:var(--bg);z-index:2;display:flex;justify-content:space-between;align-items:center;padding-block:12px 8px;gap:10px}
+.sheet h2{font-family:var(--fd);font-weight:700;font-size:30px;line-height:1.02;text-transform:uppercase}
+.pills{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.stage{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.stage canvas{display:block;width:100%;height:260px}
+.stage .bar{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:10px;border-top:1px solid var(--line);flex-wrap:wrap}
+.play{display:inline-flex;align-items:center;gap:8px;border:0;background:var(--ink);color:var(--bg);border-radius:10px;padding:10px 14px;font-weight:600}
+.play svg{width:16px;height:16px}
+.speed{border:1px solid var(--line);background:var(--surface2);border-radius:10px;padding:9px 12px;font-size:14px;font-variant-numeric:tabular-nums}
+.ext{font-size:14px;color:var(--muted);text-decoration:underline;text-underline-offset:3px}
+.stage .cap{position:absolute;left:10px;top:10px;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.sec{display:flex;flex-direction:column;gap:6px;margin-top:18px}
+.sec h3{font-family:var(--fd);font-weight:600;font-size:15px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.sec p{margin:0;max-width:65ch}
+.steps{margin:0;padding:0;list-style:none;counter-reset:s;display:flex;flex-direction:column;gap:8px}
+.steps li{counter-increment:s;display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:start}
+.steps li::before{content:counter(s);font-family:var(--fd);font-weight:700;font-size:16px;width:28px;height:28px;border-radius:8px;background:var(--surface);border:1px solid var(--line);display:grid;place-items:center}
+.musc{display:flex;flex-wrap:wrap;gap:6px}
+.musc .chip.p{background:var(--accent-soft);border-color:transparent;color:var(--ink)}
+.bul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mini{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:14px}
+.mini b{display:block;font-family:var(--fd);font-weight:600;letter-spacing:.08em;text-transform:uppercase;font-size:13px;color:var(--muted);margin-bottom:2px}
+.sled{background:var(--ink);color:var(--bg);border-radius:14px;padding:12px 14px;font-size:15px}
+.sled b{font-family:var(--fd);letter-spacing:.08em;text-transform:uppercase;font-size:13px;display:block;opacity:.7}
+
+/* Player */
+.player{position:fixed;inset:0;z-index:60;background:var(--bg);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.player .ph{display:flex;align-items:center;gap:10px;padding:12px 16px 8px;max-width:620px;width:100%;margin:0 auto}
+.prog{flex:1;display:flex;gap:3px}
+.prog i{flex:1;height:5px;border-radius:3px;background:var(--line);overflow:hidden;position:relative}
+.prog i b{position:absolute;inset:0;background:var(--ink);transform-origin:left;transform:scaleX(0)}
+.player .body{flex:1;display:flex;flex-direction:column;max-width:620px;width:100%;margin:0 auto;padding-inline:16px;min-height:0;gap:10px}
+.pstage{flex:1;min-height:160px;position:relative;background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden}
+.pstage canvas{position:absolute;inset:0;width:100%;height:100%}
+.side{position:absolute;top:12px;left:12px;font-family:var(--fd);font-weight:700;text-transform:uppercase;letter-spacing:.08em;font-size:15px;background:var(--ink);color:var(--bg);padding:4px 10px;border-radius:8px}
+.flash{position:absolute;inset:0;display:grid;place-items:center;background:color-mix(in srgb,var(--accent) 88%,transparent);color:var(--accent-ink);font-family:var(--fd);font-weight:700;font-size:40px;text-transform:uppercase;letter-spacing:.04em;text-align:center}
+.pinfo{display:flex;flex-direction:column;gap:2px}
+.pinfo .k{font-family:var(--fd);font-weight:600;letter-spacing:.12em;text-transform:uppercase;font-size:13px;color:var(--muted)}
+.pinfo h2{font-family:var(--fd);font-weight:700;font-size:32px;line-height:1;text-transform:uppercase}
+.pinfo p{margin:2px 0 0;color:var(--muted);font-size:15px}
+.clock{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+.clock .t{font-family:var(--fd);font-weight:700;font-size:84px;line-height:.85;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.clock .t.prep{color:var(--muted)}
+.clock .nx{font-size:13px;color:var(--muted);text-align:right;max-width:48%}
+.clock .nx b{display:block;color:var(--ink);font-size:15px}
+.tbar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
+.tbar b{display:block;height:100%;background:var(--accent);transform-origin:left;transform:scaleX(0)}
+.ctrl{display:flex;justify-content:center;align-items:center;gap:22px;padding-block:6px 14px}
+.ctrl button{border:1px solid var(--line);background:var(--surface);width:56px;height:56px;border-radius:50%;display:grid;place-items:center}
+.ctrl button svg{width:22px;height:22px}
+.ctrl .big{width:76px;height:76px;background:var(--ink);color:var(--bg);border:0}
+.ctrl .big svg{width:28px;height:28px}
+.fin{flex:1;display:flex;flex-direction:column;justify-content:center;gap:14px;text-align:left}
+.fin h2{font-family:var(--fd);font-weight:700;font-size:54px;line-height:.95;text-transform:uppercase}
+.fin p{margin:0;color:var(--muted);font-size:16px;max-width:40ch}
+.xbtn{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center;flex:none}
+.xbtn svg{width:18px;height:18px}
+@media (max-width:380px){.blk{font-size:34px}.rot b{font-size:22px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+/* Android / 16:9 */
+html{-webkit-tap-highlight-color:transparent}
+body{margin:0;overscroll-behavior-y:contain}
+button{touch-action:manipulation}
+.ibtn{width:44px;height:44px}
+.hdr-r{display:flex;align-items:center;gap:10px;min-width:0;flex:1;justify-content:flex-end}
+.gear{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center;flex:none}
+.gear svg{width:20px;height:20px}
+.install{display:flex;align-items:center;gap:12px;background:var(--ink);color:var(--bg);border-radius:14px;padding:12px 14px}
+.install div{flex:1;font-size:14px;line-height:1.3}
+.install b{display:block;font-size:15px}
+.install button{border:0;background:var(--accent);color:var(--accent-ink);border-radius:10px;padding:10px 14px;font-weight:600;white-space:nowrap}
+.install .no{background:none;color:inherit;opacity:.7;padding:10px 4px}
+.plan{display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.plan label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
+.plan input{border:1px solid var(--line);background:var(--surface2);color:var(--ink);border-radius:10px;padding:9px 10px;font:inherit;font-variant-numeric:tabular-nums;min-height:44px}
+.plan .out{flex:1 1 170px;font-size:14px;color:var(--muted);line-height:1.35}
+.plan .out b{display:block;font-family:var(--fd);font-weight:700;font-size:30px;line-height:1;color:var(--ink);font-variant-numeric:tabular-nums}
+.set .opts{display:inline-flex;background:var(--surface2);border:1px solid var(--line);border-radius:10px;padding:3px;gap:2px;flex:none}
+.set .opts button{border:0;background:transparent;border-radius:7px;padding:7px 10px;font-size:14px;min-height:36px;font-variant-numeric:tabular-nums}
+.set .opts button.on{background:var(--surface);box-shadow:0 1px 2px rgba(0,0,0,.12);font-weight:600}
+.set.stack{flex-wrap:wrap}
+.btnrow{display:flex;gap:8px;flex-wrap:wrap}
+.sbtn{border:1px solid var(--line);background:var(--surface2);border-radius:10px;padding:10px 14px;font-size:14px;font-weight:600;min-height:44px}
+.toast{position:fixed;left:50%;bottom:calc(88px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:14px;z-index:90;box-shadow:var(--shadow);max-width:calc(100% - 32px)}
+.player{height:100%;height:100dvh}
+.clock .t{font-size:clamp(52px,11.5vh,96px)}
+.pinfo h2{font-size:clamp(24px,4.2vh,34px)}
+.ctrl{padding-block:4px clamp(8px,2vh,16px)}
+.pstage{min-height:120px}
+@media (max-height:720px){
+  .ctrl button{width:52px;height:52px}.ctrl .big{width:66px;height:66px}
+  .player .body{gap:7px}.pinfo p{font-size:14px}.clock .nx b{font-size:14px}
+  .top{padding-block:12px 4px}.hero{padding:14px;gap:12px}.blk{font-size:34px}.start{padding:13px;font-size:20px}
+}
+@media (orientation:landscape) and (max-height:520px){
+  .player .ph{max-width:none;padding:6px 16px 4px}
+  .player .body{max-width:none;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);grid-template-rows:auto auto auto 1fr;column-gap:16px;row-gap:6px;padding-bottom:8px}
+  .pstage{grid-column:1;grid-row:1 / span 4;min-height:0}
+  .pinfo,.clock,.tbar,.ctrl,#plAsk{grid-column:2}
+  .ctrl{align-self:end;padding:0}
+  .clock .t{font-size:clamp(44px,17vh,80px)}
+  .fin{grid-column:1 / -1}
+  .tabbar button{padding:5px 4px 6px}
+  .ctrl button{width:46px;height:46px}.ctrl .big{width:58px;height:58px}
+  .pinfo p{display:none}
+  #plAsk{padding:8px 10px}
+}
+@media (max-width:420px){.today{display:none}}
+</style>
+<!-- verbund-design:start -->
+<script data-design="rodeln" data-sync="rodeln">
+/* SportGermany-Design: 10 dunkle Farbwelten für alle Apps. Läuft im <head>, damit beim Laden nichts aufblitzt.
+ * Die Wahl liegt im gemeinsamen Speicher (gilt sofort für alle Apps) und wird vom Verbund-Sync mit abgeglichen.
+ * data-design nennt, welche CSS-Variablen die jeweilige App benutzt. */
+(function () {
+  "use strict";
+  if (window.SGTheme) return;
+  var KEY = "sg-design";
+  var THEMES = [
+    { id: "mitternacht", name: "Mitternacht", info: "Tiefes Nachtblau (Standard)", bg: "#0d1117", s1: "#151b23", s2: "#1c2430", s3: "#243040", line: "#2a3646", ink: "#e6edf3", muted: "#9aa7b4", faint: "#5d6b7a", acc: "#6ea8fe" },
+    { id: "graphit", name: "Graphit", info: "Warmes Anthrazit, Bernstein", bg: "#141412", s1: "#1c1b19", s2: "#252421", s3: "#2e2c29", line: "#353330", ink: "#ebe9e4", muted: "#a29e95", faint: "#6e6a62", acc: "#e8a55a" },
+    { id: "wald", name: "Wald", info: "Moos und Tannengrün", bg: "#0f1411", s1: "#161d18", s2: "#1d2620", s3: "#253028", line: "#2c382f", ink: "#e4ece5", muted: "#9cab9f", faint: "#627066", acc: "#7cc49a" },
+    { id: "espresso", name: "Espresso", info: "Dunkle Röstung, Karamell", bg: "#15110e", s1: "#1e1814", s2: "#28201b", s3: "#322822", line: "#3a2f28", ink: "#f0e7df", muted: "#b3a497", faint: "#7a6c60", acc: "#d4915c" },
+    { id: "schiefer", name: "Schiefer", info: "Kühles Grau, Eisblau", bg: "#121417", s1: "#1a1d21", s2: "#22262b", s3: "#2b3036", line: "#33383f", ink: "#e8eaed", muted: "#a0a7b0", faint: "#69707a", acc: "#8ab4c9" },
+    { id: "aubergine", name: "Aubergine", info: "Gedämpftes Pflaume, Flieder", bg: "#141016", s1: "#1c1720", s2: "#251e2a", s3: "#2e2634", line: "#372d3d", ink: "#ece6ef", muted: "#ab9fb2", faint: "#74687b", acc: "#c99ad6" },
+    { id: "tiefsee", name: "Tiefsee", info: "Petrol und Türkis", bg: "#0b1414", s1: "#111c1c", s2: "#172525", s3: "#1e2f2f", line: "#243838", ink: "#e0eeec", muted: "#93aeab", faint: "#5b7471", acc: "#4fc1b0" },
+    { id: "oxid", name: "Oxid", info: "Kohle mit Terrakotta", bg: "#131110", s1: "#1c1917", s2: "#25211e", s3: "#2e2925", line: "#36302b", ink: "#efe9e4", muted: "#ab9f95", faint: "#75695f", acc: "#e07a52" },
+    { id: "oled", name: "OLED Schwarz", info: "Reines Schwarz, Signalgelb – spart Akku", bg: "#000000", s1: "#0d0d0d", s2: "#171717", s3: "#212121", line: "#2a2a2a", ink: "#f2f2f2", muted: "#a3a3a3", faint: "#6b6b6b", acc: "#ffcc4d" },
+    { id: "bordeaux", name: "Bordeaux", info: "Weinrot und Rosé", bg: "#140f10", s1: "#1d1517", s2: "#271c1f", s3: "#312327", line: "#3a2a2e", ink: "#f0e6e7", muted: "#b39fa3", faint: "#7b676b", acc: "#e0707e" }
+  ];
+  var FONT = "'Segoe UI Variable Text','Segoe UI',Roboto,'Helvetica Neue',system-ui,-apple-system,sans-serif";
+  // App-Variable -> Farbrolle der Farbwelt
+  var MAPS = {
+    panel: { bg: "bg", panel: "s1", "panel-2": "s2", "panel-3": "s3", line: "line", text: "ink", "text-dim": "muted", "text-faint": "faint" },
+    bibel: { bg: "bg", surface: "s1", surface2: "s2", ink: "ink", muted: "muted", accent: "acc", "accent-bright": "acc" },
+    rodeln: { bg: "bg", surface: "s1", surface2: "s2", ink: "ink", muted: "muted", line: "line", accent: "acc", "accent-soft": "accsoft", "accent-ink": "accfg", mat: "s2", floor: "s3", far: "faint" },
+    lernplan: { bg: "bg", surface: "s1", surface2: "s2", text: "ink", muted: "muted", line: "line", weekend: "bg", grid: "line", accent: "acc", "accent-soft": "accsoft" },
+    puls: { bg: "bg", surface: "s1", ink: "ink", muted: "muted", line: "line", breath: "acc", "breath-soft": "accsoft" },
+    kalender: { bg: "bg", s1: "s1", s2: "s2", s3: "s3", line: "line", line2: "s2", ink: "ink", muted: "muted", faint: "faint", acc: "acc", accfg: "accfg" }
+  };
+  // Laptop-Anpassungen: schmale Handy-Spalten verbreitern, zu breite Seiten mittig begrenzen
+  var LAYOUT = {
+    panel: "@media(min-width:900px){.onb{padding-left:max(24px,calc(50vw - 380px))!important;padding-right:max(24px,calc(50vw - 380px))!important}}",
+    bibel: "@media(min-width:900px){.app,.overlay-inner{max-width:720px}}"
+  };
+  var FONTVARS = { rodeln: ["fd", "fb"], puls: ["font-display", "font-body"], bibel: ["sans"] };
+  var script = document.currentScript;
+  var MODE = (script && script.getAttribute("data-design")) || "panel";
+  // Als Modul in einer anderen App eingebettet? Dann übernimmt die äußere App Offline-Speicher und Installation.
+  var EMBED = (function () { try { return window.self !== window.top; } catch (e) { return true; } })();
+  if (EMBED) {
+    document.documentElement.classList.add("sg-embed");
+    try { if (navigator.serviceWorker) navigator.serviceWorker.register = function () { return Promise.resolve({ scope: "" }); }; } catch (e) {}
+  }
+  // Daten, die der Cloud-Sync kurz vor einem Neuladen übernommen hat, zurückschreiben, BEVOR die App startet –
+  // so kann die App sie beim Schließen nicht mit ihrem alten Stand überschreiben.
+  (function () {
+    var sid = script && script.getAttribute("data-sync");
+    try {
+      Object.keys(localStorage).forEach(function (k) {
+        if (k.indexOf("sg-apply-on-boot:") !== 0) return;
+        var e = JSON.parse(localStorage.getItem(k) || "null");
+        if (!e || Date.now() - e.t > 10 * 60000) { localStorage.removeItem(k); return; }
+        if (sid && k === "sg-apply-on-boot:" + sid) {
+          Object.keys(e.data || {}).forEach(function (d) { localStorage.setItem(d, e.data[d]); });
+          localStorage.removeItem(k);
+        }
+      });
+    } catch (e) {}
+  })();
+
+  function rgba(hex, a) { var n = parseInt(hex.slice(1), 16); return "rgba(" + (n >> 16) + "," + (n >> 8 & 255) + "," + (n & 255) + "," + a + ")"; }
+  function get(id) { return THEMES.find(function (t) { return t.id === id; }) || THEMES[0]; }
+  function currentId() { try { return localStorage.getItem(KEY) || "mitternacht"; } catch (e) { return "mitternacht"; } }
+  function css(t) {
+    var roles = Object.assign({ accsoft: rgba(t.acc, .16), accfg: "#14120f" }, t), map = MAPS[MODE] || MAPS.panel;
+    var vars = Object.keys(map).map(function (k) { return "--" + k + ":" + roles[map[k]]; }).join(";");
+    vars += ";" + (FONTVARS[MODE] || []).map(function (v) { return "--" + v + ":" + FONT; }).join(";") + ";--sg-acc:" + t.acc + ";color-scheme:dark";
+    // :not(#sg) hebt die Regel über alle Hell/Dunkel-Regeln der Apps – alle Apps bleiben dunkel.
+    // In der Bibel bleiben Sepia- und Nachtmodus als Lesemodi erhalten.
+    var sel = MODE === "bibel" ? "html:root:not(#sg):not([data-theme=\"sepia\"]):not([data-theme=\"night\"])" : "html:root:not(#sg)";
+    return sel + "{" + vars + "}html:not(#sg) body{background-color:var(--bg)}body,button,input,select,textarea{font-family:" + FONT + "}" + (LAYOUT[MODE] || "");
+  }
+  function apply(id) {
+    var t = get(id || currentId());
+    var st = document.getElementById("sg-theme");
+    if (!st) { st = document.createElement("style"); st.id = "sg-theme"; (document.head || document.documentElement).appendChild(st); }
+    st.textContent = css(t);
+    document.querySelectorAll("meta[name=theme-color]").forEach(function (m) { m.setAttribute("content", t.bg); m.removeAttribute("media"); });
+    window.dispatchEvent(new CustomEvent("sg-theme", { detail: t }));
+    return t;
+  }
+  window.SGTheme = {
+    list: THEMES,
+    current: function () { return get(currentId()); },
+    set: function (id) { try { localStorage.setItem(KEY, id); } catch (e) {} apply(id); window.dispatchEvent(new CustomEvent("sg-theme-set", { detail: id })); }
+  };
+  // ?design=… in der Adresse: zum Ausprobieren ohne zu speichern
+  var q = /[?&]design=([a-z]+)/.exec(location.search);
+  apply(q ? q[1] : null);
+  window.addEventListener("storage", function (e) { if (e.key === KEY || e.key === null) apply(); });
+})();
+</script>
+<!-- verbund-design:end -->
+</head>
+<body>
+
+
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">
+      <svg viewBox="0 0 52 28" aria-hidden="true"><path d="M3 20 Q10 26 22 22 L46 14" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/><path d="M14 17 L40 9" stroke="var(--accent)" stroke-width="5" stroke-linecap="round"/></svg>
+      Rodel-Mobility
+    </div>
+    <div class="hdr-r"><div class="today" id="today"></div><button class="gear" id="gear" aria-label="Einstellungen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button></div>
+  </header>
+  <main>
+    <section class="view" id="v-heute"></section>
+    <section class="view" id="v-wettkampf" hidden></section>
+    <section class="view" id="v-uebungen" hidden></section>
+    <section class="view" id="v-fortschritt" hidden></section>
+  </main>
+</div>
+
+<nav class="tabbar" aria-label="Bereiche">
+  <div class="in">
+    <button data-tab="heute" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>Heute</button>
+    <button data-tab="wettkampf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4"/><path d="M5 4h12l-2 4 2 4H5"/></svg>Wettkampf</button>
+    <button data-tab="uebungen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>Übungen</button>
+    <button data-tab="fortschritt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h16"/><path d="M6 15l4-4 3 3 5-6"/></svg>Fortschritt</button>
+  </div>
+</nav>
+
+<div class="scrim" id="scrim" hidden>
+  <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sh-title"></div>
+</div>
+
+<div class="player" id="player" hidden role="dialog" aria-modal="true" aria-label="Training"></div>
+<div class="toast" id="toast" hidden role="status"></div>
+<input type="file" id="impFile" accept="application/json,.json" hidden>
+
+<script>
+/* =========================================================
+   Figur-Modell: 2D-Kinematik mit Keyframes
+   Winkel: 0 = nach unten, 90 = nach vorn (rechts), 180 = nach oben
+   ========================================================= */
+const L={lumb:26,thor:30,neck:6,head:9,arm:27,fore:27,thigh:44,shin:42,foot:13};
+const AK=['lumb','thor','head','armN','foreN','armF','foreF','thighN','shinN','footN','thighF','shinF','footF','hipW','shW'];
+const SK=['lumb','thor','head','armN','foreN','armF','foreF','thighN','shinN','footN','thighF','shinF','footF'];
+const R=Math.PI/180;
+const dv=a=>[Math.sin(a*R),Math.cos(a*R)];
+const pv=a=>[-Math.cos(a*R),Math.sin(a*R)];
+const ad=(p,d,l)=>[p[0]+d[0]*l,p[1]+d[1]*l];
+
+const B={
+  stand:{view:'side',lumb:180,thor:180,head:180,armN:4,foreN:2,armF:-4,foreF:-2,thighN:0,shinN:0,footN:90,thighF:0,shinF:0,footF:90},
+  quad:{view:'side',lumb:100,thor:100,head:115,armN:0,foreN:0,armF:0,foreF:0,thighN:0,shinN:-90,footN:-90,thighF:0,shinF:-90,footF:-90},
+  sup:{view:'side',lumb:-90,thor:-90,head:-90,armN:90,foreN:90,armF:90,foreF:90,thighN:150,shinN:30,footN:90,thighF:150,shinF:30,footF:90},
+  long:{view:'side',lumb:180,thor:180,head:180,armN:20,foreN:20,armF:20,foreF:20,thighN:90,shinN:90,footN:180,thighF:90,shinF:90,footF:180},
+  front:{view:'front',hipW:18,shW:32,lumb:180,thor:180,head:180,armN:14,foreN:4,armF:-14,foreF:-4,thighN:0,shinN:0,footN:90,thighF:0,shinF:0,footF:-90,sc:{footN:.35,footF:.35}},
+  topSup:{view:'top',hipW:18,shW:34,lumb:180,thor:180,head:180,armN:90,foreN:90,armF:-90,foreF:-90,thighN:0,shinN:0,footN:0,thighF:0,shinF:0,footF:0,sc:{head:.5,thighN:.45,thighF:.45,shinN:.5,shinF:.5,footN:.8,footF:.8}},
+  topChild:{view:'top',hipW:16,shW:32,lumb:180,thor:180,head:180,armN:176,foreN:178,armF:184,foreF:182,thighN:180,thighF:180,shinN:0,shinF:0,footN:0,footF:0,sc:{lumb:.75,thor:.85,head:.6,thighN:.3,thighF:.3,shinN:.6,shinF:.6,footN:.3,footF:.3}},
+  topSeat:{view:'top',hipW:18,shW:34,lumb:180,thor:180,head:180,armN:15,foreN:0,armF:-15,foreF:0,thighF:0,shinF:0,footF:0,thighN:-8,shinN:-35,footN:0,sc:{lumb:.2,thor:.22,head:.2,footN:.4,footF:.4,thighN:.55,shinN:.75,armN:.8,foreN:.7,armF:.8,foreF:.7}},
+  top9090:{view:'top',hipW:20,shW:34,lumb:180,thor:180,head:180,armN:160,foreN:170,armF:200,foreF:190,thighN:90,shinN:180,footN:180,thighF:0,shinF:90,footF:90,sc:{lumb:.4,thor:.45,head:.25,armN:.7,foreN:.6,armF:.7,foreF:.6,footN:.3,footF:.3}},
+  topFrog:{view:'top',hipW:18,shW:32,lumb:180,thor:180,head:180,armN:180,foreN:180,armF:180,foreF:180,thighN:95,shinN:0,footN:0,thighF:-95,shinF:0,footF:0,sc:{lumb:.85,thor:.85,head:.7,armN:.15,armF:.15,footN:.5,footF:.5}}
+};
+
+/* =========================================================
+   Übungen (eigene Beschreibungen, fachlich abgeglichen)
+   ========================================================= */
+const REG={
+  warm:{n:'Aufwärmen',c:'--r-warm'},
+  back:{n:'Rücken & Wirbelsäule',s:'Rücken',c:'--r-back'},
+  hip:{n:'Hüfte & Becken',s:'Hüfte',c:'--r-hip'},
+  leg:{n:'Beinrückseite & Waden',s:'Beinrückseite',c:'--r-leg'},
+  start:{n:'Startspezifisch',s:'Start',c:'--r-start'}
+};
+
+const EX=[
+{id:'warm',name:'Lockeres Aufwärmen',reg:'warm',type:'dyn',
+ mp:['Herz-Kreislauf','Hüftbeuger'],ms:['Schultern','Waden'],
+ start:'Aufrecht stehen, genug Platz um dich herum.',
+ steps:['Auf der Stelle gehen oder locker traben, Knie abwechselnd bis etwa Hüfthöhe anheben.','Die Arme schwingen gegengleich mit.','Nach etwa einer Minute große Armkreise dazunehmen: 10 vorwärts, 10 rückwärts.','Zum Schluss ein paar Mal locker in die Knie federn.'],
+ cue:'Du solltest leicht warm werden, aber nicht außer Atem sein.',
+ err:['Kalt direkt in tiefe Dehnungen gehen.','Zu kurz: Unter einer Minute wird das Gewebe kaum wärmer.'],
+ sled:'Warme Muskulatur lässt sich weiter und sicherer bewegen. Das gilt besonders bei Kälte an der Bahn.',
+ dose:'2–3 Minuten',easy:'Nur gehen.',hard:'Hopserlauf auf der Stelle.',q:'marching in place arm circles warm up',
+ anim:{base:'stand',frames:[{thighN:62,shinN:-12,armN:-32,foreN:-12,armF:34,foreF:62,d:.5,h:.05},{d:.5,h:.05},{thighF:62,shinF:-12,armF:-32,foreF:-12,armN:34,foreN:62,d:.5,h:.05},{d:.5,h:.05}],hl:[],th:0}},
+
+{id:'katze',name:'Katze-Kuh',reg:'back',type:'dyn',
+ mp:['Rückenstrecker (M. erector spinae)','Multifidus'],ms:['Gerade und schräge Bauchmuskeln','Nackenmuskulatur'],
+ start:'Vierfüßlerstand: Hände unter den Schultern, Knie unter den Hüften, Rücken neutral.',
+ steps:['Ausatmen: Steißbein einrollen, Bauchnabel Richtung Wirbelsäule ziehen und den Rücken Wirbel für Wirbel zur Decke runden. Kinn Richtung Brust.','Einatmen: Becken nach vorn kippen, Brustbein nach vorn-oben schieben, der Rücken sinkt ins Hohlkreuz. Blick schräg nach vorn.','Jede Richtung startet im Becken und wandert nach oben bis zum Kopf.','Langsam und fließend im Atemrhythmus wechseln.'],
+ cue:'Stell dir vor, deine Wirbelsäule ist eine Perlenkette, die du Perle für Perle bewegst.',
+ err:['Nur die Brustwirbelsäule bewegt sich, das Becken bleibt still.','Ellbogen knicken ein oder die Schultern rutschen zu den Ohren.'],
+ sled:'Trainiert genau das Einrollen und Aufrichten der Wirbelsäule, das du beim Anschwingen an den Startgriffen brauchst.',
+ dose:'8–10 langsame Wiederholungen',easy:'Kleinerer Bewegungsumfang, nur das Becken kippen.',hard:'Am Ende jeder Richtung 2 Sekunden halten.',q:'cat cow stretch',
+ anim:{base:'quad',frames:[{d:.9,h:.3},{lumb:122,thor:76,head:40,armN:6,armF:6,d:1.4,h:.9},{d:1.2,h:.2},{lumb:78,thor:114,head:150,d:1.4,h:.9}],anchor:'kneeN',hl:['lumb','thor'],th:1}},
+
+{id:'thread',name:'Thread the Needle',reg:'back',type:'dyn',sides:true,
+ mp:['Rotatoren der Brustwirbelsäule','Rautenmuskeln (Rhomboiden)','Hinterer Deltamuskel'],ms:['Latissimus','Schräge Bauchmuskeln'],
+ start:'Vierfüßlerstand, Hände unter den Schultern, Knie unter den Hüften.',
+ steps:['Rechten Arm seitlich zur Decke öffnen. Der Blick folgt der Hand, der Brustkorb dreht auf.','Den Arm dann unter dem linken Arm hindurch weit zur linken Seite schieben.','Rechte Schulter und rechte Schläfe sinken zum Boden, die linke Hand stützt.','2 Sekunden halten, dann wieder aufdrehen. Nach der Hälfte der Zeit Seite wechseln.'],
+ cue:'Die Hüften bleiben die ganze Zeit über den Knien. Gedreht wird nur der Oberkörper.',
+ err:['Das Becken dreht mit oder weicht zur Seite aus.','Schwung statt kontrollierter Bewegung.'],
+ sled:'Eine drehfähige Brustwirbelsäule lässt Schultern und Arme beim Paddeln frei arbeiten.',
+ dose:'6–8 pro Seite',easy:'Schulter nur halb Richtung Boden.',hard:'Stützhand ein Stück weiter nach vorn setzen.',q:'thread the needle stretch',
+ anim:{base:'quad',frames:[{d:1,h:.2},{thor:108,armN:180,foreN:180,head:160,d:1.3,h:.7},{d:1,h:0},{thor:82,lumb:98,armN:-40,foreN:-55,armF:32,foreF:-32,head:45,d:1.5,h:1.2}],anchor:'kneeN',hl:['thor','armN'],th:3}},
+
+{id:'kind',name:'Kindhaltung, Arme vorn',reg:'back',type:'stat',
+ mp:['Latissimus dorsi','Rückenstrecker'],ms:['Quadratus lumborum','Gesäß','Schultern'],
+ start:'Kniestand, die großen Zehen berühren sich, Knie hüftbreit oder etwas weiter.',
+ steps:['Gesäß Richtung Fersen sinken lassen.','Oberkörper zwischen oder auf die Oberschenkel legen, Stirn auf den Boden.','Arme lang nach vorn. Die Handflächen drücken leicht in den Boden, die Fingerspitzen wandern weit weg.','Mit jedem Ausatmen das Gesäß ein Stück mehr Richtung Fersen.'],
+ cue:'Zug entsteht vom Becken bis in die Achseln. Schultern weg von den Ohren.',
+ err:['Schultern hochziehen.','Knie zu eng, dadurch schwebt das Gesäß hoch.'],
+ sled:'Dehnt Latissimus und unteren Rücken, die in der tiefen Paddelposition lang werden müssen.',
+ dose:'30–45 s halten, 2 Durchgänge',easy:'Kissen zwischen Gesäß und Fersen.',hard:'Hände auf einem Block erhöht ablegen und die Brust sinken lassen.',q:'child pose arms extended',
+ anim:{base:'quad',frames:[{armN:25,foreN:25,armF:25,foreF:25,d:1,h:.4},{thighN:62,thighF:62,lumb:76,thor:72,head:78,armN:84,foreN:88,armF:84,foreF:88,d:1.8,h:2.2}],anchor:'kneeN',hl:['lumb','thor','armN'],th:1}},
+
+{id:'kindSeite',name:'Kindhaltung seitlich',reg:'back',type:'stat',sides:true,
+ mp:['Latissimus','Quadratus lumborum'],ms:['Schräge Bauchmuskeln','Zwischenrippenmuskeln'],
+ start:'Kindhaltung mit den Armen lang nach vorn.',
+ steps:['Beide Hände nach rechts wandern lassen, bis in der linken Flanke eine Dehnung entsteht.','Das Gesäß bleibt auf den Fersen.','Für mehr Zug die linke Hand auf die rechte legen.','Bewusst in die linke Flanke atmen. Nach der Hälfte der Zeit Seite wechseln.'],
+ cue:'Du dehnst die Seite, die von den Händen weg zeigt.',
+ err:['Das Gesäß hebt ab und kippt mit zur Seite.'],
+ sled:'Die seitliche Rumpfkette muss frei sein für Steuerimpulse und das saubere Ablegen nach dem Start.',
+ dose:'30 s pro Seite',easy:'Hände weniger weit zur Seite.',hard:'Gesäß aktiv zur Gegenseite schieben.',q:'side child pose stretch',
+ anim:{base:'topChild',frames:[{d:1,h:.6},{lumb:168,thor:146,head:150,armN:128,foreN:124,armF:136,foreF:130,d:1.8,h:2}],hl:['lumb','thor'],th:1}},
+
+{id:'kneeChest',name:'Knie zur Brust',reg:'back',type:'stat',
+ mp:['Lendenwirbelsäule (Rückenstrecker)','Großer Gesäßmuskel'],ms:['Quadratus lumborum'],
+ start:'Rückenlage, Knie angewinkelt, Füße am Boden.',
+ steps:['Beide Knie zur Brust ziehen, Hände unter den Knien oder auf den Schienbeinen.','Das Kreuzbein darf sich etwas vom Boden lösen, der untere Rücken rundet sich.','Sanft vor und zurück oder seitlich wiegen.','Kopf und Schultern bleiben entspannt am Boden.'],
+ cue:'Ein angenehmes Ziehen im unteren Rücken, kein Druck.',
+ err:['Kopf hochziehen.','An den Schienbeinen reißen. Bei empfindlichen Knien unter den Knien fassen.'],
+ sled:'Entlastet die Lendenwirbelsäule nach den Läufen und eignet sich gut als Abschluss.',
+ dose:'30–45 s, sanft wiegen',easy:'Nur ein Knie zur Brust.',hard:'Stirn Richtung Knie heben (nur ohne Nackenprobleme).',q:'knees to chest stretch supine',
+ anim:{base:'sup',frames:[{d:1,h:.3},{thighN:210,thighF:210,shinN:100,shinF:100,armN:140,foreN:125,armF:140,foreF:125,d:1.5,h:.4},{lumb:-82,thor:-86,thighN:200,thighF:200,d:.8,h:.2},{thighN:210,thighF:210,shinN:100,shinF:100,armN:140,foreN:125,armF:140,foreF:125,d:.8,h:.6}],hl:['lumb','hip'],th:1}},
+
+{id:'lumbRot',name:'Lumbale Rotation',reg:'back',type:'dyn',sides:true,
+ mp:['Rotatoren der Lendenwirbelsäule','Quadratus lumborum','Schräge Bauchmuskeln'],ms:['Gesäß seitlich','Tensor fasciae latae'],
+ start:'Rückenlage, Knie angewinkelt und geschlossen, Füße am Boden, Arme in T-Position.',
+ steps:['Beide Knie langsam nach rechts sinken lassen.','Beide Schultern bleiben am Boden, den Kopf kannst du nach links drehen.','Kurz halten und ausatmen.','Über die Mitte zur anderen Seite.'],
+ cue:'Nur so weit, wie die gegenüberliegende Schulter liegen bleibt.',
+ err:['Die Schulter hebt ab.','Die Knie fallen unkontrolliert.'],
+ sled:'Mobilisiert die Drehung im unteren Rücken ohne Last. Ideal vor dem Start.',
+ dose:'8 pro Seite langsam, oder 30 s pro Seite halten',easy:'Füße weiter auseinander.',hard:'Oberes Bein strecken.',q:'supine lumbar rotation stretch',
+ anim:{base:'topSup',frames:[{d:1,h:.4},{thighN:58,thighF:58,shinN:10,shinF:10,sc:{thighN:.95,thighF:.95,shinN:.8,shinF:.8},d:1.6,h:1.2},{d:1.4,h:.3},{thighN:-58,thighF:-58,shinN:-10,shinF:-10,sc:{thighN:.95,thighF:.95,shinN:.8,shinF:.8},d:1.6,h:1.2}],hl:['lumb'],th:1}},
+
+{id:'seatTwist',name:'Sitzende Drehung',reg:'back',type:'stat',sides:true,
+ mp:['Rotatoren der Brustwirbelsäule','Schräge Bauchmuskeln'],ms:['Gesäß und Piriformis des aufgestellten Beins'],
+ start:'Langsitz. Rechtes Bein anwinkeln und den Fuß außen neben das linke Knie stellen.',
+ steps:['Aufrecht sitzen, Scheitel Richtung Decke.','Rechte Hand hinter dem Gesäß aufstützen.','Linken Ellbogen außen gegen das rechte Knie legen und den Oberkörper nach rechts drehen.','Einatmen: länger werden. Ausatmen: ein Stück weiter drehen.'],
+ cue:'Die Drehung kommt aus dem Brustkorb, nicht nur aus dem Kopf.',
+ err:['Rund sitzen, dann drehen nur die Schultern.','Mit dem Ellbogen ruckartig ziehen.'],
+ sled:'Verbindet aufrechten Sitz mit Rotation, wie beim Ausrichten auf dem Schlitten.',
+ dose:'30 s pro Seite',easy:'Das untere Bein angewinkelt lassen.',hard:'Hand weiter hinten aufsetzen.',q:'seated spinal twist',
+ anim:{base:'topSeat',frames:[{d:1,h:.5},{thor:235,head:225,armN:170,foreN:175,armF:55,foreF:10,d:1.8,h:2}],hl:['thor'],th:1}},
+
+{id:'bwsRolle',name:'Brustwirbelsäule über Rolle',reg:'back',type:'dyn',
+ mp:['Brustwirbelsäulen-Strecker','Großer Brustmuskel'],ms:['Bauchmuskeln','Latissimus'],
+ start:'Rückenlage, Faszienrolle (oder fest eingerolltes Handtuch) quer unter dem oberen Rücken auf Höhe der Schulterblätter. Knie angewinkelt, Hände stützen den Kopf.',
+ steps:['Gesäß bleibt am Boden.','Ausatmen und den Oberkörper über die Rolle nach hinten sinken lassen, Ellbogen zeigen nach oben.','2–3 Sekunden halten, zurück in die Ausgangsposition.','Die Rolle eine Handbreit höher oder tiefer legen und wiederholen.'],
+ cue:'Die Bewegung passiert nur in der Brustwirbelsäule. Rippen bleiben unten.',
+ err:['Rolle unter der Lendenwirbelsäule: dort nie.','Kopf nach hinten fallen lassen.'],
+ sled:'Das flache Zurücklegen auf den Schlitten nach dem Paddeln verlangt eine streckbare Brustwirbelsäule.',
+ dose:'3 Positionen × 5 Wiederholungen',easy:'Weicheres Handtuch statt Rolle.',hard:'Arme gestreckt über den Kopf.',q:'thoracic extension foam roller',
+ anim:{base:'sup',frames:[{lumb:-130,thor:-102,head:-108,armN:-160,foreN:-13,armF:-160,foreF:-13,d:1,h:.5},{lumb:-130,thor:-76,head:-88,armN:-160,foreN:-13,armF:-160,foreF:-13,d:1.6,h:1.5}],props:[{t:'roller'}],hl:['thor'],th:1}},
+
+{id:'lat',name:'Lat-Dehnung an Wand oder Stange',reg:'back',type:'stat',
+ mp:['Latissimus dorsi','Großer Rundmuskel (Teres major)'],ms:['Trizeps','Rückenstrecker','Oberschenkelrückseite'],
+ start:'Etwa einen Meter vor einer Wand, Stange oder Stuhllehne stehen. Hände schulterbreit auf Hüfthöhe auflegen.',
+ steps:['Hüfte nach hinten schieben, die Arme bleiben gestreckt.','Der Oberkörper sinkt zwischen die Arme, Brust Richtung Boden.','Knie leicht beugen, wenn die Beinrückseite zu stark zieht.','Für mehr Zug im Lat das Gesäß leicht zur Seite schieben.'],
+ cue:'Rücken lang, Kopf zwischen den Oberarmen.',
+ err:['Ins Hohlkreuz fallen.','Kopf hängen lassen.'],
+ sled:'Ein freier Lat gibt dir die volle Armreichweite beim Paddeln.',
+ dose:'30–45 s, 2 Durchgänge',easy:'Hände höher auflegen.',hard:'Eine Hand auf die andere legen und zur Seite schieben.',q:'lat stretch wall',
+ anim:{base:'stand',frames:[{lumb:92,thor:90,head:95,armN:95,foreN:95,armF:95,foreF:95,thighN:8,shinN:4,thighF:8,shinF:4,d:1,h:1},{lumb:90,thor:78,head:84,armN:104,foreN:104,armF:104,foreF:104,thighN:10,shinN:4,thighF:10,shinF:4,d:1.6,h:2}],anchor:'ankleN',props:[{t:'wall',f:0}],hl:['armN','thor'],th:1}},
+
+{id:'abrollen',name:'Wirbelweises Abrollen',reg:'back',type:'dyn',
+ mp:['Rückenstrecker','Rückenfaszie'],ms:['Oberschenkelrückseite','Waden','Nacken'],
+ start:'Hüftbreit stehen, Knie leicht gebeugt, Arme hängen locker.',
+ steps:['Kinn zur Brust sinken lassen.','Wirbel für Wirbel nach unten abrollen, die Arme hängen schwer.','Unten 2–3 Atemzüge hängen lassen.','Genauso langsam von unten nach oben aufrollen. Der Kopf kommt zuletzt.'],
+ cue:'Langsam genug, dass du jeden Abschnitt des Rückens spürst.',
+ err:['Mit geradem Rücken abkippen (das ist dann ein Hüftscharnier).','Zu schnell.'],
+ sled:'Schult die Kontrolle über jeden Wirbelsäulenabschnitt, die du für einen runden, kraftvollen Start brauchst.',
+ dose:'5 Wiederholungen, je ca. 10 s',easy:'Nur bis zur Hälfte abrollen.',hard:'Unten Knie abwechselnd strecken.',q:'standing roll down spine',
+ anim:{base:'stand',pingpong:true,frames:[{d:1.2,h:.6},{head:122,d:1.2,h:.2},{thor:122,head:70,armN:18,armF:14,d:1.4,h:.2},{lumb:122,thor:55,head:22,armN:2,foreN:0,armF:0,foreF:0,thighN:6,thighF:6,d:1.5,h:.2},{lumb:62,thor:14,head:4,armN:-4,armF:-4,foreN:-2,foreF:-2,thighN:16,shinN:-4,thighF:16,shinF:-4,d:1.6,h:2}],anchor:'ankleN',hl:['lumb','thor'],th:3}},
+
+{id:'taube',name:'Taube (Pigeon)',reg:'hip',type:'stat',sides:true,
+ mp:['Großer Gesäßmuskel','Piriformis','Tiefe Außenrotatoren der Hüfte'],ms:['Hüftbeuger des hinteren Beins'],
+ start:'Vierfüßlerstand.',
+ steps:['Rechtes Knie hinter das rechte Handgelenk bringen, den rechten Fuß Richtung linke Hand legen.','Linkes Bein gestreckt nach hinten, Fußrücken am Boden.','Hüfte gerade ausrichten, beide Beckenknochen zeigen nach vorn.','Erst aufrecht bleiben, dann den Oberkörper auf die Unterarme sinken lassen.'],
+ cue:'Der Zug sitzt im Gesäß des vorderen Beins. Im Knie darf es nicht ziehen.',
+ err:['Das Becken kippt zur Seite, eine Gesäßhälfte schwebt. Dann ein Kissen darunter legen.','Knieschmerz: den Fuß näher zum Körper holen.'],
+ sled:'Freie Außenrotatoren und Gesäß erlauben die tiefe Hüftbeugung beim Paddeln, ohne dass das Becken nach hinten kippt.',
+ dose:'30–45 s pro Seite',easy:'Figur 4 in Rückenlage.',hard:'Vorderes Schienbein paralleler zur Mattenkante.',q:'pigeon pose stretch',
+ anim:{base:'stand',frames:[{thighN:80,shinN:0,footN:0,thighF:-63,shinF:-90,footF:-90,armN:-5,armF:5,sc:{shinN:.3,footN:.3},d:1,h:1.2},{thighN:80,shinN:0,footN:0,thighF:-63,shinF:-90,footF:-90,lumb:112,thor:98,head:100,armN:12,foreN:92,armF:12,foreF:92,sc:{shinN:.3,footN:.3},d:2,h:2.5}],anchor:'kneeF',hl:['hip'],th:1}},
+
+{id:'fig4',name:'Figur 4 (Rückenlage)',reg:'hip',type:'stat',sides:true,
+ mp:['Piriformis','Großer Gesäßmuskel'],ms:['Tiefe Außenrotatoren'],
+ start:'Rückenlage, Knie angewinkelt, Füße am Boden.',
+ steps:['Rechten Knöchel auf das linke Knie legen, das rechte Knie zeigt nach außen.','Linken Fuß abheben und mit beiden Händen hinter den linken Oberschenkel greifen.','Den Oberschenkel zur Brust ziehen, bis im rechten Gesäß ein Zug entsteht.','Kopf und Kreuzbein bleiben am Boden.'],
+ cue:'Den rechten Fuß aktiv anziehen (Zehen Richtung Schienbein), das schützt das Knie.',
+ err:['Kopf und Schultern hochziehen.','Fuß hängen lassen.'],
+ sled:'Die sanfte Variante der Taube, gut für den Einstieg und nach dem Lauf.',
+ dose:'30–45 s pro Seite',easy:'Linken Fuß am Boden lassen.',hard:'Rechtes Knie mit dem Ellbogen sanft nach außen drücken.',q:'figure four stretch supine',
+ anim:{base:'sup',frames:[{thighF:150,shinF:30,thighN:165,shinN:150,sc:{thighN:.75,shinN:.3},d:1,h:.8},{thighF:210,shinF:100,thighN:190,shinN:251,armN:118,foreN:108,armF:118,foreF:108,sc:{thighN:.75,shinN:.42},d:1.8,h:2.5}],hl:['hip'],th:1}},
+
+{id:'n9090',name:'90/90-Wechsel',reg:'hip',type:'dyn',
+ mp:['Innen- und Außenrotatoren der Hüfte','Gesäß','Piriformis'],ms:['Adduktoren','Hüftgelenkkapsel'],
+ start:'Sitz auf dem Boden. Vorderes Bein 90° gebeugt vor dir, hinteres Bein 90° gebeugt seitlich hinter dir. Hände hinter dem Körper aufstützen.',
+ steps:['Beide Knie anheben, die Füße bleiben etwas breiter als hüftbreit am Boden.','Die Knie zur anderen Seite ablegen, sodass wieder beide Beine 90° gebeugt sind.','Der Oberkörper bleibt aufrecht.','Langsam hin und her wechseln.'],
+ cue:'Beide Gesäßhälften so gut es geht am Boden lassen.',
+ err:['Rund sitzen.','Mit Schwung umklappen.'],
+ sled:'Trainiert Innen- und Außenrotation, damit das Becken im Sitz frei bleibt.',
+ dose:'8–10 Wechsel',easy:'Hände weiter hinten aufstützen.',hard:'Ohne Hände, aufrecht.',q:'90 90 hip switch',
+ anim:{base:'top9090',frames:[{d:1,h:1},{thighN:45,thighF:-45,shinN:225,shinF:135,sc:{thighN:.45,thighF:.45,shinN:.75,shinF:.75},d:.9,h:.1},{thighN:0,shinN:270,footN:270,thighF:-90,shinF:180,footF:180,d:.9,h:1},{thighN:45,thighF:-45,shinN:225,shinF:135,footN:225,footF:135,sc:{thighN:.45,thighF:.45,shinN:.75,shinF:.75},d:.9,h:.1}],hl:['hip'],th:0}},
+
+{id:'lunge',name:'Tiefer Ausfallschritt',reg:'hip',type:'dyn',sides:true,
+ mp:['Hüftbeuger (Iliopsoas)','Gerader Oberschenkelmuskel (Rectus femoris)'],ms:['Adduktoren','Gesäß des vorderen Beins'],
+ start:'Kniestand, rechter Fuß vorn, linkes Knie am Boden (weich unterlegen).',
+ steps:['Becken leicht nach hinten kippen (Steißbein Richtung Boden) und das Gesäß anspannen.','Hüfte nach vorn-unten schieben, bis vorn in der linken Leiste ein Zug entsteht.','2 Sekunden halten, dann zurück.','Das vordere Knie bleibt über dem Fuß.'],
+ cue:'Der Zug gehört in die Leiste des hinteren Beins, nicht ins Kreuz.',
+ err:['Hohlkreuz statt Hüftstreckung.','Das vordere Knie fällt nach innen.'],
+ sled:'Im Rodelsitz sind die Hüftbeuger dauerhaft verkürzt und ziehen das Becken ins Hohlkreuz.',
+ dose:'8 pro Seite, dynamisch',easy:'Kleinerer Schritt.',hard:'Gleichseitigen Arm nach oben strecken.',q:'kneeling hip flexor lunge stretch',
+ anim:{base:'stand',frames:[{thighN:90,shinN:0,thighF:-17,shinF:-90,footF:-90,armN:38,foreN:42,armF:38,foreF:42,d:1,h:.4},{thighN:100,shinN:25,thighF:-45,shinF:-90,footF:-90,lumb:182,armN:40,foreN:48,armF:40,foreF:48,d:1.2,h:1.2}],anchor:'ankleN',hl:['hipF','thighF'],th:1}},
+
+{id:'butterfly',name:'Schmetterling',reg:'hip',type:'stat',
+ mp:['Kurze Adduktoren','Gracilis'],ms:['Hüftgelenkkapsel'],
+ start:'Sitz, Fußsohlen aneinander, Fersen nah zum Körper.',
+ steps:['Hände um die Füße legen und aufrecht sitzen.','Die Knie Richtung Boden sinken lassen, ohne zu drücken.','Für mehr Dehnung mit geradem Rücken aus der Hüfte nach vorn kippen.','Ruhig atmen und in der Position bleiben.'],
+ cue:'Brustbein nach vorn, nicht die Stirn Richtung Füße.',
+ err:['Runder Rücken.','Knie mit den Ellbogen nach unten drücken.'],
+ sled:'Freie Adduktoren erlauben eine stabile, breite Beckenposition auf dem Schlitten.',
+ dose:'30–45 s',easy:'Füße weiter weg vom Körper.',hard:'Aus der Hüfte weiter vorbeugen.',q:'butterfly stretch',
+ anim:{base:'front',frames:[{lumb:180,thor:180,armN:12,foreN:-12,armF:-12,foreF:12,thighN:125,shinN:-55,thighF:-125,shinF:55,footN:0,footF:0,sc:{thighN:.75,thighF:.75,shinN:.95,shinF:.95,footN:.25,footF:.25},d:1,h:1},{thighN:105,shinN:-74,thighF:-105,shinF:74,footN:0,footF:0,armN:28,foreN:-22,armF:-28,foreF:22,sc:{lumb:.9,thor:.85,thighN:.8,thighF:.8,shinN:.96,shinF:.96,footN:.25,footF:.25},d:1.8,h:2}],hl:['thighN','thighF'],th:1}},
+
+{id:'frosch',name:'Frosch',reg:'hip',type:'stat',
+ mp:['Adduktoren (v. a. Adduktor magnus)'],ms:['Gracilis','Hüftgelenkkapsel'],
+ start:'Unterarmstütz. Knie so weit auseinander wie angenehm, Unterschenkel parallel, Fußinnenseiten am Boden.',
+ steps:['Die Knie liegen auf einer Linie mit der Hüfte.','Das Gesäß langsam nach hinten Richtung Fersen schieben.','Der Rücken bleibt neutral, kein Hohlkreuz.','Halten oder langsam vor und zurück wippen.'],
+ cue:'Der Zug sitzt an den Oberschenkelinnenseiten.',
+ err:['Knie zu weit auseinander, dann sticht es innen am Knie. Weich unterlegen.','Hohlkreuz.'],
+ sled:'Die großen Adduktoren begrenzen oft die tiefe Hüftbeugung. Der Frosch öffnet sie.',
+ dose:'30–45 s oder 10 Wipper',easy:'Knie enger.',hard:'Länger halten, tiefer sinken.',q:'frog stretch adductor',
+ anim:{base:'topFrog',frames:[{d:1,h:.6},{thighN:125,thighF:-125,d:1.6,h:1.6}],anchor:'kneeN',hl:['thighN','thighF'],th:1}},
+
+{id:'hocke',name:'Tiefe Hocke halten',reg:'hip',type:'stat',
+ mp:['Großer Gesäßmuskel','Adduktoren'],ms:['Schollenmuskel (Sprunggelenk)','Lendenwirbelsäule'],
+ start:'Schulterbreit stehen, Fußspitzen leicht nach außen.',
+ steps:['Tief hinsetzen, die Fersen bleiben am Boden.','Hände vor der Brust zusammen, Ellbogen innen an die Knie.','Mit den Ellbogen die Knie sanft nach außen drücken, Brust hoch.','Das Gewicht langsam etwas nach links und rechts verlagern.'],
+ cue:'Knie zeigen in Richtung der Fußspitzen.',
+ err:['Fersen heben ab. Dann ein Brett unter die Fersen legen.','Knie fallen nach innen.'],
+ sled:'Kombiniert Hüftbeugung, Sprunggelenk und unteren Rücken in einer Position.',
+ dose:'30–60 s',easy:'An einem Türrahmen festhalten.',hard:'Arme über den Kopf strecken.',q:'deep squat hold',
+ anim:{base:'stand',frames:[{d:1,h:.5},{thighN:112,shinN:-24,thighF:112,shinF:-24,lumb:158,thor:165,head:170,armN:55,foreN:150,armF:55,foreF:150,d:1.8,h:1.5},{thighN:112,shinN:-24,thighF:112,shinF:-24,lumb:168,thor:172,head:176,armN:40,foreN:150,armF:40,foreF:150,d:1,h:1.5}],anchor:'ankleN',hl:['hip','thighN'],th:2}},
+
+{id:'kosak',name:'Kosakenhocke',reg:'hip',type:'dyn',
+ mp:['Adduktoren des gestreckten Beins','Innere Oberschenkelrückseite'],ms:['Gesäß und Quadrizeps des gebeugten Beins','Sprunggelenk'],
+ start:'Sehr breiter Stand, Fußspitzen leicht nach außen.',
+ steps:['Gewicht auf das rechte Bein verlagern und tief in die Hocke setzen.','Das linke Bein bleibt gestreckt, die Zehen zeigen nach oben, die Ferse bleibt am Boden.','Die rechte Ferse bleibt ebenfalls am Boden, Brust hoch.','Über die Mitte zur anderen Seite wechseln.'],
+ cue:'Tiefer ist nicht besser. Rücken lang ist wichtiger.',
+ err:['Der Rücken rundet sich.','Die Ferse des Hockbeins hebt ab.'],
+ sled:'Dehnt Adduktoren und Beinrückseite dynamisch und wärmt zugleich die Hüfte auf.',
+ dose:'8 pro Seite, abwechselnd',easy:'An etwas festhalten.',hard:'Unten 2 s halten.',q:'cossack squat',
+ anim:{base:'front',frames:[{armN:25,foreN:-140,armF:-25,foreF:140,thighN:48,shinN:48,footN:90,thighF:-48,shinF:-48,footF:-90,d:1,h:.4},{armN:25,foreN:-140,armF:-25,foreF:140,thighN:90,shinN:10,footN:90,thighF:-61.6,shinF:-61.6,footF:180,d:1.4,h:1},{armN:25,foreN:-140,armF:-25,foreF:140,thighN:48,shinN:48,footN:90,thighF:-48,shinF:-48,footF:-90,d:1.2,h:.3},{armN:25,foreN:-140,armF:-25,foreF:140,thighN:61.6,shinN:61.6,footN:180,thighF:-90,shinF:-10,footF:-90,d:1.4,h:1}],anchor:'ankleN',hl:['thighN','thighF'],th:1}},
+
+{id:'hipCircle',name:'Hüftkreisen im Vierfüßler',reg:'hip',type:'dyn',sides:true,
+ mp:['Hüftgelenkkapsel','Tiefe Hüftrotatoren','Gesäß'],ms:['Rumpfstabilisatoren'],
+ start:'Vierfüßlerstand.',
+ steps:['Rechtes Knie Richtung Brust ziehen.','Das Knie zur Seite öffnen und nach oben führen.','Nach hinten führen und wieder unter die Hüfte bringen.','So groß wie möglich kreisen, Becken und Rücken bleiben ruhig. Nach der Hälfte Richtung wechseln.'],
+ cue:'Die Hüfte bewegt sich, der Rumpf bleibt wie ein Tisch.',
+ err:['Der Rücken dreht und kippt mit.','Zu schnell.'],
+ sled:'Mobilisiert die Hüftkapsel in alle Richtungen, eine gute Vorbereitung für die Sitzposition.',
+ dose:'8 pro Richtung und Seite',easy:'Kleinere Kreise.',hard:'Langsamer, mit Pause an jedem Punkt.',q:'quadruped hip circles',
+ anim:{base:'quad',frames:[{d:.8,h:.2},{thighN:75,shinN:-40,footN:-40,d:.9,h:.2},{thighN:20,shinN:-85,sc:{thighN:.45},d:.9,h:.2},{thighN:-80,shinN:-150,footN:-150,d:.9,h:.2}],anchor:'kneeF',hl:['hip'],th:1}},
+
+{id:'gurt',name:'Beinheben mit Gurt',reg:'leg',type:'stat',sides:true,
+ mp:['Oberschenkelrückseite (Hamstrings)'],ms:['Zwillingswadenmuskel (Gastrocnemius)','Gesäß'],
+ start:'Rückenlage. Gurt, Gürtel oder Handtuch um die rechte Fußsohle.',
+ steps:['Das linke Bein liegt gestreckt am Boden, Zehen zeigen zur Decke.','Das rechte Bein gestreckt anheben, bis hinten ein Zug entsteht.','Den Fuß anziehen (Zehen Richtung Schienbein), dann dehnt die Wade mit.','Das Becken bleibt gerade am Boden.'],
+ cue:'Hier siehst du ehrlich, wie kurz deine Hamstrings sind, weil der Rücken nicht ausweichen kann.',
+ err:['Das untere Bein beugt sich oder hebt ab.','Mit dem Gurt ruckartig ziehen.'],
+ sled:'Isoliert die Oberschenkelrückseite, ohne dass der Rücken mitmogelt.',
+ dose:'30–45 s pro Seite',easy:'Unteres Bein angewinkelt.',hard:'Bein leicht nach innen führen (mehr seitliche Kette).',q:'supine hamstring stretch strap',
+ anim:{base:'sup',frames:[{thighF:90,shinF:90,footF:180,thighN:130,shinN:130,footN:220,armN:150,foreN:160,armF:150,foreF:160,d:1,h:.5},{thighF:90,shinF:90,footF:180,thighN:168,shinN:168,footN:258,armN:165,foreN:172,armF:165,foreF:172,d:1.8,h:2.2}],props:[{t:'strap'}],hl:['thighN','shinN'],th:1}},
+
+{id:'sitVorbeuge',name:'Sitzende Vorbeuge',reg:'leg',type:'stat',
+ mp:['Oberschenkelrückseite','Waden'],ms:['Rückenstrecker','Rückenfaszie'],
+ start:'Langsitz, Handtuch um die Fußsohlen. Auf den Sitzbeinhöckern sitzen, nicht auf dem Kreuzbein.',
+ steps:['Aufrichten, Brustbein nach vorn.','Mit langem Rücken aus der Hüfte nach vorn kippen, das Handtuch hilft.','Erst wenn die Hüfte nicht weiter kippt, darf der Rücken rund werden.','Mit jedem Ausatmen ein kleines Stück weiter sinken.'],
+ cue:'Erst Hüfte, dann Rücken. Diese Reihenfolge ist der Kern der Übung.',
+ err:['Sofort rund werden.','Knie durchdrücken, bis es in der Kniekehle sticht.'],
+ sled:'Das ist fast deine Position beim Paddeln: Beine lang, Oberkörper tief vorn.',
+ dose:'30–45 s, 2 Durchgänge',easy:'Kissen unter das Gesäß, Knie leicht gebeugt.',hard:'Handtuch kürzer fassen.',q:'seated forward fold towel',
+ anim:{base:'long',frames:[{armN:108,foreN:100,armF:108,foreF:100,d:1,h:.6},{lumb:128,thor:122,head:120,armN:100,foreN:95,armF:100,foreF:95,d:1.6,h:.8},{lumb:115,thor:96,head:72,armN:82,foreN:86,armF:82,foreF:86,d:1.4,h:2.2}],props:[{t:'strap'}],hl:['thighN','shinN','lumb'],th:2}},
+
+{id:'hinge',name:'Hüftscharnier mit Stab',reg:'leg',type:'dyn',
+ mp:['Oberschenkelrückseite','Großer Gesäßmuskel'],ms:['Rückenstrecker (haltend)'],
+ start:'Hüftbreit stehen. Ein Besenstiel liegt längs am Rücken und berührt Hinterkopf, Brustwirbelsäule und Kreuzbein. Eine Hand hält ihn hinter dem Nacken, die andere am unteren Rücken.',
+ steps:['Knie leicht beugen.','Hüfte nach hinten schieben, der Oberkörper kippt nach vorn.','Alle drei Kontaktpunkte bleiben am Stab.','Wenn die Beinrückseite deutlich zieht: aufrichten und dabei das Gesäß anspannen.'],
+ cue:'Das Gewicht bleibt über dem Mittelfuß.',
+ err:['Der Stab löst sich am Kopf oder am Kreuzbein, dann rundet der Rücken.','Knie beugen statt Hüfte nach hinten.'],
+ sled:'Lehrt dich, die Vorbeuge aus der Hüfte zu machen statt aus dem Rücken.',
+ dose:'10 langsame Wiederholungen',easy:'Ohne Stab, Hände an den Hüften.',hard:'Auf einem Bein.',q:'hip hinge dowel',
+ anim:{base:'stand',frames:[{armN:-25,foreN:20,armF:-160,foreF:15,sc:{foreN:.7,foreF:.6},d:1,h:.6},{lumb:128,thor:128,head:128,thighN:20,shinN:-5,thighF:20,shinF:-5,armN:-77,foreN:-32,armF:-212,foreF:-37,sc:{foreN:.7,foreF:.6},d:1.6,h:1}],anchor:'ankleN',props:[{t:'stick'}],hl:['thighN'],th:1}},
+
+{id:'wade',name:'Wadendehnung an der Wand',reg:'leg',type:'stat',sides:true,
+ mp:['Zwillingswadenmuskel (Knie gestreckt)','Schollenmuskel (Knie gebeugt)'],ms:['Achillessehne','Fußsohle'],
+ start:'Vor einer Wand stehen, Hände etwa auf Schulterhöhe.',
+ steps:['Linkes Bein weit zurück, Ferse am Boden, Fußspitze zeigt nach vorn.','Vorderes Knie beugen und die Hüfte Richtung Wand schieben, bis die hintere Wade zieht.','Nach der halben Zeit das hintere Knie beugen. Die Ferse bleibt unten, der Zug wandert tiefer.','Seite wechseln.'],
+ cue:'Beide Varianten machen: gestreckt für den Zwillingswadenmuskel, gebeugt für den Schollenmuskel.',
+ err:['Fuß nach außen gedreht.','Ferse hebt ab.'],
+ sled:'Freie Waden lassen die Beinrückseite in der Vorbeuge weiter aufgehen.',
+ dose:'30 s je Variante und Seite',easy:'Kürzerer Schritt.',hard:'Vorfuß auf eine Stufe.',q:'wall calf stretch gastrocnemius soleus',
+ anim:{base:'stand',frames:[{lumb:163,thor:160,head:160,thighN:22,shinN:0,thighF:-20,shinF:-20,footF:90,armN:98,foreN:92,armF:98,foreF:92,d:1,h:2.2},{lumb:165,thor:162,head:162,thighN:32,shinN:-10,thighF:-5,shinF:-30,footF:90,armN:98,foreN:92,armF:98,foreF:92,d:1.5,h:2.2}],anchor:'ankleN',props:[{t:'wall',f:0}],hl:['shinF'],th:0}},
+
+{id:'dog',name:'Herabschauender Hund',reg:'leg',type:'dyn',
+ mp:['Waden','Oberschenkelrückseite'],ms:['Latissimus','Schultern','Rückenstrecker'],
+ start:'Vierfüßlerstand, Zehen aufstellen.',
+ steps:['Knie abheben und das Gesäß nach hinten-oben schieben: ein umgedrehtes V.','Der Rücken bleibt lang, die Knie dürfen gebeugt sein.','Abwechselnd ein Knie beugen und die andere Ferse Richtung Boden drücken.','Zum Schluss 20 s ruhig halten.'],
+ cue:'Langer Rücken hat Vorrang vor gestreckten Beinen.',
+ err:['Runder Rücken, weil die Beine gestreckt erzwungen werden.','Schultern rutschen zu den Ohren.'],
+ sled:'Dehnt die ganze hintere Kette von der Hand bis zur Ferse in einer Position.',
+ dose:'8 pro Seite, dann 20 s halten',easy:'Hände auf einem Stuhl.',hard:'Ein Bein zur Decke heben.',q:'downward dog pedaling',
+ anim:{base:'stand',frames:[{lumb:48,thor:46,head:35,armN:42,foreN:42,armF:42,foreF:42,thighN:12,shinN:-45,footN:62,thighF:-25,shinF:-25,footF:90,d:.9,h:.5},{lumb:48,thor:46,head:35,armN:42,foreN:42,armF:42,foreF:42,thighF:12,shinF:-45,footF:62,thighN:-25,shinN:-25,footN:90,d:.9,h:.5}],anchor:'handN',hl:['shinN','thighN','shinF','thighF'],th:0}},
+
+{id:'vorbeuge',name:'Stehende Vorbeuge',reg:'leg',type:'stat',
+ mp:['Oberschenkelrückseite','Waden'],ms:['Rückenstrecker','Gesäß'],
+ start:'Hüftbreit stehen.',
+ steps:['Knie deutlich beugen, aus der Hüfte nach vorn, Bauch auf die Oberschenkel, Hände zu den Zehen oder zum Boden.','Die Brust bleibt auf den Oberschenkeln, die Knie langsam strecken, bis es zieht.','Ganz entspannen, den Kopf hängen lassen.','Mit gebeugten Knien Wirbel für Wirbel aufrollen.'],
+ cue:'Das ist auch dein Fortschritts-Test: Abstand der Fingerspitzen zum Boden messen.',
+ err:['Knie durchdrücken und nach unten federn.','Kalt ausführen.'],
+ sled:'Führt alles zusammen, was die Einzelübungen vorbereitet haben.',
+ dose:'30–45 s',easy:'Hände auf einen Stuhl oder Block.',hard:'Auf einer Stufe stehend.',q:'standing forward fold bent knees',
+ anim:{base:'stand',frames:[{d:1,h:.5},{thighN:38,shinN:-14,thighF:38,shinF:-14,lumb:45,thor:25,head:15,armN:6,foreN:4,armF:6,foreF:4,d:1.8,h:1},{thighN:6,shinN:-2,thighF:6,shinF:-2,lumb:55,thor:20,head:6,armN:3,foreN:0,armF:3,foreF:0,d:2,h:1.6},{thighN:6,shinN:-2,thighF:6,shinF:-2,lumb:50,thor:8,head:0,armN:0,foreN:0,armF:0,foreF:0,d:1.2,h:2}],anchor:'ankleN',hl:['thighN','shinN'],th:2}},
+
+{id:'zehen',name:'Vorbeuge mit hochgezogenen Zehen',reg:'leg',type:'stat',
+ mp:['Waden','Fußsohle (Plantarfaszie)'],ms:['Oberschenkelrückseite'],
+ start:'Vorfüße auf ein Buch, Brett oder gerolltes Handtuch stellen, Fersen am Boden.',
+ steps:['Knie leicht gebeugt, aus der Hüfte vorbeugen.','Die Hände Richtung Boden sinken lassen.','Knie langsam strecken.','Der Zug verlagert sich in Wade und Kniekehle.'],
+ cue:'Die Erhöhung muss nur 2–4 cm hoch sein.',
+ err:['Zu hohe Erhöhung.','Mit Schwung nach unten.'],
+ sled:'Nimmt die Waden gezielt mit in die Vorbeuge, die beim normalen Zehen-Berühren oft zu kurz kommen.',
+ dose:'30 s',easy:'Niedrigere Erhöhung.',hard:'Länger halten.',q:'forward fold toes elevated',
+ anim:{base:'stand',frames:[{footN:110,footF:110,d:1,h:.5},{footN:110,footF:110,thighN:36,shinN:-14,thighF:36,shinF:-14,lumb:47,thor:25,head:15,armN:6,foreN:4,armF:6,foreF:4,d:1.8,h:1},{footN:110,footF:110,thighN:6,shinN:-2,thighF:6,shinF:-2,lumb:56,thor:18,head:6,armN:3,foreN:0,armF:3,foreF:0,d:2,h:2}],anchor:'ankleN',props:[{t:'wedge'}],hl:['shinN'],th:2}},
+
+{id:'startImit',name:'Start-Imitation',reg:'start',type:'dyn',
+ mp:['Rumpfbeuger und -strecker im Wechsel','Hüftbeuger','Latissimus und Schultern'],ms:['Oberschenkelrückseite'],
+ start:'Langsitz auf dem Boden oder einer Bank, Beine gestreckt.',
+ steps:['Oberkörper weit nach vorn, die Arme greifen über die Knie hinaus nach vorn (wie an die Startgriffe).','Kontrolliert nach hinten lehnen, als würdest du an den Griffen ziehen.','Wieder tief nach vorn und 2–3 Paddelbewegungen neben dem Körper.','Flach nach hinten ablegen, dann wieder aufsetzen.'],
+ cue:'Locker und rhythmisch, noch nicht mit voller Kraft.',
+ err:['Nur aus den Armen arbeiten, statt den Rumpf mitzunehmen.','Beim Ablegen ins Hohlkreuz fallen.'],
+ sled:'Verbindet die Beweglichkeit direkt mit deinem Startablauf.',
+ dose:'8–10 Wiederholungen',easy:'Nur Vor- und Zurücklehnen.',hard:'Mit leichtem Widerstand (Theraband).',q:'luge start technique',
+ anim:{base:'long',frames:[{armN:40,foreN:40,armF:40,foreF:40,d:1,h:.3},{lumb:128,thor:108,head:110,armN:95,foreN:92,armF:95,foreF:92,d:.9,h:.2},{lumb:205,thor:200,head:190,armN:105,foreN:100,armF:105,foreF:100,d:.9,h:.2},{lumb:120,thor:100,head:105,armN:70,foreN:30,armF:70,foreF:30,d:.8,h:.05},{lumb:122,thor:104,head:105,armN:40,foreN:-60,armF:40,foreF:-60,d:.4,h:.05},{lumb:120,thor:100,head:105,armN:70,foreN:30,armF:70,foreF:30,d:.4,h:.05},{lumb:122,thor:104,head:105,armN:40,foreN:-60,armF:40,foreF:-60,d:.4,h:.05},{lumb:268,thor:270,head:268,armN:90,foreN:90,armF:90,foreF:90,d:1.2,h:1}],props:[{t:'sled'}],hl:['lumb','thor'],th:1}}
+];
+const EXM={};EX.forEach(e=>EXM[e.id]=e);
+
+/* =========================================================
+   Kinematik + Rendering
+   ========================================================= */
+function fk(p,ex){
+  const s=k=>(p.sc&&p.sc[k]!=null)?p.sc[k]:1;
+  const P={};P.hip=[0,0];
+  const hw=(p.hipW||0)/2, ph=pv(p.lumb);
+  P.hipN=ad(P.hip,ph,hw);P.hipF=ad(P.hip,ph,-hw);
+  P.mid=ad(P.hip,dv(p.lumb),L.lumb*s('lumb'));
+  P.sh=ad(P.mid,dv(p.thor),L.thor*s('thor'));
+  const sw=(p.shW||0)/2, ps=pv(p.thor);
+  P.shN=ad(P.sh,ps,sw);P.shF=ad(P.sh,ps,-sw);
+  if(p.view==='side'){P.hipF=[P.hipF[0]-2.5,P.hipF[1]-1.5];P.shF=[P.shF[0]-2.5,P.shF[1]-1.5];}
+  P.neck=ad(P.sh,dv(p.head),L.neck*s('head'));
+  P.headC=ad(P.neck,dv(p.head),L.head*s('head'));
+  for(const n of ['N','F']){
+    P['elbow'+n]=ad(P['sh'+n],dv(p['arm'+n]),L.arm*s('arm'+n));
+    P['hand'+n]=ad(P['elbow'+n],dv(p['fore'+n]),L.fore*s('fore'+n));
+    P['knee'+n]=ad(P['hip'+n],dv(p['thigh'+n]),L.thigh*s('thigh'+n));
+    P['ankle'+n]=ad(P['knee'+n],dv(p['shin'+n]),L.shin*s('shin'+n));
+    P['toe'+n]=ad(P['ankle'+n],dv(p['foot'+n]),L.foot*s('foot'+n));
+  }
+  const props=(ex&&ex.anim.props)||[];
+  for(const pr of props){
+    if(pr.t==='roller'){P.rollC=[P.mid[0],P.mid[1]+11];P.rollB=[P.mid[0],P.mid[1]+18];}
+    if(pr.t==='sled'){P.sledB=[P.hip[0],P.hip[1]+16];}
+  }
+  return P;
+}
+function groundPts(P,p){
+  const out=[];
+  for(const k in P){if(k==='headC'||k==='rollC')continue;out.push(P[k]);}
+  out.push([P.headC[0],P.headC[1]+L.head]);
+  return out;
+}
+function place(ex,p){
+  const P=fk(p,ex);
+  let dx=0,dy=0;
+  if(p.view!=='top'){let my=-1e9;for(const q of groundPts(P,p))my=Math.max(my,q[1]);dy=-my;}
+  const a=ex.anim.anchor;
+  if(a&&ex._ref){dx=ex._ref[0]-P[a][0];if(p.view==='top')dy=ex._ref[1]-P[a][1];}
+  for(const k in P){P[k]=[P[k][0]+dx,P[k][1]+dy];}
+  return P;
+}
+const ease=u=>.5-.5*Math.cos(Math.PI*u);
+function lerpPose(a,b,u){
+  const o={view:b.view,sc:{}};
+  for(const k of AK){const x=a[k]||0,y=b[k]||0;o[k]=x+(y-x)*u;}
+  for(const k of SK){const x=(a.sc&&a.sc[k]!=null)?a.sc[k]:1,y=(b.sc&&b.sc[k]!=null)?b.sc[k]:1;o.sc[k]=x+(y-x)*u;}
+  return o;
+}
+function prep(ex){
+  if(ex._fr)return;
+  const A=ex.anim, base=B[A.base];
+  let fr=A.frames.map(f=>{const p=Object.assign({},base,f);p.sc=Object.assign({},base.sc||{},f.sc||{});p.d=f.d!=null?f.d:1.2;p.h=f.h!=null?f.h:.6;return p;});
+  if(A.pingpong)fr=fr.concat(fr.slice(1,-1).reverse().map(p=>Object.assign({},p)));
+  ex._fr=fr;ex._T=fr.reduce((s,p)=>s+p.d+p.h,0);
+  ex._ref=null;
+  if(A.anchor){const P0=place(ex,fr[0]);ex._ref=P0[A.anchor];}
+  const wall=(A.props||[]).find(x=>x.t==='wall');
+  if(wall){const Pw=place(ex,fr[wall.f||0]);ex._wallX=Pw.handN[0]+3;}
+  // Bounding box
+  let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;
+  const N=72;
+  for(let i=0;i<N;i++){
+    const p=poseAt(ex,ex._T*i/N);const P=place(ex,p);
+    for(const k in P){const q=P[k];const r=(k==='headC')?L.head:(k==='rollC'?7:0);x0=Math.min(x0,q[0]-r);x1=Math.max(x1,q[0]+r);y0=Math.min(y0,q[1]-r);y1=Math.max(y1,q[1]+r);}
+  }
+  if(ex._wallX!=null){x1=Math.max(x1,ex._wallX+4);y0=Math.min(y0,-120);}
+  if(ex._fr[0].view!=='top')y1=Math.max(y1,0);
+  ex._bb={x0,x1,y0,y1};
+}
+function poseAt(ex,t){
+  const fr=ex._fr;const T=ex._T;t=((t%T)+T)%T;
+  let acc=0;
+  for(let i=0;i<fr.length;i++){
+    const f=fr[i];
+    if(t<acc+f.d){const prev=fr[(i-1+fr.length)%fr.length];return lerpPose(prev,f,ease((t-acc)/f.d));}
+    acc+=f.d;
+    if(t<acc+f.h)return lerpPose(f,f,0);
+    acc+=f.h;
+  }
+  return lerpPose(fr[0],fr[0],0);
+}
+
+let COL={};
+function readColors(){
+  const cs=getComputedStyle(document.documentElement);
+  const g=n=>cs.getPropertyValue(n).trim();
+  COL={ink:g('--ink'),far:g('--far'),hl:g('--accent'),floor:g('--floor'),mat:g('--mat'),muted:g('--muted'),surface:g('--surface'),hip:g('--r-hip'),prop:g('--r-hip'),line:g('--line')};
+}
+readColors();
+
+function drawFigure(cv,ex,t,opts={}){
+  prep(ex);
+  const dpr=Math.min(window.devicePixelRatio||1,2.5);
+  const W=cv.clientWidth,H=cv.clientHeight;
+  if(!W||!H)return;
+  if(cv.width!==Math.round(W*dpr)||cv.height!==Math.round(H*dpr)){cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);}
+  const c=cv.getContext('2d');
+  c.setTransform(dpr,0,0,dpr,0,0);
+  c.clearRect(0,0,W,H);
+  const p=poseAt(ex,t);const P=place(ex,p);
+  const bb=ex._bb;const pad=opts.pad!=null?opts.pad:Math.max(10,Math.min(W,H)*.08);
+  const bw=bb.x1-bb.x0,bh=bb.y1-bb.y0;
+  let s=Math.min((W-2*pad)/bw,(H-2*pad)/bh);
+  const ox=W/2-(bb.x0+bb.x1)/2*s, oy=H/2-(bb.y0+bb.y1)/2*s;
+  c.save();
+  if(opts.mirror){c.translate(W,0);c.scale(-1,1);}
+  c.translate(ox,oy);c.scale(s,s);
+  c.lineCap='round';c.lineJoin='round';
+  const lw=1/s;
+  // Boden / Matte
+  if(p.view==='top'){
+    c.fillStyle=COL.mat;const m=8;
+    roundRect(c,bb.x0-m,bb.y0-m,bw+2*m,bh+2*m,10);c.fill();
+  }else{
+    c.strokeStyle=COL.floor;c.lineWidth=2*lw;
+    c.beginPath();c.moveTo((-ox)/s,0);c.lineTo((W-ox)/s,0);c.stroke();
+    c.lineWidth=1*lw;
+    for(let x=Math.floor((-ox)/s/14)*14;x<(W-ox)/s;x+=14){c.beginPath();c.moveTo(x,0);c.lineTo(x-6,7);c.stroke();}
+  }
+  const props=ex.anim.props||[];
+  // Requisiten hinten
+  for(const pr of props){
+    if(pr.t==='wall'){c.fillStyle=COL.floor;c.fillRect(ex._wallX,bb.y0-10,6,-bb.y0+10);}
+    if(pr.t==='roller'){c.fillStyle=COL.prop;c.globalAlpha=.85;c.beginPath();c.arc(P.rollC[0],P.rollC[1],7,0,Math.PI*2);c.fill();c.globalAlpha=1;}
+    if(pr.t==='sled'){
+      c.fillStyle=COL.floor;c.strokeStyle=COL.muted;c.lineWidth=2*lw;
+      const x0=P.hip[0]-14,x1=P.toeN[0]+6,y=P.hip[1]+4;
+      roundRect(c,x0,y,x1-x0,6,3);c.fill();
+      c.beginPath();c.moveTo(x0+4,y+6);c.lineTo(x0+4,y+12);c.moveTo(x1-10,y+6);c.lineTo(x1-10,y+12);c.stroke();
+      c.lineWidth=2.5*lw;c.beginPath();c.moveTo(x0-4,y+12);c.lineTo(x1+2,y+12);c.quadraticCurveTo(x1+10,y+12,x1+10,y+4);c.stroke();
+    }
+    if(pr.t==='wedge'){c.fillStyle=COL.prop;c.globalAlpha=.8;const tx=P.toeN[0];c.beginPath();c.moveTo(tx-16,0);c.lineTo(tx+4,0);c.lineTo(tx+4,P.toeN[1]+1.5);c.closePath();c.fill();c.globalAlpha=1;}
+  }
+  const hl=new Set(ex.anim.hl||[]);
+  const seg=(a,b,w,col)=>{c.strokeStyle=col;c.lineWidth=w;c.beginPath();c.moveTo(P[a][0],P[a][1]);c.lineTo(P[b][0],P[b][1]);c.stroke();};
+  const limb=(n,col,alpha)=>{
+    c.globalAlpha=alpha;
+    const hc=hl=>COL.hl;
+    seg('hip'+n,'knee'+n,7,hl.has('thigh'+n)?COL.hl:col);
+    seg('knee'+n,'ankle'+n,6.2,hl.has('shin'+n)?COL.hl:col);
+    seg('ankle'+n,'toe'+n,5,col);
+    c.globalAlpha=1;
+  };
+  const arm=(n,col,alpha)=>{
+    c.globalAlpha=alpha;
+    seg('sh'+n,'elbow'+n,6,hl.has('arm'+n)?COL.hl:col);
+    seg('elbow'+n,'hand'+n,5.2,col);
+    c.globalAlpha=1;
+  };
+  const side=p.view==='side';
+  const farCol=side?COL.far:COL.ink;
+  const farA=side?1:.92;
+  arm('F',farCol,farA);limb('F',farCol,farA);
+  // Rumpf
+  if(side){
+    c.strokeStyle=COL.ink;c.lineWidth=11;
+    c.beginPath();c.moveTo(P.hip[0],P.hip[1]);c.quadraticCurveTo(P.mid[0],P.mid[1],P.sh[0],P.sh[1]);c.stroke();
+    if(hl.has('lumb')||hl.has('thor')){
+      c.strokeStyle=COL.hl;c.lineWidth=5;c.beginPath();
+      const m=[(P.hip[0]+P.mid[0])/2,(P.hip[1]+P.mid[1])/2],n=[(P.mid[0]+P.sh[0])/2,(P.mid[1]+P.sh[1])/2];
+      if(hl.has('lumb')&&hl.has('thor')){c.moveTo(P.hip[0],P.hip[1]);c.quadraticCurveTo(P.mid[0],P.mid[1],P.sh[0],P.sh[1]);}
+      else if(hl.has('lumb')){c.moveTo(P.hip[0],P.hip[1]);c.quadraticCurveTo(m[0],m[1],P.mid[0],P.mid[1]);}
+      else{c.moveTo(P.mid[0],P.mid[1]);c.quadraticCurveTo(n[0],n[1],P.sh[0],P.sh[1]);}
+      c.stroke();
+    }
+  }else{
+    seg('hipF','hipN',9,COL.ink);
+    seg('hip','mid',9,hl.has('lumb')?COL.hl:COL.ink);
+    seg('mid','sh',9,hl.has('thor')?COL.hl:COL.ink);
+    seg('shF','shN',8,hl.has('thor')?COL.hl:COL.ink);
+  }
+  seg('sh','neck',5,COL.ink);
+  c.fillStyle=COL.ink;c.beginPath();c.arc(P.headC[0],P.headC[1],L.head*(p.view==='top'?.9:1),0,Math.PI*2);c.fill();
+  // Gelenk-Markierungen (Zielzone)
+  for(const k of ['hip','hipN','hipF']){
+    if(hl.has(k)){c.fillStyle=COL.hl;c.globalAlpha=.9;c.beginPath();c.arc(P[k][0],P[k][1],6.5,0,Math.PI*2);c.fill();c.globalAlpha=1;}
+  }
+  limb('N',COL.ink,1);arm('N',COL.ink,1);
+  // Requisiten vorn
+  for(const pr of props){
+    if(pr.t==='strap'){c.strokeStyle=COL.prop;c.lineWidth=2.2;c.setLineDash([4,3]);c.beginPath();c.moveTo(P.handN[0],P.handN[1]);c.lineTo((P.toeN[0]+P.ankleN[0])/2,(P.toeN[1]+P.ankleN[1])/2);c.stroke();c.setLineDash([]);}
+    if(pr.t==='stick'){
+      const d=[P.sh[0]-P.hip[0],P.sh[1]-P.hip[1]];const l=Math.hypot(d[0],d[1]);const u=[d[0]/l,d[1]/l];const bk=[u[1],-u[0]];
+      const a=[P.hip[0]-u[0]*10+bk[0]*6.5,P.hip[1]-u[1]*10+bk[1]*6.5];
+      const b=[P.headC[0]+u[0]*12+bk[0]*(L.head+1.5),P.headC[1]+u[1]*12+bk[1]*(L.head+1.5)];
+      c.strokeStyle=COL.prop;c.lineWidth=3;c.beginPath();c.moveTo(a[0],a[1]);c.lineTo(b[0],b[1]);c.stroke();
+    }
+  }
+  c.restore();
+}
+function roundRect(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
+function thumbT(ex){prep(ex);let acc=0;const i=Math.min(ex.anim.th||0,ex._fr.length-1);for(let k=0;k<=i;k++){acc+=ex._fr[k].d;if(k<i)acc+=ex._fr[k].h;}return acc+.01;}
+
+/* Animations-Schleife */
+const live=new Map();
+let rafOn=false;
+function loop(now){
+  for(const [cv,a] of live){
+    if(!cv.isConnected){live.delete(cv);continue;}
+    if(a.playing){a.t+=(now-(a.last||now))/1000*a.speed;}
+    a.last=now;
+    drawFigure(cv,EXM[a.id],a.t,{mirror:a.mirror});
+  }
+  if(live.size)requestAnimationFrame(loop);else rafOn=false;
+}
+function animate(cv,id,o={}){
+  live.set(cv,Object.assign({id,t:o.t!=null?o.t:0,speed:1,playing:true,last:0,mirror:false},o));
+  if(!rafOn){rafOn=true;requestAnimationFrame(loop);}
+  return live.get(cv);
+}
+function drawThumbs(root=document){
+  root.querySelectorAll('canvas[data-thumb]').forEach(cv=>{const ex=EXM[cv.dataset.thumb];drawFigure(cv,ex,thumbT(ex),{pad:5});});
+}
+
+/* =========================================================
+   Speicher
+   ========================================================= */
+const KEY='rodelmobility.v1';
+const DEF={sessions:[],tests:[],next:0,dur:40,sound:true,voice:false,vibrate:true,prep:5,switchPause:3,theme:'system',startTime:'',installHide:false,swaps:{}};
+let S=load();
+function load(){try{const r=JSON.parse(localStorage.getItem(KEY)||'null');return Object.assign(structuredClone(DEF),r||{});}catch(e){return structuredClone(DEF);}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
+
+/* =========================================================
+   Programme
+   ========================================================= */
+const BLOCKS=[
+  {k:'A',reg:'back',name:'Rücken & Wirbelsäule',short:'Rücken',ex:['katze','thread','lumbRot','kindSeite','abrollen']},
+  {k:'B',reg:'hip',name:'Hüfte & Becken',short:'Hüfte',ex:['hipCircle','n9090','lunge','hocke','frosch']},
+  {k:'C',reg:'leg',name:'Beinrückseite & Waden',short:'Beine',ex:['hinge','dog','wade','gurt','vorbeuge']}
+];
+const COMP=[
+  {ph:'Aktivierung',items:[{id:'warm',t:180,note:'Gehen oder locker traben, Arme kreisen'}]},
+  {ph:'Wirbelsäule',items:[{id:'katze',t:60,note:'10 Wiederholungen'},{id:'thread',t:90,note:'8 pro Seite',sides:true},{id:'lumbRot',t:80,note:'8 pro Seite, langsam',sides:true}]},
+  {ph:'Hüfte',items:[{id:'hipCircle',t:120,note:'8 pro Seite und Richtung',sides:true},{id:'n9090',t:60,note:'8 Wechsel'},{id:'hocke',t:30,note:'30 s halten, Knie sanft nach außen'},{id:'lunge',t:90,note:'8 pro Seite, dynamisch rein und raus',sides:true},{id:'kosak',t:90,note:'8 pro Seite, abwechselnd'}]},
+  {ph:'Beinrückseite',items:[{id:'hinge',t:60,note:'10 Wiederholungen'},{id:'dog',t:60,note:'8 pro Seite die Fersen senken'},{id:'wade',t:30,note:'nur 15 s pro Seite',sides:true}]},
+  {ph:'Startspezifisch',items:[{id:'startImit',t:90,note:'10 Wiederholungen, locker'},{id:'startImit',t:60,note:'Ein paar echte Startbewegungen ohne volle Intensität',label:'Probestarts'}]}
+];
+const COOL=[
+  {ph:'Nach dem Lauf',items:[{id:'kind',t:45,note:'Ruhig atmen, 45 s halten'},{id:'taube',t:90,note:'45 s pro Seite',sides:true},{id:'frosch',t:45,note:'45 s halten'},{id:'lat',t:45,note:'45 s halten'},{id:'sitVorbeuge',t:45,note:'Erst Hüfte, dann Rücken'},{id:'kneeChest',t:45,note:'Sanft wiegen'}]}
+];
+let compMode='pre';
+function blockEx(i){const b=BLOCKS[i];const sw=S.swaps[b.k];return (sw&&sw.length===b.ex.length)?sw.slice():b.ex.slice();}
+function dailyItems(i){return blockEx(i).map(id=>({id,t:S.dur,sides:!!EXM[id].sides,note:EXM[id].sides?`${S.dur/2} s pro Seite`:(EXM[id].type==='dyn'?'Langsam und kontrolliert':'Ruhig halten und ausatmen')}));}
+const trD=()=>S.prep, trC=()=>S.prep+3;
+const BUFFER_MIN=10;
+function totalSec(items,tr){return items.reduce((s,x)=>s+x.t,0)+items.length*tr;}
+const mmss=s=>{s=Math.max(0,Math.ceil(s));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');};
+
+/* =========================================================
+   Hilfsfunktionen
+   ========================================================= */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+const dkey=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const today=()=>dkey(new Date());
+const regDot=r=>`<span class="dot" style="background:var(${REG[r].c})"></span>`;
+const IC={
+  info:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>',
+  swap:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h11l-3-3M17 17H6l3 3"/></svg>',
+  play:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l13-7.5z"/></svg>',
+  pause:'<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4.5" width="4" height="15" rx="1"/><rect x="14" y="4.5" width="4" height="15" rx="1"/></svg>',
+  next:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 5v14l10-7zM17 5h2.5v14H17z"/></svg>',
+  prev:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 5v14L9 12zM4.5 5H7v14H4.5z"/></svg>',
+  x:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+  warn:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4M12 17h.01"/></svg>',
+  search:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg>'
+};
+function row(item,opts={}){
+  const ex=EXM[item.id];
+  const t=item.sides?`2 × ${mmss(item.t/2)}`:mmss(item.t);
+  return `<li class="row" data-id="${ex.id}">
+    <canvas class="th" data-thumb="${ex.id}" aria-hidden="true"></canvas>
+    <button class="main" data-open="${ex.id}"><div class="nm">${esc(item.label||ex.name)}</div><div class="sub">${esc(item.note||ex.mp.slice(0,2).join(' · '))}</div></button>
+    <div class="right"><span class="chip">${t}</span>${opts.swap!=null?`<button class="ibtn" data-swap="${opts.swap}" aria-label="${esc(ex.name)} tauschen" title="Übung tauschen">${IC.swap}</button>`:''}</div>
+  </li>`;
+}
+function streak(){
+  const days=new Set(S.sessions.map(s=>s.date));let n=0;const d=new Date();
+  if(!days.has(dkey(d)))d.setDate(d.getDate()-1);
+  while(days.has(dkey(d))){n++;d.setDate(d.getDate()-1);}
+  return n;
+}
+function weekCount(){
+  const d=new Date();const wd=(d.getDay()+6)%7;const mon=new Date(d.getFullYear(),d.getMonth(),d.getDate()-wd);
+  const days=new Set(S.sessions.filter(s=>new Date(s.date+'T12:00')>=mon).map(s=>s.date));return days.size;
+}
+
+/* =========================================================
+   Ansicht: Heute
+   ========================================================= */
+function renderHeute(){
+  const i=S.next%3,b=BLOCKS[i],items=dailyItems(i);
+  const last=S.sessions.filter(s=>s.type==='daily').slice(-1)[0];
+  const nxt=BLOCKS[(i+1)%3];
+  $('#v-heute').innerHTML=`
+  ${installBanner()}
+  <div class="hero">
+    <div class="eyebrow">Tagestraining · rotiert A → B → C</div>
+    <div class="rot" role="group" aria-label="Block wählen">
+      ${BLOCKS.map((x,j)=>`<button data-block="${j}" class="${j===i?'on':''}" aria-pressed="${j===i}"><b>${x.k}</b><span>${x.short}</span></button>`).join('')}
+    </div>
+    <div>
+      <h1 class="blk">${b.name}</h1>
+      <p class="meta">${items.length} Übungen · ca. ${mmss(totalSec(items,trD()))} Min.${last?` · zuletzt Block ${esc(last.block)}`:''} · danach Block ${nxt.k}</p>
+    </div>
+    <div class="seg"><span class="lbl">Zeit pro Übung</span><div class="opts">${[30,40,60].map(v=>`<button data-dur="${v}" class="${S.dur===v?'on':''}">${v} s</button>`).join('')}</div></div>
+    <button class="start" id="goDaily">${IC.play}Block ${b.k} starten <small>${mmss(totalSec(items,trD()))}</small></button>
+  </div>
+  <ol class="list">${items.map((it,j)=>row(it,{swap:j})).join('')}</ol>
+  <div class="note">Mit <b>⇄</b> tauschst du eine Übung gegen eine andere aus derselben Region. Empfehlung: alle 2–3 Wochen eine pro Block. ${S.swaps[b.k]?'<button class="linkbtn" id="resetSwap">Standard wiederherstellen</button>':''}</div>
+  <div class="stats">
+    <div class="stat"><b>${streak()}</b><span>Tage in Folge</span></div>
+    <div class="stat"><b>${weekCount()}</b><span>Tage diese Woche</span></div>
+    <div class="stat"><b>${S.sessions.length}</b><span>Einheiten gesamt</span></div>
+  </div>`;
+  drawThumbs($('#v-heute'));
+}
+$('#v-heute').addEventListener('click',e=>{
+  const bl=e.target.closest('[data-block]');if(bl){S.next=+bl.dataset.block;save();renderHeute();return;}
+  const du=e.target.closest('[data-dur]');if(du){S.dur=+du.dataset.dur;save();renderHeute();return;}
+  const sw=e.target.closest('[data-swap]');
+  if(sw){
+    const i=S.next%3,b=BLOCKS[i];const list=blockEx(i);const j=+sw.dataset.swap;
+    const pool=EX.filter(x=>x.reg===b.reg).map(x=>x.id);
+    let k=pool.indexOf(list[j]);
+    for(let n=0;n<pool.length;n++){k=(k+1)%pool.length;if(!list.includes(pool[k])){list[j]=pool[k];break;}}
+    S.swaps[b.k]=list;if(list.join()===b.ex.join())delete S.swaps[b.k];save();renderHeute();return;
+  }
+  if(e.target.closest('#instGo')){doInstall();return;}
+  if(e.target.closest('#instNo')){S.installHide=true;save();renderHeute();return;}
+  if(e.target.closest('#resetSwap')){delete S.swaps[BLOCKS[S.next%3].k];save();renderHeute();return;}
+  const op=e.target.closest('[data-open]');if(op){openSheet(op.dataset.open);return;}
+  if(e.target.closest('#goDaily')){const i=S.next%3;startPlayer({items:dailyItems(i),trans:trD(),type:'daily',block:BLOCKS[i].k,title:'Block '+BLOCKS[i].k+' · '+BLOCKS[i].name});}
+});
+
+/* =========================================================
+   Ansicht: Wettkampf
+   ========================================================= */
+function renderComp(){
+  const prog=compMode==='pre'?COMP:COOL;
+  const all=prog.flatMap(p=>p.items);
+  $('#v-wettkampf').innerHTML=`
+  <div>
+    <div class="eyebrow">Wettkampftag</div>
+    <h1 class="blk" style="margin-top:4px">${compMode==='pre'?'Vor dem Start':'Nach dem Lauf'}</h1>
+  </div>
+  <div class="tabs2" role="group">
+    <button data-mode="pre" class="${compMode==='pre'?'on':''}"><b>Vor dem Start</b><span>dynamisch · ca. ${Math.round(totalSec(COMP.flatMap(p=>p.items),trC())/60)} Min.</span></button>
+    <button data-mode="post" class="${compMode==='post'?'on':''}"><b>Nach dem Lauf</b><span>statisch · ca. ${Math.round(totalSec(COOL.flatMap(p=>p.items),trC())/60)} Min.</span></button>
+  </div>
+  ${compMode==='pre'?`<div class="warn">${IC.warn}<div>Vor dem Start nur <b>kurze, bewegte Dehnung</b>. Lang gehaltene statische Dehnungen (über 60 s pro Muskel) können die Schnellkraft kurzzeitig senken. Taube, Frosch und lange Halteübungen kommen nach dem Lauf.</div></div>`:`<div class="note">Nach dem letzten Lauf oder am Abend. Jetzt darfst du lange halten: <b>ruhig ausatmen, nicht federn</b>.</div>`}
+  ${compMode==='pre'?`<div class="plan"><label for="stt">Dein Start um<input id="stt" type="time" value="${esc(S.startTime)}"></label><div class="out" id="planOut">${planText()}</div></div>`:''}
+  <button class="start" id="goComp">${IC.play}Programm starten <small>${mmss(totalSec(all,trC()))}</small></button>
+  ${prog.map(p=>`<div class="phase"><h3>${p.ph}<span>${mmss(p.items.reduce((s,x)=>s+x.t,0))}</span></h3><ol class="list">${p.items.map(it=>row(it)).join('')}</ol></div>`).join('')}`;
+  drawThumbs($('#v-wettkampf'));
+}
+function planText(){
+  const tot=Math.ceil(totalSec(COMP.flatMap(p=>p.items),trC())/60);
+  if(!S.startTime)return `Startzeit eintragen. Die App rechnet aus, wann du mit dem Programm beginnst (${tot} Min. + ${BUFFER_MIN} Min. Puffer für Weg und Schlitten).`;
+  const [h,m]=S.startTime.split(':').map(Number);let t=h*60+m-tot-BUFFER_MIN;t=(t+1440)%1440;
+  return `<b>${String(Math.floor(t/60)).padStart(2,'0')}:${String(t%60).padStart(2,'0')} Uhr</b>beginnen: ${tot} Min. Programm, danach ${BUFFER_MIN} Min. Puffer bis zum Start.`;
+}
+$('#v-wettkampf').addEventListener('input',e=>{if(e.target.id==='stt'){S.startTime=e.target.value;save();$('#planOut').innerHTML=planText();}});
+$('#v-wettkampf').addEventListener('click',e=>{
+  const m=e.target.closest('[data-mode]');if(m){compMode=m.dataset.mode;renderComp();return;}
+  const op=e.target.closest('[data-open]');if(op){openSheet(op.dataset.open);return;}
+  if(e.target.closest('#goComp')){const prog=compMode==='pre'?COMP:COOL;startPlayer({items:prog.flatMap(p=>p.items.map(x=>Object.assign({ph:p.ph},x))),trans:trC(),type:compMode==='pre'?'comp':'cool',block:compMode==='pre'?'W':'N',title:compMode==='pre'?'Wettkampf · vor dem Start':'Wettkampf · nach dem Lauf'});}
+});
+
+/* =========================================================
+   Ansicht: Übungen
+   ========================================================= */
+let fReg='all',fQ='';
+function renderLib(){
+  const v=$('#v-uebungen');
+  if(!v.dataset.init){
+    v.dataset.init=1;
+    v.innerHTML=`<div><div class="eyebrow">Bibliothek</div><h1 class="blk" style="margin-top:4px">${EX.length} Übungen</h1></div>
+    <label class="search">${IC.search}<input id="q" type="search" placeholder="Übung oder Muskel suchen, z. B. Piriformis" autocomplete="off"></label>
+    <div class="chips" id="regs"></div><div id="libList" style="display:flex;flex-direction:column;gap:10px"></div>`;
+    $('#q').addEventListener('input',e=>{fQ=e.target.value.trim().toLowerCase();renderLibList();});
+    v.addEventListener('click',e=>{
+      const r=e.target.closest('[data-reg]');if(r){fReg=r.dataset.reg;renderLibList();return;}
+      const op=e.target.closest('[data-open]');if(op)openSheet(op.dataset.open);
+    });
+  }
+  renderLibList();
+}
+function renderLibList(){
+  const regs=['all','back','hip','leg','start','warm'];
+  $('#regs').innerHTML=regs.map(r=>`<button data-reg="${r}" class="${fReg===r?'on':''}">${r==='all'?'Alle':regDot(r)+(REG[r].s||REG[r].n)}</button>`).join('');
+  const f=EX.filter(x=>(fReg==='all'||x.reg===fReg)&&(!fQ||(x.name+' '+x.mp.join(' ')+' '+x.ms.join(' ')).toLowerCase().includes(fQ)));
+  const groups=['back','hip','leg','start','warm'].map(r=>[r,f.filter(x=>x.reg===r)]).filter(g=>g[1].length);
+  $('#libList').innerHTML=groups.length?groups.map(([r,xs])=>`<div class="grp">${regDot(r)}${REG[r].n}</div><ol class="list">${xs.map(x=>`<li class="row"><canvas class="th" data-thumb="${x.id}" aria-hidden="true"></canvas><button class="main" data-open="${x.id}"><div class="nm">${esc(x.name)}</div><div class="sub">${esc(x.mp.join(' · '))}</div></button><div class="right"><span class="chip">${x.type==='dyn'?'dynamisch':'statisch'}</span></div></li>`).join('')}</ol>`).join(''):`<div class="note">Keine Übung gefunden. Versuch es mit einem Muskel wie „Wade“ oder „Adduktoren“.</div>`;
+  drawThumbs($('#libList'));
+}
+
+/* =========================================================
+   Detail-Sheet
+   ========================================================= */
+let sheetAnim=null,lastFocus=null;
+function openSheet(id){
+  const ex=EXM[id];prep(ex);lastFocus=document.activeElement;
+  const view=ex._fr[0].view==='top'?'Ansicht von oben':(ex._fr[0].view==='front'?'Ansicht von vorn':'Ansicht von der Seite');
+  $('#sheet').innerHTML=`
+  <div class="grab"><div><div class="eyebrow">${regDot(ex.reg)} ${REG[ex.reg].n}</div></div><button class="xbtn" id="shClose" aria-label="Schließen">${IC.x}</button></div>
+  <h2 id="sh-title">${esc(ex.name)}</h2>
+  <div class="pills"><span class="chip">${ex.type==='dyn'?'Dynamisch':'Statisch halten'}</span>${ex.sides?'<span class="chip">Beide Seiten</span>':''}<span class="chip">${esc(ex.dose)}</span></div>
+  <div class="stage" style="margin-top:14px">
+    <canvas id="shCv" aria-label="Animation: ${esc(ex.name)}"></canvas>
+    <div class="cap"><span class="dot" style="background:var(--accent)"></span>Zielzone · ${view}</div>
+    <div class="bar">
+      <button class="play" id="shPlay">${IC.play}<span>Bewegung ansehen</span></button>
+      <button class="speed" id="shSpeed" hidden>Tempo 1×</button>
+      <a class="ext" href="https://www.google.com/search?tbm=isch&q=${encodeURIComponent(ex.q)}" target="_blank" rel="noopener">Fotos im Web ↗</a>
+    </div>
+  </div>
+  <div class="sec"><h3>Zielmuskeln</h3><div class="musc">${ex.mp.map(m=>`<span class="chip p">${esc(m)}</span>`).join('')}${ex.ms.map(m=>`<span class="chip">${esc(m)}</span>`).join('')}</div></div>
+  <div class="sec"><h3>Ausgangsposition</h3><p>${esc(ex.start)}</p></div>
+  <div class="sec"><h3>Ausführung</h3><ol class="steps">${ex.steps.map(s=>`<li><span>${esc(s)}</span></li>`).join('')}</ol></div>
+  <div class="sec"><h3>Darauf achten</h3><p>${esc(ex.cue)}</p></div>
+  <div class="sec"><h3>Häufige Fehler</h3><ul class="bul">${ex.err.map(s=>`<li>${esc(s)}</li>`).join('')}</ul></div>
+  <div class="sec"><div class="sled"><b>Warum fürs Rodeln</b>${esc(ex.sled)}</div></div>
+  <div class="sec"><div class="two"><div class="mini"><b>Leichter</b>${esc(ex.easy)}</div><div class="mini"><b>Schwerer</b>${esc(ex.hard)}</div></div></div>
+  <div class="sec"><p style="font-size:13px;color:var(--muted)">Dehnen darf ziehen, aber nicht stechen. Bei Bandscheibenproblemen, Ischias oder Taubheitsgefühlen vorher mit Physio oder Arzt sprechen.</p></div>`;
+  $('#scrim').hidden=false;$('#sheet').scrollTop=0;
+  history.pushState({ov:'sheet'},'');
+  const cv=$('#shCv');
+  requestAnimationFrame(()=>{sheetAnim=animate(cv,id,{t:thumbT(ex),playing:false});});
+  $('#shClose').focus();
+}
+function closeSheet(fromPop){if($('#scrim').hidden)return;if(!fromPop&&history.state&&history.state.ov==='sheet'){ignorePop=true;history.back();}$('#scrim').hidden=true;const cv=$('#shCv');if(cv)live.delete(cv);$('#sheet').innerHTML='';sheetAnim=null;if(lastFocus&&lastFocus.focus)lastFocus.focus();}
+$('#scrim').addEventListener('click',e=>{
+  if(e.target.id==='scrim'||e.target.closest('#shClose')){closeSheet(false);return;}
+  if(e.target.closest('#shPlay')&&sheetAnim){
+    sheetAnim.playing=!sheetAnim.playing;sheetAnim.last=0;
+    $('#shPlay').innerHTML=sheetAnim.playing?IC.pause+'<span>Pause</span>':IC.play+'<span>Weiter</span>';
+    $('#shSpeed').hidden=false;return;
+  }
+  if(e.target.closest('#shSpeed')&&sheetAnim){sheetAnim.speed=sheetAnim.speed===1?.5:1;$('#shSpeed').textContent='Tempo '+(sheetAnim.speed===1?'1×':'½×');}
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(!$('#scrim').hidden)closeSheet(false);else if(!$('#player').hidden)askClose();}});
+
+/* =========================================================
+   Ansicht: Fortschritt
+   ========================================================= */
+let delArm=null;
+function renderProg(){
+  const d=new Date();const wd=(d.getDay()+6)%7;
+  const start=new Date(d.getFullYear(),d.getMonth(),d.getDate()-wd-28);
+  const byDay={};S.sessions.forEach(s=>{(byDay[s.date]=byDay[s.date]||[]).push(s.type);});
+  let cal='';['Mo','Di','Mi','Do','Fr','Sa','So'].forEach(h=>cal+=`<div class="h">${h}</div>`);
+  for(let k=0;k<35;k++){
+    const x=new Date(start.getFullYear(),start.getMonth(),start.getDate()+k);const key=dkey(x);
+    const t=byDay[key];const fut=x>d;
+    cal+=`<div class="d ${t?(t.some(y=>y!=='daily')?'comp':'has'):''} ${key===today()?'today':''}" style="${fut?'opacity:.35':''}" title="${key}">${x.getDate()}</div>`;
+  }
+  const tests=S.tests.slice().sort((a,b)=>a.date.localeCompare(b.date));
+  const sample=!tests.length;
+  const data=sample?[{date:'2026-09-01',cm:18},{date:'2026-09-08',cm:15},{date:'2026-09-15',cm:13},{date:'2026-09-22',cm:10}]:tests;
+  $('#v-fortschritt').innerHTML=`
+  <div><div class="eyebrow">Fortschritt</div><h1 class="blk" style="margin-top:4px">Dranbleiben</h1></div>
+  <div class="stats">
+    <div class="stat"><b>${streak()}</b><span>Tage in Folge</span></div>
+    <div class="stat"><b>${weekCount()}</b><span>Tage diese Woche</span></div>
+    <div class="stat"><b>${S.sessions.length}</b><span>Einheiten gesamt</span></div>
+  </div>
+  <div class="card">
+    <h2>Letzte 5 Wochen</h2>
+    <div class="cal">${cal}</div>
+    <div class="legend"><span><i style="background:var(--ink)"></i>Tagestraining</span><span><i style="background:var(--accent)"></i>Wettkampfprogramm</span></div>
+    <p>Ziel: 4–5 Tage pro Woche. Regelmäßigkeit bringt mehr als eine lange Einheit.</p>
+  </div>
+  <div class="card">
+    <h2>Vorbeuge-Test</h2>
+    <p>Alle 2–3 Wochen, aufgewärmt: Knie gestreckt, langsam vorbeugen, Abstand Mittelfinger zum Boden messen. 0 cm = Boden berührt, negative Werte = tiefer (auf einer Stufe stehend).</p>
+    ${chartSVG(data,sample)}
+    ${sample?'<p style="font-size:13px"><b style="color:var(--accent)">Beispielwerte.</b> Sobald du deinen ersten Test einträgst, siehst du hier deine eigene Kurve.</p>':''}
+    <form class="test" id="testForm">
+      <label for="tcm">Abstand in cm<input id="tcm" type="number" inputmode="decimal" step="0.5" min="-40" max="80" placeholder="z. B. 12" required></label>
+      <label for="tdate">Datum<input id="tdate" type="date" value="${today()}" required></label>
+      <button type="submit">Eintragen</button>
+    </form>
+    ${tests.length?`<ul class="entries">${tests.slice().reverse().map(t=>`<li><span>${fmtDate(t.date)}</span><span><b>${t.cm} cm</b> <button data-del="${t.date}|${t.cm}" class="${delArm===t.date+'|'+t.cm?'really':''}">${delArm===t.date+'|'+t.cm?'Wirklich löschen?':'Löschen'}</button></span></li>`).join('')}</ul>`:''}
+  </div>
+  <div class="card" id="settings">
+    <h2>Einstellungen</h2>
+    <div>
+      ${isStandalone()?'':(deferredPrompt?`<div class="set"><span>App installieren<small>Eigenes Symbol auf dem Startbildschirm, Vollbild, funktioniert offline</small></span><button class="sbtn" id="instGo2">Installieren</button></div>`:'')}
+      <div class="set stack"><span>Installation prüfen<small>Zeigt, ob Chrome die App installieren kann und was fehlt</small></span><button class="sbtn" id="chkBtn">Jetzt prüfen</button></div>
+      <div id="chkOut" hidden></div>
+      <div class="set stack"><span>Darstellung</span><div class="opts">${[['system','Auto'],['light','Hell'],['dark','Dunkel']].map(([k,l])=>`<button data-theme-set="${k}" class="${S.theme===k?'on':''}">${l}</button>`).join('')}</div></div>
+      <div class="set stack"><span>Vorbereitung<small>Zeit zum Einnehmen der Position</small></span><div class="opts">${[3,5,10].map(v=>`<button data-prep="${v}" class="${S.prep===v?'on':''}">${v} s</button>`).join('')}</div></div>
+      <div class="set stack"><span>Pause beim Seitenwechsel<small>Timer hält kurz an</small></span><div class="opts">${[0,3,5].map(v=>`<button data-sp="${v}" class="${S.switchPause===v?'on':''}">${v?v+' s':'Aus'}</button>`).join('')}</div></div>
+      <div class="set"><span>Vibration<small>Kurzes Vibrieren bei Start, Seitenwechsel und Ende</small></span><button class="tog" data-set="vibrate" aria-pressed="${S.vibrate}" aria-label="Vibration"></button></div>
+      <div class="set"><span>Signaltöne<small>Piepton in den letzten 3 Sekunden und beim Seitenwechsel</small></span><button class="tog" data-set="sound" aria-pressed="${S.sound}" aria-label="Signaltöne"></button></div>
+      <div class="set"><span>Sprachansage<small>Liest den Namen der nächsten Übung vor</small></span><button class="tog" data-set="voice" aria-pressed="${S.voice}" aria-label="Sprachansage"></button></div>
+      <div class="set stack"><span>Datensicherung<small>Sichern, bevor du das Handy wechselst oder den Browser-Speicher löschst</small></span><div class="btnrow"><button class="sbtn" id="expBtn">Exportieren</button><button class="sbtn" id="impBtn">Importieren</button></div></div>
+      <div class="set"><span>Alle Daten löschen<small>Einheiten, Tests und Einstellungen auf diesem Gerät</small></span><button class="linkbtn" id="wipe">${delArm==='ALL'?'Wirklich alles löschen?':'Zurücksetzen'}</button></div>
+    </div>
+    <p style="font-size:13px">Deine Daten liegen auf diesem Gerät. Mit dem Sync der Training-App werden sie zusätzlich in deiner privaten Cloud gesichert.</p>
+    <div class="card" style="margin-top:14px"><h2 style="font-size:16px;margin:0 0 6px">Wissenschaftliche Grundlagen</h2>
+      <p style="font-size:13px;margin:0 0 6px">Vor dem Start nur bewegtes, kurzes Dehnen: lange statische Dehnung (über 60 s je Muskel) kann die Schnellkraft kurzzeitig senken – Behm et al. 2016; Opplert &amp; Babault 2018.</p>
+      <p style="font-size:13px;margin:0 0 6px">Beweglichkeit wächst vor allem mit der gesamten Dehnzeit pro Woche und Muskel; regelmäßig (4–5 Tage pro Woche) bringt mehr als selten und lang – Thomas et al. 2018.</p>
+      <p style="font-size:13px;margin:0">Der Vorbeuge-Test (Finger-Boden-Abstand) ist ein einfaches, wiederholbares Maß für die Beweglichkeit der Beinrückseite – nur mit sich selbst vergleichen, immer aufgewärmt.</p>
+    </div>
+  </div>`;
+}
+function fmtDate(k){const [y,m,d]=k.split('-');return `${+d}.${+m}.${y}`;}
+function chartSVG(data,sample){
+  const W=340,H=170,l=34,r=12,t=14,b=26;
+  const vals=data.map(d=>d.cm);let mn=Math.min(0,...vals),mx=Math.max(...vals,5);
+  const span=mx-mn;const step=span>40?20:span>20?10:5;mn=Math.floor(mn/step)*step;mx=Math.ceil(mx/step)*step;
+  const n=data.length;
+  const X=i=>n===1?(l+(W-l-r)/2):l+i*(W-l-r)/(n-1);
+  const Y=v=>t+(v-mn)/(mx-mn)*(H-t-b); // invertiert: kleinere Werte (besser) oben
+  let g='';
+  for(let v=mn;v<=mx;v+=step){g+=`<line x1="${l}" x2="${W-r}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${l-6}" y="${Y(v)+4}" text-anchor="end" font-size="11" fill="var(--muted)">${v}</text>`;}
+  const zero=`<line x1="${l}" x2="${W-r}" y1="${Y(0)}" y2="${Y(0)}" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="4 3"/><text x="${W-r}" y="${Y(0)-5}" text-anchor="end" font-size="11" fill="var(--accent)" font-weight="600">Boden</text>`;
+  const pts=data.map((d,i)=>`${X(i)},${Y(d.cm)}`).join(' ');
+  const area=n>1?`<polygon points="${X(0)},${H-b} ${pts} ${X(n-1)},${H-b}" fill="var(--ink)" opacity=".06"/>`:'';
+  const dots=data.map((d,i)=>`<circle cx="${X(i)}" cy="${Y(d.cm)}" r="${i===n-1?5:3.5}" fill="${i===n-1?'var(--accent)':'var(--surface)'}" stroke="${i===n-1?'var(--accent)':'var(--ink)'}" stroke-width="2"/>`).join('');
+  const lastL=`<text x="${X(n-1)}" y="${Y(data[n-1].cm)-10}" text-anchor="${n>1?'end':'middle'}" font-size="12" font-weight="600" fill="var(--ink)">${data[n-1].cm} cm</text>`;
+  const xl=data.map((d,i)=>(n<=6||i===0||i===n-1)?`<text x="${X(i)}" y="${H-8}" text-anchor="middle" font-size="10.5" fill="var(--muted)">${fmtDate(d.date).split('.').slice(0,2).join('.')}.</text>`:'').join('');
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Verlauf Finger-Boden-Abstand${sample?' (Beispiel)':''}" style="${sample?'opacity:.75':''}">${g}${zero}${area}${n>1?`<polyline points="${pts}" fill="none" stroke="var(--ink)" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>`:''}${dots}${lastL}${xl}</svg>`;
+}
+$('#v-fortschritt').addEventListener('submit',e=>{
+  if(e.target.id!=='testForm')return;e.preventDefault();
+  const cm=parseFloat($('#tcm').value);const date=$('#tdate').value||today();
+  if(isNaN(cm))return;
+  S.tests=S.tests.filter(t=>t.date!==date);S.tests.push({date,cm});save();delArm=null;renderProg();
+});
+$('#v-fortschritt').addEventListener('click',e=>{
+  const st=e.target.closest('[data-set]');if(st){const k=st.dataset.set;S[k]=!S[k];save();st.setAttribute('aria-pressed',S[k]);if(k==='voice'&&S.voice)speak('Sprachansage an');if(k==='vibrate'&&S.vibrate)vib(80);return;}
+  const dl=e.target.closest('[data-del]');
+  if(dl){const k=dl.dataset.del;if(delArm===k){const [d,c]=k.split('|');S.tests=S.tests.filter(t=>!(t.date===d&&String(t.cm)===c));save();delArm=null;}else delArm=k;renderProg();return;}
+  if(e.target.closest('#wipe')){if(delArm==='ALL'){S=structuredClone(DEF);save();delArm=null;applyTheme();toast('Alle Daten gelöscht');}else delArm='ALL';renderProg();return;}
+  const th=e.target.closest('[data-theme-set]');if(th){S.theme=th.dataset.themeSet;save();applyTheme();renderProg();return;}
+  const pr=e.target.closest('[data-prep]');if(pr){S.prep=+pr.dataset.prep;save();renderProg();return;}
+  const sp=e.target.closest('[data-sp]');if(sp){S.switchPause=+sp.dataset.sp;save();renderProg();return;}
+  if(e.target.closest('#expBtn')){exportData();return;}
+  if(e.target.closest('#impBtn')){$('#impFile').click();return;}
+  if(e.target.closest('#instGo2')){doInstall();return;}
+  if(e.target.closest('#chkBtn')){checkInstall();return;}
+});
+
+/* =========================================================
+   Player
+   ========================================================= */
+let PL=null,actx=null,wake=null;
+function beep(f=880,d=.12,v=.25){
+  if(!S.sound)return;
+  try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=f;o.type='sine';g.gain.setValueAtTime(v,actx.currentTime);g.gain.exponentialRampToValueAtTime(.001,actx.currentTime+d);o.connect(g);g.connect(actx.destination);o.start();o.stop(actx.currentTime+d+.02);}catch(e){}
+}
+function vib(p){if(!S.vibrate)return;try{navigator.vibrate&&navigator.vibrate(p);}catch(e){}}
+function speak(txt){
+  if(!S.voice)return;
+  try{const u=new SpeechSynthesisUtterance(txt);u.lang='de-DE';u.rate=1.02;speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){}
+}
+function startPlayer(cfg){
+  try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();actx.resume&&actx.resume();}catch(e){}
+  PL={cfg,i:0,phase:'prep',left:cfg.trans,paused:false,last:performance.now(),elapsed:0,side:0,hold:0,beeped:{}};
+  history.pushState({ov:'player'},'');
+  const pl=$('#player');pl.hidden=false;document.body.style.overflow='hidden';
+  pl.innerHTML=`
+  <div class="ph"><div class="prog" id="plProg">${cfg.items.map(()=>'<i><b></b></i>').join('')}</div><button class="xbtn" id="plX" aria-label="Training beenden">${IC.x}</button></div>
+  <div class="body" id="plBody">
+    <div class="pstage"><canvas id="plCv"></canvas><div class="side" id="plSide" hidden></div><div class="flash" id="plFlash" hidden></div></div>
+    <div class="pinfo"><div class="k" id="plK"></div><h2 id="plName"></h2><p id="plNote"></p></div>
+    <div class="clock"><div class="t" id="plT">0:00</div><div class="nx" id="plNx"></div></div>
+    <div class="tbar"><b id="plBar"></b></div>
+    <div class="ctrl"><button id="plPrev" aria-label="Vorherige Übung">${IC.prev}</button><button class="big" id="plPlay" aria-label="Pause">${IC.pause}</button><button id="plNext" aria-label="Nächste Übung">${IC.next}</button></div>
+  </div>`;
+  try{navigator.wakeLock&&navigator.wakeLock.request('screen').then(w=>wake=w).catch(()=>{});}catch(e){}
+  PL.anim=animate($('#plCv'),cfg.items[0].id,{playing:true});
+  showItem();
+  speak('Als Nächstes: '+(cfg.items[0].label||EXM[cfg.items[0].id].name));
+  requestAnimationFrame(tick);
+}
+function showItem(){
+  const it=PL.cfg.items[PL.i],ex=EXM[it.id];
+  PL.anim.id=it.id;PL.anim.t=0;PL.anim.mirror=false;
+  $('#plK').textContent=PL.phase==='prep'?'Gleich · '+(PL.i+1)+' von '+PL.cfg.items.length:(it.ph?it.ph+' · ':'')+(PL.i+1)+' von '+PL.cfg.items.length;
+  $('#plName').textContent=it.label||ex.name;
+  $('#plNote').textContent=it.note||'';
+  const n=PL.cfg.items[PL.i+1];
+  $('#plNx').innerHTML=PL.phase==='prep'?`<span>Dauer</span><b>${it.sides?'2 × '+mmss(it.t/2):mmss(it.t)}</b>`:(n?`<span>Danach</span><b>${esc(n.label||EXM[n.id].name)}</b>`:'<span>Danach</span><b>Geschafft</b>');
+  $('#plT').classList.toggle('prep',PL.phase==='prep');
+  const sd=$('#plSide');
+  if(it.sides&&PL.phase==='work'){sd.hidden=false;sd.textContent=PL.side?'Linke Seite':'Rechte Seite';}else sd.hidden=true;
+  [...$('#plProg').children].forEach((el,j)=>{el.firstChild.style.transform=`scaleX(${j<PL.i?1:0})`;});
+}
+function tick(now){
+  if(!PL)return;
+  const dt=Math.min(.25,(now-PL.last)/1000);PL.last=now;
+  if(!PL.paused&&PL.hold>0){
+    PL.hold-=dt;const f=$('#plFlash');f.hidden=false;f.textContent='Seite wechseln · '+Math.max(1,Math.ceil(PL.hold));
+    if(PL.hold<=0){f.hidden=true;beep(1320,.2,.3);vib(150);}
+  }else if(!PL.paused){
+    PL.left-=dt;
+    const it=PL.cfg.items[PL.i];
+    const sec=Math.ceil(PL.left);
+    if(sec<=3&&sec>=1&&!PL.beeped[PL.phase+sec]){PL.beeped[PL.phase+sec]=1;beep(880,.1,.2);vib(35);}
+    if(PL.phase==='work'){
+      PL.elapsed+=dt;
+      if(it.sides&&!PL.side&&PL.left<=it.t/2){
+        PL.side=1;PL.anim.mirror=true;beep(1320,.12);setTimeout(()=>beep(1320,.12),180);speak('Seite wechseln');vib([120,80,120]);
+        showItem();if(S.switchPause>0){PL.hold=S.switchPause;}else flash('Seite wechseln');
+      }
+    }
+    if(PL.left<=0)advance();
+  }
+  if(!PL)return;
+  const it=PL.cfg.items[PL.i];
+  const tot=PL.phase==='prep'?PL.cfg.trans:it.t;
+  $('#plT').textContent=mmss(PL.left);
+  $('#plBar').style.transform=`scaleX(${Math.min(1,1-PL.left/tot)})`;
+  if(PL.phase==='work')$('#plProg').children[PL.i].firstChild.style.transform=`scaleX(${Math.min(1,1-PL.left/tot)})`;
+  PL.anim.playing=!PL.paused;
+  requestAnimationFrame(tick);
+}
+function flash(txt){const f=$('#plFlash');f.textContent=txt;f.hidden=false;clearTimeout(flash.t);flash.t=setTimeout(()=>f.hidden=true,1100);}
+function advance(){
+  const it=PL.cfg.items[PL.i];
+  if(PL.phase==='prep'){PL.phase='work';PL.left=it.t;PL.side=0;PL.beeped={};beep(1320,.25,.3);vib(200);flash('Los');showItem();return;}
+  if(PL.i<PL.cfg.items.length-1){
+    PL.i++;PL.phase='prep';PL.left=PL.cfg.trans;PL.beeped={};showItem();
+    const n=PL.cfg.items[PL.i];speak('Als Nächstes: '+(n.label||EXM[n.id].name));
+  }else finish();
+}
+function jump(d){
+  const ni=PL.i+d;
+  if(ni<0){PL.phase='prep';PL.left=PL.cfg.trans;}
+  else if(ni>=PL.cfg.items.length){finish();return;}
+  else{PL.i=ni;PL.phase='prep';PL.left=PL.cfg.trans;}
+  PL.beeped={};PL.side=0;PL.hold=0;$('#plFlash').hidden=true;showItem();
+}
+function finish(){
+  const cfg=PL.cfg;const mins=Math.max(1,Math.round(PL.elapsed/60));
+  S.sessions.push({date:today(),type:cfg.type,block:cfg.block,sec:Math.round(PL.elapsed)});
+  if(cfg.type==='daily')S.next=(BLOCKS.findIndex(b=>b.k===cfg.block)+1)%3;
+  save();beep(1046,.18);setTimeout(()=>beep(1318,.3),200);speak('Geschafft');vib([200,100,200]);
+  live.delete($('#plCv'));
+  const nx=cfg.type==='daily'?`Morgen ist Block ${BLOCKS[S.next].k} dran: ${BLOCKS[S.next].name}.`:(cfg.type==='comp'?'Viel Erfolg auf der Bahn.':'Gute Erholung.');
+  $('#plBody').innerHTML=`<div class="fin"><div class="eyebrow">${esc(cfg.title)}</div><h2>Geschafft</h2><p>${mins} Min. aktiv, ${cfg.items.length} Übungen. ${nx}</p><div class="stats"><div class="stat"><b>${streak()}</b><span>Tage in Folge</span></div><div class="stat"><b>${weekCount()}</b><span>diese Woche</span></div><div class="stat"><b>${S.sessions.length}</b><span>gesamt</span></div></div><button class="start" id="plDone">Fertig</button></div>`;
+  [...$('#plProg').children].forEach(el=>el.firstChild.style.transform='scaleX(1)');
+  PL=null;
+}
+let ignorePop=false;
+function closePlayer(fromPop){if(!fromPop&&history.state&&history.state.ov==='player'){ignorePop=true;history.back();}PL=null;live.delete($('#plCv'));const pl=$('#player');pl.hidden=true;pl.innerHTML='';document.body.style.overflow='';try{wake&&wake.release();}catch(e){}wake=null;try{speechSynthesis.cancel();}catch(e){}renderAll();}
+function askClose(){
+  if(!PL){closePlayer(false);return;}
+  PL.paused=true;updPlay();
+  const b=$('#plBody');if($('#plAsk'))return;
+  const d=document.createElement('div');d.id='plAsk';d.className='warn';d.style.marginBottom='6px';
+  d.innerHTML=`${IC.warn}<div style="flex:1">Training beenden? Die Einheit wird dann nicht gespeichert.<div style="display:flex;gap:14px;margin-top:8px"><button class="linkbtn" id="plQuit">Beenden</button><button class="linkbtn" id="plStay" style="color:var(--ink)">Weitermachen</button></div></div>`;
+  b.insertBefore(d,b.firstChild);
+}
+function updPlay(){const b=$('#plPlay');if(b){b.innerHTML=PL&&PL.paused?IC.play:IC.pause;b.setAttribute('aria-label',PL&&PL.paused?'Weiter':'Pause');}}
+$('#player').addEventListener('click',e=>{
+  if(e.target.closest('#plDone')){closePlayer(false);return;}
+  if(e.target.closest('#plX')){askClose();return;}
+  if(e.target.closest('#plQuit')){closePlayer(false);return;}
+  if(e.target.closest('#plStay')){$('#plAsk').remove();if(PL){PL.paused=false;PL.last=performance.now();updPlay();}return;}
+  if(!PL)return;
+  if(e.target.closest('#plPlay')){PL.paused=!PL.paused;PL.last=performance.now();updPlay();return;}
+  if(e.target.closest('#plNext')){jump(1);return;}
+  if(e.target.closest('#plPrev')){jump(PL.phase==='work'&&PL.left<(PL.cfg.items[PL.i].t-3)?0:-1);return;}
+});
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&$('#player').hidden===false){try{navigator.wakeLock&&navigator.wakeLock.request('screen').then(w=>wake=w).catch(()=>{});}catch(e){}}});
+
+/* =========================================================
+   Navigation
+   ========================================================= */
+const TABS=['heute','wettkampf','uebungen','fortschritt'];
+let tab='heute';
+function setTab(t,o={}){
+  if(!o.fromPop&&!o.init){
+    if(t!=='heute'&&tab==='heute')history.pushState({tab:t},'');
+    else if(t!=='heute')history.replaceState({tab:t},'');
+    else if(t==='heute'&&history.state&&history.state.tab){history.back();return;}
+  }
+  tab=t;TABS.forEach(x=>{$('#v-'+x).hidden=x!==t;});
+  document.querySelectorAll('.tabbar button').forEach(b=>{b.classList.toggle('on',b.dataset.tab===t);b.setAttribute('aria-current',b.dataset.tab===t?'page':'false');});
+  try{localStorage.setItem(KEY+'.tab',t);}catch(e){}
+  renderTab();window.scrollTo(0,0);
+}
+function renderTab(){if(tab==='heute')renderHeute();if(tab==='wettkampf')renderComp();if(tab==='uebungen')renderLib();if(tab==='fortschritt')renderProg();}
+function renderAll(){renderTab();}
+document.querySelector('.tabbar').addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(b)setTab(b.dataset.tab);});
+$('#today').textContent=new Date().toLocaleDateString('de-DE',{weekday:'short',day:'numeric',month:'short'});
+function onTheme(){readColors();drawThumbs();updMeta();}
+function updMeta(){const m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute('content',getComputedStyle(document.documentElement).getPropertyValue('--bg').trim()||'#EAF0F2');}
+function applyTheme(){const r=document.documentElement;if(S.theme==='system'){if(r.dataset.themeByApp){r.removeAttribute('data-theme');delete r.dataset.themeByApp;}}else{r.setAttribute('data-theme',S.theme);r.dataset.themeByApp='1';}onTheme();}
+window.addEventListener('popstate',()=>{
+  if(ignorePop){ignorePop=false;return;}
+  if(!$('#player').hidden){if(PL){history.pushState({ov:'player'},'');askClose();}else closePlayer(true);return;}
+  if(!$('#scrim').hidden){closeSheet(true);return;}
+  if(tab!=='heute')setTab('heute',{fromPop:true});
+});
+$('#gear').addEventListener('click',()=>{setTab('fortschritt');requestAnimationFrame(()=>{const el=$('#settings');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});});});
+/* Installation */
+let deferredPrompt=null;
+const isStandalone=()=>{try{return matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;}catch(e){return false;}};
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;renderTab();});
+window.addEventListener('appinstalled',()=>{deferredPrompt=null;toast('App installiert');renderTab();});
+function installBanner(){
+  if(!deferredPrompt||isStandalone()||S.installHide)return '';
+  return `<div class="install"><div><b>Als App installieren</b>Startbildschirm-Symbol, Vollbild, offline nutzbar.</div><button id="instGo">Installieren</button><button class="no" id="instNo" aria-label="Hinweis ausblenden">${IC.x}</button></div>`;
+}
+async function doInstall(){if(!deferredPrompt)return;deferredPrompt.prompt();try{await deferredPrompt.userChoice;}catch(e){}deferredPrompt=null;renderTab();}
+/* Datensicherung */
+function exportData(){
+  try{const blob=new Blob([JSON.stringify(S,null,1)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='rodel-mobility-'+today()+'.json';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},500);toast('Sicherung gespeichert');}catch(e){toast('Export hat nicht geklappt');}
+}
+$('#impFile').addEventListener('change',e=>{
+  const f=e.target.files&&e.target.files[0];if(!f)return;const r=new FileReader();
+  r.onload=()=>{try{const d=JSON.parse(r.result);if(!d||!Array.isArray(d.sessions))throw 0;S=Object.assign(structuredClone(DEF),d);save();applyTheme();renderTab();toast('Sicherung geladen: '+S.sessions.length+' Einheiten');}catch(err){toast('Datei ist keine Rodel-Mobility-Sicherung');}e.target.value='';};
+  r.readAsText(f);
+});
+async function checkInstall(){
+  const out=$('#chkOut');out.hidden=false;out.innerHTML='<p style="padding:8px 0">Prüfe …</p>';
+  const R=[];const add=(ok,t,h)=>R.push({ok,t,h});
+  const host=location.hostname;
+  const preview=/claude|anthropic|usercontent/.test(host)||location.protocol==='file:'||location.protocol==='blob:';
+  if(preview){add(false,'Du bist nicht auf deiner GitHub-Adresse',location.protocol==='file:'?'Die Datei wurde direkt vom Handy geöffnet. Chrome installiert nur Apps von einer https-Adresse, also über GitHub Pages.':'Das ist die Vorschau in Claude. Installieren geht nur über deine GitHub-Adresse, z. B. https://NAME.github.io/rodel-mobility/');}
+  else add(window.isSecureContext,'Sichere Adresse (https)',window.isSecureContext?'':'Die Adresse muss mit https:// beginnen.');
+  let man=null;
+  try{const r=await fetch('manifest.webmanifest',{cache:'no-store'});if(r.ok)man=await r.json();}catch(e){}
+  add(!!man,'App-Beschreibung (manifest.webmanifest) gefunden',man?'':'Datei fehlt im Repository oder liegt in einem Unterordner. Sie muss neben index.html liegen.');
+  if(man){
+    let bad=[];
+    for(const ic of man.icons||[]){try{const r=await fetch(ic.src,{cache:'no-store'});if(!r.ok)bad.push(ic.src);}catch(e){bad.push(ic.src);}}
+    add(!bad.length,'App-Symbole erreichbar',bad.length?'Fehlt: '+bad.join(', ')+'. Diese Dateien neben index.html hochladen.':'');
+  }
+  let sw=false;
+  try{sw=!!(navigator.serviceWorker&&await navigator.serviceWorker.getRegistration());}catch(e){}
+  add(sw,'Offline-Modus (sw.js) aktiv',sw?'':'sw.js fehlt oder wurde noch nicht geladen. Seite einmal neu laden.');
+  if(isStandalone())add(true,'App ist bereits installiert','');
+  else add(!!deferredPrompt,'Chrome bietet die Installation an',deferredPrompt?'Tippe oben auf „Installieren“.':'Noch nicht. Wenn alles darüber grün ist: Seite neu laden, 30 Sekunden warten, dann Menü ⋮ → „App installieren“ oder „Zum Startbildschirm hinzufügen“.');
+  out.innerHTML='<ul class="entries" style="margin:6px 0 10px">'+R.map(x=>`<li style="align-items:flex-start"><span><b style="color:${x.ok?'var(--r-leg)':'var(--accent)'}">${x.ok?'✓':'✗'}</b> ${esc(x.t)}${x.h?`<small style="display:block;color:var(--muted)">${esc(x.h)}</small>`:''}</span></li>`).join('')+'</ul>';
+}
+function toast(t){const el=$('#toast');el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,2600);}
+try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',onTheme);}catch(e){}
+new MutationObserver(onTheme).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+let rz;window.addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(()=>drawThumbs(),150);});
+(function init(){
+  let t='heute';const h=(location.hash||'').slice(1);
+  if(TABS.includes(h))t=h;else{try{const s=localStorage.getItem(KEY+'.tab');if(TABS.includes(s))t=s;}catch(e){}}
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>drawThumbs());
+  try{history.replaceState({root:1},'');}catch(e){}
+  applyTheme();
+  setTab('heute',{init:true});
+  if(t!=='heute')setTab(t);
+})();
+</script>
+
+<script>
+if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{});});}
+</script>
+<!-- gemeinsamer-kalender:start -->
+<script data-app="rodeln">
+/* SportGermany-Verbund (v2): gemeinsamer Kalender, App-Wechsel und Cloud-Sync für alle Apps.
+ * Alle Apps liegen auf sportgermany.github.io und teilen sich deshalb denselben localStorage.
+ * Kalender und App-Daten werden zusätzlich in einem privaten GitHub-Gist gespeichert und so
+ * zwischen mehreren Geräten abgeglichen. Diesen Block in jeder App identisch halten –
+ * er wird aus verbund.js erzeugt, nur das data-app-Attribut unterscheidet sich.
+ * API: window.SharedCalendar.{open, list, add, update, remove, onChange, sync}
+ */
+(function () {
+  "use strict";
+  if (window.SharedCalendar) return;
+
+  /* ---------- Die drei Apps und ihre Bereiche ----------
+   * Planer = Kalender + Schule (Lernplan) + Pause (Denkpause); Training = Trainingsblog + Mobility (Rodel-Mobility)
+   * + Atmung (Pulsplan); Bibel bleibt eigenständig. Module laufen eingebettet in ihrer App.
+   * owns: Datengruppen, deren Seiten in dieser App offen sein können (wichtig für Neuladen nach dem Sync). */
+  var APPS = [
+    { id: "planer", name: "Planer", cal: "Kalender", path: "Schulplaner", color: "#6ea8fe", info: "Kalender, Schule, Aufgaben, Pausen",
+      sections: [["Heute", "#brief"], ["Kalender", "#cal"], ["Aufgaben", "#tasks"], ["Schule", "#schule"], ["Pause", "#pause"]], owns: ["lernplan", "denkpause"] },
+    { id: "training", name: "Training", cal: "Training", path: "trainingsblog", color: "#4fc18a", info: "Training, Mobility, Atmung und HRV",
+      sections: [["Heute", ""], ["Mobility", "#mobility"], ["Atmung", "#atmung"]], owns: ["training", "rodeln", "puls"] },
+    { id: "bibel", name: "Bibel", cal: "Bibel", path: "Bibel", color: "#c9a27a", info: "Zwei Minuten Bibel", sections: [], owns: ["bibel"] }
+  ];
+  // Eingebettete Module: gehören zu einer App, haben selbst keinen Knopf und keinen eigenen Sync
+  var MODULES = [
+    { id: "lernplan", name: "Lernplan", app: "planer" }, { id: "denkpause", name: "Denkpause", app: "planer" },
+    { id: "rodeln", name: "Rodel-Mobility", app: "training" }, { id: "puls", name: "Pulsplan", app: "training" }
+  ];
+  /* Datengruppen für den Cloud-Sync (Dateiname im Gist: app-<id>.json).
+   * Bewusst NICHT dabei: gerätebezogene Daten wie Zugangsschlüssel, Wetter-Cache oder Fensterstellungen
+   * (Lernplan: schulplaner-lokal-v1, Trainingsblog: wk_sync, wk_syncmethod, wk_weather*, wk_uiprefs …). */
+  var DATA = [
+    { id: "lernplan", name: "Schule (Lernplan)", keys: ["schulkalender-bayern-v1"] },
+    { id: "denkpause", name: "Pause (Denkpause)", keys: ["denkpause.v1"] },
+    { id: "training", name: "Training", keys: ["wk_settings", "wk_log", "wk_activities", "wk_runs", "wk_body", "wk_colors", "wk_custom_ex", "wk_custom_gym", "wk_freezes", "wk_gymlog", "wk_illness_active", "wk_injury_active", "wk_injurydays", "wk_onboarded", "wk_race", "wk_rests", "wk_sections", "wk_sickdays", "wk_skin", "wk_swaps", "wk_trainedoverride", "wk_vacation", "wk_weekgoal", "wk_widgets"] },
+    { id: "rodeln", name: "Mobility", keys: ["rodelmobility.v1"] },
+    { id: "puls", name: "Atmung & HRV", keys: ["pulsplan.v1"] },
+    { id: "bibel", name: "Bibel", keys: ["zweiminutenbibel_v2"] }
+  ];
+  // Farben der Kalender-Quellen (Eintrag.app); alte Namen bleiben gültig
+  var SOURCES = [
+    ["Kalender", "#6ea8fe"], ["Lernplan", "#2b5fd9"], ["Training", "#4fc18a"], ["Trainingsblog", "#2f7d57"], ["Rodel-Mobility", "#c0303f"],
+    ["Pulsplan", "#b4532a"], ["Denkpause", "#8a6d1f"], ["Focus", "#3d6b73"], ["Bibel", "#6b4a3a"]
+  ];
+  var EMBED = (function () { try { return window.self !== window.top; } catch (e) { return true; } })();
+  var KEY = "sg-shared-calendar-v1";
+  var TKEY = "sg-shared-tasks-v1";
+  var POS_KEY = "sg-shared-calendar-btn";
+  var SYNC_KEY = "sg-shared-calendar-sync";
+  var META_KEY = "sg-verbund-sync-meta";
+  var GIST_FILE = "kalender.json";
+  var GIST_DESC = "Gemeinsamer Kalender (SportGermany-Apps)";
+  var GH = "https://api.github.com";
+  var script = document.currentScript;
+  var APP_ID = (script && script.getAttribute("data-app")) || "";
+  var MOD = MODULES.find(function (m) { return m.id === APP_ID; });
+  var ME = APPS.find(function (a) { return a.id === (MOD ? MOD.app : APP_ID); }) || { id: APP_ID || "app", name: document.title || "App", cal: document.title || "App", color: "#6ea8fe", owns: [], sections: [] };
+  var APP = MOD ? MOD.name : ME.cal; // Name, unter dem neue Termine/Aufgaben gespeichert werden
+  var MON = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
+  var WD = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
+  var COLORS = ["#2b5fd9", "#2f7d57", "#c0303f", "#b4532a", "#8a6d1f", "#6b4a3a", "#4b5b66", "#7a4fa0"];
+  var CNAMES = ["Blau", "Grün", "Rot", "Rost", "Ocker", "Braun", "Schiefer", "Violett"];
+  var listeners = [];
+  var chan = null;
+  try { chan = new BroadcastChannel(KEY); } catch (e) {}
+
+  /* ---------- Gemeinsame Speicher: Termine (cal) und Aufgaben (todo) ----------
+   * Beide liegen als { v, events: [...] } im localStorage und als eigene Datei im Gist.
+   * Jeder Eintrag trägt "changed"; beim Zusammenführen gewinnt die neuere Fassung. */
+  var COLS = {
+    cal: { key: KEY, file: "kalender.json", ok: function (e) { return /^\d{4}-\d{2}-\d{2}$/.test(e.date); } },
+    todo: { key: TKEY, file: "aufgaben.json", ok: function (e) { return typeof e.title === "string"; } }
+  };
+  function load(c) {
+    try {
+      var d = JSON.parse(localStorage.getItem(COLS[c || "cal"].key) || "null");
+      if (d && Array.isArray(d.events)) return d;
+    } catch (e) {}
+    return { v: 1, events: [] };
+  }
+  function save(d, fromCloud, c) {
+    d.updated = Date.now();
+    purge(d);
+    try { localStorage.setItem(COLS[c || "cal"].key, JSON.stringify(d)); }
+    catch (e) { alert("Konnte nicht gespeichert werden (Speicher voll?)."); return; }
+    if (chan) try { chan.postMessage("changed"); } catch (e) {}
+    emit();
+    if (!fromCloud) schedulePush();
+  }
+  // Löschmarkierungen nach einem Jahr endgültig entfernen, damit die Datei nicht endlos wächst.
+  function purge(d) {
+    var limit = Date.now() - 365 * 864e5;
+    d.events = d.events.filter(function (e) { return !(e.deleted && (e.changed || 0) < limit); });
+  }
+  // Führt Einträge zusammen: pro Eintrag gewinnt die zuletzt geänderte Fassung (auch Löschungen).
+  function mergeInto(d, events, c) {
+    var added = 0, changed = false, ok = COLS[c || "cal"].ok;
+    (events || []).forEach(function (e) {
+      if (!e || !e.id || !ok(e)) return;
+      var i = d.events.findIndex(function (x) { return x.id === e.id; });
+      if (i < 0) { d.events.push(e); added++; changed = true; }
+      else if ((e.changed || 0) > (d.events[i].changed || 0)) { d.events[i] = e; changed = true; }
+    });
+    return { added: added, changed: changed };
+  }
+  // Jede Änderung liest zuerst den aktuellen Stand, damit keine App die Einträge einer anderen überschreibt.
+  function mutate(fn, c) { var d = load(c); var r = fn(d); save(d, false, c); return r; }
+  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
+  function live(c) {
+    var list = load(c).events.filter(function (e) { return !e.deleted; });
+    if (c === "todo") return list.sort(function (a, b) {
+      return (a.done ? 1 : 0) - (b.done ? 1 : 0) || (a.due || "9999").localeCompare(b.due || "9999") || (b.prio || 0) - (a.prio || 0) || (a.created || 0) - (b.created || 0);
+    });
+    return list.sort(function (a, b) { return (a.date + (a.time || "")).localeCompare(b.date + (b.time || "")); });
+  }
+  // Wiederholungen ausrollen: rep = { f: "d" | "w" | "2w" | "m" | "y", until }, ex = ausgelassene Tage.
+  function occurrences(from, to) {
+    var out = [];
+    live().forEach(function (e) {
+      var f = e.rep && e.rep.f;
+      if (!f) { if (e.date >= from && e.date <= to) out.push(e); return; }
+      var until = e.rep.until && e.rep.until < to ? e.rep.until : to, ex = e.ex || [];
+      var s0 = parse(e.date), step = { d: 1, w: 7, "2w": 14 }[f];
+      function push(d) {
+        var k = iso(d);
+        if (k >= from && k <= until && k >= e.date && ex.indexOf(k) < 0) out.push(Object.assign({}, e, { date: k, sid: e.id, start: e.date }));
+      }
+      if (step) {
+        var skip = Math.max(0, Math.floor((parse(from) - s0) / 864e5 / step) - 1);
+        for (var i = skip; i < skip + 800; i++) {
+          var d = new Date(s0.getFullYear(), s0.getMonth(), s0.getDate() + i * step);
+          if (iso(d) > until) break; push(d);
+        }
+      } else {
+        for (var j = 0; j < 1200; j++) {
+          var dm = f === "m" ? new Date(s0.getFullYear(), s0.getMonth() + j, s0.getDate()) : new Date(s0.getFullYear() + j, s0.getMonth(), s0.getDate());
+          if (iso(dm) > until) break;
+          if (dm.getDate() === s0.getDate()) push(dm); // 31. gibt es nicht in jedem Monat: dann auslassen
+        }
+      }
+    });
+    return out.sort(function (a, b) { return (a.date + (a.time || "")).localeCompare(b.date + (b.time || "")); });
+  }
+  function emit() {
+    var ev = live();
+    listeners.forEach(function (f) { try { f(ev); } catch (e) {} });
+    if (root) render(true);
+  }
+  window.addEventListener("storage", function (e) { if (e.key === KEY || e.key === TKEY || e.key === null) emit(); });
+  if (chan) chan.onmessage = function (m) {
+    if (m.data && m.data.applied) {
+      var a = DATA.find(function (x) { return x.id === m.data.applied; });
+      if (a && isMe(a) && root) { bootApply(a); pending[a.id] = { kind: "reload", remote: {} }; render(true); }
+      return;
+    }
+    emit();
+  };
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) emit(); });
+
+  var api = {
+    app: APP,
+    apps: APPS,
+    sources: SOURCES,
+    embedded: EMBED,
+    list: function (from, to) {
+      return live().filter(function (e) { return (!from || e.date >= from) && (!to || e.date <= to); });
+    },
+    add: function (ev) {
+      return mutate(function (d) {
+        var n = { id: uid(), title: String(ev.title || "Termin"), date: ev.date, time: ev.time || "", end: ev.end || "",
+          note: ev.note || "", color: ev.color || "", app: ev.app || APP, created: Date.now(), changed: Date.now(),
+          remind: ev.remind === "" || ev.remind == null ? null : +ev.remind };
+        d.events.push(n); return n;
+      });
+    },
+    update: function (id, patch) {
+      return mutate(function (d) {
+        var e = d.events.find(function (x) { return x.id === id; });
+        if (!e) return null;
+        Object.keys(patch).forEach(function (k) { if (k !== "id") e[k] = patch[k]; });
+        e.changed = Date.now(); return e;
+      });
+    },
+    remove: function (id) {
+      // Gelöschte Termine bleiben als Markierung erhalten, damit ein Import sie nicht wiederbelebt.
+      return mutate(function (d) {
+        var e = d.events.find(function (x) { return x.id === id; });
+        if (e) { e.deleted = true; e.changed = Date.now(); }
+      });
+    },
+    onChange: function (f) { listeners.push(f); return function () { listeners = listeners.filter(function (x) { return x !== f; }); }; },
+    occurrences: occurrences,
+    // Einen einzelnen Termin einer Serie auslassen
+    skip: function (id, date) {
+      return mutate(function (d) {
+        var e = d.events.find(function (x) { return x.id === id; });
+        if (e) { e.ex = (e.ex || []).concat([date]); e.changed = Date.now(); }
+      });
+    },
+    tasks: {
+      list: function () { return live("todo"); },
+      add: function (t) {
+        return mutate(function (d) {
+          var n = { id: uid(), title: String(t.title || "Aufgabe"), due: t.due || "", done: false, prio: t.prio ? 1 : 0,
+            note: t.note || "", app: t.app || APP, created: Date.now(), changed: Date.now() };
+          d.events.push(n); return n;
+        }, "todo");
+      },
+      update: function (id, patch) {
+        return mutate(function (d) {
+          var e = d.events.find(function (x) { return x.id === id; });
+          if (!e) return null;
+          Object.keys(patch).forEach(function (k) { if (k !== "id") e[k] = patch[k]; });
+          if ("done" in patch) e.doneAt = patch.done ? Date.now() : 0;
+          e.changed = Date.now(); return e;
+        }, "todo");
+      },
+      remove: function (id) {
+        return mutate(function (d) {
+          var e = d.events.find(function (x) { return x.id === id; });
+          if (e) { e.deleted = true; e.changed = Date.now(); }
+        }, "todo");
+      }
+    },
+    me: ME,
+    status: function () { var c = cfg(); return { connected: !!c.token, user: c.user || "", busy: sync.busy, error: sync.error, last: sync.last || c.last || 0 }; },
+    open: function (date, tab) { openPanel(date, tab); },
+    sync: function () { return syncNow(); }
+  };
+  window.SharedCalendar = api;
+
+  /* ---------- App-Daten für den Cloud-Sync ----------
+   * Pro App wird eine Datei app-<id>.json im Gist abgelegt: { changed, data: { schlüssel: inhalt } }.
+   * In meta merkt sich jedes Gerät, welchen Stand es zuletzt abgeglichen hat. Ist nur eine Seite
+   * neuer, wird sie übernommen; haben sich beide geändert, entscheidet die Person. */
+  function snapshot(app) {
+    var data = {};
+    app.keys.forEach(function (k) { var v = localStorage.getItem(k); if (v !== null) data[k] = v; });
+    return data;
+  }
+  function hash(obj) {
+    var s = JSON.stringify(obj), h = 5381;
+    for (var i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+    return s.length + ":" + h;
+  }
+  function meta() { try { return JSON.parse(localStorage.getItem(META_KEY) || "{}"); } catch (e) { return {}; } }
+  function setMeta(id, m) { var all = meta(); all[id] = m; try { localStorage.setItem(META_KEY, JSON.stringify(all)); } catch (e) {} }
+  var pending = {}; // id -> { remote } bei Konflikt oder wartender Übernahme in einer offenen App
+  function bootApply(app) { try { localStorage.setItem("sg-apply-on-boot:" + app.id, JSON.stringify({ t: Date.now(), data: snapshot(app) })); } catch (e) {} }
+  function isMe(group) { return !EMBED && ME.owns.indexOf(group.id) > -1; }
+  function myPending() { var g = DATA.find(function (d) { return isMe(d) && pending[d.id]; }); return g ? [g, pending[g.id]] : null; }
+
+  function applyRemote(app, remote) {
+    app.keys.forEach(function (k) {
+      if (remote.data && Object.prototype.hasOwnProperty.call(remote.data, k)) localStorage.setItem(k, remote.data[k]);
+    });
+    setMeta(app.id, { hash: hash(snapshot(app)), remote: remote.changed });
+    delete pending[app.id];
+    if (isMe(app)) bootApply(app);
+    // Ist diese App gerade in einem anderen Fenster offen, muss sie neu laden, sonst überschreibt sie die neuen Daten.
+    if (chan) try { chan.postMessage({ applied: app.id }); } catch (e) {}
+  }
+
+  /* ---------- Cloud-Sync über einen privaten GitHub-Gist ----------
+   * Der Zugangsschlüssel (Token) liegt im gemeinsamen Speicher, muss also pro Gerät
+   * nur einmal eingegeben werden und gilt dann für alle Apps. */
+  var sync = { busy: false, again: false, timer: null, error: "", last: 0, started: Date.now() };
+  function cfg() { try { return JSON.parse(localStorage.getItem(SYNC_KEY) || "null") || {}; } catch (e) { return {}; } }
+  function setCfg(c) { try { if (c) localStorage.setItem(SYNC_KEY, JSON.stringify(c)); else localStorage.removeItem(SYNC_KEY); } catch (e) {} }
+  function gh(path, opt, token) {
+    opt = opt || {};
+    return fetch(GH + path, {
+      method: opt.method || "GET", cache: "no-store",
+      headers: { "Authorization": "Bearer " + token, "Accept": "application/vnd.github+json", "Content-Type": "application/json" },
+      body: opt.body ? JSON.stringify(opt.body) : undefined
+    }).then(function (r) {
+      if (r.status === 401) throw new Error("Der Token ist ungültig oder abgelaufen.");
+      if (r.status === 403 || r.status === 404) throw new Error("Kein Zugriff – hat der Token das Recht „gist“?");
+      if (!r.ok) throw new Error("GitHub antwortet mit Fehler " + r.status + ".");
+      return r.json();
+    });
+  }
+  function content(d) {
+    var events = d.events.slice().sort(function (a, b) { return a.id < b.id ? -1 : 1; });
+    return JSON.stringify({ v: 1, events: events }, null, 1);
+  }
+  function findOrCreateGist(token, d) {
+    return gh("/gists?per_page=100", null, token).then(function (list) {
+      var hit = list.find(function (g) { return g.files && g.files[GIST_FILE] && g.description === GIST_DESC; });
+      if (hit) return hit.id;
+      return gh("/gists", { method: "POST", body: { description: GIST_DESC, "public": false, files: { "kalender.json": { content: content(d) } } } }, token)
+        .then(function (g) { return g.id; });
+    });
+  }
+  // Die GitHub-API kürzt Dateien über 1 MB; dann den vollständigen Inhalt nachladen.
+  function fullGist(g) {
+    var cut = Object.keys(g.files || {}).filter(function (k) { return g.files[k].truncated && g.files[k].raw_url; });
+    return Promise.all(cut.map(function (k) {
+      return fetch(g.files[k].raw_url, { cache: "no-store" }).then(function (r) { return r.text(); }).then(function (t) { g.files[k].content = t; });
+    })).then(function () { return g; });
+  }
+  function readJSON(f) { try { return f && f.content ? JSON.parse(f.content) : null; } catch (e) { return null; } }
+
+  // Gleicht die Daten aller Verbund-Apps ab, nicht nur der gerade offenen –
+  // so landen auch Änderungen aus einer App, die lange nicht offen war, in der Cloud.
+  var EXTRA = [{ id: "einstellungen", name: "Einstellungen", keys: ["sg-design"], lww: true }];
+  function syncApps(g, files) {
+    DATA.concat(EXTRA).forEach(function (app) {
+      if (!app.keys.length) return;
+      var local = snapshot(app), h = hash(local), m = meta()[app.id] || {};
+      var remote = readJSON(g.files && g.files["app-" + app.id + ".json"]);
+      var localChanged = h !== m.hash && Object.keys(local).length > 0;
+      if (sync.adopt && remote && remote.data) { // neues Gerät: Cloud-Stand übernehmen
+        applyRemote(app, remote);
+        if (isMe(app)) reloadSoon();
+        if (app.id === "einstellungen" && window.SGTheme) window.SGTheme.set(localStorage.getItem("sg-design") || "mitternacht");
+        return;
+      }
+      var remoteChanged = (!m.force || !Object.keys(local).length) && remote && remote.changed && remote.changed !== m.remote && hash(remote.data || {}) !== h;
+      if (remoteChanged && !localChanged) {
+        if (isMe(app) && Date.now() - sync.started > 5000) pending[app.id] = { remote: remote, kind: "update" };
+        else applyRemote(app, remote);
+        if (isMe(app) && !pending[app.id]) reloadSoon();
+        if (app.id === "einstellungen" && window.SGTheme) window.SGTheme.set(localStorage.getItem("sg-design") || "mitternacht");
+      } else if (remoteChanged && localChanged && !app.lww) {
+        pending[app.id] = { remote: remote, kind: "conflict" };
+      } else if (localChanged || (!remote && Object.keys(local).length)) { // bei lww: eigene neuere Wahl gewinnt
+        var out = { changed: Date.now(), device: deviceName(), data: local };
+        files["app-" + app.id + ".json"] = { content: JSON.stringify(out) };
+        setMeta(app.id, { hash: h, remote: out.changed });
+      } else if (remote && remote.changed !== m.remote) {
+        setMeta(app.id, { hash: h, remote: remote.changed });
+      }
+    });
+  }
+  var reloading = false;
+  function reloadSoon() { if (!reloading) { reloading = true; setTimeout(function () { location.reload(); }, 300); } }
+  function deviceName() {
+    var ua = navigator.userAgent;
+    return /Android/.test(ua) ? "Android" : /iPhone|iPad/.test(ua) ? "iPhone/iPad" : /Windows/.test(ua) ? "Windows-PC" : /Mac/.test(ua) ? "Mac" : "Gerät";
+  }
+
+  function syncNow() {
+    if (EMBED) return Promise.resolve(false); // eingebettete Module: die App drumherum synchronisiert
+    var c = cfg();
+    if (!c.token) return Promise.resolve(false);
+    if (!navigator.onLine) { sync.error = "Offline – wird nachgeholt, sobald Internet da ist."; render(true); return Promise.resolve(false); }
+    if (sync.busy) { sync.again = true; return Promise.resolve(false); }
+    sync.busy = true; render(true);
+    var token = c.token;
+    var idP = c.gist ? Promise.resolve(c.gist) : findOrCreateGist(token, load());
+    return idP.then(function (id) {
+      if (id !== c.gist) { c = cfg(); c.gist = id; setCfg(c); }
+      return gh("/gists/" + id, null, token).then(fullGist).then(function (g) {
+        var files = {};
+        // Termine und Aufgaben: frisch lesen, damit Änderungen während der Anfrage nicht verloren gehen.
+        Object.keys(COLS).forEach(function (c) {
+          var col = COLS[c];
+          var remote = readJSON(g.files && g.files[col.file]) || { events: [] };
+          var d = load(c);
+          if (mergeInto(d, remote.events, c).changed) save(d, true, c);
+          var local = content(load(c));
+          var rd = { events: remote.events || [] }; purge(rd);
+          if (local !== content(rd)) files[col.file] = { content: local };
+        });
+        syncApps(g, files);
+        if (Object.keys(files).length) return gh("/gists/" + id, { method: "PATCH", body: { files: files } }, token);
+      });
+    }).then(function () {
+      sync.error = ""; sync.last = Date.now();
+      var c2 = cfg(); if (c2.token) { c2.last = sync.last; setCfg(c2); }
+      return true;
+    }).catch(function (e) {
+      sync.error = (e && e.message && !/fetch|network/i.test(e.message)) ? e.message : "Keine Verbindung zu GitHub.";
+      // Gist wurde womöglich gelöscht: beim nächsten Mal neu suchen.
+      if (/Kein Zugriff/.test(sync.error)) { var c3 = cfg(); delete c3.gist; setCfg(c3); }
+      return false;
+    }).then(function (ok) {
+      sync.busy = false; render(true);
+      if (sync.again) { sync.again = false; syncNow(); }
+      return ok;
+    });
+  }
+  function schedulePush() {
+    if (!cfg().token) return;
+    clearTimeout(sync.timer);
+    sync.timer = setTimeout(syncNow, 1500);
+  }
+  // Regelmäßig nachsehen, ob ein anderes Gerät etwas geändert hat (nur solange die App sichtbar ist).
+  setInterval(function () { if (!document.hidden) syncNow(); }, 30000);
+  // Beim Verlassen der App die eigenen Änderungen sofort hochladen.
+  document.addEventListener("visibilitychange", function () { syncNow(); });
+  window.addEventListener("online", function () { syncNow(); });
+  setTimeout(syncNow, 800);
+
+  /* ---------- Erinnerungen ----------
+   * remind = Minuten vor Beginn (ganztägig: bezogen auf 8 Uhr). Solange irgendeine App offen ist,
+   * wird alle 30 Sekunden geprüft. Was schon gemeldet wurde, steht im gemeinsamen Speicher –
+   * so meldet sich jeder Termin nur einmal, egal wie viele Apps offen sind. */
+  var FIRED_KEY = "sg-reminders-fired";
+  var REMIND = [["", "Keine"], ["0", "Zu Beginn"], ["5", "5 Min. vorher"], ["10", "10 Min. vorher"], ["15", "15 Min. vorher"], ["30", "30 Min. vorher"],
+    ["60", "1 Std. vorher"], ["120", "2 Std. vorher"], ["1440", "1 Tag vorher"]];
+  function notifyOk() { return "Notification" in window && Notification.permission === "granted"; }
+  function askNotify() {
+    if (!("Notification" in window) || Notification.permission !== "default") return Promise.resolve(notifyOk());
+    return Promise.resolve(Notification.requestPermission()).then(function () { render(); return notifyOk(); });
+  }
+  function show(title, body, tag) {
+    var opt = { body: body, tag: tag, icon: location.origin + "/Schulplaner/icon-192.png", data: { url: location.origin + "/Schulplaner/#cal" } };
+    var fallback = function () { try { new Notification(title, opt); } catch (e) {} };
+    if (navigator.serviceWorker && navigator.serviceWorker.controller) navigator.serviceWorker.ready.then(function (r) { return r.showNotification(title, opt); }).catch(fallback);
+    else fallback();
+  }
+  function checkReminders() {
+    if (EMBED || !notifyOk()) return;
+    var now = Date.now(), fired;
+    try { fired = JSON.parse(localStorage.getItem(FIRED_KEY) || "{}"); } catch (e) { fired = {}; }
+    var t = iso(new Date()), list = occurrences(iso(new Date(now - 864e5)), iso(new Date(now + 2 * 864e5)));
+    list.forEach(function (e) {
+      if (e.remind == null || e.remind === "") return;
+      var p = e.date.split("-"), hm = (e.time || "08:00").split(":");
+      var start = new Date(+p[0], +p[1] - 1, +p[2], +hm[0], +hm[1]).getTime(), at = start - e.remind * 60000, key = e.id + "@" + e.date;
+      // nur melden, wenn der Zeitpunkt erreicht ist, aber höchstens 2 Stunden zu spät
+      if (fired[key] || now < at || now > at + 2 * 3600000) return;
+      fired[key] = now;
+      var when = e.date === t ? "Heute" : "Morgen";
+      show(e.title, (e.time ? when + " um " + e.time + " Uhr" + (e.end ? " bis " + e.end : "") : when + ", ganztägig") + " · " + e.app, key);
+    });
+    Object.keys(fired).forEach(function (k) { if (now - fired[k] > 4 * 864e5) delete fired[k]; });
+    try { localStorage.setItem(FIRED_KEY, JSON.stringify(fired)); } catch (e) {}
+  }
+  setInterval(checkReminders, 30000);
+  setTimeout(checkReminders, 1500);
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) checkReminders(); });
+  api.remindOptions = REMIND;
+  api.askNotify = askNotify;
+  api.notifyState = function () { return "Notification" in window ? Notification.permission : "unsupported"; };
+
+  /* ---------- Hilfen ---------- */
+  function pad(n) { return (n < 10 ? "0" : "") + n; }
+  function iso(d) { return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
+  function parse(s) { var p = s.split("-"); return new Date(+p[0], +p[1] - 1, +p[2]); }
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function appColor(name) {
+    var a = SOURCES.find(function (x) { return x[0] === name; });
+    if (a) return a[1];
+    var h = 0; for (var i = 0; i < name.length; i++) h = (h * 31 + name.charCodeAt(i)) >>> 0;
+    return COLORS[h % COLORS.length];
+  }
+  function colorOf(e) { return e.color || appColor(e.app || ""); }
+  function longDate(s) {
+    var d = parse(s);
+    return ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"][d.getDay()] + ", " + d.getDate() + ". " + MON[d.getMonth()] + " " + d.getFullYear();
+  }
+  function download(name, type, text) {
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([text], { type: type }));
+    a.download = name; document.body.appendChild(a); a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  }
+  function appUrl(app) { return location.origin + "/" + app.path + "/"; }
+  // Hell oder dunkel? Richtet sich nach dem tatsächlichen Hintergrund der App, damit das Fenster passt.
+  function isDark() { return true; } // alle Apps laufen im Dunkelmodus
+  function themeVars() {
+    var t = window.SGTheme ? window.SGTheme.current() : { s1: "#151b23", s2: "#1c2430", s3: "#243040", line: "#2a3646", ink: "#e6edf3", muted: "#9aa7b4", acc: "#6ea8fe" };
+    return "--bg:" + t.s1 + ";--s1:" + t.s2 + ";--s2:" + t.s3 + ";--line:" + t.line + ";--fg:" + t.ink + ";--mut:" + t.muted + ";--acc:" + t.acc + ";--accfg:#14120f";
+  }
+  var ICON = "<svg viewBox='0 0 24 24' width='22' height='22' fill='none' stroke='currentColor' stroke-width='1.8' stroke-linecap='round'><rect x='3.5' y='5' width='17' height='15.5' rx='2.5'/><path d='M3.5 9.5h17M8 3v4M16 3v4'/><path d='M7.5 13.5h2M11 13.5h2M14.5 13.5h2M7.5 17h2M11 17h2'/></svg>";
+
+  /* ---------- Oberfläche (Shadow DOM, damit sich die Styles der Apps nicht gegenseitig stören) ---------- */
+  var host, root, state = { month: null, sel: null, edit: null, filter: false, tab: "cal" };
+  var CSS = [
+    ":host{all:initial}",
+    "*{box-sizing:border-box;font-family:'Segoe UI Variable Text','Segoe UI',Roboto,'Helvetica Neue',system-ui,sans-serif}",
+    ".v{--bg:#f3f1ec;--s1:#fff;--s2:#ebe8e1;--line:#dad5cb;--fg:#1d1c19;--mut:#67635b;--acc:" + ME.color + ";--accfg:#fff}",
+    ".v.dark{--bg:#1c1b19;--s1:#1c1b19;--s2:#2a2926;--line:#3a3833;--fg:#ebe9e4;--mut:#a29e95}",
+    ".fab{position:fixed;z-index:2147483000;width:46px;height:46px;border-radius:14px;cursor:pointer;touch-action:none;",
+    "background:var(--s1);color:var(--fg);border:1px solid var(--line);box-shadow:0 1px 2px rgba(0,0,0,.08),0 6px 18px rgba(0,0,0,.14);",
+    "display:flex;align-items:center;justify-content:center}",
+    ".fab.edge{width:30px;height:54px;border-radius:12px 0 0 12px;border-right:0;box-shadow:-2px 2px 10px rgba(0,0,0,.3)}.fab.edge svg{width:18px;height:18px}.fab.edge .dot{top:-6px;right:auto;left:-6px}",
+    ".fab .dot{position:absolute;top:-5px;right:-5px;min-width:19px;height:19px;padding:0 5px;border-radius:10px;background:var(--acc);color:var(--accfg);font-size:11px;line-height:19px;font-weight:700;text-align:center}",
+    ".wrap{position:fixed;inset:0;z-index:2147483001;background:rgba(20,18,15,.42);display:flex;align-items:flex-end;justify-content:center}",
+    "@media(min-width:700px){.wrap{align-items:center}}",
+    ".panel{background:var(--bg);color:var(--fg);width:100%;max-width:540px;max-height:92vh;overflow:auto;border-radius:16px 16px 0 0;",
+    "padding:14px 16px calc(18px + env(safe-area-inset-bottom,0px));font-size:15px;line-height:1.4}",
+    "@media(min-width:700px){.panel{border-radius:16px}}",
+    ".top{display:flex;align-items:center;gap:8px;margin:0 0 12px}",
+    ".tabs{flex:1;display:flex;background:var(--s2);border-radius:10px;padding:3px;gap:2px}",
+    ".tabs button{flex:1;border:0;background:transparent;color:var(--mut);padding:7px 4px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer}",
+    ".tabs button.on{background:var(--s1);color:var(--fg);box-shadow:0 1px 2px rgba(0,0,0,.12)}",
+    ".hd{display:flex;align-items:center;gap:8px;margin-bottom:10px}",
+    ".hd h2{flex:1;margin:0;font-size:19px;font-weight:700;letter-spacing:-.01em}",
+    "button.b{border:1px solid var(--line);background:var(--s1);color:var(--fg);border-radius:9px;padding:7px 12px;font-size:14px;cursor:pointer}",
+    "button.p{background:var(--acc);border-color:var(--acc);color:var(--accfg);font-weight:600}",
+    "button.d{color:#c0303f}",
+    "button.x{border:0;background:transparent;color:var(--mut);font-size:20px;width:34px;height:34px;cursor:pointer}",
+    ".grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}",
+    ".wd{text-align:center;font-size:12px;color:var(--mut);padding:2px 0 4px}",
+    ".c{min-height:46px;border-radius:8px;padding:4px 2px;cursor:pointer;display:flex;flex-direction:column;align-items:center;border:1px solid transparent}",
+    ".c:hover{background:var(--s2)}.c.o{opacity:.35}.c.t .n{background:var(--fg);color:var(--bg)}.c.s{border-color:var(--acc);background:var(--s1)}",
+    ".n{font-size:14px;width:26px;height:26px;line-height:26px;text-align:center;border-radius:50%;font-variant-numeric:tabular-nums}",
+    ".ds{display:flex;gap:2px;flex-wrap:wrap;justify-content:center;margin-top:2px}.ds i{width:5px;height:5px;border-radius:50%}",
+    ".sec{margin-top:16px}.sec h3{font-size:13px;margin:0 0 8px;text-transform:uppercase;letter-spacing:.05em;color:var(--mut);font-weight:600}",
+    ".ev{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:10px;background:var(--s1);border:1px solid var(--line);margin-bottom:6px;cursor:pointer}",
+    ".bar{width:3px;align-self:stretch;border-radius:2px}",
+    ".ev .t{font-weight:600}.m{font-size:13px;color:var(--mut)}",
+    ".empty{color:var(--mut);font-size:14px;padding:4px 0}",
+    "label{display:block;font-size:13px;color:var(--mut);margin:12px 0 4px}",
+    "input,textarea,select{width:100%;padding:10px 11px;border-radius:9px;border:1px solid var(--line);background:var(--s1);color:var(--fg);font-size:16px}",
+    "textarea{min-height:70px;resize:vertical}",
+    ".row{display:flex;gap:8px}.row>*{flex:1}",
+    ".act{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap}.act .sp{flex:1}",
+    ".tools{display:flex;gap:6px;flex-wrap:wrap;margin-top:18px;padding-top:12px;border-top:1px solid var(--line)}",
+    ".tools button.b{font-size:13px;padding:6px 10px}",
+    ".chk{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--mut);margin:8px 0 0}.chk input{width:auto}",
+    ".cl{font-size:13px;color:var(--mut);margin:10px 0 0;cursor:pointer}.cl.ok{color:#2f7d57}.cl.err{color:#c0303f}",
+    ".v.dark .cl.ok{color:#6cc79a}.v.dark .cl.err,.v.dark button.d{color:#f0727c}",
+    ".txt{font-size:14px;margin:8px 0}.txt a{color:var(--acc)}ol.txt{padding-left:20px}ol.txt li{margin:5px 0}code{background:var(--s2);padding:1px 4px;border-radius:4px}",
+    "button.b[disabled]{opacity:.5}",
+    ".task{display:flex;gap:8px;align-items:center;padding:7px 2px;font-size:14px;cursor:pointer}.task input{width:auto;margin:0}.task em{color:#c0303f;font-style:normal;font-size:12px}",
+    ".qt{margin-top:4px;font-size:14px;padding:8px 10px}",
+    "a.b{text-decoration:none;display:inline-block}a.big{font-weight:600}",
+    ".themes{display:grid;grid-template-columns:1fr 1fr;gap:8px}",
+    ".th{text-align:left;border:2px solid;border-radius:12px;padding:10px;cursor:pointer;display:flex;flex-direction:column;gap:3px}",
+    ".th b{font-size:14px}.th small{font-size:12px;line-height:1.3}.th.on{box-shadow:0 0 0 1px var(--acc)}",
+    ".pv{display:flex;gap:4px;margin-bottom:4px}.pv i{width:18px;height:18px;border-radius:5px;display:block}.pv i:last-child{border-radius:50%}",
+    ".hist{display:flex;flex-direction:column;gap:4px;margin-top:8px}.hist button{text-align:left;border:1px solid var(--line);background:var(--s1);color:var(--fg);border-radius:9px;padding:9px 11px;font-size:14px;cursor:pointer}",
+    ".bl{display:flex;flex-wrap:wrap;gap:5px;margin:6px 0}.bl span{background:var(--s2);border-radius:7px;padding:3px 8px;font-size:12px}",
+    ".apps{display:flex;flex-direction:column;gap:8px}",
+    ".app .ah{display:flex;gap:10px;align-items:center;color:var(--fg);text-decoration:none}.secs{display:flex;flex-wrap:wrap;gap:5px;margin-top:9px}",
+    ".secs a{font-size:12.5px;padding:4px 9px;border-radius:7px;background:var(--s2);color:var(--fg);text-decoration:none}",
+    ".app{display:block;padding:11px;border-radius:12px;background:var(--s1);border:1px solid var(--line);color:var(--fg);text-decoration:none}",
+    ".app.me{border-color:var(--fg)}",
+    ".mono{flex:none;width:36px;height:36px;border-radius:10px;color:#fff;font-weight:700;font-size:16px;display:flex;align-items:center;justify-content:center}",
+    ".app b{display:block;font-size:14px}.app span{display:block;font-size:12px;color:var(--mut);line-height:1.3}",
+    ".toast{position:fixed;left:12px;right:12px;bottom:calc(14px + env(safe-area-inset-bottom,0px));z-index:2147483002;max-width:520px;margin:0 auto;",
+    "background:var(--fg);color:var(--bg);border-radius:12px;padding:12px 14px;font-size:14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;box-shadow:0 8px 24px rgba(0,0,0,.25)}",
+    ".toast span{flex:1;min-width:180px}.toast button{border:0;border-radius:8px;padding:7px 10px;font-size:13px;font-weight:600;cursor:pointer;background:var(--bg);color:var(--fg)}"
+  ].join("");
+
+  function mount() {
+    if (host) return;
+    host = document.createElement("div");
+    host.id = "sg-shared-calendar";
+    root = host.attachShadow({ mode: "open" });
+    var st = document.createElement("style"); st.textContent = CSS; root.appendChild(st);
+    var v = document.createElement("div"); v.className = "v"; root.appendChild(v);
+    var fab = document.createElement("button");
+    if (script && script.getAttribute("data-fab") === "off") fab.style.display = "none"; // die Kalender-App braucht den Knopf nicht
+    fab.className = "fab"; fab.title = "Kalender & Apps"; fab.setAttribute("aria-label", "Kalender und Apps");
+    fab.innerHTML = ICON + "<span class='dot' hidden></span>";
+    v.appendChild(fab);
+    var box = document.createElement("div"); box.className = "box"; v.appendChild(box);
+    var toast = document.createElement("div"); toast.className = "tbox"; v.appendChild(toast);
+    document.body.appendChild(host);
+    placeFab(fab);
+    dragFab(fab);
+    render();
+  }
+
+  // Handy: schmale Lasche am rechten Rand (verdeckt kaum Inhalt, nur senkrecht verschiebbar). Laptop: runder Knopf.
+  function edge() { return window.innerWidth <= 760; }
+  function placeFab(fab) {
+    var p = null;
+    try { p = JSON.parse(localStorage.getItem(POS_KEY + ":" + APP) || "null"); } catch (e) {}
+    fab.classList.toggle("edge", edge());
+    var x = edge() ? window.innerWidth - 30 : p && p.x != null ? p.x : window.innerWidth - 66, y = p ? p.y : window.innerHeight * (edge() ? .58 : 1) - (edge() ? 0 : 150);
+    if (edge()) { fab.style.left = x + "px"; fab.style.top = Math.max(60, Math.min(window.innerHeight - 140, y)) + "px"; return; }
+    fab.style.left = Math.max(4, Math.min(window.innerWidth - 50, x)) + "px";
+    fab.style.top = Math.max(4, Math.min(window.innerHeight - 50, y)) + "px";
+  }
+  // Der Knopf lässt sich verschieben, falls er in einer App etwas verdeckt (Position wird pro App gemerkt).
+  function dragFab(fab) {
+    var sx, sy, ox, oy, moved = false, down = false;
+    fab.addEventListener("pointerdown", function (e) {
+      down = true; moved = false; sx = e.clientX; sy = e.clientY; ox = fab.offsetLeft; oy = fab.offsetTop;
+      try { fab.setPointerCapture(e.pointerId); } catch (_) {}
+    });
+    fab.addEventListener("pointermove", function (e) {
+      if (!down) return;
+      var dx = e.clientX - sx, dy = e.clientY - sy;
+      if (!moved && Math.abs(dx) + Math.abs(dy) < 8) return;
+      moved = true;
+      if (!edge()) fab.style.left = Math.max(4, Math.min(window.innerWidth - 50, ox + dx)) + "px";
+      fab.style.top = Math.max(4, Math.min(window.innerHeight - 50, oy + dy)) + "px";
+    });
+    fab.addEventListener("pointerup", function () {
+      if (!down) return; down = false;
+      if (moved) try { localStorage.setItem(POS_KEY + ":" + APP, JSON.stringify({ x: edge() ? null : fab.offsetLeft, y: fab.offsetTop })); } catch (e) {}
+    });
+    fab.addEventListener("pointercancel", function () { down = false; });
+    // Erst beim Klick öffnen: so landet der Tipp nicht zusätzlich auf dem Fenster, das sich gerade öffnet.
+    fab.addEventListener("click", function () { if (moved) { moved = false; return; } openPanel(); });
+    window.addEventListener("resize", function () { placeFab(fab); });
+  }
+
+  function openPanel(date, tab) {
+    mount();
+    var d = date ? parse(date) : new Date();
+    state.sel = iso(d); state.month = new Date(d.getFullYear(), d.getMonth(), 1);
+    state.edit = null; state.tab = tab || "cal"; state.open = true;
+    render();
+  }
+  function close() { state.open = false; state.edit = null; render(); }
+
+  function render(bg) {
+    if (!root) return;
+    var vv = root.querySelector(".v"); vv.classList.add("dark"); vv.setAttribute("style", themeVars());
+    var today = iso(new Date());
+    var all = occurrences(iso(new Date(Date.now() - 400 * 864e5)), iso(new Date(Date.now() + 800 * 864e5)));
+    var dot = root.querySelector(".fab .dot");
+    var n = all.filter(function (e) { return e.date === today; }).length;
+    dot.hidden = !n; dot.textContent = n;
+    renderToast();
+    var box = root.querySelector(".box");
+    if (!state.open) { box.innerHTML = ""; return; }
+    // Hintergrund-Updates (andere App, anderes Gerät) dürfen kein gerade ausgefülltes Formular überschreiben.
+    if (bg && (state.edit || (state.tab === "sync" && !cfg().token))) return;
+    var evs = state.filter ? all.filter(function (e) { return e.app === APP; }) : all;
+    var h = "<div class='wrap'><div class='panel' role='dialog' aria-label='Kalender und Apps'>";
+    if (state.edit) h += form(state.edit);
+    else {
+      h += "<div class='top'><div class='tabs' role='tablist'>" +
+        [["cal", "Kalender"], ["apps", "Apps"], ["design", "Design"], ["sync", "Sync"]].map(function (t) {
+          return "<button role='tab' data-tab='" + t[0] + "' class='" + (state.tab === t[0] ? "on" : "") + "'>" + t[1] + "</button>";
+        }).join("") + "</div><button class='x' data-a='close' aria-label='Schließen'>✕</button></div>";
+      h += state.tab === "apps" ? appsView() : state.tab === "sync" ? cloudView() : state.tab === "design" ? designView() : month(evs, today);
+    }
+    h += "</div></div>";
+    box.innerHTML = h;
+    bind(box);
+  }
+
+  function renderToast() {
+    var tb = root.querySelector(".tbox"), mp = myPending(), p = mp && mp[1], MYDATA = mp && mp[0];
+    if (!p) { tb.innerHTML = ""; return; }
+    var who = p.remote.device ? " (" + esc(p.remote.device) + ")" : "";
+    tb.innerHTML = p.kind === "reload"
+      ? "<div class='toast'><span>Die Daten dieser App wurden gerade vom Sync aktualisiert.</span><button data-t='reload'>Neu laden</button></div>"
+      : p.kind === "conflict"
+      ? "<div class='toast'><span>Deine Daten in " + esc(MYDATA.name) + " wurden hier und auf einem anderen Gerät" + who + " geändert. Welche Fassung soll gelten?</span><button data-t='mine'>Diese hier</button><button data-t='theirs'>Die andere</button></div>"
+      : "<div class='toast'><span>Neue Daten von einem anderen Gerät" + who + ".</span><button data-t='theirs'>Jetzt laden</button></div>";
+    tb.querySelectorAll("[data-t]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        if (b.dataset.t === "reload") location.reload();
+        else if (b.dataset.t === "theirs") { applyRemote(MYDATA, p.remote); location.reload(); }
+        else { setMeta(MYDATA.id, { hash: "", remote: p.remote.changed }); delete pending[MYDATA.id]; renderToast(); syncNow(); }
+      });
+    });
+  }
+
+  function month(evs, today) {
+    var m = state.month, y = m.getFullYear(), mo = m.getMonth();
+    var byDay = {};
+    evs.forEach(function (e) { (byDay[e.date] = byDay[e.date] || []).push(e); });
+    var h = "<div class='hd'><h2>" + MON[mo] + " " + y + "</h2><button class='b' data-a='prev' aria-label='Voriger Monat'>‹</button>" +
+      "<button class='b' data-a='today'>Heute</button><button class='b' data-a='next' aria-label='Nächster Monat'>›</button></div>";
+    h += "<div class='grid'>" + WD.map(function (w) { return "<div class='wd'>" + w + "</div>"; }).join("");
+    var start = new Date(y, mo, 1 - ((m.getDay() + 6) % 7));
+    for (var i = 0; i < 42; i++) {
+      var d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i), k = iso(d);
+      if (i === 35 && d.getMonth() !== mo) break;
+      var cls = "c" + (d.getMonth() !== mo ? " o" : "") + (k === today ? " t" : "") + (k === state.sel ? " s" : "");
+      var dots = (byDay[k] || []).slice(0, 4).map(function (e) { return "<i style='background:" + colorOf(e) + "'></i>"; }).join("");
+      h += "<div class='" + cls + "' data-day='" + k + "'><span class='n'>" + d.getDate() + "</span><span class='ds'>" + dots + "</span></div>";
+    }
+    h += "</div>";
+    h += "<label class='chk'><input type='checkbox' data-a='filter'" + (state.filter ? " checked" : "") + "> Nur Termine aus „" + esc(APP) + "“</label>";
+    var list = byDay[state.sel] || [];
+    h += "<div class='sec'><div class='hd'><h3 style='flex:1;margin:0'>" + longDate(state.sel) + "</h3><button class='b p' data-a='new'>+ Termin</button></div>";
+    h += list.length ? list.map(function (e) { return item(e); }).join("") : "<div class='empty'>Keine Termine an diesem Tag.</div>";
+    h += "</div>";
+    var tasks = live("todo").filter(function (t) { return !t.done && (t.due === state.sel || (state.sel === today && t.due && t.due < today)); });
+    h += "<div class='sec'><h3>Aufgaben</h3>" + tasks.map(function (t) {
+      return "<label class='task'><input type='checkbox' data-task='" + esc(t.id) + "'><span>" + esc(t.title) +
+        (t.due < today ? " <em>überfällig</em>" : "") + "</span></label>";
+    }).join("") + "<input class='qt' name='quicktask' placeholder='+ Aufgabe für diesen Tag' maxlength='120' enterkeyhint='done'></div>";
+    var seen = {}; // Serien nur mit dem nächsten Termin zeigen
+    var upcoming = evs.filter(function (e) { if (e.date <= state.sel || seen[e.id]) return false; seen[e.id] = 1; return true; }).slice(0, 5);
+    if (upcoming.length) h += "<div class='sec'><h3>Danach</h3>" + upcoming.map(function (e) { return item(e, true); }).join("") + "</div>";
+    if ("Notification" in window && Notification.permission === "default") h += "<div class='cl' data-a='notify'>Erinnerungen als Benachrichtigung erlauben</div>";
+    h += "<div class='tools'><a class='b big' href='" + esc(appUrl(APPS[0]) + "#cal") + "'>Großer Kalender</a><button class='b' data-a='export'>Sichern</button><button class='b' data-a='import'>Importieren</button><button class='b' data-a='ics'>.ics-Export</button></div>";
+    return h;
+  }
+
+  function item(e, withDate) {
+    var meta = [];
+    if (withDate) meta.push(parse(e.date).getDate() + ". " + MON[parse(e.date).getMonth()]);
+    if (e.time) meta.push(e.time + (e.end ? "–" + e.end : "") + " Uhr");
+    meta.push(e.app);
+    return "<div class='ev' data-id='" + esc(e.id) + "'><span class='bar' style='background:" + colorOf(e) + "'></span><div><div class='t'>" + esc(e.title) +
+      "</div><div class='m'>" + esc(meta.join(" · ")) + "</div>" + (e.note ? "<div class='m'>" + esc(e.note) + "</div>" : "") + "</div></div>";
+  }
+
+  function appsView() {
+    var here = location.hash;
+    var h = "<div class='apps'>" + APPS.map(function (a) {
+      var me = a.id === ME.id;
+      return "<div class='app" + (me ? " me" : "") + "'><a class='ah' href='" + (me ? "#" : esc(appUrl(a))) + "'" + (me ? " data-a='close'" : "") + ">" +
+        "<span class='mono' style='background:" + a.color + "'>" + esc(a.name.charAt(0)) + "</span><span><b>" + esc(a.name) + "</b><span>" + (me ? "Du bist hier" : esc(a.info)) + "</span></span></a>" +
+        (a.sections.length ? "<div class='secs'>" + a.sections.map(function (sct) {
+          return "<a href='" + esc(appUrl(a) + sct[1]) + "'" + (me ? " data-go='" + esc(sct[1]) + "'" : "") + ">" + esc(sct[0]) + "</a>"; }).join("") + "</div>" : "") + "</div>";
+    }).join("") + "</div>";
+    h += "<p class='txt m'>Drei Apps, ein gemeinsamer Speicher: Termine, Aufgaben, Design und Sicherung gelten überall.</p>";
+    return h;
+  }
+  function designView() {
+    if (!window.SGTheme) return "<p class='txt'>Design nicht verfügbar.</p>";
+    var cur = window.SGTheme.current().id;
+    return "<p class='txt m'>Gilt sofort für alle Apps auf diesem Gerät – und mit Sync auch auf deinen anderen Geräten.</p><div class='themes'>" +
+      window.SGTheme.list.map(function (t) {
+        return "<button class='th" + (t.id === cur ? " on" : "") + "' data-theme='" + t.id + "' style='background:" + t.bg + ";color:" + t.ink + ";border-color:" + (t.id === cur ? t.acc : t.line) + "'>" +
+          "<span class='pv'><i style='background:" + t.s1 + "'></i><i style='background:" + t.s2 + "'></i><i style='background:" + t.s3 + "'></i><i style='background:" + t.acc + "'></i></span>" +
+          "<b>" + esc(t.name) + "</b><small style='color:" + t.muted + "'>" + esc(t.info) + "</small></button>";
+      }).join("") + "</div>";
+  }
+  function ago(t) {
+    if (!t) return "noch nie";
+    var m = Math.round((Date.now() - t) / 60000);
+    return m < 1 ? "gerade eben" : m < 60 ? "vor " + m + " Min." : new Date(t).toLocaleString("de-DE", { day: "numeric", month: "numeric", hour: "2-digit", minute: "2-digit" });
+  }
+  function cloudLine() {
+    var c = cfg();
+    if (!c.token) return "<div class='cl' data-tab='sync'>Nur auf diesem Gerät gespeichert · <u>Sync einrichten</u></div>";
+    if (sync.busy) return "<div class='cl'>Synchronisiere …</div>";
+    if (sync.error) return "<div class='cl err'>" + esc(sync.error) + "</div>";
+    return "<div class='cl ok'>Synchronisiert · " + ago(sync.last || c.last) + "</div>";
+  }
+  /* ---------- Sicherung: Übersicht, frühere Stände, Datei ---------- */
+  function backedUp() {
+    return ["Kalender & Aufgaben"].concat(DATA.map(function (a) { return a.name; })).concat(["Design"]);
+  }
+  function cloudView() {
+    var c = cfg();
+    var h = "";
+    if (state.hist) return histView();
+    if (!c.token) {
+      h += "<p class='txt'>Mit dem Sync sind <b>alle Daten aller Apps</b> auf deinen Geräten gleich und zusätzlich in der Cloud gesichert – in einem <b>privaten Gist</b> in deinem GitHub-Konto. Einrichten musst du das <b>einmal pro Gerät</b>, danach gilt es für alle Apps.</p>";
+      h += "<ol class='txt'><li><a href='https://github.com/settings/tokens/new?scopes=gist&amp;description=SportGermany-Apps' target='_blank' rel='noopener'>Diesen Link öffnen</a> und bei GitHub anmelden.</li>" +
+        "<li>Bei <b>Expiration</b> „No expiration“ wählen. Das Häkchen bei <b>gist</b> ist schon gesetzt – sonst nichts anhaken.</li>" +
+        "<li>Unten <b>Generate token</b> tippen und den Code (beginnt mit <code>ghp_</code>) kopieren.</li>" +
+        "<li>Hier einfügen und verbinden. Auf weiteren Geräten denselben Code verwenden.</li></ol>";
+      h += "<label>Token</label><input name='token' type='password' autocomplete='off' placeholder='ghp_…'>";
+      if (sync.error) h += "<div class='cl err'>" + esc(sync.error) + "</div>";
+      h += "<div class='act'><span class='sp'></span><button class='b p' data-a='connect'" + (sync.busy ? " disabled" : "") + ">" + (sync.busy ? "Verbinde …" : "Verbinden") + "</button></div>";
+    } else {
+      h += "<p class='txt'>Verbunden als <b>" + esc(c.user || "?") + "</b>. Jede Änderung wird sofort gesichert; was du auf anderen Geräten änderst, kommt spätestens nach 30 Sekunden an.</p>";
+      h += cloudLine();
+      h += "<p class='txt m' style='margin-bottom:0'>Gesichert und abgeglichen:</p><div class='bl'>" + backedUp().map(function (n) { return "<span>" + esc(n) + "</span>"; }).join("") + "</div>";
+      h += "<p class='txt m'>Den alten eigenen Sync in Lernplan und Trainingsblog brauchst du nicht mehr – du kannst ihn dort in den Einstellungen ausschalten.</p>";
+      h += "<div class='act'><button class='b' data-a='history'>Frühere Stände</button>" + (c.gist ? "<a class='b' href='https://gist.github.com/" + esc(c.gist) + "' target='_blank' rel='noopener'>Auf GitHub</a>" : "") +
+        "<span class='sp'></span><button class='b p' data-a='syncnow'>Jetzt synchronisieren</button></div>";
+    }
+    h += "<div class='tools'><button class='b' data-a='backup'>Alles als Datei sichern</button><button class='b' data-a='restorefile'>Sicherung einspielen</button>" +
+      (c.token ? "<span style='flex:1'></span><button class='b d' data-a='disconnect'>Trennen</button>" : "") + "</div>";
+    return h;
+  }
+  function histView() {
+    var H = state.hist, h = "<div class='hd'><h2>Frühere Stände</h2><button class='b' data-a='histclose'>Zurück</button></div>";
+    h += "<p class='txt m'>GitHub hebt jeden gesicherten Stand auf. Beim Zurückholen werden <b>alle Apps</b> auf diesen Stand gesetzt – auf allen verbundenen Geräten.</p>";
+    if (H.loading) return h + "<p class='txt'>Lade …</p>";
+    if (H.error) return h + "<div class='cl err'>" + esc(H.error) + "</div>";
+    return h + "<div class='hist'>" + H.list.map(function (v, i) {
+      var d = new Date(v.committed_at), when = d.toLocaleString("de-DE", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+      return "<button data-ver='" + esc(v.version) + "' data-when='" + esc(when) + "'>" + esc(when) + (i === 0 ? " · aktuell" : "") + "</button>";
+    }).join("") + "</div>";
+  }
+  function loadHistory() {
+    var c = cfg();
+    if (!c.token || !c.gist) { state.hist = { error: "Noch nichts in der Cloud gesichert." }; render(); return; }
+    gh("/gists/" + c.gist + "/commits?per_page=30", null, c.token).then(function (list) {
+      state.hist = { list: list }; render();
+    }).catch(function (e) { state.hist = { error: e.message || "Laden fehlgeschlagen." }; render(); });
+  }
+
+  // Alle Daten aller Apps in einem Objekt – für Datei-Sicherung und Wiederherstellung
+  function allKeys() {
+    var keys = [KEY, TKEY, "sg-design"];
+    DATA.forEach(function (a) { keys = keys.concat(a.keys); });
+    return keys;
+  }
+  function fullBackup() {
+    var data = {};
+    allKeys().forEach(function (k) { var v = localStorage.getItem(k); if (v !== null) data[k] = v; });
+    return { format: "sportgermany-sicherung", v: 1, created: new Date().toISOString(), device: deviceName(), data: data };
+  }
+  // Einen Stand übernehmen und dafür sorgen, dass er sich auch auf den anderen Geräten durchsetzt:
+  // Termine/Aufgaben bekommen einen frischen Zeitstempel, was im Stand fehlt, wird als gelöscht markiert.
+  function applySnapshot(data) {
+    Object.keys(COLS).forEach(function (c) {
+      var col = COLS[c], raw = data[col.key];
+      if (raw == null) return;
+      var snap; try { snap = JSON.parse(raw); } catch (e) { return; }
+      var now = Date.now(), d = load(c), keep = {};
+      (snap.events || []).forEach(function (e) { e.changed = now; keep[e.id] = 1; });
+      d.events.forEach(function (e) { if (!keep[e.id] && !e.deleted) snap.events.push(Object.assign({}, e, { deleted: true, changed: now })); });
+      save({ v: 1, events: snap.events }, false, c);
+    });
+    DATA.concat(EXTRA).forEach(function (a) {
+      var touched = false;
+      a.keys.forEach(function (k) { if (Object.prototype.hasOwnProperty.call(data, k)) { localStorage.setItem(k, data[k]); touched = true; } });
+      if (touched) setMeta(a.id, { hash: "", remote: 0, force: true }); // gilt als lokal geändert und setzt sich durch
+    });
+  }
+  function restoreVersion(ver, when) {
+    var c = cfg();
+    if (!confirm("Alle Apps auf den Stand vom " + when + " zurücksetzen? Neuere Änderungen gehen dabei verloren.")) return;
+    state.hist = { loading: true }; render();
+    gh("/gists/" + c.gist + "/" + ver, null, c.token).then(fullGist).then(function (g) {
+      var data = {}, f = g.files || {};
+      Object.keys(COLS).forEach(function (k) { var x = f[COLS[k].file]; if (x && x.content) data[COLS[k].key] = x.content; });
+      DATA.concat(EXTRA).forEach(function (a) {
+        var r = readJSON(f["app-" + a.id + ".json"]);
+        if (r && r.data) Object.keys(r.data).forEach(function (k) { data[k] = r.data[k]; });
+      });
+      applySnapshot(data);
+      return syncNow();
+    }).then(function () { alert("Stand vom " + when + " wiederhergestellt."); location.reload(); })
+      .catch(function (e) { state.hist = { error: e.message || "Wiederherstellen fehlgeschlagen." }; render(); });
+  }
+  function restoreFile() {
+    var inp = document.createElement("input");
+    inp.type = "file"; inp.accept = ".json,application/json";
+    inp.onchange = function () {
+      var file = inp.files && inp.files[0]; if (!file) return;
+      file.text().then(function (txt) {
+        var b = JSON.parse(txt);
+        if (!b || b.format !== "sportgermany-sicherung" || !b.data) throw new Error("format");
+        if (!confirm("Sicherung vom " + new Date(b.created).toLocaleString("de-DE") + " einspielen? Die aktuellen Daten aller Apps werden ersetzt.")) return;
+        applySnapshot(b.data);
+        syncNow().then(function () { location.reload(); });
+      }).catch(function () { alert("Diese Datei ist keine Gesamtsicherung der Apps."); });
+    };
+    inp.click();
+  }
+  function connect(token) {
+    token = token.trim();
+    if (!token) return;
+    sync.busy = true; sync.error = ""; render();
+    gh("/user", null, token).then(function (u) {
+      return findOrCreateGist(token, load()).then(function (id) { return gh("/gists/" + id, null, token).then(function (g) { return [u, id, g]; }); });
+    }).then(function (r) {
+      var u = r[0], g = r[2];
+      var hasData = Object.keys(g.files || {}).some(function (f) { return f.indexOf("app-") === 0; });
+      setCfg({ token: token, user: u.login, gist: r[1] });
+      sync.busy = false;
+      // Termine und Aufgaben werden ohnehin zusammengeführt; bei den App-Daten entscheidet die Person einmal.
+      sync.adopt = hasData && confirm("In deiner Cloud sind schon Daten von einem anderen Gerät gesichert.\n\nOK = diese Daten auf dieses Gerät übernehmen (empfohlen für ein neues Gerät)\nAbbrechen = die Daten dieses Geräts behalten und hochladen");
+      if (hasData && !sync.adopt) DATA.concat(EXTRA).forEach(function (a) { if (a.keys.length) setMeta(a.id, { hash: "", remote: 0, force: true }); });
+      return syncNow().then(function (ok) { sync.adopt = false; return ok; });
+    }).catch(function (e) {
+      sync.busy = false;
+      sync.error = (e && e.message && !/fetch|network/i.test(e.message)) ? e.message : "Keine Verbindung zu GitHub.";
+      render();
+    });
+  }
+
+  function form(e) {
+    var isNew = !e.id;
+    var h = "<div class='hd'><h2>" + (isNew ? "Neuer Termin" : "Termin bearbeiten") + "</h2><button class='x' data-a='back' aria-label='Zurück'>✕</button></div>";
+    h += "<label>Titel</label><input name='title' maxlength='120' value='" + esc(e.title || "") + "' placeholder='z. B. Training, Klassenarbeit …'>";
+    h += "<label>Datum</label><input type='date' name='date' value='" + esc(e.date) + "'>";
+    h += "<div class='row'><div><label>Von (optional)</label><input type='time' name='time' value='" + esc(e.time || "") + "'></div>" +
+      "<div><label>Bis (optional)</label><input type='time' name='end' value='" + esc(e.end || "") + "'></div></div>";
+    h += "<label>Erinnerung</label><select name='remind'>" + REMIND.map(function (r) {
+      return "<option value='" + r[0] + "'" + (String(e.remind == null ? "" : e.remind) === r[0] ? " selected" : "") + ">" + r[1] + "</option>"; }).join("") + "</select>";
+    h += "<label>Notiz</label><textarea name='note' maxlength='1000'>" + esc(e.note || "") + "</textarea>";
+    h += "<label>Farbe</label><select name='color'><option value=''>Farbe der App</option>" +
+      COLORS.map(function (c, i) { return "<option value='" + c + "'" + (e.color === c ? " selected" : "") + ">" + CNAMES[i] + "</option>"; }).join("") + "</select>";
+    if (!isNew) h += "<div class='m' style='margin-top:10px'>Angelegt in „" + esc(e.app) + "“" + (e.rep && e.rep.f ? " · wiederholt sich – Wiederholung im großen Kalender ändern" : "") + "</div>";
+    h += "<div class='act'>" + (isNew ? "" : "<button class='b d' data-a='del'>Löschen</button>") + "<span class='sp'></span><button class='b' data-a='back'>Abbrechen</button><button class='b p' data-a='save'>Speichern</button></div>";
+    return h;
+  }
+
+  function bind(box) {
+    box.querySelector(".wrap").addEventListener("click", function (ev) {
+      if (ev.target.classList.contains("wrap")) { close(); return; }
+      var t = ev.target.closest("[data-a],[data-day],[data-id],[data-tab],[data-theme],[data-ver],[data-go]");
+      if (!t) return;
+      if (t.dataset.go !== undefined) { close(); return; } // Bereich derselben App: Link setzt nur den #-Teil
+      if (t.dataset.tab) { state.tab = t.dataset.tab; render(); return; }
+      if (t.dataset.theme && window.SGTheme) { window.SGTheme.set(t.dataset.theme); render(); return; }
+      if (t.dataset.ver) { restoreVersion(t.dataset.ver, t.dataset.when); return; }
+      if (t.dataset.day) { state.sel = t.dataset.day; render(); return; }
+      if (t.dataset.id && !t.dataset.a) {
+        var e = live().find(function (x) { return x.id === t.dataset.id; }); // bei Serien: die ganze Serie
+        if (e) { state.edit = Object.assign({}, e); render(); }
+        return;
+      }
+      if (t.dataset.a === "close" && t.tagName === "A") ev.preventDefault();
+      act(t.dataset.a, box);
+    });
+    box.querySelectorAll("[data-task]").forEach(function (cb) {
+      cb.addEventListener("change", function () { api.tasks.update(cb.dataset.task, { done: cb.checked }); });
+    });
+    var qt = box.querySelector("[name=quicktask]");
+    if (qt) qt.addEventListener("keydown", function (ev) {
+      if (ev.key === "Enter" && qt.value.trim()) { api.tasks.add({ title: qt.value.trim(), due: state.sel }); }
+    });
+    var f = box.querySelector("[data-a=filter]");
+    if (f) f.addEventListener("change", function () { state.filter = f.checked; render(); });
+    var ti = box.querySelector("input[name=title]");
+    if (ti && state.edit && !state.edit.id) ti.focus();
+  }
+
+  function act(a, box) {
+    var m = state.month;
+    if (a === "prev") state.month = new Date(m.getFullYear(), m.getMonth() - 1, 1);
+    else if (a === "next") state.month = new Date(m.getFullYear(), m.getMonth() + 1, 1);
+    else if (a === "today") { var t = new Date(); state.sel = iso(t); state.month = new Date(t.getFullYear(), t.getMonth(), 1); }
+    else if (a === "close") return close();
+    else if (a === "connect") return connect(box.querySelector("[name=token]").value);
+    else if (a === "syncnow") return syncNow();
+    else if (a === "notify") return askNotify();
+    else if (a === "backup") return download("sportgermany-sicherung-" + iso(new Date()) + ".json", "application/json", JSON.stringify(fullBackup(), null, 1));
+    else if (a === "restorefile") return restoreFile();
+    else if (a === "history") { state.hist = { loading: true }; render(); loadHistory(); return; }
+    else if (a === "histclose") state.hist = null;
+    else if (a === "disconnect") {
+      if (!confirm("Sync auf diesem Gerät beenden? Alle Daten bleiben hier und auf GitHub erhalten.")) return;
+      setCfg(null); sync.error = ""; sync.last = 0;
+    }
+    else if (a === "new") state.edit = { date: state.sel, app: APP };
+    else if (a === "back") state.edit = null;
+    else if (a === "save") {
+      var v = {};
+      ["title", "date", "time", "end", "note", "color", "remind"].forEach(function (k) { v[k] = box.querySelector("[name=" + k + "]").value.trim(); });
+      v.remind = v.remind === "" ? null : +v.remind;
+      if (v.remind != null) askNotify();
+      if (!v.title) { box.querySelector("[name=title]").focus(); return; }
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(v.date)) { box.querySelector("[name=date]").focus(); return; }
+      if (state.edit.id) api.update(state.edit.id, v); else api.add(v);
+      state.sel = v.date; var d = parse(v.date); state.month = new Date(d.getFullYear(), d.getMonth(), 1);
+      state.edit = null;
+    }
+    else if (a === "del") {
+      if (!confirm("Termin „" + state.edit.title + "“ in allen Apps löschen?")) return;
+      api.remove(state.edit.id); state.edit = null;
+    }
+    else if (a === "export") return download("gemeinsamer-kalender-" + iso(new Date()) + ".json", "application/json", JSON.stringify(load(), null, 2));
+    else if (a === "import") return importFile();
+    else if (a === "ics") return download("gemeinsamer-kalender.ics", "text/calendar", ics());
+    render();
+  }
+
+  // Import führt zusammen: pro Termin gewinnt die zuletzt geänderte Fassung, nichts wird blind überschrieben.
+  function importFile() {
+    var inp = document.createElement("input");
+    inp.type = "file"; inp.accept = ".json,application/json";
+    inp.onchange = function () {
+      var file = inp.files && inp.files[0]; if (!file) return;
+      file.text().then(function (txt) {
+        var src = JSON.parse(txt);
+        if (!src || !Array.isArray(src.events)) throw new Error("format");
+        var added = mutate(function (d) { return mergeInto(d, src.events).added; });
+        alert("Import fertig: " + added + " neue Termine.");
+      }).catch(function () { alert("Diese Datei ist keine gültige Kalender-Sicherung."); });
+    };
+    inp.click();
+  }
+
+  function ics() {
+    function f(s) { return String(s).replace(/\\/g, "\\\\").replace(/\n/g, "\\n").replace(/[,;]/g, "\\$&"); }
+    function stamp(date, time) { return date.replace(/-/g, "") + "T" + time.replace(":", "") + "00"; }
+    var out = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//SportGermany//Gemeinsamer Kalender//DE"];
+    live().forEach(function (e) {
+      out.push("BEGIN:VEVENT", "UID:" + e.id + "@sportgermany", "DTSTAMP:" + new Date().toISOString().replace(/[-:]/g, "").slice(0, 15) + "Z");
+      if (e.time) {
+        out.push("DTSTART:" + stamp(e.date, e.time));
+        if (e.end) out.push("DTEND:" + stamp(e.date, e.end));
+      } else {
+        var n = parse(e.date); n.setDate(n.getDate() + 1);
+        out.push("DTSTART;VALUE=DATE:" + e.date.replace(/-/g, ""), "DTEND;VALUE=DATE:" + iso(n).replace(/-/g, ""));
+      }
+      out.push("SUMMARY:" + f(e.title), "DESCRIPTION:" + f((e.note ? e.note + "\n" : "") + "aus " + e.app));
+      if (e.rep && e.rep.f) out.push("RRULE:FREQ=" + { d: "DAILY", w: "WEEKLY", "2w": "WEEKLY;INTERVAL=2", m: "MONTHLY", y: "YEARLY" }[e.rep.f] + (e.rep.until ? ";UNTIL=" + e.rep.until.replace(/-/g, "") : ""));
+      if (e.remind != null) out.push("BEGIN:VALARM", "ACTION:DISPLAY", "DESCRIPTION:" + f(e.title), "TRIGGER:-PT" + (+e.remind) + "M", "END:VALARM");
+      out.push("END:VEVENT");
+    });
+    out.push("END:VCALENDAR");
+    return out.join("\r\n");
+  }
+
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && state.open) close(); });
+  window.addEventListener("sg-theme", function () { if (root) render(true); });
+  window.addEventListener("sg-theme-set", function () { schedulePush(); });
+  if (!EMBED) { if (document.body) mount(); else document.addEventListener("DOMContentLoaded", mount); }
+})();
+</script>
+<!-- gemeinsamer-kalender:end -->
+</body>
+</html>
