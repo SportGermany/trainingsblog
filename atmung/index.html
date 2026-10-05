@@ -423,6 +423,12 @@ details ul, details ol { margin: 0; padding-left: 20px; display: flex; flex-dire
       <div class="empty" id="wkEmpty">Noch keine Termine in dieser Woche. Füg den Vorschlag ein oder leg unten einzelne Termine an.</div>
     </div>
 
+    <div class="panel" id="wkOtherPanel" hidden>
+      <h2>Andere Termine dieser Woche</h2>
+      <p class="small muted">Aus Schule, Planer, Training und Mobility – damit die Übungen gut dazwischen passen.</p>
+      <div id="wkOther"></div>
+    </div>
+
     <div class="panel">
       <h2 id="addTitle">Termin hinzufügen</h2>
       <form id="addForm">
@@ -1142,7 +1148,30 @@ function renderWeek() {
     box.appendChild(ul);
   });
   $("icsShare").hidden = !canShareFiles();
+  renderWeekOther();
 }
+/* Gemeinsamer Kalender: die übrigen Termine derselben Woche (Atmung selbst steht schon oben) */
+function renderWeekOther() {
+  var C = null; try { C = window.top.SharedCalendar || window.SharedCalendar; } catch (e) { C = window.SharedCalendar; }
+  var panel = $("wkOtherPanel"); if (!panel) return;
+  if (!C || !C.allItems) { panel.hidden = true; return; }
+  var list = C.allItems(ymd(wkMonday), ymd(addDays(wkMonday, 6))).filter(function (e) { return e.app !== "Atmung"; });
+  panel.hidden = !list.length;
+  var box = $("wkOther"); box.innerHTML = "";
+  var byDay = {};
+  list.forEach(function (e) { (byDay[e.date] = byDay[e.date] || []).push(e); });
+  Object.keys(byDay).sort().forEach(function (d) {
+    var h = document.createElement("div"); h.className = "day-h"; h.innerHTML = WD[wdIndex(d)] + "<span>" + fmtDay(d) + "</span>"; box.appendChild(h);
+    var ul = document.createElement("ul"); ul.className = "list";
+    byDay[d].forEach(function (e) {
+      var li = document.createElement("li");
+      li.innerHTML = '<div><div class="t">' + esc(e.title) + '</div></div><div class="r">' + esc((e.time || "ganztägig") + (e.end ? "–" + e.end : "")) + " · " + esc(e.app) + "</div>";
+      ul.appendChild(li);
+    });
+    box.appendChild(ul);
+  });
+}
+addEventListener("storage", function (e) { if (e.key === "sg-shared-calendar-v1" || e.key === "schulkalender-bayern-v1") renderWeekOther(); if (e.key === "pulsplan.v1") { try { S = load(); renderWeek(); } catch (x) {} } });
 $("wkPrev").addEventListener("click", function () { wkMonday = addDays(wkMonday, -7); cancelEdit(); renderWeek(); });
 $("wkNext").addEventListener("click", function () { wkMonday = addDays(wkMonday, 7); cancelEdit(); renderWeek(); });
 $("tMorning").addEventListener("change", function () { if (this.value) { S.settings.morning = this.value; save(); } });
@@ -1498,7 +1527,7 @@ if ("serviceWorker" in navigator && location.protocol !== "file:") {
   // Farben der Kalender-Quellen (Eintrag.app); alte Namen bleiben gültig
   var SOURCES = [
     ["Kalender", "#6ea8fe"], ["Lernplan", "#2b5fd9"], ["Training", "#4fc18a"], ["Trainingsblog", "#2f7d57"], ["Rodel-Mobility", "#c0303f"],
-    ["Pulsplan", "#b4532a"], ["Denkpause", "#8a6d1f"], ["Focus", "#3d6b73"], ["Bibel", "#6b4a3a"]
+    ["Pulsplan", "#b4532a"], ["Atmung", "#d9774b"], ["Mobility", "#e0707e"], ["Denkpause", "#8a6d1f"], ["Focus", "#3d6b73"], ["Bibel", "#6b4a3a"]
   ];
   var EMBED = (function () { try { return window.self !== window.top; } catch (e) { return true; } })();
   var KEY = "sg-shared-calendar-v1";
@@ -1599,6 +1628,70 @@ if ("serviceWorker" in navigator && location.protocol !== "file:") {
     });
     return out.sort(function (a, b) { return (a.date + (a.time || "")).localeCompare(b.date + (b.time || "")); });
   }
+  /* ---------- Termine aus den Apps (nur lesen): Schule, Atmung, Training ----------
+   * Gemeinsam für alle Kalender – Planer, Schule, Training und Atmung zeigen damit dieselben Einträge.
+   * link = Adresse der App, linkApp/linkHash = Bereich, falls man schon in dieser App ist. */
+  var LP_TYPES = { sa: ["Schulaufgabe", "#e5484d"], ka: ["Kurzarbeit", "#c99200"], ex: ["Ex", "#f76b15"], test: ["Test", "#d6409f"], referat: ["Referat", "#8e4ec6"],
+    abgabe: ["Abgabe", "#0090ff"], termin: ["Schultermin", "#12a594"], frei: ["Schulfrei", "#30a46c"], sonst: ["", "#8d8d8d"], ap: ["Abschlussprüfung", "#b4231e"] };
+  var JC = {};
+  function jkey(k) {
+    var raw = null; try { raw = localStorage.getItem(k); } catch (e) {}
+    var c = JC[k]; if (c && c.raw === raw) return c.val;
+    var val = null; try { val = JSON.parse(raw || "null"); } catch (e) {}
+    JC[k] = { raw: raw, val: val }; return val;
+  }
+  function plusDays(k, n) { var d = parse(k); d.setDate(d.getDate() + n); return iso(d); }
+  function eachDay(start, end, from, to, fn) {
+    var a = start > from ? start : from, b = (end || start) < to ? (end || start) : to;
+    for (var k = a; k <= b; k = plusDays(k, 1)) fn(k);
+  }
+  function addMin(t, m) { var p = t.split(":"), x = Math.min(1439, +p[0] * 60 + +p[1] + m); return pad(Math.floor(x / 60)) + ":" + pad(x % 60); }
+  function where(appId, hash) { var a = APPS.find(function (x) { return x.id === appId; }); return { link: appUrl(a) + hash, linkApp: appId, linkHash: hash }; }
+  function externalItems(from, to) {
+    var out = [];
+    var db = jkey("schulkalender-bayern-v1");
+    if (db) {
+      var subj = function (id) { return (db.subjects || []).find(function (x) { return x.id === id; }) || {}; };
+      (db.events || []).forEach(function (e) {
+        if (!e.date) return;
+        var t = LP_TYPES[e.type] || LP_TYPES.sonst, sn = subj(e.subject).name || "";
+        var title = [t[0], sn].filter(Boolean).join(" ") + (e.title ? (t[0] || sn ? ": " : "") + e.title : "");
+        eachDay(e.date, e.end, from, to, function (k) {
+          out.push(Object.assign({ id: "lp-" + e.id, title: title || "Schultermin", date: k, time: k === e.date ? e.time || "" : "", end: "", app: "Lernplan", color: t[1], note: e.notes || "", ro: "Lernplan", exam: ["sa", "ka", "ex", "test", "ap"].indexOf(e.type) > -1, subject: sn }, where("planer", "#schule")));
+        });
+      });
+      (db.camps || []).forEach(function (c) {
+        if (!c.start) return;
+        eachDay(c.start, c.end, from, to, function (k) {
+          out.push(Object.assign({ id: "lc-" + c.id, title: "Lehrgang" + (c.title ? ": " + c.title : "") + (c.place ? " (" + c.place + ")" : ""), date: k, time: "", app: "Lernplan", color: "#0891b2", ro: "Lernplan" }, where("planer", "#schule")));
+        });
+      });
+    }
+    // Atemübungen aus Atmung & HRV (dort geplant – auch von der Wochenplanung)
+    var pp = jkey("pulsplan.v1");
+    if (pp && pp.entries) pp.entries.forEach(function (e) {
+      if (!e.date || e.date < from || e.date > to) return;
+      out.push(Object.assign({ id: "pp-" + e.id, title: e.type || "Atemübung", date: e.date, time: e.time || "", end: e.time ? addMin(e.time, +e.dur || 10) : "", app: "Atmung", note: e.note || "", ro: "Atmung & HRV" }, where("training", "#atmung")));
+    });
+    // Training: erledigte Einheiten und Aktivitäten
+    var log = jkey("wk_log") || {}, acts = jkey("wk_activities") || [];
+    Object.keys(log).forEach(function (k) {
+      var l = log[k]; if (!l || !l.done || k < from || k > to) return;
+      var label = l.type === "rest" ? "Ruhetag" : l.type === "run" ? "Lauf erledigt" : "Training erledigt";
+      out.push(Object.assign({ id: "tb-" + k, title: "✓ " + label + (l.sec && l.type !== "rest" ? " · " + Math.round(l.sec / 60) + " Min." : ""), date: k, time: "", app: "Training", ro: "Training" }, where("training", "")));
+    });
+    acts.forEach(function (a, i) {
+      if (!a || !a.date || a.date < from || a.date > to) return;
+      var km = a.distanceKm ? " · " + String(Math.round(a.distanceKm * 10) / 10).replace(".", ",") + " km" : "";
+      out.push(Object.assign({ id: "ta-" + a.date + "-" + i, title: (a.name || a.title || a.type || "Aktivität") + km, date: a.date, time: a.time || "", app: a.source === "mobility" ? "Mobility" : "Training", ro: "Training" }, where("training", a.source === "mobility" ? "#mobility" : "")));
+    });
+    return out;
+  }
+  function allItems(from, to) {
+    return occurrences(from, to).concat(externalItems(from, to)).sort(function (a, b) {
+      return (a.date + (a.time || "~")).localeCompare(b.date + (b.time || "~"));
+    });
+  }
   function emit() {
     var ev = live();
     listeners.forEach(function (f) { try { f(ev); } catch (e) {} });
@@ -1648,6 +1741,8 @@ if ("serviceWorker" in navigator && location.protocol !== "file:") {
     },
     onChange: function (f) { listeners.push(f); return function () { listeners = listeners.filter(function (x) { return x !== f; }); }; },
     occurrences: occurrences,
+    externalItems: externalItems,
+    allItems: allItems,
     // Einen einzelnen Termin einer Serie auslassen
     skip: function (id, date) {
       return mutate(function (d) {
@@ -1761,7 +1856,7 @@ if ("serviceWorker" in navigator && location.protocol !== "file:") {
 
   // Gleicht die Daten aller Verbund-Apps ab, nicht nur der gerade offenen –
   // so landen auch Änderungen aus einer App, die lange nicht offen war, in der Cloud.
-  var EXTRA = [{ id: "einstellungen", name: "Einstellungen", keys: ["sg-design"], lww: true }];
+  var EXTRA = [{ id: "einstellungen", name: "Einstellungen", keys: ["sg-design"], lww: true }, { id: "wochenplan", name: "Wochenplanung", keys: ["sg-wochenplan-v1"], lww: true }];
   function syncApps(g, files) {
     DATA.concat(EXTRA).forEach(function (app) {
       if (!app.keys.length || (app.own && app.own())) return;
@@ -2001,6 +2096,14 @@ if ("serviceWorker" in navigator && location.protocol !== "file:") {
     "@media(min-width:1001px){.inst{bottom:20px;left:auto;right:20px;max-width:400px}}",
     "button.ib{width:100%;margin-top:10px;border:0;border-radius:9px;padding:10px 12px;font-size:14px;font-weight:600;cursor:pointer;background:var(--acc);color:var(--accfg)}",
     ".ok2{margin-top:9px;font-size:12.5px;color:#6cc79a}",
+    ".wpw .panel{max-width:560px}.wpprog{display:flex;gap:4px;margin:-4px 0 12px}.wpprog i{flex:1;height:4px;border-radius:2px;background:var(--s2)}.wpprog i.on{background:var(--acc)}",
+    "h3.q{font-size:16px;margin:16px 0 4px;font-weight:700}",
+    ".wdays{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin:8px 0 4px}",
+    ".wd{border:1px solid var(--line);background:var(--s1);color:var(--fg);border-radius:10px;padding:8px 0 6px;font-size:14px;font-weight:600;cursor:pointer;display:flex;flex-direction:column;align-items:center;min-height:48px}",
+    ".wd small{font-size:10.5px;font-weight:400;color:var(--mut);margin-top:1px}.wd.on{background:var(--acc);border-color:var(--acc);color:var(--accfg)}.wd.on small{color:var(--accfg);opacity:.8}.wd.past{opacity:.35}",
+    ".seg{display:grid;grid-template-columns:1fr 1fr;gap:8px}.seg button{border:1px solid var(--line);background:var(--s1);color:var(--fg);border-radius:10px;padding:10px;font-size:14px;font-weight:600;cursor:pointer;text-align:left}",
+    ".seg button small{display:block;font-weight:400;font-size:12px;color:var(--mut);margin-top:2px}.seg button.on{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc)}",
+    ".txt a{color:var(--acc)}.wpw .row{margin-top:2px}.wpw input[type=time],.wpw select{min-height:44px}",
     ".toast span{flex:1;min-width:180px}.toast button{border:0;border-radius:8px;padding:7px 10px;font-size:13px;font-weight:600;cursor:pointer;background:var(--bg);color:var(--fg)}"
   ].join("");
 
@@ -2019,6 +2122,8 @@ if ("serviceWorker" in navigator && location.protocol !== "file:") {
     var box = document.createElement("div"); box.className = "box"; v.appendChild(box);
     var toast = document.createElement("div"); toast.className = "tbox"; v.appendChild(toast);
     var ib = document.createElement("div"); ib.className = "ibox"; v.appendChild(ib);
+    var wb = document.createElement("div"); wb.className = "wpbox"; v.appendChild(wb);
+    var wt = document.createElement("div"); wt.className = "wptoast"; v.appendChild(wt);
     document.body.appendChild(host);
     placeFab(fab);
     dragFab(fab);
@@ -2080,6 +2185,7 @@ if ("serviceWorker" in navigator && location.protocol !== "file:") {
     dot.hidden = !n; dot.textContent = n;
     renderToast();
     renderInstall();
+    renderWpToast();
     var box = root.querySelector(".box");
     if (!state.open) { box.innerHTML = ""; return; }
     // Hintergrund-Updates (andere App, anderes Gerät) dürfen kein gerade ausgefülltes Formular überschreiben.
@@ -2127,7 +2233,7 @@ if ("serviceWorker" in navigator && location.protocol !== "file:") {
   function renderInstall() {
     var ib = root.querySelector(".ibox");
     var later = 0; try { later = +localStorage.getItem(IKEY) || 0; } catch (e) {}
-    if (standalone() || !window.SGInstallEvt || state.open || Date.now() - later < 7 * 864e5) { ib.innerHTML = ""; return; }
+    if (standalone() || !window.SGInstallEvt || state.open || wp || wpDue() || Date.now() - later < 7 * 864e5) { ib.innerHTML = ""; return; }
     ib.innerHTML = "<div class='toast inst'><span class='mono' style='background:" + ME.color + "'>" + esc(ME.name.charAt(0)) + "</span>" +
       "<div class='it'><b>" + esc(ME.name) + " als App installieren</b><small>Eigenes Symbol, startet schneller, läuft offline.</small></div>" +
       "<div class='ia'><button class='no' data-i='later'>Später</button><button class='go' data-i='go'>Installieren</button></div></div>";
@@ -2188,7 +2294,7 @@ if ("serviceWorker" in navigator && location.protocol !== "file:") {
     var upcoming = evs.filter(function (e) { if (e.date <= state.sel || seen[e.id]) return false; seen[e.id] = 1; return true; }).slice(0, 5);
     if (upcoming.length) h += "<div class='sec'><h3>Danach</h3>" + upcoming.map(function (e) { return item(e, true); }).join("") + "</div>";
     if ("Notification" in window && Notification.permission === "default") h += "<div class='cl' data-a='notify'>Erinnerungen als Benachrichtigung erlauben</div>";
-    h += "<div class='tools'><a class='b big' href='" + esc(appUrl(APPS[0]) + "#cal") + "'>Großer Kalender</a><button class='b' data-a='export'>Sichern</button><button class='b' data-a='import'>Importieren</button><button class='b' data-a='ics'>.ics-Export</button></div>";
+    h += "<div class='tools'><a class='b big' href='" + esc(appUrl(APPS[0]) + "#cal") + "'>Großer Kalender</a><button class='b' data-a='weekplan'>Woche planen</button><button class='b' data-a='export'>Sichern</button><button class='b' data-a='import'>Importieren</button><button class='b' data-a='ics'>.ics-Export</button></div>";
     return h;
   }
 
@@ -2419,6 +2525,7 @@ if ("serviceWorker" in navigator && location.protocol !== "file:") {
     else if (a === "next") state.month = new Date(m.getFullYear(), m.getMonth() + 1, 1);
     else if (a === "today") { var t = new Date(); state.sel = iso(t); state.month = new Date(t.getFullYear(), t.getMonth(), 1); }
     else if (a === "close") return close();
+    else if (a === "weekplan") { close(); openWeekPlan(); return; }
     else if (a === "install") { if (window.SGInstallEvt) { close(); installNow(); } else { state.instHelp = true; render(); } return; }
     else if (a === "connect") return connect(box.querySelector("[name=token]").value);
     else if (a === "syncnow") return syncNow();
@@ -2492,7 +2599,274 @@ if ("serviceWorker" in navigator && location.protocol !== "file:") {
     return out.join("\r\n");
   }
 
-  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && state.open) close(); });
+  /* ---------- Wochenplanung: Fragen zu Training, Mobility & Atmung, Lernen – Antworten werden direkt eingetragen ----------
+   * Einstellungen und letzte Antworten liegen in sg-wochenplan-v1 (wird mit der Cloud-Sicherung abgeglichen).
+   * Eingetragene Termine tragen wp = Montag der Woche; neu planen ersetzt sie. */
+  var WP_KEY = "sg-wochenplan-v1", WDN = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"], WDL = ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"];
+  function wpDefaults() {
+    var ws = jkey("wk_settings") || {}, pp = (jkey("pulsplan.v1") || {}).settings || {};
+    var run = (ws.runDays || [0]).map(function (d) { return (d + 6) % 7; });
+    var rest = (ws.restDays || []).map(function (d) { return (d + 6) % 7; });
+    var train = [0, 2, 4].filter(function (d) { return run.indexOf(d) < 0 && rest.indexOf(d) < 0; });
+    return { on: true, remind: "so", time: "18:00", topics: { training: true, mobility: true, lernen: true }, planned: {}, later: "",
+      last: { train: { days: train, time: "17:00" }, run: { days: run, time: "10:00" }, mob: { days: [0, 1, 2, 3, 4, 5, 6], time: "07:30" },
+        atm: { on: true, morning: pp.morning || "07:00", evening: pp.evening || "21:30" }, learn: { days: [0, 1, 2, 3], time: "16:00", dur: 45 } } };
+  }
+  function wpCfg() {
+    var d = wpDefaults(), c = jkey(WP_KEY) || {};
+    var out = Object.assign({}, d, c);
+    out.topics = Object.assign({}, d.topics, c.topics || {});
+    out.last = Object.assign({}, d.last, c.last || {});
+    out.planned = Object.assign({}, c.planned || {});
+    return out;
+  }
+  function wpSave(c) { try { localStorage.setItem(WP_KEY, JSON.stringify(c)); } catch (e) {} schedulePush(); }
+  function mondayOf(k) { var d = parse(k); d.setDate(d.getDate() - (d.getDay() + 6) % 7); return iso(d); }
+  function kw(k) { var d = parse(k), t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())), n = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - n); return Math.ceil(((t - Date.UTC(t.getUTCFullYear(), 0, 1)) / 864e5 + 1) / 7); }
+  function shortDate(k) { var d = parse(k); return d.getDate() + "." + (d.getMonth() + 1) + "."; }
+  var wp = null; // offener Assistent: { step, mon, a: Antworten }
+  function wpSteps() {
+    var c = wpCfg(), s = ["start"];
+    if (c.topics.training) s.push("training");
+    if (c.topics.mobility) s.push("mobility");
+    if (c.topics.lernen) s.push("lernen");
+    s.push("done");
+    return s;
+  }
+  function openWeekPlan(view) {
+    mount();
+    var t = iso(new Date()), wd = (new Date().getDay() + 6) % 7;
+    var c = wpCfg();
+    wp = { step: 0, mon: wd >= 4 ? plusDays(mondayOf(t), 7) : mondayOf(t), a: JSON.parse(JSON.stringify(c.last)), view: view || "", result: null };
+    wpRender();
+  }
+  function closeWeekPlan() { wp = null; wpRender(); }
+  function dayChips(key, days) {
+    return "<div class='wdays' data-k='" + key + "'>" + WDN.map(function (n, i) {
+      var past = wpPast(i);
+      return "<button type='button' class='wd" + (days.indexOf(i) > -1 ? " on" : "") + (past ? " past" : "") + "' data-wd='" + i + "'" + (past ? " disabled title='schon vorbei'" : "") + ">" + n + "<small>" + shortDate(plusDays(wp.mon, i)) + "</small></button>";
+    }).join("") + "</div>";
+  }
+  function wpPast(i) { return plusDays(wp.mon, i) < iso(new Date()); }
+  function atmPhase(mon) {
+    var pp = jkey("pulsplan.v1") || {}, st = pp.settings && pp.settings.start;
+    if (!st) return { w: 1, fresh: true, label: "Dein Atemplan startet mit dieser Woche (Woche 1 · Atmen lernen)." };
+    var w = Math.floor(Math.round((parse(mon) - parse(st)) / 864e5) / 7) + 1;
+    var names = [[1, 2, "Atmen lernen"], [3, 5, "Biofeedback"], [6, 9, "Vertiefen"], [10, 12, "Anwenden"]];
+    var p = names.find(function (x) { return w >= x[0] && w <= x[1]; });
+    return { w: w, label: w < 1 ? "Dein Atemplan startet erst später." : p ? "Planwoche " + w + " · " + p[2] : "Erhalt: täglich 10 Minuten" };
+  }
+  function wpExams(mon) {
+    return externalItems(mon, plusDays(mon, 20)).filter(function (e) { return e.exam; });
+  }
+  function wpHomework(mon) {
+    var db = jkey("schulkalender-bayern-v1") || {}, end = plusDays(mon, 6);
+    var subj = function (id) { return ((db.subjects || []).find(function (x) { return x.id === id; }) || {}).name || ""; };
+    return (db.homework || []).filter(function (h) { return !h.done && h.due && h.due <= end; }).map(function (h) { return { title: h.title || h.text || "Hausaufgabe", subject: subj(h.subject), due: h.due }; });
+  }
+  function wpView() {
+    var steps = wpSteps(), st = steps[wp.step], a = wp.a, c = wpCfg();
+    var h = "<div class='wrap wpw'><div class='panel' role='dialog' aria-label='Wochenplanung'>";
+    h += "<div class='hd'><h2>" + (wp.view === "settings" ? "Wochenplanung · Einstellungen" : "Woche planen") + "</h2><button class='x' data-w='close' aria-label='Schließen'>✕</button></div>";
+    if (wp.view === "settings") return h + wpSettingsHTML(c) + "<div class='act'><span class='sp'></span><button class='b p' data-w='" + (wp.result || wp.step ? "back" : "close") + "'>Fertig</button></div></div></div>";
+    if (st !== "done" && st !== "start") h += "<div class='wpprog'>" + steps.slice(1, -1).map(function (x, i) { return "<i class='" + (i + 1 <= wp.step ? "on" : "") + "'></i>"; }).join("") + "</div>";
+    var end = plusDays(wp.mon, 6);
+    if (st === "start") {
+      var t = iso(new Date()), thisMon = mondayOf(t), nextMon = plusDays(thisMon, 7);
+      h += "<p class='txt'>Ein paar kurze Fragen – danach steht alles direkt in deinem Kalender (Planer, Schule, Training und Atmung).</p>";
+      h += "<label>Welche Woche?</label><div class='seg'>" + [[thisMon, "Diese Woche"], [nextMon, "Nächste Woche"]].map(function (x) {
+        return "<button type='button' data-mon='" + x[0] + "' class='" + (wp.mon === x[0] ? "on" : "") + "'>" + x[1] + "<small>KW " + kw(x[0]) + " · " + shortDate(x[0]) + "–" + shortDate(plusDays(x[0], 6)) + "</small></button>";
+      }).join("") + "</div>";
+      if (c.planned[wp.mon]) h += "<p class='cl'>Diese Woche ist schon geplant. Neu planen ersetzt die Einträge der letzten Planung – selbst angelegte Termine bleiben.</p>";
+      var topics = [["training", "Training & Laufen"], ["mobility", "Mobility & Atmung"], ["lernen", "Lernen & Prüfungen"]].filter(function (x) { return c.topics[x[0]]; });
+      h += "<p class='txt m'>" + (topics.length ? "Fragen zu: " + topics.map(function (x) { return x[1]; }).join(" · ") : "Alle Themen sind ausgeschaltet.") + " <a href='#' data-w='settings'>Einstellungen</a></p>";
+      h += "<div class='act'><span class='sp'></span><button class='b p' data-w='next'" + (topics.length ? "" : " disabled") + ">Los geht's</button></div>";
+    } else if (st === "training") {
+      var ws = jkey("wk_settings") || {}, rest = (ws.restDays || []).map(function (d) { return WDN[(d + 6) % 7]; });
+      h += "<h3 class='q'>An welchen Tagen trainierst du?</h3><p class='txt m'>Kraft- bzw. Zirkeltraining" + (rest.length ? " · feste Ruhetage: " + rest.join(", ") : "") + "</p>" + dayChips("train", a.train.days);
+      h += "<div class='row'><div><label>Uhrzeit</label><input type='time' data-f='train.time' value='" + esc(a.train.time) + "'></div><div></div></div>";
+      h += "<h3 class='q'>Wann gehst du laufen?</h3>" + dayChips("run", a.run.days);
+      h += "<div class='row'><div><label>Uhrzeit</label><input type='time' data-f='run.time' value='" + esc(a.run.time) + "'></div><div></div></div>";
+    } else if (st === "mobility") {
+      h += "<h3 class='q'>Mobility-Block (ca. 5 Min.)</h3><p class='txt m'>An welchen Tagen und um wie viel Uhr?</p>" + dayChips("mob", a.mob.days);
+      h += "<div class='row'><div><label>Uhrzeit</label><input type='time' data-f='mob.time' value='" + esc(a.mob.time) + "'></div><div></div></div>";
+      var ph = atmPhase(wp.mon);
+      h += "<h3 class='q'>Atemübungen nach deinem Atemplan</h3><p class='txt m'>" + esc(ph.label) + "</p>";
+      h += "<label class='chk'><input type='checkbox' data-f='atm.on'" + (a.atm.on ? " checked" : "") + "> Atemübungen für diese Woche eintragen</label>";
+      h += "<div class='row'><div><label>Morgens</label><input type='time' data-f='atm.morning' value='" + esc(a.atm.morning) + "'></div><div><label>Abends</label><input type='time' data-f='atm.evening' value='" + esc(a.atm.evening) + "'></div></div>";
+    } else if (st === "lernen") {
+      var ex = wpExams(wp.mon), hw = wpHomework(wp.mon);
+      h += "<h3 class='q'>Was steht an?</h3>";
+      h += ex.length ? "<div class='bl'>" + ex.map(function (e) { return "<span>" + shortDate(e.date) + " " + esc(e.title) + "</span>"; }).join("") + "</div>" : "<p class='txt m'>In den nächsten drei Wochen sind keine Prüfungen eingetragen.</p>";
+      if (hw.length) h += "<p class='txt m'>Offene Hausaufgaben bis " + shortDate(end) + ": " + hw.map(function (x) { return esc((x.subject ? x.subject + ": " : "") + x.title); }).join(" · ") + "</p>";
+      h += "<h3 class='q'>An welchen Tagen lernst du?</h3><p class='txt m'>Vor einer Prüfung wird die Lernzeit automatisch diesem Fach zugeordnet.</p>" + dayChips("learn", a.learn.days);
+      h += "<div class='row'><div><label>Uhrzeit</label><input type='time' data-f='learn.time' value='" + esc(a.learn.time) + "'></div><div><label>Dauer</label><select data-f='learn.dur'>" +
+        [30, 45, 60, 90].map(function (m) { return "<option value='" + m + "'" + (+a.learn.dur === m ? " selected" : "") + ">" + m + " Min.</option>"; }).join("") + "</select></div></div>";
+    } else if (st === "done") {
+      var r = wp.result || { list: [], notes: [] };
+      h += "<p class='txt'><b>KW " + kw(wp.mon) + " ist geplant.</b> " + r.list.length + " Einträge stehen jetzt in deinem Kalender.</p>";
+      var byDay = {};
+      r.list.forEach(function (e) { (byDay[e.date] = byDay[e.date] || []).push(e); });
+      h += Object.keys(byDay).sort().map(function (d) {
+        return "<div class='sec'><h3>" + WDL[(parse(d).getDay() + 6) % 7] + ", " + shortDate(d) + "</h3>" + byDay[d].map(function (e) {
+          return "<div class='ev'><span class='bar' style='background:" + appColor(e.app) + "'></span><div><div class='t'>" + esc(e.title) + "</div><div class='m'>" + esc((e.time || "") + (e.end ? "–" + e.end : "") + " · " + e.app) + "</div></div></div>";
+        }).join("") + "</div>";
+      }).join("");
+      r.notes.forEach(function (n) { h += "<p class='cl'>" + esc(n) + "</p>"; });
+      h += "<div class='act'><button class='b' data-w='settings'>Einstellungen</button><span class='sp'></span><button class='b p' data-w='close'>Fertig</button></div>";
+    }
+    if (st !== "start" && st !== "done") {
+      var last = wp.step === steps.length - 2;
+      h += "<div class='act'><button class='b' data-w='prev'>Zurück</button><span class='sp'></span><button class='b p' data-w='" + (last ? "save" : "next") + "'>" + (last ? "Woche eintragen" : "Weiter") + "</button></div>";
+    }
+    return h + "</div></div>";
+  }
+  function wpSettingsHTML(c) {
+    return "<label class='chk'><input type='checkbox' data-s='on'" + (c.on ? " checked" : "") + "> Wochenplanung aktiv</label>" +
+      "<label>Erinnerung</label><div class='row'><select data-s='remind'>" + [["", "Keine Erinnerung"], ["sa", "Samstagabend"], ["so", "Sonntagabend"]].map(function (x) {
+        return "<option value='" + x[0] + "'" + (c.remind === x[0] ? " selected" : "") + ">" + x[1] + "</option>"; }).join("") + "</select><input type='time' data-s='time' value='" + esc(c.time) + "'></div>" +
+      "<label>Fragen zu</label>" + [["training", "Training & Laufen"], ["mobility", "Mobility & Atmung"], ["lernen", "Lernen & Prüfungen"]].map(function (x) {
+        return "<label class='chk'><input type='checkbox' data-s='topic.' data-t='" + x[0] + "'" + (c.topics[x[0]] ? " checked" : "") + "> " + x[1] + "</label>"; }).join("");
+  }
+  function wpSetting(el) {
+    var c = wpCfg(), k = el.dataset.s;
+    if (k === "on") c.on = el.checked;
+    else if (k === "remind") c.remind = el.value;
+    else if (k === "time") c.time = el.value || "18:00";
+    else if (k === "topic.") c.topics[el.dataset.t] = el.checked;
+    wpSave(c); renderWpToast();
+  }
+  function wpRender() {
+    if (!root) return;
+    var box = root.querySelector(".wpbox");
+    if (!wp) { box.innerHTML = ""; return; }
+    var vv = root.querySelector(".v"); vv.setAttribute("style", themeVars()); vv.classList.add("dark");
+    box.innerHTML = wpView();
+    var w = box.querySelector(".wrap");
+    w.addEventListener("click", function (ev) {
+      if (ev.target === w) { closeWeekPlan(); return; }
+      var t = ev.target.closest("[data-w],[data-wd],[data-mon]");
+      if (!t) return;
+      if (t.dataset.mon) { wp.mon = t.dataset.mon; wpRender(); return; }
+      if (t.dataset.wd !== undefined) {
+        var k = t.parentNode.dataset.k, i = +t.dataset.wd, arr = wp.a[k].days, pos = arr.indexOf(i);
+        if (pos > -1) arr.splice(pos, 1); else arr.push(i);
+        arr.sort(); t.classList.toggle("on", pos < 0); return;
+      }
+      ev.preventDefault();
+      var a = t.dataset.w;
+      if (a === "close") closeWeekPlan();
+      else if (a === "settings") { wp.view = "settings"; wpRender(); }
+      else if (a === "back") { wp.view = ""; wpRender(); }
+      else if (a === "next") { wp.step++; wpRender(); }
+      else if (a === "prev") { wp.step = Math.max(0, wp.step - 1); wpRender(); }
+      else if (a === "save") { wp.result = writeWeek(wp.mon, wp.a); wp.step = wpSteps().length - 1; wpRender(); }
+    });
+    box.querySelectorAll("[data-f]").forEach(function (inp) {
+      inp.addEventListener("change", function () {
+        var p = inp.dataset.f.split(".");
+        wp.a[p[0]][p[1]] = inp.type === "checkbox" ? inp.checked : inp.value;
+      });
+    });
+    box.querySelectorAll("[data-s]").forEach(function (inp) { inp.addEventListener("change", function () { wpSetting(inp); }); });
+  }
+  // Atemübungen nach Phase des Atemplans (wie „Vorschlag aus dem Plan“ in Atmung & HRV)
+  function atmEntries(mon, a, days) {
+    var ph = atmPhase(mon), w = ph.w, mo = a.morning || "07:00", ev = a.evening || "21:30", out = [];
+    var p = w >= 1 && w <= 2 ? 1 : w >= 3 && w <= 5 ? 2 : w >= 6 && w <= 9 ? 3 : w >= 10 && w <= 12 ? 4 : 0;
+    function add(i, time, type, dur, note) { out.push({ id: uid(), date: plusDays(mon, i), time: time, type: type, dur: dur, note: note || "", wp: mon }); }
+    days.forEach(function (i) {
+      if (!p) { add(i, mo, "Biofeedback mit H10", 10, "Erhalt im eigenen Takt"); return; }
+      if (p === 1) { add(i, mo, "Langsames Atmen", 5, "4 s ein, 6 s aus"); add(i, ev, "Langsames Atmen", 5, "4 s ein, 6 s aus"); }
+      else if (p === 2) { if (i === 0 && (w === 3 || w === 5)) add(i, mo, "Resonanztest", 12, "Sitzend, H10 angelegt"); else add(i, mo, "Biofeedback mit H10", w === 3 ? 10 : 15, "Im eigenen Takt"); }
+      else if (p === 3) { add(i, mo, "Biofeedback mit H10", 10, "Zum Schluss 2 min ohne Taktgeber"); add(i, ev, i % 2 === 0 ? "PMR" : "Autogenes Training", 15, ""); }
+      else { if (i === 0 && w === 12) add(i, mo, "Resonanztest", 12, "Mit Woche 3 vergleichen"); else add(i, mo, "Biofeedback mit H10", 10, "Im eigenen Takt"); add(i, ev, "Einschlaf-Routine", 15, "Im Bett, langsam atmen oder PMR"); }
+    });
+    return out;
+  }
+  function writeWeek(mon, a) {
+    var c = wpCfg(), list = [], notes = [], t = iso(new Date());
+    var live = function (days) { return days.filter(function (i) { return plusDays(mon, i) >= t; }); };
+    function ev(i, time, dur, title, app, note) {
+      list.push({ id: uid(), title: title, date: plusDays(mon, i), time: time || "", end: time ? addMin(time, dur) : "", note: note || "Aus der Wochenplanung",
+        color: "", app: app, created: Date.now(), changed: Date.now(), remind: null, wp: mon });
+    }
+    if (c.topics.training) {
+      live(a.train.days).forEach(function (i) { ev(i, a.train.time, 45, "Training", "Training"); });
+      live(a.run.days).forEach(function (i) { ev(i, a.run.time, 45, "Laufen", "Training"); });
+    }
+    if (c.topics.mobility) live(a.mob.days).forEach(function (i) { ev(i, a.mob.time, 5, "Mobility-Block", "Mobility"); });
+    if (c.topics.lernen) {
+      var exams = wpExams(mon);
+      live(a.learn.days).forEach(function (i) {
+        var d = plusDays(mon, i), nx = exams.find(function (e) { return e.date > d && e.date <= plusDays(d, 14); });
+        ev(i, a.learn.time, +a.learn.dur || 45, nx ? "Lernen: " + nx.title : "Lernen & Hausaufgaben", "Lernplan", nx ? "Prüfung am " + shortDate(nx.date) : "Aus der Wochenplanung");
+      });
+    }
+    // gemeinsamer Kalender: frühere Einträge dieser Wochenplanung ersetzen
+    mutate(function (d) {
+      d.events.forEach(function (e) { if (e.wp === mon && !e.deleted) { e.deleted = true; e.changed = Date.now(); } });
+      list.forEach(function (n) { d.events.push(n); });
+    });
+    var out = list.slice();
+    // Atmung & HRV: Einträge im Atemplan (erscheinen dort und in allen Kalendern)
+    if (c.topics.mobility && a.atm.on) {
+      var raw = null; try { raw = JSON.parse(localStorage.getItem("pulsplan.v1") || "null"); } catch (e) {}
+      var pp = raw || { settings: {}, entries: [], sessions: [], morning: [], tests: [], weeks: [], checked: {} };
+      pp.settings = pp.settings || {}; pp.entries = pp.entries || [];
+      if (!pp.settings.start) pp.settings.start = mon;
+      var endW = plusDays(mon, 6);
+      pp.entries = pp.entries.filter(function (e) { return e.wp !== mon; });
+      var own = pp.entries.filter(function (e) { return e.date >= mon && e.date <= endW; });
+      if (own.length) notes.push("Atmung: Für diese Woche hast du dort schon " + own.length + " Übungen geplant – die bleiben, es wurde nichts doppelt eingetragen.");
+      else {
+        var ae = atmEntries(mon, a.atm, live([0, 1, 2, 3, 4, 5, 6]));
+        pp.entries = pp.entries.concat(ae);
+        ae.forEach(function (e) { out.push({ title: e.type, date: e.date, time: e.time, end: addMin(e.time, e.dur), app: "Atmung" }); });
+      }
+      pp.settings.morning = a.atm.morning || pp.settings.morning; pp.settings.evening = a.atm.evening || pp.settings.evening;
+      try { localStorage.setItem("pulsplan.v1", JSON.stringify(pp)); } catch (e) {}
+    }
+    if (mon === mondayOf(t) && out.length) notes.push("Vergangene Tage dieser Woche wurden ausgelassen.");
+    c.last = a; c.planned[mon] = Date.now();
+    Object.keys(c.planned).forEach(function (k) { if (k < plusDays(mon, -56)) delete c.planned[k]; });
+    wpSave(c);
+    emit(); syncNow();
+    out.sort(function (x, y) { return (x.date + x.time).localeCompare(y.date + y.time); });
+    return { list: out, notes: notes };
+  }
+  // Erinnerung Samstag- oder Sonntagabend
+  function wpDue() {
+    var c = wpCfg(); if (!c.on || !c.remind) return null;
+    var now = new Date(), wd = now.getDay(), t = iso(now);
+    var day = c.remind === "sa" ? 6 : 0;
+    if (!(wd === day || (day === 6 && wd === 0))) return null;
+    if (wd === day && pad(now.getHours()) + ":" + pad(now.getMinutes()) < c.time) return null;
+    var mon = plusDays(mondayOf(t), 7);
+    if (c.planned[mon] || c.later === t) return null;
+    return mon;
+  }
+  function renderWpToast() {
+    if (!root) return;
+    var tb = root.querySelector(".wptoast"), mon = wp ? null : wpDue();
+    if (!mon) { tb.innerHTML = ""; return; }
+    tb.innerHTML = "<div class='toast inst'><span class='mono' style='background:" + ME.color + "'>✓</span><div class='it'><b>Zeit für die Wochenplanung</b><small>KW " + kw(mon) + " · Training, Mobility, Atmung und Lernen in 2 Minuten planen.</small></div>" +
+      "<div class='ia'><button class='no' data-p='later'>Später</button><button class='go' data-p='go'>Jetzt planen</button></div></div>";
+    tb.querySelectorAll("[data-p]").forEach(function (b) {
+      b.addEventListener("click", function () {
+        if (b.dataset.p === "go") { openWeekPlan(); renderWpToast(); }
+        else { var c = wpCfg(); c.later = iso(new Date()); wpSave(c); renderWpToast(); }
+      });
+    });
+    var key = "wp@" + mon, fired = {};
+    try { fired = JSON.parse(localStorage.getItem(FIRED_KEY) || "{}"); } catch (e) {}
+    if (!fired[key] && notifyOk() && document.hidden) { fired[key] = Date.now(); try { localStorage.setItem(FIRED_KEY, JSON.stringify(fired)); } catch (e) {} show("Zeit für die Wochenplanung", "KW " + kw(mon) + " in 2 Minuten planen", key); }
+  }
+  if (!EMBED) { setInterval(renderWpToast, 60000); window.addEventListener("storage", function (e) { if (e.key === WP_KEY) renderWpToast(); }); }
+  api.weekPlan = function (view) { if (EMBED) { try { return window.top.SharedCalendar.weekPlan(view); } catch (e) {} } openWeekPlan(view); };
+  api.weekPlanConfig = wpCfg;
+  api.weekPlanSave = function (c) { wpSave(c); renderWpToast(); };
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && wp) closeWeekPlan(); else if (e.key === "Escape" && state.open) close(); });
   window.addEventListener("sg-theme", function () { if (root) render(true); });
   window.addEventListener("sg-theme-set", function () { schedulePush(); });
   if (!EMBED) { if (document.body) mount(); else document.addEventListener("DOMContentLoaded", mount); }
