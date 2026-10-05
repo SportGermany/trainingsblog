@@ -2120,7 +2120,7 @@ if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.s
     ".wdays{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin:8px 0 4px}",
     ".wd{border:1px solid var(--line);background:var(--s1);color:var(--fg);border-radius:10px;padding:8px 0 6px;font-size:14px;font-weight:600;cursor:pointer;display:flex;flex-direction:column;align-items:center;min-height:48px}",
     ".wd small{font-size:10.5px;font-weight:400;color:var(--mut);margin-top:1px}.wd.on{background:var(--acc);border-color:var(--acc);color:var(--accfg)}.wd.on small{color:var(--accfg);opacity:.8}.wd.past{opacity:.35}",
-    ".seg{display:grid;grid-template-columns:1fr 1fr;gap:8px}.seg button{border:1px solid var(--line);background:var(--s1);color:var(--fg);border-radius:10px;padding:10px;font-size:14px;font-weight:600;cursor:pointer;text-align:left}",
+    ".seg{display:grid;grid-template-columns:1fr 1fr;gap:8px}.seg.s3{grid-template-columns:1fr 1fr 1fr}.seg button{border:1px solid var(--line);background:var(--s1);color:var(--fg);border-radius:10px;padding:10px;font-size:14px;font-weight:600;cursor:pointer;text-align:left}",
     ".seg button small{display:block;font-weight:400;font-size:12px;color:var(--mut);margin-top:2px}.seg button.on{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc)}",
     ".txt a{color:var(--acc)}.wpw .row{margin-top:2px}.wpw input[type=time],.wpw select{min-height:44px}",
     ".toast span{flex:1;min-width:180px}.toast button{border:0;border-radius:8px;padding:7px 10px;font-size:13px;font-weight:600;cursor:pointer;background:var(--bg);color:var(--fg)}"
@@ -2639,7 +2639,7 @@ if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.s
     out.planned = Object.assign({}, c.planned || {});
     return out;
   }
-  function wpSave(c) { try { localStorage.setItem(WP_KEY, JSON.stringify(c)); } catch (e) {} schedulePush(); }
+  function wpSave(c) { try { localStorage.setItem(WP_KEY, JSON.stringify(c)); } catch (e) {} schedulePush(); emit(); }
   function mondayOf(k) { var d = parse(k); d.setDate(d.getDate() - (d.getDay() + 6) % 7); return iso(d); }
   function kw(k) { var d = parse(k), t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate())), n = t.getUTCDay() || 7; t.setUTCDate(t.getUTCDate() + 4 - n); return Math.ceil(((t - Date.UTC(t.getUTCFullYear(), 0, 1)) / 864e5 + 1) / 7); }
   function shortDate(k) { var d = parse(k); return d.getDate() + "." + (d.getMonth() + 1) + "."; }
@@ -2652,11 +2652,13 @@ if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.s
     s.push("done");
     return s;
   }
-  function openWeekPlan(view) {
+  function openWeekPlan(view, mon) {
     mount();
     var t = iso(new Date()), wd = (new Date().getDay() + 6) % 7;
     var c = wpCfg();
-    wp = { step: 0, mon: wd >= 4 ? plusDays(mondayOf(t), 7) : mondayOf(t), a: JSON.parse(JSON.stringify(c.last)), view: view || "", result: null };
+    if (mon) mon = mondayOf(mon);
+    if (mon && mon < mondayOf(t)) mon = null; // vergangene Wochen plant man nicht mehr
+    wp = { step: 0, mon: mon || (wd >= 4 ? plusDays(mondayOf(t), 7) : mondayOf(t)), a: JSON.parse(JSON.stringify(c.last)), view: view || "", result: null };
     wpRender();
   }
   function closeWeekPlan() { wp = null; wpRender(); }
@@ -2693,7 +2695,9 @@ if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.s
     if (st === "start") {
       var t = iso(new Date()), thisMon = mondayOf(t), nextMon = plusDays(thisMon, 7);
       h += "<p class='txt'>Ein paar kurze Fragen – danach steht alles direkt in deinem Kalender (Planer, Schule, Training und Atmung).</p>";
-      h += "<label>Welche Woche?</label><div class='seg'>" + [[thisMon, "Diese Woche"], [nextMon, "Nächste Woche"]].map(function (x) {
+      var opts = [[thisMon, "Diese Woche"], [nextMon, "Nächste Woche"]];
+      if (wp.mon !== thisMon && wp.mon !== nextMon) opts.push([wp.mon, "KW " + kw(wp.mon)]);
+      h += "<label>Welche Woche?</label><div class='seg" + (opts.length > 2 ? " s3" : "") + "'>" + opts.map(function (x) {
         return "<button type='button' data-mon='" + x[0] + "' class='" + (wp.mon === x[0] ? "on" : "") + "'>" + x[1] + "<small>KW " + kw(x[0]) + " · " + shortDate(x[0]) + "–" + shortDate(plusDays(x[0], 6)) + "</small></button>";
       }).join("") + "</div>";
       if (c.planned[wp.mon]) h += "<p class='cl'>Diese Woche ist schon geplant. Neu planen ersetzt die Einträge der letzten Planung – selbst angelegte Termine bleiben.</p>";
@@ -2882,7 +2886,8 @@ if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.s
     if (!fired[key] && notifyOk() && document.hidden) { fired[key] = Date.now(); try { localStorage.setItem(FIRED_KEY, JSON.stringify(fired)); } catch (e) {} show("Zeit für die Wochenplanung", "KW " + kw(mon) + " in 2 Minuten planen", key); }
   }
   if (!EMBED) { setInterval(renderWpToast, 60000); window.addEventListener("storage", function (e) { if (e.key === WP_KEY) renderWpToast(); }); }
-  api.weekPlan = function (view) { if (EMBED) { try { return window.top.SharedCalendar.weekPlan(view); } catch (e) {} } openWeekPlan(view); };
+  api.weekPlan = function (view, mon) { if (EMBED) { try { return window.top.SharedCalendar.weekPlan(view, mon); } catch (e) {} } openWeekPlan(view, mon); };
+  api.weekPlanned = function (mon) { return wpCfg().planned[mondayOf(mon)] || 0; };
   api.weekPlanConfig = wpCfg;
   api.weekPlanSave = function (c) { wpSave(c); renderWpToast(); };
   document.addEventListener("keydown", function (e) { if (e.key === "Escape" && wp) closeWeekPlan(); else if (e.key === "Escape" && state.open) close(); });
