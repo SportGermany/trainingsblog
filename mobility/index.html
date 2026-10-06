@@ -278,20 +278,22 @@ button{touch-action:manipulation}
   var KEY = "sg-design";
   // Schlicht nach dem Vorbild von Notion Kalender und Apple: ruhige Grautöne, eine Akzentfarbe, feine Linien
   var THEMES = [
-    { id: "notion", name: "Notion", info: "Neutrales Grau, klares Blau (Standard)", bg: "#191919", s1: "#202020", s2: "#272727", s3: "#2f2f2f", line: "#2c2c2c", ink: "#ebebea", muted: "#9b9a97", faint: "#6b6a67", acc: "#529cca" },
-    { id: "apple", name: "Apple", info: "Tiefschwarz mit Systemblau", bg: "#000000", s1: "#1c1c1e", s2: "#2c2c2e", s3: "#3a3a3c", line: "#2c2c2e", ink: "#f5f5f7", muted: "#98989d", faint: "#636366", acc: "#0a84ff" },
-    { id: "graphit", name: "Graphit", info: "Anthrazit mit Orange", bg: "#161616", s1: "#1e1e1e", s2: "#272727", s3: "#313131", line: "#2d2d2d", ink: "#ececec", muted: "#a0a0a0", faint: "#6a6a6a", acc: "#ff9f0a" },
-    { id: "mitternacht", name: "Mitternacht", info: "Nachtblau", bg: "#0d1117", s1: "#151b23", s2: "#1c2430", s3: "#243040", line: "#232c38", ink: "#e6edf3", muted: "#9aa7b4", faint: "#5d6b7a", acc: "#6ea8fe" },
-    { id: "schiefer", name: "Schiefer", info: "Kühles Blaugrau, Petrol", bg: "#121417", s1: "#1a1d21", s2: "#22262b", s3: "#2b3036", line: "#2a2f35", ink: "#e8eaed", muted: "#a0a7b0", faint: "#69707a", acc: "#5ac8c8" },
-    { id: "salbei", name: "Salbei", info: "Gedämpftes Grün", bg: "#121513", s1: "#191d1a", s2: "#212622", s3: "#2a302b", line: "#272d28", ink: "#e6ebe6", muted: "#9eaa9f", faint: "#667067", acc: "#7fbf95" },
-    { id: "sand", name: "Sand", info: "Warmes Dunkelbraun, Karamell", bg: "#171513", s1: "#1f1c19", s2: "#282420", s3: "#322d28", line: "#2e2a25", ink: "#efe9e2", muted: "#aca295", faint: "#766d62", acc: "#d6a26b" },
-    { id: "lavendel", name: "Lavendel", info: "Dunkles Violettgrau", bg: "#151419", s1: "#1c1b22", s2: "#24222b", s3: "#2d2b35", line: "#2b2932", ink: "#ece9f2", muted: "#a49fb0", faint: "#6d6878", acc: "#a78bfa" },
-    { id: "koralle", name: "Koralle", info: "Warmes Grau mit Korallrot", bg: "#161414", s1: "#1e1b1b", s2: "#272323", s3: "#312c2c", line: "#2d2828", ink: "#efe8e7", muted: "#ab9f9d", faint: "#756a68", acc: "#ff7a6b" },
-    { id: "oled", name: "OLED", info: "Reines Schwarz, Gelb – spart Akku", bg: "#000000", s1: "#0c0c0c", s2: "#161616", s3: "#202020", line: "#1f1f1f", ink: "#f2f2f2", muted: "#a3a3a3", faint: "#6b6b6b", acc: "#ffd60a" }
+    { id: "notion", name: "Notion", info: "Neutrales Grau, klares Blau (Standard)", bg: "#191919", s1: "#202020", s2: "#272727", s3: "#2f2f2f", line: "#2c2c2c", ink: "#ebebea", muted: "#9b9a97", faint: "#6b6a67", acc: "#529cca", g2: "#7c5cff", g3: "#2f8f6f" },
+    { id: "apple", name: "Apple", info: "Tiefschwarz mit Systemblau", bg: "#000000", s1: "#1c1c1e", s2: "#2c2c2e", s3: "#3a3a3c", line: "#2c2c2e", ink: "#f5f5f7", muted: "#98989d", faint: "#636366", acc: "#0a84ff", g2: "#bf5af2", g3: "#30d158" },
+    { id: "graphit", name: "Graphit", info: "Anthrazit mit Orange", bg: "#161616", s1: "#1e1e1e", s2: "#272727", s3: "#313131", line: "#2d2d2d", ink: "#ececec", muted: "#a0a0a0", faint: "#6a6a6a", acc: "#ff9f0a", g2: "#ff375f", g3: "#5e5ce6" },
+    { id: "mitternacht", name: "Mitternacht", info: "Nachtblau", bg: "#0d1117", s1: "#151b23", s2: "#1c2430", s3: "#243040", line: "#232c38", ink: "#e6edf3", muted: "#9aa7b4", faint: "#5d6b7a", acc: "#6ea8fe", g2: "#b0457a", g3: "#2f8f6f" },
+    { id: "schiefer", name: "Schiefer", info: "Kühles Blaugrau, Petrol", bg: "#121417", s1: "#1a1d21", s2: "#22262b", s3: "#2b3036", line: "#2a2f35", ink: "#e8eaed", muted: "#a0a7b0", faint: "#69707a", acc: "#5ac8c8", g2: "#5e5ce6", g3: "#ff9f0a" },
+    { id: "salbei", name: "Salbei", info: "Gedämpftes Grün", bg: "#121513", s1: "#191d1a", s2: "#212622", s3: "#2a302b", line: "#272d28", ink: "#e6ebe6", muted: "#9eaa9f", faint: "#667067", acc: "#7fbf95", g2: "#5ac8c8", g3: "#d6a26b" },
+    { id: "sand", name: "Sand", info: "Warmes Dunkelbraun, Karamell", bg: "#171513", s1: "#1f1c19", s2: "#282420", s3: "#322d28", line: "#2e2a25", ink: "#efe9e2", muted: "#aca295", faint: "#766d62", acc: "#d6a26b", g2: "#ff7a6b", g3: "#7fbf95" },
+    { id: "lavendel", name: "Lavendel", info: "Dunkles Violettgrau", bg: "#151419", s1: "#1c1b22", s2: "#24222b", s3: "#2d2b35", line: "#2b2932", ink: "#ece9f2", muted: "#a49fb0", faint: "#6d6878", acc: "#a78bfa", g2: "#ff6bcb", g3: "#5ac8fa" },
+    { id: "koralle", name: "Koralle", info: "Warmes Grau mit Korallrot", bg: "#161414", s1: "#1e1b1b", s2: "#272323", s3: "#312c2c", line: "#2d2828", ink: "#efe8e7", muted: "#ab9f9d", faint: "#756a68", acc: "#ff7a6b", g2: "#ffd60a", g3: "#a78bfa" },
+    { id: "oled", name: "OLED", info: "Reines Schwarz, Gelb – spart Akku", bg: "#000000", s1: "#0c0c0c", s2: "#161616", s3: "#202020", line: "#1f1f1f", ink: "#f2f2f2", muted: "#a3a3a3", faint: "#6b6b6b", acc: "#ffd60a", g2: "#ff9f0a", g3: "#0a84ff" }
   ];
   // frühere Namen weiter verstehen
   var ALIAS = { wald: "salbei", espresso: "sand", aubergine: "lavendel", tiefsee: "schiefer", oxid: "koralle", bordeaux: "koralle" };
-  var FONT = "-apple-system,BlinkMacSystemFont,'SF Pro Text','Inter','Segoe UI Variable Text','Segoe UI',Roboto,'Helvetica Neue',system-ui,sans-serif";
+  // Inter liegt als Datei in jeder App (offline, auf Samsung und iPhone gleich)
+  var FONT = "'Inter SG',Inter,-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,'Helvetica Neue',system-ui,sans-serif";
+  var FONTURL = "/" + (location.pathname.split("/")[1] || "") + "/inter.woff2";
   // App-Variable -> Farbrolle der Farbwelt
   var MAPS = {
     panel: { bg: "bg", panel: "s1", "panel-2": "s2", "panel-3": "s3", line: "line", text: "ink", "text-dim": "muted", "text-faint": "faint" },
@@ -304,6 +306,12 @@ button{touch-action:manipulation}
   // Laptop-Anpassungen: schmale Handy-Spalten verbreitern, zu breite Seiten mittig begrenzen
   // Doppelte Design-Schalter der einzelnen Apps ausblenden: Farben kommen für alle aus dem Bereich „Design“.
   var LAYOUT = {
+    // Planer: die Leiste liegt sonst im Fluss – als schwebende Bahn über dem Inhalt
+    kalender: "@media(max-width:1000px){html:not(.sg-noglass) .tabbar{position:fixed;z-index:40}html:not(.sg-noglass) #view{padding-bottom:calc(86px + env(safe-area-inset-bottom,0px))}" +
+      "html:not(.sg-noglass) .fab{bottom:calc(94px + env(safe-area-inset-bottom,0px))!important;border-radius:50%!important}html:not(.sg-noglass) .tabbar button{border-radius:22px}" +
+      // in Schule/Pause hat der Bereich unten seine eigene Leiste: die Planer-Leiste bleibt dann darunter statt darüber
+      "html:not(.sg-noglass) .app.inmod .tabbar{position:relative!important;left:auto!important;right:auto!important;bottom:auto!important;margin:6px 12px calc(8px + env(safe-area-inset-bottom,0px))!important}}" +
+      "html:not(.sg-noglass) .bar{background:" + "transparent!important}",
     panel: "@media(min-width:900px){.onb{padding-left:max(24px,calc(50vw - 380px))!important;padding-right:max(24px,calc(50vw - 380px))!important}}" +
       // Training auf Tablet quer / Laptop: Karten in zwei Spalten statt einer langen Liste
       "@media(min-width:1100px){#s-heute.active,#s-lauf.active,#s-fitness.active,#s-daten.active{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:18px;align-items:stretch;align-content:start}" +
@@ -327,6 +335,37 @@ button{touch-action:manipulation}
     ".card,.hero,.feed-card,.widget-tile,.tile,.quote-card,.settings-section,.stat-box,.passage{border-radius:12px!important}" +
     ".hero{border:1px solid var(--sg-line)!important}" +
     "button,.btn,.chip{box-shadow:none!important;background-image:none!important}";
+  var GLASS_CARDS = {
+    kalender: ".card,.tl-tile,.wpstrip,.qa,.nudge",
+    lernplan: ".card,.wkall",
+    panel: ".card,.hero,.feed-card,.stat,.widget-tile,.stat-row>*",
+    rodeln: ".card,.set,.tabs2 button",
+    puls: ".panel",
+    bibel: ".quote-card,.passage.show,.settings-section,.stat-box"
+  };
+  var GLASS_NAV = {
+    kalender: [".tabbar", ".tabbar button.on"],
+    lernplan: [".tabs", ".tab.on"],
+    panel: [".nav", ".tab.on"],
+    rodeln: [".tabbar", ".tabbar button.on"],
+    puls: ["nav.tabs", "nav.tabs button.on"],
+    bibel: [".tabbar", ".tabbar button.active"]
+  };
+  function glassCSS(t, roles) {
+    var g = "html:not(.sg-noglass)";
+    var s1 = rgba(t.s1, .56), hi = "inset 0 1px 0 rgba(255,255,255,.07)";
+    var css = g + ":not(#sg) body{background:radial-gradient(55% 38% at 8% 12%," + rgba(t.acc, .20) + ",transparent 70%),radial-gradient(48% 34% at 96% 48%," + rgba(t.g2 || t.acc, .15) + ",transparent 70%),radial-gradient(60% 40% at 25% 100%," + rgba(t.g3 || t.acc, .13) + ",transparent 72%)," + t.bg + ";background-attachment:fixed}";
+    var cards = GLASS_CARDS[MODE];
+    if (cards) css += cards.split(",").map(function (c) { return g + " " + c; }).join(",") + "{background-color:" + s1 + "!important;-webkit-backdrop-filter:blur(22px) saturate(165%);backdrop-filter:blur(22px) saturate(165%);border:1px solid rgba(255,255,255,.085)!important;border-radius:22px!important;box-shadow:" + hi + "!important}";
+    var nav = GLASS_NAV[MODE];
+    if (nav) {
+      css += g + " " + nav[0] + "{left:12px!important;right:12px!important;bottom:calc(10px + env(safe-area-inset-bottom,0px))!important;max-width:560px;margin:0 auto!important;border-radius:28px!important;" +
+        "background:" + rgba(t.s1, .62) + "!important;-webkit-backdrop-filter:blur(26px) saturate(180%)!important;backdrop-filter:blur(26px) saturate(180%)!important;border:1px solid rgba(255,255,255,.1)!important;" +
+        "box-shadow:0 12px 34px rgba(0,0,0,.42)," + hi + "!important;padding-left:6px!important;padding-right:6px!important;padding-bottom:0!important;overflow:hidden}";
+      css += g + " " + nav[1] + "{background:rgba(255,255,255,.11)!important;border-radius:22px!important}";
+    }
+    return css;
+  }
   var FONTVARS = { rodeln: ["fd", "fb"], puls: ["font-display", "font-body"], bibel: ["sans"] };
   var script = document.currentScript;
   var MODE = (script && script.getAttribute("data-design")) || "panel";
@@ -370,7 +409,8 @@ button{touch-action:manipulation}
     // :not(#sg) hebt die Regel über alle Hell/Dunkel-Regeln der Apps – alle Apps bleiben dunkel.
     // In der Bibel bleiben Sepia- und Nachtmodus als Lesemodi erhalten.
     var sel = MODE === "bibel" ? "html:root:not(#sg):not([data-theme=\"sepia\"]):not([data-theme=\"night\"])" : "html:root:not(#sg)";
-    return sel + "{" + vars + "}html:not(#sg) body{background-color:var(--bg)}body,button,input,select,textarea{font-family:" + FONT + "}" + PLAIN + (LAYOUT[MODE] || "");
+    return "@font-face{font-family:'Inter SG';src:url(" + FONTURL + ") format('woff2');font-weight:100 900;font-display:swap}" +
+      sel + "{" + vars + "}html:not(#sg) body{background-color:var(--bg)}body,button,input,select,textarea{font-family:" + FONT + ";font-feature-settings:'cv11','ss01'}" + PLAIN + glassCSS(t) + (LAYOUT[MODE] || "");
   }
   function apply(id) {
     var t = get(id || currentId());
@@ -381,7 +421,11 @@ button{touch-action:manipulation}
     window.dispatchEvent(new CustomEvent("sg-theme", { detail: t }));
     return t;
   }
+  function glassOn() { try { return localStorage.getItem("sg-glass") !== "0"; } catch (e) { return true; } }
+  document.documentElement.classList.toggle("sg-noglass", !glassOn());
   window.SGTheme = {
+    glass: glassOn,
+    setGlass: function (on) { try { localStorage.setItem("sg-glass", on ? "1" : "0"); } catch (e) {} document.documentElement.classList.toggle("sg-noglass", !on); window.dispatchEvent(new CustomEvent("sg-theme-set", { detail: "glass" })); },
     list: THEMES,
     current: function () { return get(currentId()); },
     set: function (id) { try { localStorage.setItem(KEY, id); } catch (e) {} apply(id); window.dispatchEvent(new CustomEvent("sg-theme-set", { detail: id })); }
@@ -389,7 +433,7 @@ button{touch-action:manipulation}
   // ?design=… in der Adresse: zum Ausprobieren ohne zu speichern
   var q = /[?&]design=([a-z]+)/.exec(location.search);
   apply(q ? q[1] : null);
-  window.addEventListener("storage", function (e) { if (e.key === KEY || e.key === null) apply(); });
+  window.addEventListener("storage", function (e) { if (e.key === KEY || e.key === null) apply(); if (e.key === "sg-glass") document.documentElement.classList.toggle("sg-noglass", !glassOn()); });
 })();
 </script>
 <!-- verbund-design:end -->
@@ -1888,7 +1932,7 @@ if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.s
 
   // Gleicht die Daten aller Verbund-Apps ab, nicht nur der gerade offenen –
   // so landen auch Änderungen aus einer App, die lange nicht offen war, in der Cloud.
-  var EXTRA = [{ id: "einstellungen", name: "Einstellungen", keys: ["sg-design"], lww: true }, { id: "wochenplan", name: "Wochenplanung", keys: ["sg-wochenplan-v1"], lww: true }];
+  var EXTRA = [{ id: "einstellungen", name: "Einstellungen", keys: ["sg-design", "sg-glass"], lww: true }, { id: "wochenplan", name: "Wochenplanung", keys: ["sg-wochenplan-v1"], lww: true }];
   function syncApps(g, files) {
     DATA.concat(EXTRA).forEach(function (app) {
       if (!app.keys.length || (app.own && app.own())) return;
@@ -2056,7 +2100,7 @@ if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.s
   var host, root, state = { month: null, sel: null, edit: null, filter: false, tab: "cal" };
   var CSS = [
     ":host{all:initial}",
-    "*{box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Inter','Segoe UI Variable Text','Segoe UI',Roboto,'Helvetica Neue',system-ui,sans-serif}",
+    "*{box-sizing:border-box;font-family:'Inter SG',Inter,-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Roboto,'Helvetica Neue',system-ui,sans-serif}",
     ".v{--bg:#f3f1ec;--s1:#fff;--s2:#ebe8e1;--line:#dad5cb;--fg:#1d1c19;--mut:#67635b;--acc:" + ME.color + ";--accfg:#fff}",
     ".v.dark{--bg:#1c1b19;--s1:#1c1b19;--s2:#2a2926;--line:#3a3833;--fg:#ebe9e4;--mut:#a29e95}",
     ".fab{position:fixed;z-index:2147483000;width:46px;height:46px;border-radius:14px;cursor:pointer;touch-action:none;",
@@ -2066,9 +2110,9 @@ if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.s
     ".fab .dot{position:absolute;top:-5px;right:-5px;min-width:19px;height:19px;padding:0 5px;border-radius:10px;background:var(--acc);color:var(--accfg);font-size:11px;line-height:19px;font-weight:700;text-align:center}",
     ".wrap{position:fixed;inset:0;z-index:2147483001;background:rgba(20,18,15,.42);display:flex;align-items:flex-end;justify-content:center}",
     "@media(min-width:700px){.wrap{align-items:center}}",
-    ".panel{background:var(--bg);color:var(--fg);width:100%;max-width:540px;max-height:92vh;overflow:auto;border-radius:16px 16px 0 0;",
+    ".panel{background:color-mix(in srgb,var(--bg) 78%,transparent);-webkit-backdrop-filter:blur(30px) saturate(170%);backdrop-filter:blur(30px) saturate(170%);border:1px solid rgba(255,255,255,.1);color:var(--fg);width:100%;max-width:540px;max-height:92vh;overflow:auto;border-radius:26px 26px 0 0;",
     "padding:14px 16px calc(18px + env(safe-area-inset-bottom,0px));font-size:15px;line-height:1.4}",
-    "@media(min-width:700px){.panel{border-radius:16px}}",
+    "@media(min-width:700px){.panel{border-radius:26px}}",
     ".top{display:flex;align-items:center;gap:8px;margin:0 0 12px}",
     ".tabs{flex:1;display:flex;background:var(--s2);border-radius:10px;padding:3px;gap:2px}",
     ".tabs button{flex:1;border:0;background:transparent;color:var(--mut);padding:7px 4px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer}",
@@ -2136,6 +2180,8 @@ if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.s
     ".prow.k-train .pd{grid-row:span 2}.prow.k-train select[data-p=kind]{grid-column:2/4}",
     "@media(min-width:560px){.prow.k-train{grid-template-columns:52px minmax(0,1.4fr) minmax(0,1fr) minmax(0,1fr)}.prow.k-train .pd{grid-row:auto}.prow.k-train select[data-p=kind]{grid-column:auto}}",
     ".prow select,.prow input{min-width:0;width:100%;padding:8px;min-height:40px;font-size:15px}",
+    ".prow.extra{border-top:1px dashed var(--line)}.prow.extra .pd{align-items:flex-start;gap:3px}.prow.extra .pd small{font-size:10.5px;line-height:1.1}.prow .del{border:0;background:var(--s2);color:var(--fg);width:22px;height:22px;border-radius:50%;cursor:pointer;line-height:1;font-size:15px;flex:none}",
+    "button.addu{border:0;background:none;color:var(--acc);font-size:13px;padding:2px 0 8px 60px;cursor:pointer;text-align:left}",
     "button.same{border:0;background:none;color:var(--acc);font-size:13px;padding:6px 0;cursor:pointer}",
     ".wdays{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin:8px 0 4px}",
     ".wd{border:1px solid var(--line);background:var(--s1);color:var(--fg);border-radius:10px;padding:8px 0 6px;font-size:14px;font-weight:600;cursor:pointer;display:flex;flex-direction:column;align-items:center;min-height:48px}",
@@ -2143,6 +2189,19 @@ if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.s
     ".seg{display:grid;grid-template-columns:1fr 1fr;gap:8px}.seg.s3{grid-template-columns:1fr 1fr 1fr}.seg button{border:1px solid var(--line);background:var(--s1);color:var(--fg);border-radius:10px;padding:10px;font-size:14px;font-weight:600;cursor:pointer;text-align:left}",
     ".seg button small{display:block;font-weight:400;font-size:12px;color:var(--mut);margin-top:2px}.seg button.on{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc)}",
     ".txt a{color:var(--acc)}.wpw .row{margin-top:2px}.wpw input[type=time],.wpw select{min-height:44px}",
+    ".appsw{position:fixed;top:0;left:0;right:0;z-index:25;height:calc(46px + env(safe-area-inset-top,0px));padding:calc(6px + env(safe-area-inset-top,0px)) 10px 6px;display:flex;align-items:center;justify-content:center;gap:8px;",
+    "background:color-mix(in srgb,var(--bg) 70%,transparent);-webkit-backdrop-filter:blur(24px) saturate(170%);backdrop-filter:blur(24px) saturate(170%);border-bottom:1px solid rgba(255,255,255,.07)}",
+    ".seg3{display:flex;gap:2px;padding:3px;border-radius:999px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.08)}",
+    ".seg3 a{padding:6px 14px;border-radius:999px;font-size:13.5px;font-weight:600;color:var(--mut);text-decoration:none;white-space:nowrap}",
+    ".seg3 a.on{background:rgba(255,255,255,.16);color:var(--fg)}",
+    ".cmdb{position:absolute;right:10px;bottom:6px;width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.07);color:var(--fg);display:flex;align-items:center;justify-content:center;cursor:pointer}",
+    ".palw{position:fixed;inset:0;z-index:2147483003;background:rgba(0,0,0,.35);display:flex;justify-content:center;align-items:flex-start;padding:calc(60px + env(safe-area-inset-top,0px)) 12px 12px}",
+    ".palp{width:100%;max-width:600px;max-height:76vh;display:flex;flex-direction:column;border-radius:22px;overflow:hidden;background:color-mix(in srgb,var(--bg) 80%,transparent);-webkit-backdrop-filter:blur(30px) saturate(170%);backdrop-filter:blur(30px) saturate(170%);border:1px solid rgba(255,255,255,.1);box-shadow:0 20px 60px rgba(0,0,0,.5)}",
+    ".palin{border:0!important;border-bottom:1px solid var(--line)!important;border-radius:0!important;background:transparent!important;font-size:17px!important;padding:16px 18px!important}",
+    ".pall{overflow:auto;padding:6px}.palg{font-size:12px;font-weight:600;color:var(--mut);padding:10px 12px 4px}",
+    ".pali{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;font-size:15px;cursor:pointer}.pali span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}",
+    ".pali.on{background:rgba(255,255,255,.1)}.pali kbd{font:12px inherit;color:var(--mut)}",
+    ".palf{font-size:11.5px;color:var(--mut);padding:8px 14px;border-top:1px solid var(--line)}@media(max-width:700px){.palf{display:none}}",
     ".toast span{flex:1;min-width:180px}.toast button{border:0;border-radius:8px;padding:7px 10px;font-size:13px;font-weight:600;cursor:pointer;background:var(--bg);color:var(--fg)}"
   ].join("");
 
@@ -2163,9 +2222,13 @@ if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.s
     var ib = document.createElement("div"); ib.className = "ibox"; v.appendChild(ib);
     var wb = document.createElement("div"); wb.className = "wpbox"; v.appendChild(wb);
     var wt = document.createElement("div"); wt.className = "wptoast"; v.appendChild(wt);
+    var pb = document.createElement("div"); pb.className = "palbox"; v.appendChild(pb);
     document.body.appendChild(host);
     placeFab(fab);
     dragFab(fab);
+    // Der App-Wechsler oben ersetzt den Knopf am Rand (Kalender, Design und Sync stehen in den Befehlen)
+    fab.style.display = "none";
+    mountSwitcher();
     render();
   }
 
@@ -2362,7 +2425,8 @@ if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.s
   function designView() {
     if (!window.SGTheme) return "<p class='txt'>Design nicht verfügbar.</p>";
     var cur = window.SGTheme.current().id;
-    return "<p class='txt m'>Gilt sofort für alle Apps auf diesem Gerät – und mit Sync auch auf deinen anderen Geräten.</p><div class='themes'>" +
+    return "<p class='txt m'>Gilt sofort für alle Apps auf diesem Gerät – und mit Sync auch auf deinen anderen Geräten.</p>" +
+      "<label class='chk' style='margin:0 0 12px'><input type='checkbox' data-a='glass'" + (window.SGTheme.glass && window.SGTheme.glass() ? " checked" : "") + "> Glaseffekt (durchscheinende Flächen, schwebende Leiste)</label><div class='themes'>" +
       window.SGTheme.list.map(function (t) {
         return "<button class='th" + (t.id === cur ? " on" : "") + "' data-theme='" + t.id + "' style='background:" + t.bg + ";color:" + t.ink + ";border-color:" + (t.id === cur ? t.acc : t.line) + "'>" +
           "<span class='pv'><i style='background:" + t.s1 + "'></i><i style='background:" + t.s2 + "'></i><i style='background:" + t.s3 + "'></i><i style='background:" + t.acc + "'></i></span>" +
@@ -2565,6 +2629,7 @@ if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.s
     else if (a === "today") { var t = new Date(); state.sel = iso(t); state.month = new Date(t.getFullYear(), t.getMonth(), 1); }
     else if (a === "close") return close();
     else if (a === "weekplan") { close(); openWeekPlan(); return; }
+    else if (a === "glass") { var gc = box.querySelector("[data-a=glass]"); if (window.SGTheme && window.SGTheme.setGlass) window.SGTheme.setGlass(gc.checked); return; }
     else if (a === "install") { if (window.SGInstallEvt) { close(); installNow(); } else { state.instHelp = true; render(); } return; }
     else if (a === "connect") return connect(box.querySelector("[name=token]").value);
     else if (a === "syncnow") return syncNow();
@@ -2672,6 +2737,15 @@ if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.s
     return { time: p.time || x.time || "17:00", dur: +(p.dur || x.dur || WDEF[key]), kind: p.kind || x.kind || "Zirkeltraining", km: p.km != null ? p.km : (x.km || "") };
   }
   function durLabel(m) { return m < 60 ? m + " Min." : Math.floor(m / 60) + (m % 60 ? ":" + pad(m % 60) : "") + " Std."; }
+  function unitFields(key, p) {
+    var r = "";
+    if (key === "train") r += "<select data-p='kind' aria-label='Art'>" + WKINDS.map(function (k) { return "<option" + (k === p.kind ? " selected" : "") + ">" + k + "</option>"; }).join("") + "</select>";
+    r += "<input type='time' data-p='time' value='" + esc(p.time) + "' aria-label='Uhrzeit'>";
+    var durs = WDURS[key].indexOf(+p.dur) < 0 ? WDURS[key].concat([+p.dur]).sort(function (m, n) { return m - n; }) : WDURS[key];
+    r += "<select data-p='dur' aria-label='Dauer'>" + durs.map(function (m) { return "<option value='" + m + "'" + (m === +p.dur ? " selected" : "") + ">" + durLabel(m) + "</option>"; }).join("") + "</select>";
+    if (key === "run") r += "<input type='number' inputmode='decimal' min='0' step='0.5' data-p='km' value='" + esc(p.km) + "' placeholder='km' aria-label='Distanz in km'>";
+    return r;
+  }
   function dayRows(key) {
     var x = wp.a[key];
     if (!x.days.length) return "<p class='txt m'>Keine Tage gewählt.</p>";
@@ -2681,12 +2755,15 @@ if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.s
     var h = "<div class='prows'>" + x.days.slice().sort().map(function (i) {
       var p = perOf(wp.a, key, i), past = wpPast(i);
       var r = "<div class='prow k-" + key + (past ? " past" : "") + "' data-k='" + key + "' data-i='" + i + "'><span class='pd'>" + WDN[i] + "<small>" + shortDate(plusDays(wp.mon, i)) + "</small></span>";
-      if (key === "train") r += "<select data-p='kind' aria-label='Art'>" + WKINDS.map(function (k) { return "<option" + (k === p.kind ? " selected" : "") + ">" + k + "</option>"; }).join("") + "</select>";
-      r += "<input type='time' data-p='time' value='" + esc(p.time) + "' aria-label='Uhrzeit'>";
-      var durs = WDURS[key].indexOf(p.dur) < 0 ? WDURS[key].concat([p.dur]).sort(function (m, n) { return m - n; }) : WDURS[key];
-      r += "<select data-p='dur' aria-label='Dauer'>" + durs.map(function (m) { return "<option value='" + m + "'" + (m === p.dur ? " selected" : "") + ">" + durLabel(m) + "</option>"; }).join("") + "</select>";
-      if (key === "run") r += "<input type='number' inputmode='decimal' min='0' step='0.5' data-p='km' value='" + esc(p.km) + "' placeholder='km' aria-label='Distanz in km'>";
-      return r + "</div>";
+      r += unitFields(key, p) + "</div>";
+      // freiwillig: weitere Einheiten am selben Tag (z. B. morgens laufen, abends Kraft)
+      if (key === "train") {
+        ((x.extra || {})[i] || []).forEach(function (u, xi) {
+          r += "<div class='prow k-train extra" + (past ? " past" : "") + "' data-k='train' data-i='" + i + "' data-x='" + xi + "'><span class='pd'><button type='button' class='del' data-w='delunit' data-i='" + i + "' data-x='" + xi + "' aria-label='Einheit entfernen'>×</button><small>" + (xi + 2) + ". Einheit</small></span>" + unitFields("train", u) + "</div>";
+        });
+        if (!past) r += "<button type='button' class='addu' data-w='addunit' data-i='" + i + "'>+ weitere Einheit am " + WDN[i] + "</button>";
+      }
+      return r;
     }).join("") + "</div>";
     if (x.days.length > 1) h += "<button type='button' class='same' data-w='same' data-k='" + key + "'>Wie " + WDN[x.days.slice().sort()[0]] + " für alle Tage übernehmen</button>";
     return h;
@@ -2823,6 +2900,13 @@ if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.s
       var a = t.dataset.w;
       if (a === "close") closeWeekPlan();
       else if (a === "settings") { wp.view = "settings"; wpRender(); }
+      else if (a === "addunit") {
+        var xi0 = +t.dataset.i, tr = wp.a.train; tr.extra = tr.extra || {};
+        var main = perOf(wp.a, "train", xi0), h0 = +main.time.split(":")[0];
+        (tr.extra[xi0] = tr.extra[xi0] || []).push({ kind: "Laufen", time: h0 >= 12 ? "07:00" : "18:00", dur: 30, km: "" });
+        wpRender();
+      }
+      else if (a === "delunit") { var ex = wp.a.train.extra[+t.dataset.i]; ex.splice(+t.dataset.x, 1); wpRender(); }
       else if (a === "same") {
         var k = t.dataset.k, x = wp.a[k], first = perOf(wp.a, k, x.days.slice().sort()[0]);
         x.per = x.per || {}; x.days.forEach(function (i) { x.per[i] = Object.assign({}, first); });
@@ -2843,6 +2927,7 @@ if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.s
     box.querySelectorAll("[data-p]").forEach(function (inp) {
       inp.addEventListener("change", function () {
         var row = inp.closest(".prow"), k = row.dataset.k, i = +row.dataset.i, x = wp.a[k], f = inp.dataset.p;
+        if (row.dataset.x != null) { var u = x.extra[i][+row.dataset.x]; u[f] = f === "dur" ? +inp.value : inp.value; return; }
         x.per = x.per || {}; x.per[i] = Object.assign(perOf(wp.a, k, i), x.per[i] || {});
         var val = f === "dur" ? +inp.value : f === "km" ? inp.value.replace(",", ".") : inp.value;
         x.per[i][f] = val; x[f] = val; // neu gewählte Tage übernehmen den zuletzt eingestellten Wert
@@ -2871,7 +2956,10 @@ if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.s
         color: "", app: app, created: Date.now(), changed: Date.now(), remind: null, wp: mon });
     }
     if (c.topics.training) {
-      live(a.train.days).forEach(function (i) { var p = perOf(a, "train", i); ev(i, p.time, p.dur, p.kind, "Training", durLabel(p.dur) + " · aus der Wochenplanung"); });
+      live(a.train.days).forEach(function (i) {
+        var p = perOf(a, "train", i); ev(i, p.time, p.dur, p.kind, "Training", durLabel(p.dur) + " · aus der Wochenplanung");
+        ((a.train.extra || {})[i] || []).forEach(function (u) { ev(i, u.time || "18:00", +u.dur || 30, u.kind || "Training", "Training", durLabel(+u.dur || 30) + " · weitere Einheit"); });
+      });
       live(a.run.days).forEach(function (i) { var p = perOf(a, "run", i), km = parseFloat(p.km); ev(i, p.time, p.dur, "Laufen" + (km > 0 ? " · " + String(km).replace(".", ",") + " km" : ""), "Training", durLabel(p.dur) + " · aus der Wochenplanung"); });
     }
     if (c.topics.mobility) live(a.mob.days).forEach(function (i) { var p = perOf(a, "mob", i); ev(i, p.time, p.dur, p.dur > 5 ? "Mobility · " + durLabel(p.dur) : "Mobility-Block", "Mobility"); });
@@ -2943,6 +3031,142 @@ if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.s
     if (!fired[key] && notifyOk() && document.hidden) { fired[key] = Date.now(); try { localStorage.setItem(FIRED_KEY, JSON.stringify(fired)); } catch (e) {} show("Zeit für die Wochenplanung", "KW " + kw(mon) + " in 2 Minuten planen", key); }
   }
   if (!EMBED) { setInterval(renderWpToast, 60000); window.addEventListener("storage", function (e) { if (e.key === WP_KEY) renderWpToast(); }); }
+  /* ---------- App-Wechsler (oben) und Befehle (⌘) ----------
+   * Eine schmale Glasleiste oben: Planer · Training · Bibel und ⌘ für alle Befehle. In eingebetteten Bereichen nicht. */
+  var CMD_EXTRA = [], PAL_OVERRIDE = null;
+  function go(appId, hash) {
+    if (appId === ME.id) { if (location.hash === (hash || "#")) window.dispatchEvent(new HashChangeEvent("hashchange")); else location.hash = hash || ""; return; }
+    var a = APPS.find(function (x) { return x.id === appId; }); location.href = appUrl(a) + (hash || "");
+  }
+  function globalCommands() {
+    var L = [];
+    function add(g, label, run, k) { L.push({ g: g, label: label, run: run, k: k || "" }); }
+    APPS.forEach(function (a) { if (a.id !== ME.id) add("Apps", a.name + " öffnen", function () { go(a.id, ""); }); });
+    add("Planer", "Heute (Briefing)", function () { go("planer", "#brief"); });
+    add("Planer", "Kalender", function () { go("planer", "#cal"); });
+    add("Planer", "Aufgaben", function () { go("planer", "#tasks"); });
+    add("Planer", "Schule: Stundenplan, Prüfungen, Hausaufgaben", function () { go("planer", "#schule"); });
+    add("Planer", "Pause starten", function () { go("planer", "#pause"); });
+    add("Training", "Training starten", function () { go("training", "#start"); });
+    add("Training", "Training-Kalender", function () { go("training", "#kalender"); });
+    add("Training", "Laufen", function () { go("training", "#lauf"); });
+    add("Training", "Fitness & Analyse", function () { go("training", "#fitness"); });
+    add("Training", "Mobility-Block", function () { go("training", "#mobility"); });
+    add("Training", "Mobility vor/nach dem Wettkampf", function () { go("training", "#mobility/wettkampf"); });
+    add("Training", "Atemübung starten", function () { go("training", "#atmung/train"); });
+    add("Training", "Morgen-HRV messen", function () { go("training", "#atmung"); });
+    add("Training", "Atemplan dieser Woche", function () { go("training", "#atmung/week"); });
+    add("Bibel", "Heute lesen", function () { go("bibel", "#lesen"); });
+    add("Bibel", "Bibliothek (alle Bücher)", function () { go("bibel", "#bibliothek"); });
+    add("Bibel", "Zufallsvers", function () { go("bibel", "#zufall"); });
+    add("Bibel", "Meine Bibel: Favoriten, Notizen", function () { go("bibel", "#meinebibel"); });
+    if (wpCfg().on) {
+      add("Planen", "Woche planen", function () { openWeekPlan(); });
+      add("Planen", "Nächste Woche planen", function () { openWeekPlan("", plusDays(mondayOf(iso(new Date())), 7)); });
+    }
+    add("Planen", "Wochenplanung: Einstellungen", function () { openWeekPlan("settings"); });
+    add("Kalender", "Neuer Termin", function () { openPanel(); state.edit = { date: iso(new Date()), app: APP }; render(); });
+    add("Kalender", "Monatsübersicht aller Apps", function () { openPanel(); });
+    add("Kalender", "Kalender als .ics exportieren", function () { download("gemeinsamer-kalender.ics", "text/calendar", ics()); });
+    if (window.SGTheme) {
+      window.SGTheme.list.forEach(function (t) { add("Design", "Design: " + t.name + " – " + t.info, function () { window.SGTheme.set(t.id); }); });
+      add("Design", "Glaseffekt " + (window.SGTheme.glass() ? "ausschalten" : "einschalten"), function () { window.SGTheme.setGlass(!window.SGTheme.glass()); });
+    }
+    add("Daten", cfg().token ? "Jetzt synchronisieren" : "Cloud-Sicherung einrichten", function () { if (cfg().token) syncNow(); else openPanel(null, "sync"); });
+    add("Daten", "Frühere Stände zurückholen", function () { openPanel(null, "sync"); });
+    add("Daten", "Alles als Datei sichern", function () { download("sportgermany-sicherung-" + iso(new Date()) + ".json", "application/json", JSON.stringify(fullBackup(), null, 2)); });
+    if ("Notification" in window && Notification.permission === "default") add("Daten", "Erinnerungen als Benachrichtigung erlauben", askNotify);
+    if (!standalone()) add("Daten", ME.name + " als App installieren", function () { installNow(); });
+    return L.concat(CMD_EXTRA);
+  }
+  var pal = null;
+  // alle eingegebenen Wörter müssen vorkommen („design graphit“ findet „Design: Graphit“)
+  function wordsMatch(text, ql) { text = text.toLowerCase(); return !ql || ql.split(/\s+/).every(function (w) { return text.indexOf(w) > -1; }); }
+  function palItems(q) {
+    var ql = q.trim().toLowerCase(), out = [];
+    globalCommands().forEach(function (c) { if (wordsMatch(c.g + " " + c.label, ql)) out.push(c); });
+    // passende Befehle zuerst – „Aufgabe anlegen“ steht dahinter (oder vorn, wenn nichts passt)
+    if (ql) { var mk = { g: "Anlegen", label: "Aufgabe anlegen: " + q.trim(), run: function () { api.tasks.add({ title: q.trim(), due: "" }); flash("Aufgabe angelegt"); } }; if (out.length) out.push(mk); else out.unshift(mk); }
+    if (ql.length > 1) {
+      var t = iso(new Date()), seen = {};
+      allItems(plusDays(t, -60), plusDays(t, 120)).forEach(function (e) {
+        if (seen[e.id] || (e.title + " " + (e.note || "")).toLowerCase().indexOf(ql) < 0) return; seen[e.id] = 1;
+        out.push({ g: "Termine", label: e.title, k: shortDate(e.date) + (e.time ? " " + e.time : ""), run: function () { if (e.linkApp && e.linkApp !== ME.id) location.href = e.link; else if (e.linkHash) go(ME.id, e.linkHash); else openPanel(e.date); } });
+      });
+      api.tasks.list().forEach(function (x) { if (!x.done && x.title.toLowerCase().indexOf(ql) > -1) out.push({ g: "Aufgaben", label: x.title, k: x.due ? shortDate(x.due) : "", run: function () { go("planer", "#tasks"); } }); });
+    }
+    return out.slice(0, 60);
+  }
+  function openPalette(text) {
+    if (PAL_OVERRIDE) return PAL_OVERRIDE(text);
+    mount(); pal = { q: text || "", i: 0 }; palRender(true);
+  }
+  function closePal() { pal = null; palRender(); }
+  function palRender(focus) {
+    var box = root.querySelector(".palbox");
+    if (!pal) { box.innerHTML = ""; return; }
+    var items = palItems(pal.q); pal.items = items; pal.i = Math.min(pal.i, Math.max(0, items.length - 1));
+    if (!box.firstChild) {
+      box.innerHTML = "<div class='palw'><div class='palp' role='dialog' aria-label='Befehle'><input class='palin' placeholder='Befehl, App oder Termin suchen … oder neue Aufgabe tippen' autocomplete='off'><div class='pall'></div><div class='palf'>↑↓ auswählen · Enter ausführen · Esc schließen</div></div></div>";
+      var inp = box.querySelector(".palin");
+      inp.value = pal.q;
+      inp.addEventListener("input", function () { pal.q = inp.value; pal.i = 0; palRender(); });
+      inp.addEventListener("keydown", function (e) {
+        if (e.key === "ArrowDown") { pal.i = Math.min(pal.items.length - 1, pal.i + 1); palRender(); e.preventDefault(); }
+        else if (e.key === "ArrowUp") { pal.i = Math.max(0, pal.i - 1); palRender(); e.preventDefault(); }
+        else if (e.key === "Enter") { var it = pal.items[pal.i]; if (it) { closePal(); it.run(); } }
+        else if (e.key === "Escape") closePal();
+      });
+      box.querySelector(".palw").addEventListener("click", function (e) {
+        if (e.target.classList.contains("palw")) return closePal();
+        var r = e.target.closest("[data-pi]"); if (!r) return;
+        var it = pal.items[+r.dataset.pi]; closePal(); if (it) it.run();
+      });
+    }
+    var g = "", h = "";
+    items.forEach(function (it, n) {
+      if (it.g !== g) { g = it.g; h += "<div class='palg'>" + esc(g) + "</div>"; }
+      h += "<div class='pali" + (n === pal.i ? " on" : "") + "' data-pi='" + n + "'><span>" + esc(it.label) + "</span>" + (it.k ? "<kbd>" + esc(it.k) + "</kbd>" : "") + "</div>";
+    });
+    box.querySelector(".pall").innerHTML = h || "<div class='palg'>Nichts gefunden</div>";
+    var on = box.querySelector(".pali.on"); if (on) on.scrollIntoView({ block: "nearest" });
+    if (focus) box.querySelector(".palin").focus();
+  }
+  function flash(msg) {
+    var tb = root.querySelector(".wptoast");
+    tb.innerHTML = "<div class='toast inst'><span class='mono' style='background:" + ME.color + "'>✓</span><div class='it'><b>" + esc(msg) + "</b></div></div>";
+    setTimeout(function () { renderWpToast(); }, 1800);
+  }
+  function mountSwitcher() {
+    if (EMBED || !root || root.querySelector(".appsw")) return;
+    document.documentElement.classList.add("sg-sw");
+    var st = document.createElement("style"); st.id = "sg-sw-style";
+    st.textContent = "html.sg-sw body{padding-top:calc(46px + env(safe-area-inset-top,0px))!important;box-sizing:border-box}";
+    document.head.appendChild(st);
+    var s = document.createElement("div"); s.className = "appsw";
+    s.innerHTML = "<div class='seg3'>" + APPS.map(function (a) {
+      return "<a href='" + esc(a.id === ME.id ? "#" : appUrl(a)) + "' class='" + (a.id === ME.id ? "on" : "") + "' data-app='" + a.id + "'>" + esc(a.name) + "</a>";
+    }).join("") + "</div><button class='cmdb' aria-label='Befehle' title='Befehle (Strg+K)'><svg viewBox='0 0 24 24' width='18' height='18' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round'><circle cx='11' cy='11' r='6.5'/><path d='M20 20l-4.2-4.2'/></svg></button>";
+    root.querySelector(".v").appendChild(s);
+    s.addEventListener("click", function (e) {
+      if (e.target.closest(".cmdb")) { openPalette(); return; }
+      var a = e.target.closest("a[data-app]"); if (a && a.dataset.app === ME.id) e.preventDefault();
+    });
+  }
+  document.addEventListener("keydown", function (e) {
+    if ((e.ctrlKey || e.metaKey) && (e.key === "k" || e.key === "K") && !EMBED) { e.preventDefault(); openPalette(); }
+    else if (e.key === "Escape" && pal) closePal();
+  });
+  function hashCmd() {
+    if (location.hash === "#wochenplanung") { history.replaceState(null, "", location.pathname); openWeekPlan(); }
+    else if (location.hash === "#befehle") { history.replaceState(null, "", location.pathname); openPalette(); }
+  }
+  if (!EMBED) { window.addEventListener("hashchange", hashCmd); setTimeout(hashCmd, 300); }
+  api.palette = openPalette;
+  api.wordsMatch = wordsMatch;
+  api.commands = globalCommands;
+  api.addCommands = function (list) { CMD_EXTRA = CMD_EXTRA.concat(list); };
+  api.setPalette = function (fn) { PAL_OVERRIDE = fn; };
   api.weekPlan = function (view, mon) { if (EMBED) { try { return window.top.SharedCalendar.weekPlan(view, mon); } catch (e) {} } openWeekPlan(view, mon); };
   api.weekPlanned = function (mon) { return wpCfg().planned[mondayOf(mon)] || 0; };
   api.weekPlanConfig = wpCfg;
