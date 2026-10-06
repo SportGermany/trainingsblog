@@ -180,15 +180,15 @@ details ul, details ol { margin: 0; padding-left: 20px; display: flex; flex-dire
   var KEY = "sg-design";
   // Schlicht nach dem Vorbild von Notion Kalender und Apple: ruhige Grautöne, eine Akzentfarbe, feine Linien
   var THEMES = [
-    { id: "notion", name: "Notion", info: "Neutrales Grau, klares Blau (Standard)", bg: "#191919", s1: "#202020", s2: "#272727", s3: "#2f2f2f", line: "#2c2c2c", ink: "#ebebea", muted: "#9b9a97", faint: "#6b6a67", acc: "#529cca", g2: "#7c5cff", g3: "#2f8f6f" },
+    { id: "notion", name: "Notion", info: "Neutrales Grau, klares Blau (Standard)", bg: "#131313", s1: "#202020", s2: "#272727", s3: "#2f2f2f", line: "#2c2c2c", ink: "#ebebea", muted: "#9b9a97", faint: "#6b6a67", acc: "#529cca", g2: "#7c5cff", g3: "#2f8f6f" },
     { id: "apple", name: "Apple", info: "Tiefschwarz mit Systemblau", bg: "#000000", s1: "#1c1c1e", s2: "#2c2c2e", s3: "#3a3a3c", line: "#2c2c2e", ink: "#f5f5f7", muted: "#98989d", faint: "#636366", acc: "#0a84ff", g2: "#bf5af2", g3: "#30d158" },
-    { id: "graphit", name: "Graphit", info: "Anthrazit mit Orange", bg: "#161616", s1: "#1e1e1e", s2: "#272727", s3: "#313131", line: "#2d2d2d", ink: "#ececec", muted: "#a0a0a0", faint: "#6a6a6a", acc: "#ff9f0a", g2: "#ff375f", g3: "#5e5ce6" },
-    { id: "mitternacht", name: "Mitternacht", info: "Nachtblau", bg: "#0d1117", s1: "#151b23", s2: "#1c2430", s3: "#243040", line: "#232c38", ink: "#e6edf3", muted: "#9aa7b4", faint: "#5d6b7a", acc: "#6ea8fe", g2: "#b0457a", g3: "#2f8f6f" },
-    { id: "schiefer", name: "Schiefer", info: "Kühles Blaugrau, Petrol", bg: "#121417", s1: "#1a1d21", s2: "#22262b", s3: "#2b3036", line: "#2a2f35", ink: "#e8eaed", muted: "#a0a7b0", faint: "#69707a", acc: "#5ac8c8", g2: "#5e5ce6", g3: "#ff9f0a" },
-    { id: "salbei", name: "Salbei", info: "Gedämpftes Grün", bg: "#121513", s1: "#191d1a", s2: "#212622", s3: "#2a302b", line: "#272d28", ink: "#e6ebe6", muted: "#9eaa9f", faint: "#667067", acc: "#7fbf95", g2: "#5ac8c8", g3: "#d6a26b" },
-    { id: "sand", name: "Sand", info: "Warmes Dunkelbraun, Karamell", bg: "#171513", s1: "#1f1c19", s2: "#282420", s3: "#322d28", line: "#2e2a25", ink: "#efe9e2", muted: "#aca295", faint: "#766d62", acc: "#d6a26b", g2: "#ff7a6b", g3: "#7fbf95" },
-    { id: "lavendel", name: "Lavendel", info: "Dunkles Violettgrau", bg: "#151419", s1: "#1c1b22", s2: "#24222b", s3: "#2d2b35", line: "#2b2932", ink: "#ece9f2", muted: "#a49fb0", faint: "#6d6878", acc: "#a78bfa", g2: "#ff6bcb", g3: "#5ac8fa" },
-    { id: "koralle", name: "Koralle", info: "Warmes Grau mit Korallrot", bg: "#161414", s1: "#1e1b1b", s2: "#272323", s3: "#312c2c", line: "#2d2828", ink: "#efe8e7", muted: "#ab9f9d", faint: "#756a68", acc: "#ff7a6b", g2: "#ffd60a", g3: "#a78bfa" },
+    { id: "graphit", name: "Graphit", info: "Anthrazit mit Orange", bg: "#0f0f0f", s1: "#1e1e1e", s2: "#272727", s3: "#313131", line: "#2d2d2d", ink: "#ececec", muted: "#a0a0a0", faint: "#6a6a6a", acc: "#ff9f0a", g2: "#ff375f", g3: "#5e5ce6" },
+    { id: "mitternacht", name: "Mitternacht", info: "Nachtblau", bg: "#0a0d12", s1: "#151b23", s2: "#1c2430", s3: "#243040", line: "#232c38", ink: "#e6edf3", muted: "#9aa7b4", faint: "#5d6b7a", acc: "#6ea8fe", g2: "#b0457a", g3: "#2f8f6f" },
+    { id: "schiefer", name: "Schiefer", info: "Kühles Blaugrau, Petrol", bg: "#0d0f12", s1: "#1a1d21", s2: "#22262b", s3: "#2b3036", line: "#2a2f35", ink: "#e8eaed", muted: "#a0a7b0", faint: "#69707a", acc: "#5ac8c8", g2: "#5e5ce6", g3: "#ff9f0a" },
+    { id: "salbei", name: "Salbei", info: "Gedämpftes Grün", bg: "#0d100e", s1: "#191d1a", s2: "#212622", s3: "#2a302b", line: "#272d28", ink: "#e6ebe6", muted: "#9eaa9f", faint: "#667067", acc: "#7fbf95", g2: "#5ac8c8", g3: "#d6a26b" },
+    { id: "sand", name: "Sand", info: "Warmes Dunkelbraun, Karamell", bg: "#110f0d", s1: "#1f1c19", s2: "#282420", s3: "#322d28", line: "#2e2a25", ink: "#efe9e2", muted: "#aca295", faint: "#766d62", acc: "#d6a26b", g2: "#ff7a6b", g3: "#7fbf95" },
+    { id: "lavendel", name: "Lavendel", info: "Dunkles Violettgrau", bg: "#100f13", s1: "#1c1b22", s2: "#24222b", s3: "#2d2b35", line: "#2b2932", ink: "#ece9f2", muted: "#a49fb0", faint: "#6d6878", acc: "#a78bfa", g2: "#ff6bcb", g3: "#5ac8fa" },
+    { id: "koralle", name: "Koralle", info: "Warmes Grau mit Korallrot", bg: "#100e0e", s1: "#1e1b1b", s2: "#272323", s3: "#312c2c", line: "#2d2828", ink: "#efe8e7", muted: "#ab9f9d", faint: "#756a68", acc: "#ff7a6b", g2: "#ffd60a", g3: "#a78bfa" },
     { id: "oled", name: "OLED", info: "Reines Schwarz, Gelb – spart Akku", bg: "#000000", s1: "#0c0c0c", s2: "#161616", s3: "#202020", line: "#1f1f1f", ink: "#f2f2f2", muted: "#a3a3a3", faint: "#6b6b6b", acc: "#ffd60a", g2: "#ff9f0a", g3: "#0a84ff" }
   ];
   // frühere Namen weiter verstehen
@@ -209,20 +209,22 @@ details ul, details ol { margin: 0; padding-left: 20px; display: flex; flex-dire
   // Doppelte Design-Schalter der einzelnen Apps ausblenden: Farben kommen für alle aus dem Bereich „Design“.
   var LAYOUT = {
     // Planer: die Leiste liegt sonst im Fluss – als schwebende Bahn über dem Inhalt
-    kalender: "@media(max-width:1000px){html:not(.sg-noglass) .tabbar{position:fixed;z-index:40}html:not(.sg-noglass) #view{padding-bottom:calc(86px + env(safe-area-inset-bottom,0px))}" +
-      "html:not(.sg-noglass) .fab{bottom:calc(94px + env(safe-area-inset-bottom,0px))!important;border-radius:50%!important}html:not(.sg-noglass) .tabbar button{border-radius:22px}" +
-      // in Schule/Pause hat der Bereich unten seine eigene Leiste: die Planer-Leiste bleibt dann darunter statt darüber
-      "html:not(.sg-noglass) .app.inmod .tabbar{position:relative!important;left:auto!important;right:auto!important;bottom:auto!important;margin:6px 12px calc(8px + env(safe-area-inset-bottom,0px))!important}}" +
-      "html:not(.sg-noglass) .bar{background:" + "transparent!important}",
+    kalender: "@media(max-width:1000px){.tabbar{position:fixed;z-index:40}#view{padding-bottom:calc(86px + env(safe-area-inset-bottom,0px))}" +
+      ".fab{bottom:calc(92px + env(safe-area-inset-bottom,0px))!important;border-radius:50%!important}.tabbar button{border-radius:24px}" +
+      // in Schule/Pause hat der Bereich unten seine eigene Leiste – dann nur diese (zurück über ‹ oben links)
+      "html .app.inmod .tabbar{display:none!important}}",
     panel: "@media(min-width:900px){.onb{padding-left:max(24px,calc(50vw - 380px))!important;padding-right:max(24px,calc(50vw - 380px))!important}}" +
       // Training auf Tablet quer / Laptop: Karten in zwei Spalten statt einer langen Liste
+      // Tablet hochkant: breitere Spalte statt 480-px-Handyformat
+      "@media(min-width:700px) and (max-width:1099px){.shell{max-width:660px!important}}" +
       "@media(min-width:1100px){#s-heute.active,#s-lauf.active,#s-fitness.active,#s-daten.active{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:18px;align-items:stretch;align-content:start}" +
       "#s-heute.active>*,#s-lauf.active>*,#s-fitness.active>*,#s-daten.active>*{min-width:0}" +
       "#s-heute>.brand,#s-heute>.top,#s-lauf>.top,#s-fitness>.top,#s-daten>.top,.screen.active>.sec-label,.screen.active>.hero,.screen.active>.stat-row,.screen.active>.bento,.screen.active>.widget-area,.screen.active>button,.screen.active>p{grid-column:1/-1}}" +
       ".row:has(#setSkin),#themeRow,#navyPanelRow,.row:has(#setThemeMode),.row:has(#setSkinMode),#modernAccentRow,.row:has(#setAccentPerGoal){display:none!important}" +
       // Denkpause im Planer: Wetter und eigener Verlauf-Kalender sind doppelt (Planer-Kalender, Wetter im Training)
       "html.sg-embed .tab[data-t=kalender],html.sg-embed .card:has(#citySearchBtn),html.sg-embed .sec-label:has(+ .card #citySearchBtn){display:none!important}",
-    bibel: "@media(min-width:900px){.app,.overlay-inner{max-width:720px}}#themeRow [data-theme=light]{display:none!important}",
+    bibel: ".settings-section{padding:16px!important;margin-bottom:14px!important;border-bottom:0!important}.settings-section h3{margin-top:0!important}.tabbar{min-height:58px}" +
+      "@media(min-width:900px){.app,.overlay-inner{max-width:720px}}#themeRow [data-theme=light]{display:none!important}",
     rodeln: ".set:has([data-theme-set]),.set:has(#chkBtn),#chkOut,.set:has(#instGo2),html.sg-embed .install{display:none!important}" +
       "@media(min-width:900px){.app{max-width:780px}}" +
       // Systemschrift ist breiter als die frühere schmale Schrift: Startknopf auf kleinen Handys anpassen
@@ -234,11 +236,10 @@ details ul, details ol { margin: 0; padding-left: 20px; display: flex; flex-dire
   var PLAIN = "body *{text-transform:none!important;letter-spacing:normal!important}" +
     "h1,h2,h3{letter-spacing:-.01em!important}" +
     ".card,.hero,.stat,.feed-card,.widget-tile,.tile,.bento>*,.stat-row>*,.panel,.set,.wk-card,.kpi,.mini,.quote-card,.settings-section,.stat-box,.passage{box-shadow:none!important;background-image:none!important}" +
-    ".card,.hero,.feed-card,.widget-tile,.tile,.quote-card,.settings-section,.stat-box,.passage{border-radius:12px!important}" +
-    ".hero{border:1px solid var(--sg-line)!important}" +
+    ".card,.hero,.feed-card,.widget-tile,.tile,.quote-card,.settings-section,.stat-box,.passage{border-radius:14px!important}" +
     "button,.btn,.chip{box-shadow:none!important;background-image:none!important}";
   var GLASS_CARDS = {
-    kalender: ".card,.tl-tile,.wpstrip,.qa,.nudge",
+    kalender: ".card,.tl-tile,.wpstrip,.nudge",
     lernplan: ".card,.wkall",
     panel: ".card,.hero,.feed-card,.stat,.widget-tile,.stat-row>*",
     rodeln: ".card,.set,.tabs2 button",
@@ -253,18 +254,21 @@ details ul, details ol { margin: 0; padding-left: 20px; display: flex; flex-dire
     puls: ["nav.tabs", "nav.tabs button.on"],
     bibel: [".tabbar", ".tabbar button.active"]
   };
-  function glassCSS(t, roles) {
+  /* Natürlicher Aufbau wie in den iOS-Einstellungen: Inhalte auf ruhigen, gruppierten Flächen (ohne Rahmen, ohne Glas),
+   * Glas nur für Leisten und Menüs, die über dem Inhalt schweben. Die untere Leiste rückt nach rechts, wenn links der App-Knopf sitzt. */
+  function glassCSS(t) {
     var g = "html:not(.sg-noglass)";
-    var s1 = rgba(t.s1, .56), hi = "inset 0 1px 0 rgba(255,255,255,.07)";
-    var css = g + ":not(#sg) body{background:radial-gradient(55% 38% at 8% 12%," + rgba(t.acc, .20) + ",transparent 70%),radial-gradient(48% 34% at 96% 48%," + rgba(t.g2 || t.acc, .15) + ",transparent 70%),radial-gradient(60% 40% at 25% 100%," + rgba(t.g3 || t.acc, .13) + ",transparent 72%)," + t.bg + ";background-attachment:fixed}";
+    var css = "";
     var cards = GLASS_CARDS[MODE];
-    if (cards) css += cards.split(",").map(function (c) { return g + " " + c; }).join(",") + "{background-color:" + s1 + "!important;-webkit-backdrop-filter:blur(22px) saturate(165%);backdrop-filter:blur(22px) saturate(165%);border:1px solid rgba(255,255,255,.085)!important;border-radius:22px!important;box-shadow:" + hi + "!important}";
+    if (cards) css += cards + "{background-color:" + t.s1 + "!important;border:0!important;border-radius:14px!important;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}";
     var nav = GLASS_NAV[MODE];
     if (nav) {
-      css += g + " " + nav[0] + "{left:12px!important;right:12px!important;bottom:calc(10px + env(safe-area-inset-bottom,0px))!important;max-width:560px;margin:0 auto!important;border-radius:28px!important;" +
-        "background:" + rgba(t.s1, .62) + "!important;-webkit-backdrop-filter:blur(26px) saturate(180%)!important;backdrop-filter:blur(26px) saturate(180%)!important;border:1px solid rgba(255,255,255,.1)!important;" +
-        "box-shadow:0 12px 34px rgba(0,0,0,.42)," + hi + "!important;padding-left:6px!important;padding-right:6px!important;padding-bottom:0!important;overflow:hidden}";
-      css += g + " " + nav[1] + "{background:rgba(255,255,255,.11)!important;border-radius:22px!important}";
+      css += ":root{--sgW:min(520px,calc(100vw - 96px));--sgL:calc(50% - (var(--sgW) + 70px) / 2)}";
+      css += nav[0] + "{left:12px!important;right:12px!important;bottom:calc(10px + env(safe-area-inset-bottom,0px))!important;max-width:560px;margin:0 auto!important;border-radius:30px!important;" +
+        "background:" + t.s1 + "!important;border:1px solid rgba(255,255,255,.08)!important;box-shadow:0 8px 28px rgba(0,0,0,.45)!important;padding:0 6px!important;overflow:hidden}";
+      css += g + " " + nav[0] + "{background:" + rgba(t.s2, .72) + "!important;-webkit-backdrop-filter:blur(24px) saturate(180%)!important;backdrop-filter:blur(24px) saturate(180%)!important}";
+      css += "html.sg-appbtn " + nav[0] + "{left:calc(var(--sgL) + 70px)!important;right:auto!important;width:var(--sgW)!important;max-width:none!important;margin:0!important}";
+      css += nav[1] + "{background:rgba(255,255,255,.12)!important;border-radius:24px!important}";
     }
     return css;
   }
@@ -325,6 +329,7 @@ details ul, details ol { margin: 0; padding-left: 20px; display: flex; flex-dire
   }
   function glassOn() { try { return localStorage.getItem("sg-glass") !== "0"; } catch (e) { return true; } }
   document.documentElement.classList.toggle("sg-noglass", !glassOn());
+  window.SGNav = (GLASS_NAV[MODE] || [])[0] || "";
   window.SGTheme = {
     glass: glassOn,
     setGlass: function (on) { try { localStorage.setItem("sg-glass", on ? "1" : "0"); } catch (e) {} document.documentElement.classList.toggle("sg-noglass", !on); window.dispatchEvent(new CustomEvent("sg-theme-set", { detail: "glass" })); },
@@ -2170,12 +2175,18 @@ if ("serviceWorker" in navigator && location.protocol !== "file:") {
     ".seg{display:grid;grid-template-columns:1fr 1fr;gap:8px}.seg.s3{grid-template-columns:1fr 1fr 1fr}.seg button{border:1px solid var(--line);background:var(--s1);color:var(--fg);border-radius:10px;padding:10px;font-size:14px;font-weight:600;cursor:pointer;text-align:left}",
     ".seg button small{display:block;font-weight:400;font-size:12px;color:var(--mut);margin-top:2px}.seg button.on{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc)}",
     ".txt a{color:var(--acc)}.wpw .row{margin-top:2px}.wpw input[type=time],.wpw select{min-height:44px}",
-    ".appsw{position:fixed;top:0;left:0;right:0;z-index:25;height:calc(46px + env(safe-area-inset-top,0px));padding:calc(6px + env(safe-area-inset-top,0px)) 10px 6px;display:flex;align-items:center;justify-content:center;gap:8px;",
-    "background:color-mix(in srgb,var(--bg) 70%,transparent);-webkit-backdrop-filter:blur(24px) saturate(170%);backdrop-filter:blur(24px) saturate(170%);border-bottom:1px solid rgba(255,255,255,.07)}",
-    ".seg3{display:flex;gap:2px;padding:3px;border-radius:999px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.08)}",
-    ".seg3 a{padding:6px 14px;border-radius:999px;font-size:13.5px;font-weight:600;color:var(--mut);text-decoration:none;white-space:nowrap}",
-    ".seg3 a.on{background:rgba(255,255,255,.16);color:var(--fg)}",
-    ".cmdb{position:absolute;right:10px;bottom:6px;width:34px;height:34px;border-radius:50%;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.07);color:var(--fg);display:flex;align-items:center;justify-content:center;cursor:pointer}",
+    ".appb{position:fixed;z-index:41;border-radius:50%;border:1px solid rgba(255,255,255,.1);color:var(--fg);display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;",
+    "background:color-mix(in srgb,var(--s1) 72%,transparent);-webkit-backdrop-filter:blur(24px) saturate(180%);backdrop-filter:blur(24px) saturate(180%);box-shadow:0 8px 28px rgba(0,0,0,.45)}",
+    ".appb svg{width:24px;height:24px}.appb:active{transform:scale(.94)}",
+    ".appm{position:fixed;z-index:2147483002;width:300px;max-width:calc(100vw - 16px);padding:6px;border-radius:20px;display:none;flex-direction:column;gap:6px;",
+    "background:color-mix(in srgb,var(--bg) 74%,transparent);-webkit-backdrop-filter:blur(30px) saturate(180%);backdrop-filter:blur(30px) saturate(180%);border:1px solid rgba(255,255,255,.1);box-shadow:0 18px 50px rgba(0,0,0,.55);transform-origin:bottom left}",
+    ".appm.on{display:flex;animation:sgpop .16s ease-out}@keyframes sgpop{from{opacity:0;transform:scale(.96) translateY(6px)}to{opacity:1;transform:none}}",
+    ".appm .mg{display:flex;flex-direction:column;background:rgba(255,255,255,.05);border-radius:14px;overflow:hidden}",
+    ".appm .mr{display:flex;align-items:center;gap:12px;padding:9px 12px;border:0;background:none;color:var(--fg);text-align:left;cursor:pointer;min-height:48px;font:inherit}",
+    ".appm .mr+.mr{border-top:1px solid rgba(255,255,255,.07)}.appm .mr:active,.appm .mr:hover{background:rgba(255,255,255,.07)}",
+    ".appm .mi{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;flex:none}.appm .mi svg{width:18px;height:18px}",
+    ".appm .mt{flex:1;min-width:0;display:flex;flex-direction:column}.appm .mt b{font-size:15px;font-weight:600}.appm .mt small{font-size:12.5px;color:var(--mut)}",
+    ".appm .ck{color:var(--acc);font-weight:700}.appm .chev{color:var(--mut);font-size:18px}.appm kbd{font:12px inherit;color:var(--mut)}",
     ".palw{position:fixed;inset:0;z-index:2147483003;background:rgba(0,0,0,.35);display:flex;justify-content:center;align-items:flex-start;padding:calc(60px + env(safe-area-inset-top,0px)) 12px 12px}",
     ".palp{width:100%;max-width:600px;max-height:76vh;display:flex;flex-direction:column;border-radius:22px;overflow:hidden;background:color-mix(in srgb,var(--bg) 80%,transparent);-webkit-backdrop-filter:blur(30px) saturate(170%);backdrop-filter:blur(30px) saturate(170%);border:1px solid rgba(255,255,255,.1);box-shadow:0 20px 60px rgba(0,0,0,.5)}",
     ".palin{border:0!important;border-bottom:1px solid var(--line)!important;border-radius:0!important;background:transparent!important;font-size:17px!important;padding:16px 18px!important}",
@@ -2262,15 +2273,13 @@ if ("serviceWorker" in navigator && location.protocol !== "file:") {
     if (!root) return;
     var vv = root.querySelector(".v"); vv.classList.add("dark"); vv.setAttribute("style", themeVars());
     var today = iso(new Date());
-    var all = occurrences(iso(new Date(Date.now() - 400 * 864e5)), iso(new Date(Date.now() + 800 * 864e5)));
-    var dot = root.querySelector(".fab .dot");
-    var n = all.filter(function (e) { return e.date === today; }).length;
-    dot.hidden = !n; dot.textContent = n;
     renderToast();
     renderInstall();
     renderWpToast();
     var box = root.querySelector(".box");
     if (!state.open) { box.innerHTML = ""; return; }
+    // Termine nur ausrollen, wenn das Fenster wirklich offen ist (spart bei jeder Änderung Rechenzeit)
+    var all = occurrences(iso(new Date(Date.now() - 400 * 864e5)), iso(new Date(Date.now() + 800 * 864e5)));
     // Hintergrund-Updates (andere App, anderes Gerät) dürfen kein gerade ausgefülltes Formular überschreiben.
     if (bg && (state.edit || (state.tab === "sync" && !cfg().token))) return;
     var evs = state.filter ? all.filter(function (e) { return e.app === APP; }) : all;
@@ -3118,25 +3127,82 @@ if ("serviceWorker" in navigator && location.protocol !== "file:") {
     tb.innerHTML = "<div class='toast inst'><span class='mono' style='background:" + ME.color + "'>✓</span><div class='it'><b>" + esc(msg) + "</b></div></div>";
     setTimeout(function () { renderWpToast(); }, 1800);
   }
+  // App-Knopf: rund, links neben der unteren Leiste. Öffnet ein Menü mit den Apps, der Suche und dem Wichtigsten.
+  var APPICON = {
+    planer: "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.9' stroke-linecap='round'><rect x='3.5' y='5' width='17' height='15.5' rx='3.5'/><path d='M3.5 10h17M8.5 3v4M15.5 3v4'/></svg>",
+    training: "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'><path d='M3 12h3l2.5-6 4 12 3-9 1.5 3H21'/></svg>",
+    bibel: "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.9' stroke-linecap='round' stroke-linejoin='round'><path d='M5 4.5h10.5A3.5 3.5 0 0 1 19 8v11.5H8.5A3.5 3.5 0 0 1 5 16z'/><path d='M5 16a3.5 3.5 0 0 1 3.5-3.5H19M12 7v5M9.5 9h5'/></svg>",
+    search: "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round'><circle cx='11' cy='11' r='6.5'/><path d='M20 20l-4.2-4.2'/></svg>",
+    week: "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.9' stroke-linecap='round'><rect x='3.5' y='5' width='17' height='15.5' rx='3.5'/><path d='M3.5 10h17M8 14h3M13 14h3M8 17h3'/></svg>",
+    design: "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.9'><circle cx='12' cy='12' r='8.5'/><path d='M12 3.5a8.5 8.5 0 0 0 0 17z' fill='currentColor'/></svg>",
+    sync: "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.9' stroke-linecap='round'><path d='M7 18a5 5 0 0 1-.6-9.96A6 6 0 0 1 18 9a4.5 4.5 0 0 1-.5 9z'/></svg>"
+  };
+  var APPCOL = { planer: "#0a84ff", training: "#30d158", bibel: "#c79a5b" };
+  var appb = null, appm = null;
+  function placeAppBtn() {
+    if (!appb) return;
+    var nav = window.SGNav ? document.querySelector(window.SGNav) : null, r = nav && nav.getBoundingClientRect();
+    var ok = r && r.height > 30 && getComputedStyle(nav).display !== "none" && r.bottom > innerHeight - 140;
+    var size = ok ? Math.max(50, Math.min(64, Math.round(r.height))) : 54;
+    var hide = (!ok && ME.id === "planer") || !!document.querySelector(".app.inmod");
+    appb.style.display = hide ? "none" : "";
+    document.documentElement.classList.toggle("sg-appbtn", !hide);
+    appb.style.width = appb.style.height = size + "px";
+    appb.style.left = (ok ? Math.max(8, r.left - size - 12) : 14) + "px";
+    appb.style.bottom = (ok ? Math.round(innerHeight - r.bottom) : 14) + "px";
+  }
+  function appMenuHTML() {
+    var row = function (act, icon, col, title, sub, right) {
+      return "<button class='mr' data-m='" + act + "'><span class='mi' style='background:" + col + "'>" + icon + "</span><span class='mt'><b>" + esc(title) + "</b>" + (sub ? "<small>" + esc(sub) + "</small>" : "") + "</span>" + (right || "") + "</button>";
+    };
+    var h = "<div class='mg'>" + APPS.map(function (a) {
+      return row("app:" + a.id, APPICON[a.id], APPCOL[a.id] || a.color, a.name, a.id === "planer" ? "Kalender, Aufgaben, Schule" : a.id === "training" ? "Training, Mobility, Atmung" : "Elberfelder 1905", a.id === ME.id ? "<span class='ck'>✓</span>" : "");
+    }).join("") + "</div><div class='mg'>" + row("search", APPICON.search, "#636366", "Suchen und Befehle", "", "<kbd>Strg K</kbd>");
+    if (wpCfg().on) h += row("week", APPICON.week, "#ff9f0a", "Woche planen", "");
+    h += row("design", APPICON.design, "#5e5ce6", "Design", window.SGTheme ? window.SGTheme.current().name : "");
+    var st = api.status();
+    h += row("sync", APPICON.sync, "#64d2ff", "Cloud-Sicherung", st.connected ? (st.error ? "Fehler" : "aktiv") : "aus", "<span class='chev'>›</span>");
+    return h + "</div>";
+  }
+  function closeAppMenu() { if (appm) appm.classList.remove("on"); }
+  function openAppMenu(anchor) {
+    if (!appm) return;
+    appm.innerHTML = appMenuHTML();
+    var r = (anchor || appb).getBoundingClientRect();
+    appm.style.left = Math.max(8, Math.min(r.left, innerWidth - 316)) + "px";
+    if (r.top < innerHeight / 2) { appm.style.top = Math.round(r.bottom + 8) + "px"; appm.style.bottom = "auto"; appm.style.transformOrigin = "top left"; }
+    else { appm.style.bottom = Math.round(innerHeight - r.top + 10) + "px"; appm.style.top = "auto"; appm.style.transformOrigin = "bottom left"; }
+    appm.classList.add("on");
+    appm.anchor = anchor || appb;
+  }
   function mountSwitcher() {
-    if (EMBED || !root || root.querySelector(".appsw")) return;
-    document.documentElement.classList.add("sg-sw");
-    var st = document.createElement("style"); st.id = "sg-sw-style";
-    st.textContent = "html.sg-sw body{padding-top:calc(46px + env(safe-area-inset-top,0px))!important;box-sizing:border-box}";
-    document.head.appendChild(st);
-    var s = document.createElement("div"); s.className = "appsw";
-    s.innerHTML = "<div class='seg3'>" + APPS.map(function (a) {
-      return "<a href='" + esc(a.id === ME.id ? "#" : appUrl(a)) + "' class='" + (a.id === ME.id ? "on" : "") + "' data-app='" + a.id + "'>" + esc(a.name) + "</a>";
-    }).join("") + "</div><button class='cmdb' aria-label='Befehle' title='Befehle (Strg+K)'><svg viewBox='0 0 24 24' width='18' height='18' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round'><circle cx='11' cy='11' r='6.5'/><path d='M20 20l-4.2-4.2'/></svg></button>";
-    root.querySelector(".v").appendChild(s);
-    s.addEventListener("click", function (e) {
-      if (e.target.closest(".cmdb")) { openPalette(); return; }
-      var a = e.target.closest("a[data-app]"); if (a && a.dataset.app === ME.id) e.preventDefault();
+    if (EMBED || !root || appb) return;
+    document.documentElement.classList.add("sg-appbtn");
+    var v = root.querySelector(".v");
+    appb = document.createElement("button"); appb.className = "appb"; appb.setAttribute("aria-label", "Apps und Befehle");
+    appb.innerHTML = APPICON[ME.id] || APPICON.planer; v.appendChild(appb);
+    appm = document.createElement("div"); appm.className = "appm"; appm.setAttribute("role", "menu"); v.appendChild(appm);
+    appb.addEventListener("click", function () { if (appm.classList.contains("on")) closeAppMenu(); else openAppMenu(); });
+    api.openAppMenu = function (el) { if (appm.classList.contains("on")) closeAppMenu(); else openAppMenu(el); };
+    appm.addEventListener("click", function (e) {
+      var b = e.target.closest("[data-m]"); if (!b) return;
+      var m = b.dataset.m; closeAppMenu();
+      if (m.indexOf("app:") === 0) { var id = m.slice(4); if (id !== ME.id) go(id, ""); }
+      else if (m === "search") openPalette();
+      else if (m === "week") openWeekPlan();
+      else if (m === "design") openPanel(null, "design");
+      else if (m === "sync") openPanel(null, "sync");
     });
+    document.addEventListener("pointerdown", function (e) { if (appm.classList.contains("on") && !e.composedPath().some(function (n) { return n === appm || n === appb || n === appm.anchor; })) closeAppMenu(); }, true);
+    placeAppBtn(); setTimeout(placeAppBtn, 400); setTimeout(placeAppBtn, 1500);
+    window.addEventListener("resize", placeAppBtn);
+    new MutationObserver(function () { clearTimeout(placeAppBtn.t); placeAppBtn.t = setTimeout(placeAppBtn, 120); }).observe(document.documentElement, { attributes: true, subtree: false });
+    window.addEventListener("hashchange", function () { setTimeout(placeAppBtn, 60); });
   }
   document.addEventListener("keydown", function (e) {
     if ((e.ctrlKey || e.metaKey) && (e.key === "k" || e.key === "K") && !EMBED) { e.preventDefault(); openPalette(); }
     else if (e.key === "Escape" && pal) closePal();
+    else if (e.key === "Escape") closeAppMenu();
   });
   function hashCmd() {
     if (location.hash === "#wochenplanung") { history.replaceState(null, "", location.pathname); openWeekPlan(); }
