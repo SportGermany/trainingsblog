@@ -339,7 +339,9 @@ button{touch-action:manipulation}
     "h1,h2,h3{letter-spacing:-.01em!important}" +
     ".card,.hero,.stat,.feed-card,.widget-tile,.tile,.bento>*,.stat-row>*,.panel,.set,.wk-card,.kpi,.mini,.quote-card,.settings-section,.stat-box,.passage{box-shadow:none!important;background-image:none!important}" +
     ".card,.hero,.feed-card,.widget-tile,.tile,.quote-card,.settings-section,.stat-box,.passage{border-radius:14px!important}" +
-    "button,.btn,.chip{box-shadow:none!important;background-image:none!important}";
+    "button,.btn,.chip{box-shadow:none!important;background-image:none!important}" +
+    // Ausdrucke ohne App-Knopf und Menüs des Verbunds
+    "@media print{#sg-shared-calendar{display:none!important}}";
   var GLASS_CARDS = {
     kalender: ".card,.tl-tile,.wpstrip,.nudge",
     lernplan: ".card,.wkall",

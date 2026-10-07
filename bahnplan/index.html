@@ -55,12 +55,6 @@ h1 { font-size: 30px; line-height: 1.12; letter-spacing: -.022em; margin: 6px 4p
 .plan > *, .book > * { min-width: 0; }
 @media (min-width: 860px) { .plan { grid-template-columns: minmax(0, 1.25fr) minmax(300px, .9fr); align-items: start; } .plan .mapcard { position: sticky; top: 12px; } }
 .mapcard { background: var(--s1); border-radius: 14px; padding: 10px; }
-.map svg { display: block; width: 100%; height: auto; max-height: 70vh; touch-action: manipulation; }
-.map .mk { cursor: pointer; }
-.map .mk circle { stroke: var(--bg); }
-.map .mk.sel circle { stroke: var(--ink); }
-.maptools { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 8px 4px 2px; color: var(--muted); font-size: 13px; }
-.maptools .sp { flex: 1; }
 .imgwrap { position: relative; border-radius: 10px; overflow: hidden; background: var(--s2); }
 .imgwrap img { display: block; width: 100%; height: auto; user-select: none; -webkit-user-drag: none; }
 .pin { position: absolute; transform: translate(-50%, -50%); width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--bg); color: #fff; font-weight: 700; font-size: 13px; display: flex; align-items: center; justify-content: center; padding: 0; box-shadow: 0 2px 8px rgba(0,0,0,.5); }
@@ -135,14 +129,67 @@ h1 { font-size: 30px; line-height: 1.12; letter-spacing: -.022em; margin: 6px 4p
 .tabs button.on { color: var(--ink); background: rgba(255,255,255,.12); }
 .toast { position: fixed; left: 50%; bottom: calc(86px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 12px; font-size: 14px; z-index: 80; display: none; }
 .toast.on { display: block; }
+.imgwrap img { pointer-events: none; }
+.nomap { padding: 22px 16px; text-align: center; color: var(--muted); }
+.nomap b { display: block; color: var(--ink); font-size: 17px; margin-bottom: 6px; }
+.nomap p { margin: 0 auto 14px; max-width: 420px; font-size: 14px; }
+.nomap .btns { justify-content: center; }
+.placebar { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 4px 4px 10px; font-size: 14px; }
+.placebar span { flex: 1; min-width: 160px; }
+.credit { font-size: 11.5px; color: var(--faint); margin: 8px 4px 0; line-height: 1.4; overflow-wrap: anywhere; }
+.credit a { color: var(--muted); }
+.crop { display: block; width: 100%; height: auto; background: #fff; border-radius: 10px; }
+.drawbox { padding: 10px; }
+.drawbox.on .crop { outline: 2px solid #e5383b; outline-offset: 2px; }
+.tools .ib { width: 36px; height: 36px; }
+.tools .sp, .maptools .sp { flex: 1; }
+.seg.wrap { flex-wrap: wrap; }
+.inp { border: 0; background: var(--s2); border-radius: 10px; padding: 8px 10px; font-size: 15px; color: var(--ink); min-height: 38px; }
+.row.tog { cursor: pointer; }
+.row.tog input { width: 22px; height: 22px; accent-color: var(--acc); }
+.wgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.wimg { border: 0; background: var(--s1); border-radius: 12px; padding: 8px; text-align: left; display: flex; flex-direction: column; gap: 4px; }
+.wimg .wi { display: flex; align-items: center; justify-content: center; background: #fff; border-radius: 8px; aspect-ratio: 1; overflow: hidden; }
+.wimg img { max-width: 100%; max-height: 100%; }
+.wimg b { font-size: 12.5px; font-weight: 600; overflow-wrap: anywhere; }
+.wimg small { font-size: 11px; color: var(--muted); overflow-wrap: anywhere; }
+.wimg.busy { opacity: .5; }
+.sheet.wide .pane { max-width: 1100px; }
+.zoombar { display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 10px; color: var(--muted); }
+.zoomwrap { overflow: auto; border-radius: 10px; background: #fff; max-height: calc(100vh - 170px); }
+.vizcrop { max-width: 520px; width: 100%; }
+.book .cv.wcrop { display: grid; grid-template-columns: minmax(0, 220px) minmax(0, 1fr); gap: 14px; align-items: start; }
+@media (max-width: 560px) { .book .cv.wcrop { grid-template-columns: 1fr; } }
+.cvimg .crop { border: 1px solid var(--line); }
+.bookhead h1 { margin-top: 2px; }
+.bmap { margin: 0 0 16px; background: var(--s1); border-radius: 14px; padding: 10px; }
+.bmap .imgwrap { background: #fff; }
+.tnotes { display: grid; grid-template-columns: 130px 1fr; gap: 4px 12px; margin: 0 4px 16px; font-size: 14.5px; }
+.tnotes dt { color: var(--muted); }
+.tnotes dd { margin: 0; white-space: pre-wrap; }
+.printopts { margin-bottom: 18px; }
+.printopts .chips button.on { background: var(--acc); color: var(--accfg); border-color: var(--acc); }
+.paper { border-top: 1px solid var(--line); padding-top: 14px; }
 @media print {
-  body { background: #fff; color: #000; padding: 0; }
-  .tabs, .noprint, .sheet, .viz, .toast { display: none !important; }
+  @page { size: A4; margin: 12mm; }
+  :root { color-scheme: light !important; }
+  html, body { background: #fff !important; color: #000 !important; padding: 0 !important; }
+  .app { max-width: none; padding: 0; }
+  .tabs, .noprint, .sheet, .viz, .toast, .sgappb, .appb, .appm, .sgpal { display: none !important; }
   .view { display: none !important; }
   #v-buch { display: block !important; }
-  .book .cv { background: none; border: 1px solid #bbb; }
-  .book dt, .book .cvh small, .sub, .eyebrow { color: #555; }
-  .mapcard { background: none; border: 1px solid #bbb; }
+  .paper { border: 0; padding: 0; }
+  .bookhead h1 { font-size: 26pt; color: #000; }
+  .bmap { background: none; padding: 0; break-after: auto; }
+  .bmap .imgwrap { border: 1px solid #bbb; }
+  .bmap img { max-height: 190mm; width: auto; max-width: 100%; margin: 0 auto; }
+  .bmap .imgwrap { display: table; margin: 0 auto; }
+  .pin { width: 22px; height: 22px; font-size: 10px; box-shadow: none; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .book .cv, .book .cvh .num { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .book .cv { background: none; border: 1px solid #bbb; break-inside: avoid; page-break-inside: avoid; }
+  .book .cv.wcrop { grid-template-columns: 62mm 1fr; }
+  .book dt, .book .cvh small, .sub, .eyebrow, .credit, .tnotes dt { color: #555 !important; }
+  .book dd, .tnotes dd, .cue { color: #000; }
 }
 </style>
 <!-- verbund-design:start -->
@@ -217,7 +264,9 @@ h1 { font-size: 30px; line-height: 1.12; letter-spacing: -.022em; margin: 6px 4p
     "h1,h2,h3{letter-spacing:-.01em!important}" +
     ".card,.hero,.stat,.feed-card,.widget-tile,.tile,.bento>*,.stat-row>*,.panel,.set,.wk-card,.kpi,.mini,.quote-card,.settings-section,.stat-box,.passage{box-shadow:none!important;background-image:none!important}" +
     ".card,.hero,.feed-card,.widget-tile,.tile,.quote-card,.settings-section,.stat-box,.passage{border-radius:14px!important}" +
-    "button,.btn,.chip{box-shadow:none!important;background-image:none!important}";
+    "button,.btn,.chip{box-shadow:none!important;background-image:none!important}" +
+    // Ausdrucke ohne App-Knopf und Menüs des Verbunds
+    "@media print{#sg-shared-calendar{display:none!important}}";
   var GLASS_CARDS = {
     kalender: ".card,.tl-tile,.wpstrip,.nudge",
     lernplan: ".card,.wkall",
@@ -360,54 +409,104 @@ h1 { font-size: 30px; line-height: 1.12; letter-spacing: -.022em; margin: 6px 4p
 "use strict";
 /* =====================================================================
    Bahnkatalog – Startwerte aus öffentlichen Quellen (Wikipedia-Liste der Bob-, Rodel- und Skeletonbahnen,
-   FIL/IBSF, Betreiber). Kurvennamen und -formen sind nur dort eingetragen, wo sie belegt sind –
-   alles ist frei änderbar und sollte an der Bahn geprüft werden.
-   t = Art, a = Winkel in Grad, d = Richtung (L/R), nm = Name
+   FIL/IBSF, Betreiber). Kurvennamen sind nur dort eingetragen, wo sie belegt sind – alles ist frei änderbar.
+   Der Plan selbst kommt als Bild von Wikipedia/Wikimedia Commons (w.files = bekannte Streckenpläne,
+   w.q = Suchbegriff, w.kw = Ortsname im Dateinamen).
    ===================================================================== */
 const CATALOG = [
-  { id: "altenberg", name: "Altenberg", ort: "Altenberg (Erzgebirge)", land: "Deutschland", len: 1413, n: 17, note: "Gilt als eine der schwierigsten Bahnen der Welt. Bekannte Abschnitte: Omega-Kurve, Kreisel, Zielkreisel." },
-  { id: "koenigssee", name: "Königssee", ort: "Schönau am Königssee", land: "Deutschland", len: 1251, n: 16, note: "Bekannte Kurven: Teufelsmühle, Turbodrom (Kreisel, ca. 320°), Schlangengrube (S-Kombination, Kurven 6–9), Echowand – heute Josef-Fendt-Kurve.",
-    c: { 6: { t: "S-Kombination", nm: "Schlangengrube" }, 7: { t: "S-Kombination", nm: "Schlangengrube" }, 8: { t: "S-Kombination", nm: "Schlangengrube" }, 9: { t: "S-Kombination", nm: "Schlangengrube" } } },
-  { id: "oberhof", name: "Oberhof", ort: "Oberhof (Thüringen)", land: "Deutschland", len: 1354, n: 15, note: "Rennschlittenbahn von 1971, Wettkampflänge Herren ca. 1070 m." },
+  { id: "altenberg", name: "Altenberg", ort: "Altenberg (Erzgebirge)", land: "Deutschland", len: 1413, n: 17, note: "Gilt als eine der schwierigsten Bahnen der Welt. Bekannte Abschnitte: Omega-Kurve, Kreisel, Zielkreisel.",
+    w: { q: "Altenberg bobsleigh track", kw: "altenberg", files: ["Altenberg Bobbahn-Streckenplan deutsch.svg", "Altenberg bobsleigh track-track map english.svg"] } },
+  { id: "koenigssee", name: "Königssee", ort: "Schönau am Königssee", land: "Deutschland", len: 1251, n: 16, note: "Bekannte Kurven: Teufelsmühle, Turbodrom (Kreisel), Schlangengrube (S-Kombination, Kurven 6–9), Echowand – heute Josef-Fendt-Kurve.",
+    c: { 6: { t: "S-Kombination", nm: "Schlangengrube" }, 7: { t: "S-Kombination", nm: "Schlangengrube" }, 8: { t: "S-Kombination", nm: "Schlangengrube" }, 9: { t: "S-Kombination", nm: "Schlangengrube" } },
+    w: { q: "Königssee bobsleigh luge track", kw: "k(ö|oe|o)nigssee", files: ["Koenigssee Kunsteisbahn-Streckenplan deutsch.svg", "Koenigssee luge track-track map english.svg", "Track Profile (GER) Königssee.svg"] } },
+  { id: "oberhof", name: "Oberhof", ort: "Oberhof (Thüringen)", land: "Deutschland", len: 1354, n: 15, note: "Rennschlittenbahn von 1971, Wettkampflänge Herren ca. 1070 m.",
+    w: { q: "Oberhof luge track", kw: "oberhof", files: ["Oberhof Rennrodelbahn-Streckenplan deutsch.svg", "Oberhof luge track-Track map english.svg"] } },
   { id: "winterberg", name: "Winterberg", ort: "Winterberg (Sauerland)", land: "Deutschland", len: 1609, n: 14, note: "Omega (Kurven 1–3), Veltins-Kreisel (Kurve 7, 270°), Labyrinth (Kurven 11–13).",
-    c: { 1: { t: "Omega", nm: "Omega" }, 2: { t: "Omega", nm: "Omega" }, 3: { t: "Omega", nm: "Omega" }, 7: { t: "Kreisel", a: 270, nm: "Veltins-Kreisel" }, 11: { t: "Labyrinth", nm: "Labyrinth" }, 12: { t: "Labyrinth", nm: "Labyrinth" }, 13: { t: "Labyrinth", nm: "Labyrinth" } } },
-  { id: "igls", name: "Innsbruck-Igls", ort: "Igls bei Innsbruck", land: "Österreich", len: 1270, n: 14, note: "Olympia-Eiskanal von 1976, mit Kreisel. Länge und Kurvenzahl je nach Start verschieden." },
+    c: { 1: { t: "Omega", nm: "Omega" }, 2: { t: "Omega", nm: "Omega" }, 3: { t: "Omega", nm: "Omega" }, 7: { t: "Kreisel", a: 270, nm: "Veltins-Kreisel" }, 11: { t: "Labyrinth", nm: "Labyrinth" }, 12: { t: "Labyrinth", nm: "Labyrinth" }, 13: { t: "Labyrinth", nm: "Labyrinth" } },
+    w: { q: "Winterberg bobsleigh track", kw: "winterberg", files: ["Winterberg Bobbahn-Streckenplan deutsch.svg", "Winterberg bobsleigh track-Track map english.svg"] } },
+  { id: "igls", name: "Innsbruck-Igls", ort: "Igls bei Innsbruck", land: "Österreich", len: 1270, n: 14, note: "Olympia-Eiskanal von 1976, mit Kreisel. Länge und Kurvenzahl je nach Start verschieden.",
+    w: { q: "Igls bobsleigh luge track", kw: "igls", files: ["Track Profile (AUT) Igls.svg"] } },
   { id: "sigulda", name: "Sigulda", ort: "Sigulda", land: "Lettland", len: 1200, n: 16, note: "Damen/Doppel: 988 m, 13 Kurven. Nach Kurve 15 lange Gerade, Kurve 16 dreht ca. 270° mit schwieriger Ausfahrt.",
-    c: { 16: { t: "Kreisel", a: 270 } } },
-  { id: "lillehammer", name: "Lillehammer", ort: "Hunderfossen", land: "Norwegen", len: 1365, n: 16, note: "Olympiabahn von 1994." },
-  { id: "laplagne", name: "La Plagne", ort: "La Plagne", land: "Frankreich", len: 1507, n: 19, note: "Olympiabahn von 1992." },
-  { id: "cortina", name: "Cortina d'Ampezzo", ort: "Cortina Sliding Centre „Eugenio Monti“", land: "Italien", len: 1445, n: 16, note: "Neu gebaut für die Winterspiele 2026, folgt teilweise der alten Monti-Bahn." },
-  { id: "stmoritz", name: "St. Moritz–Celerina", ort: "Olympia Bobrun", land: "Schweiz", len: 1722, n: 19, note: "Natureisbahn, nur Bob und Skeleton. Bekannte Kurven: Horseshoe, Shamrock, Leap, Wall, Snake." },
-  { id: "lakeplacid", name: "Lake Placid", ort: "Mt. Van Hoevenberg", land: "USA", len: 1455, n: 20, note: "Abschnitte: Devil's Highway, Shady II, Labyrinth, Chicane, zum Ziel die Heart-Kombination (links-rechts-links)." },
-  { id: "parkcity", name: "Park City", ort: "Utah Olympic Park", land: "USA", len: 1335, n: 15, note: "Olympiabahn von 2002." },
+    c: { 16: { t: "Kreisel", a: 270 } }, w: { q: "Sigulda bobsleigh luge track", kw: "sigulda", files: ["Track Profile (LAT) Sigulda.svg"] } },
+  { id: "lillehammer", name: "Lillehammer", ort: "Hunderfossen", land: "Norwegen", len: 1365, n: 16, note: "Olympiabahn von 1994.",
+    w: { q: "Lillehammer Olympic Bobsleigh and Luge Track", kw: "lillehammer|hunderfossen", files: ["Lillehammer Olympic Bobsleigh and Luge Track map.svg"] } },
+  { id: "laplagne", name: "La Plagne", ort: "La Plagne", land: "Frankreich", len: 1507, n: 19, note: "Olympiabahn von 1992.",
+    w: { q: "La Plagne bobsleigh luge track", kw: "plagne", files: ["Track Profile (FRA) La Plagne.svg"] } },
+  { id: "cortina", name: "Cortina d'Ampezzo", ort: "Cortina Sliding Centre „Eugenio Monti“", land: "Italien", len: 1445, n: 16, note: "Neu gebaut für die Winterspiele 2026, folgt teilweise der alten Monti-Bahn.",
+    w: { q: "Cortina Sliding Centre", kw: "cortina|monti", files: [] } },
+  { id: "stmoritz", name: "St. Moritz–Celerina", ort: "Olympia Bobrun", land: "Schweiz", len: 1722, n: 19, note: "Natureisbahn, nur Bob und Skeleton. Bekannte Kurven: Horseshoe, Shamrock, Leap, Wall, Snake.",
+    w: { q: "St. Moritz-Celerina Olympic Bobrun", kw: "moritz|celerina", files: ["St. Moritz Bobrun-track map english.svg"] } },
+  { id: "lakeplacid", name: "Lake Placid", ort: "Mt. Van Hoevenberg", land: "USA", len: 1455, n: 20, note: "Abschnitte: Devil's Highway, Shady II, Labyrinth, Chicane, zum Ziel die Heart-Kombination (links-rechts-links).",
+    w: { q: "Mt. Van Hoevenberg Olympic Bobsled Run", kw: "lake.?placid|hoevenberg", files: ["Track Profile (USA) Lake Placid.svg"] } },
+  { id: "parkcity", name: "Park City", ort: "Utah Olympic Park", land: "USA", len: 1335, n: 15, note: "Olympiabahn von 2002.",
+    w: { q: "Utah Olympic Park Track", kw: "park.?city|utah", files: ["Track Profile (USA) Park City.svg"] } },
   { id: "whistler", name: "Whistler", ort: "Whistler Sliding Centre", land: "Kanada", len: 1450, n: 16, note: "Schnellste Bahn der Welt (Rodel-Rekord über 150 km/h).",
-    c: { 3: { nm: "Wedge" }, 7: { nm: "Lueders' Loop" }, 11: { nm: "Shiver" }, 13: { nm: "50/50" }, 16: { nm: "Thunderbird" } } },
-  { id: "pyeongchang", name: "Pyeongchang", ort: "Alpensia Sliding Centre", land: "Südkorea", len: 1376, n: 16, note: "Olympiabahn von 2018." },
-  { id: "yanqing", name: "Yanqing", ort: "National Sliding Centre", land: "China", len: 1615, n: 16, note: "Olympiabahn von 2022 mit der einzigen 360°-Kurve – bitte die Nummer an der Bahn eintragen." },
-  { id: "sochi", name: "Sotschi", ort: "Sliding Center Sanki", land: "Russland", len: 1500, n: 18, note: "Längste Bahn, drei Gegenanstiege. Je nach Quelle 17 oder 18 Kurven." }
+    c: { 3: { nm: "Wedge" }, 7: { nm: "Lueders' Loop" }, 11: { nm: "Shiver" }, 13: { nm: "50/50" }, 16: { nm: "Thunderbird" } },
+    w: { q: "Whistler Sliding Centre", kw: "whistler", files: ["Whistler Sliding Centre-track map english.svg"] } },
+  { id: "pyeongchang", name: "Pyeongchang", ort: "Alpensia Sliding Centre", land: "Südkorea", len: 1376, n: 16, note: "Olympiabahn von 2018.",
+    w: { q: "Alpensia Sliding Centre", kw: "alpensia|pyeongchang", files: ["Alpensia Sliding Centre Map.jpg"] } },
+  { id: "yanqing", name: "Yanqing", ort: "National Sliding Centre", land: "China", len: 1615, n: 16, note: "Olympiabahn von 2022 mit der einzigen 360°-Kurve.",
+    w: { q: "Yanqing National Sliding Centre", kw: "yanqing", files: [] } },
+  { id: "sochi", name: "Sotschi", ort: "Sliding Center Sanki", land: "Russland", len: 1500, n: 18, note: "Längste Bahn, drei Gegenanstiege. Je nach Quelle 17 oder 18 Kurven.",
+    w: { q: "Sliding Center Sanki", kw: "sanki|sochi|krasnaya", files: [] } }
 ];
-const TYPES = { "Kurve": 90, "Kehre": 180, "Kreisel": 270, "Omega": 200, "S-Kombination": 80, "Labyrinth": 70, "Schikane": 40, "Gerade": 0, "Gegenanstieg": 0 };
-const STATUS = { neu: ["Neu", "var(--neu)", "#8e8e93"], ueben: ["Übe ich", "var(--ueben)", "#ff9f0a"], sitzt: ["Sitzt", "var(--sitzt)", "#30d158"] };
-// Felder je Kurve – nach Ski-Besichtigung, Rallye-Aufschrieb und Motorsport-Bezugspunkten
+const TYPES = { "Kurve": 90, "Kehre": 180, "Kreisel": 270, "Omega": 200, "S-Kombination": 80, "Labyrinth": 70, "Schikane": 40, "Gerade": 0, "Gegenanstieg": 0, "Startkurve": 60, "Zielkurve": 90 };
+const NOARC = t => t === "Gerade" || t === "Gegenanstieg";
+const STATUS = { neu: ["Neu", "#8e8e93"], ueben: ["Übe ich", "#ff9f0a"], sitzt: ["Sitzt", "#30d158"] };
+// Auswahlfelder je Kurve (antippen wählt, nochmals antippen löscht)
+const OPTS = [
+  ["Form", [
+    ["radius", "Radius", ["eng", "mittel", "weit"]],
+    ["verlauf", "Verlauf", ["zieht zu", "konstant", "öffnet sich"]],
+    ["gefaelle", "Gefälle", ["flach", "mittel", "steil"]],
+    ["druck", "Druck (G-Kräfte)", ["wenig", "mittel", "hoch", "sehr hoch"]],
+    ["kombi", "Teil einer Kombination", ["nein", "Anfang", "Mitte", "Ende"]]
+  ]],
+  ["Fahren", [
+    ["linie", "Linie", ["innen", "Mitte", "außen"]],
+    ["hEin", "Höhe Einfahrt", ["unten", "mittig", "hoch"]],
+    ["hScheitel", "Höhe Scheitel", ["unten", "mittig", "hoch", "ganz oben"]],
+    ["hAus", "Höhe Ausfahrt", ["unten", "mittig", "hoch"]],
+    ["lenkzeit", "Lenkimpuls", ["früh", "normal", "spät", "keiner"]],
+    ["lenkart", "Steuern mit", ["Beinen", "Schultern", "Kopf", "kombiniert"]],
+    ["lenkkraft", "Lenkkraft", ["leicht", "mittel", "stark"]]
+  ]],
+  ["Bewertung", [
+    ["risiko", "Sturz-/Fehlerrisiko", ["niedrig", "mittel", "hoch"]],
+    ["zeit", "Zeitverlust bei Fehler", ["klein", "mittel", "groß"]],
+    ["prio", "Wichtigkeit", ["normal", "wichtig", "Schlüsselkurve"]]
+  ]]
+];
+// Textfelder je Kurve – nach Ski-Besichtigung, Rallye-Aufschrieb und Motorsport-Bezugspunkten
 const FIELDS = [
   ["Linie", [["anfahrt", "Anfahrt", "Wo komme ich aus der letzten Kurve? Position in der Bahn"], ["einlenken", "Einlenken", "Bezugspunkt und Zeitpunkt – wann lenke ich ein?"],
     ["scheitel", "Scheitel & Druck", "Wie hoch in der Wand? Wo kommt der Druck?"], ["ausfahrt", "Ausfahrt", "Wo will ich rauskommen? Übergang in die nächste Kurve"]]],
-  ["Körper", [["steuern", "Steuern", "Beine, Kufen, Schultern – wie stark, wie lange?"], ["blick", "Kopf & Blick", "Kopfhaltung, wohin schauen, Spannung"]]],
-  ["Kopf", [["fehler", "Typische Fehler & Korrektur", "Was passiert, wenn ich zu früh/zu spät bin – und was hilft?"], ["bild", "Mein Bild", "Gefühl oder Bild, das mir in dieser Kurve hilft"]]]
+  ["Körper", [["steuern", "Steuern", "Beine, Kufen, Schultern – wie stark, wie lange?"], ["blick", "Kopf & Blick", "Kopfhaltung, wohin schauen"], ["spannung", "Spannung & Atmung", "Wo locker, wo fest? Wann atmen?"]]],
+  ["Kopf", [["fehler", "Typische Fehler & Korrektur", "Was passiert, wenn ich zu früh/zu spät bin – und was hilft?"], ["bild", "Mein Bild", "Gefühl oder Bild, das mir in dieser Kurve hilft"]]],
+  ["Bedingungen", [["eisschnell", "Schnelles / kaltes Eis", "Was ändere ich, wenn die Bahn schnell ist?"], ["eislangsam", "Langsames / warmes Eis", "Was ändere ich bei weichem Eis?"], ["trainer", "Tipp vom Trainer", "Was hat der Trainer zu dieser Kurve gesagt?"]]]
 ];
+const GROUPS = ["Form", "Fahren", "Bewertung", "Linie", "Körper", "Kopf", "Bedingungen", "Eigene Felder", "Ausschnitt", "Läufe"];
 const KEY = "bahnplan.v1";
 const $ = id => document.getElementById(id);
 const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
 const today = () => { const d = new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); };
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 
-/* ---------- Speicher: Texte in localStorage (mit Cloud-Sicherung), Bilder und Zeichnungen in IndexedDB (nur dieses Gerät) ---------- */
-function load() { try { const d = JSON.parse(localStorage.getItem(KEY) || "null"); if (d && Array.isArray(d.tracks)) return d; } catch (e) {} return { tracks: [], cur: null }; }
+/* ---------- Speicher: Texte in localStorage (mit Cloud-Sicherung), Bilder in IndexedDB (nur dieses Gerät) ---------- */
+function load() { try { const d = JSON.parse(localStorage.getItem(KEY) || "null"); if (d && Array.isArray(d.tracks)) { d.tracks.forEach(norm); return d; } } catch (e) {} return { tracks: [], cur: null }; }
+function norm(t) {
+  if (!t.map || typeof t.map !== "object") t.map = null; // früher: gezeichnete Skizze
+  t.custom = t.custom || []; t.setup = t.setup || ""; t.startNote = t.startNote || "";
+  t.curves.forEach(c => { c.o = c.o || {}; c.f = c.f || {}; c.runs = c.runs || []; c.line = Array.isArray(c.line) ? c.line : []; delete c.straight; });
+  return t;
+}
 let S = load(), saveT;
+S.hide = S.hide || {}; S.print = Object.assign({ pins: true, crops: true, opts: true, runs: false, empty: true }, S.print || {});
 function save() { clearTimeout(saveT); saveT = setTimeout(saveNow, 300); }
 function saveNow() { clearTimeout(saveT); S.updated = Date.now(); try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { toast("Speichern fehlgeschlagen"); } try { parent.postMessage({ sg: "changed" }, location.origin); } catch (e) {} }
 addEventListener("pagehide", saveNow);
-addEventListener("storage", e => { if (e.key === KEY) { S = load(); render(); } });
+addEventListener("storage", async e => { if (e.key === KEY) { const h = S.hide, p = S.print; S = load(); S.hide = S.hide || h; S.print = S.print || p; await loadMapImg(); render(); } });
 let idb;
 function db() {
   if (idb) return idb;
@@ -420,76 +519,111 @@ async function imgSet(k, v) { const d = await db(); return new Promise((res, rej
 /* ---------- Modell ---------- */
 function newCurve(n, preset) {
   const p = preset || {}, t = p.t || "Kurve";
-  return { n, name: p.nm || "", dir: p.d || (n % 2 ? "L" : "R"), type: t, angle: p.a || TYPES[t] || 90, straight: null, diff: 3, status: "neu", cue: "", f: {}, runs: [], x: null, y: null };
+  return { n, name: p.nm || "", dir: p.d || "", type: t, angle: p.a || TYPES[t] || 90, diff: 3, status: "neu", cue: "", o: {}, f: {}, runs: [], line: [], x: null, y: null };
 }
 function addTrack(cat, custom) {
   const c = cat || custom;
-  const t = { id: uid(), cat: cat ? cat.id : null, name: c.name, ort: c.ort || "", land: c.land || "", len: +c.len || 1300, note: cat ? cat.note : "", curves: [], map: "skizze", created: Date.now() };
+  const t = norm({ id: uid(), cat: cat ? cat.id : null, name: c.name, ort: c.ort || "", land: c.land || "", len: +c.len || 1300, note: cat ? cat.note : "", curves: [], map: null, created: Date.now() });
   for (let i = 1; i <= (+c.n || 15); i++) t.curves.push(newCurve(i, cat && cat.c && cat.c[i]));
   S.tracks.push(t); S.cur = t.id; saveNow(); return t;
 }
 const track = () => S.tracks.find(t => t.id === S.cur) || null;
+const catOf = t => t && CATALOG.find(c => c.id === t.cat);
 const counts = t => t.curves.reduce((o, c) => (o[c.status] = (o[c.status] || 0) + 1, o), {});
-
-/* ---------- Bahn zeichnen: Kurven nacheinander mit Richtung und Winkel (wie eine Schildkröte), dazwischen Geraden ---------- */
-function geometry(t) {
-  const R = 26, cs = t.curves;
-  const arcLen = c => (c.type === "Gerade" || c.type === "Gegenanstieg" ? 0 : Math.max(10, c.angle) * Math.PI / 180 * R);
-  const sumArc = cs.reduce((s, c) => s + arcLen(c), 0);
-  const free = Math.max((cs.length + 1) * 18, (t.len || 1300) - sumArc), def = free / (cs.length + 1);
-  let x = 0, y = 0, h = Math.PI / 2;
-  const pts = [[x, y]], marks = [];
-  // Skizze wie eine echte Bahn: auf den Geraden dreht die Richtung langsam zurück in die Falllinie (bergab),
-  // so laufen auch große Kurven (Omega, Kreisel) nicht über die restliche Bahn
-  const wrap = v => Math.atan2(Math.sin(v), Math.cos(v));
-  const go = (len) => { const k = Math.max(1, Math.round(len / 8)); for (let i = 0; i < k; i++) { h += wrap(Math.PI / 2 - h) * Math.min(.2, 1.1 / k); x += Math.cos(h) * len / k; y += Math.sin(h) * len / k; pts.push([x, y]); } };
-  cs.forEach(c => {
-    go(c.straight != null && c.straight !== "" ? Math.max(4, +c.straight) : def);
-    const a = (c.type === "Gerade" || c.type === "Gegenanstieg") ? 0 : Math.max(10, +c.angle || 90), sg = c.dir === "R" ? 1 : -1;
-    if (!a) { const mx = x + Math.cos(h) * 20, my = y + Math.sin(h) * 20; go(40); marks.push({ c, x: mx, y: my, nx: Math.cos(h + Math.PI / 2), ny: Math.sin(h + Math.PI / 2) }); return; }
-    const steps = Math.max(3, Math.round(a / 6)), da = a / steps * Math.PI / 180 * sg, step = arcLen(c) / steps;
-    let mid = null;
-    for (let i = 0; i < steps; i++) { h += da; x += Math.cos(h) * step; y += Math.sin(h) * step; pts.push([x, y]); if (i === Math.floor(steps / 2)) mid = [x, y, h]; }
-    // Nummer außen an der Kurve (gegenüber dem Kurvenmittelpunkt)
-    marks.push({ c, x: mid[0], y: mid[1], nx: Math.cos(mid[2] - sg * Math.PI / 2), ny: Math.sin(mid[2] - sg * Math.PI / 2) });
-  });
-  go(def);
-  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-  pts.forEach(p => { minX = Math.min(minX, p[0]); maxX = Math.max(maxX, p[0]); minY = Math.min(minY, p[1]); maxY = Math.max(maxY, p[1]); });
-  const size = Math.max(maxX - minX, maxY - minY, 200), pad = size * .1, mr = size / 26;
-  marks.forEach(m => { m.mx = m.x + m.nx * mr * 2.1; m.my = m.y + m.ny * mr * 2.1; });
-  // Nummern, die sich überdecken, auseinanderschieben
-  for (let it = 0; it < 30; it++) {
-    let moved = false;
-    for (let i = 0; i < marks.length; i++) for (let j = i + 1; j < marks.length; j++) {
-      const A = marks[i], B = marks[j], dx = B.mx - A.mx, dy = B.my - A.my, d = Math.hypot(dx, dy) || .01, need = mr * 2.3;
-      if (d < need) { const p = (need - d) / 2, ux = dx / d, uy = dy / d; A.mx -= ux * p; A.my -= uy * p; B.mx += ux * p; B.my += uy * p; moved = true; }
-    }
-    if (!moved) break;
-  }
-  marks.forEach(m => { minX = Math.min(minX, m.mx); maxX = Math.max(maxX, m.mx); minY = Math.min(minY, m.my); maxY = Math.max(maxY, m.my); });
-  return { pts, marks, vb: [minX - pad, minY - pad, maxX - minX + 2 * pad, maxY - minY + 2 * pad], mr, size };
+const curCurve = () => { const t = track(); return t && t.curves.find(c => c.n === curN); };
+function formText(x, withOpts) {
+  const a = [x.type];
+  if (!NOARC(x.type)) a.push([x.dir === "L" ? "links" : x.dir === "R" ? "rechts" : "", x.angle ? x.angle + "°" : ""].filter(Boolean).join(" "));
+  if (withOpts) OPTS.forEach(g => g[1].forEach(o => { const v = x.o[o[0]]; if (v && v !== "nein" && v !== "normal") a.push(o[0] === "prio" ? v : o[1] + ": " + v); }));
+  if (x.o.speed) a.push(x.o.speed + " km/h");
+  return a.filter(Boolean).join(" · ");
 }
-function trackSVG(t, sel) {
-  const g = geometry(t), d = "M" + g.pts.map(p => p[0].toFixed(1) + " " + p[1].toFixed(1)).join("L"), w = g.size / 34;
-  const s = g.pts[0], e = g.pts[g.pts.length - 1];
-  let h = `<svg viewBox="${g.vb.map(v => v.toFixed(1)).join(" ")}" role="img" aria-label="Bahnplan ${esc(t.name)}">`;
-  h += `<path d="${d}" fill="none" stroke="var(--s3)" stroke-width="${(w * 2.6).toFixed(1)}" stroke-linecap="round" stroke-linejoin="round"/>`;
-  h += `<path d="${d}" fill="none" stroke="var(--acc)" stroke-opacity=".55" stroke-width="${(w * .5).toFixed(1)}" stroke-linecap="round" stroke-linejoin="round"/>`;
-  g.marks.forEach(m => { h += `<line x1="${m.x.toFixed(1)}" y1="${m.y.toFixed(1)}" x2="${m.mx.toFixed(1)}" y2="${m.my.toFixed(1)}" stroke="var(--faint)" stroke-width="${(w * .25).toFixed(1)}"/>`; });
-  const fs = g.mr * 1.05;
-  h += `<text x="${s[0].toFixed(1)}" y="${(s[1] - g.mr * 1.4).toFixed(1)}" text-anchor="middle" font-size="${(fs * .9).toFixed(1)}" fill="var(--muted)" font-weight="600">Start</text>`;
-  h += `<circle cx="${e[0].toFixed(1)}" cy="${e[1].toFixed(1)}" r="${(w * 1.1).toFixed(1)}" fill="var(--ink)"/><text x="${e[0].toFixed(1)}" y="${(e[1] + g.mr * 2).toFixed(1)}" text-anchor="middle" font-size="${(fs * .9).toFixed(1)}" fill="var(--muted)" font-weight="600">Ziel</text>`;
-  g.marks.forEach(m => {
-    const col = STATUS[m.c.status][2];
-    h += `<g class="mk${sel === m.c.n ? " sel" : ""}" data-c="${m.c.n}"><circle cx="${m.mx.toFixed(1)}" cy="${m.my.toFixed(1)}" r="${g.mr.toFixed(1)}" fill="${col}" stroke-width="${(g.mr * .18).toFixed(1)}"/>` +
-      `<text x="${m.mx.toFixed(1)}" y="${(m.my + fs * .36).toFixed(1)}" text-anchor="middle" font-size="${fs.toFixed(1)}" font-weight="700" fill="#fff">${m.c.n}</text></g>`;
-  });
-  return h + "</svg>";
+
+/* ---------- Plan-Bild (Wikipedia als PNG oder eigenes Bild) ---------- */
+let mapURL = null;
+async function loadMapImg() {
+  const t = track(); if (mapURL) { URL.revokeObjectURL(mapURL); mapURL = null; }
+  if (!t) return;
+  let v = await imgGet("map:" + t.id);
+  if (typeof v === "string") { try { v = await (await fetch(v)).blob(); await imgSet("map:" + t.id, v); } catch (e) { v = null; } } // ältere Fassung: Daten-URL
+  if (!v) return;
+  mapURL = URL.createObjectURL(v);
+  if (!t.map || !t.map.w) { const im = await imgOf(mapURL); t.map = Object.assign({ src: "eigen" }, t.map || {}, { w: im.naturalWidth, h: im.naturalHeight }); save(); }
+}
+function imgOf(src) { return new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = src; }); }
+// Bild in ein PNG (weißer Grund, damit transparente SVG-Pläne lesbar bleiben) umwandeln
+async function toPNG(blob, max, type) {
+  const u = URL.createObjectURL(blob);
+  try {
+    const im = await imgOf(u), k = Math.min(1, max / Math.max(im.naturalWidth || max, im.naturalHeight || max));
+    const c = document.createElement("canvas"); c.width = Math.round((im.naturalWidth || max) * k); c.height = Math.round((im.naturalHeight || max) * k);
+    const x = c.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0, 0, c.width, c.height); x.drawImage(im, 0, 0, c.width, c.height);
+    const out = await new Promise(r => c.toBlob(r, type || "image/png", .88));
+    return { blob: out, w: c.width, h: c.height };
+  } finally { URL.revokeObjectURL(u); }
+}
+async function setMap(t, blob, meta) {
+  await imgSet("map:" + t.id, blob);
+  t.map = meta; save();
+  if (S.cur === t.id) await loadMapImg();
+}
+
+/* ---------- Wikipedia / Wikimedia Commons: Streckenpläne suchen ---------- */
+const API = { c: "https://commons.wikimedia.org/w/api.php", en: "https://en.wikipedia.org/w/api.php", de: "https://de.wikipedia.org/w/api.php" };
+async function api(base, params) {
+  const r = await fetch(base + "?" + new URLSearchParams(Object.assign({ format: "json", formatversion: "2", origin: "*" }, params)));
+  if (!r.ok) throw new Error("HTTP " + r.status);
+  return r.json();
+}
+const JUNK = /flag|logo|icon|symbol|pictogram|olympic[_ ]rings|commons-|wiki|locator|location[_ ]map|relief|edit-|question|disambig|portal|signature|medal|emblem|coat[_ ]of[_ ]arms|wappen|stub|pog|marker|arrow|button|blank/i;
+const GOOD = /streckenplan|track[_ ]?map|track[_ ]profile|bahnplan|map|plan|layout|profil/i;
+const tkey = s => String(s).replace(/^(file|datei|image|bild):/i, "").replace(/_/g, " ").trim().toLowerCase();
+const strip = s => String(s || "").replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
+async function wikiCandidates(w) {
+  // Schlüssel klein geschrieben (gegen Doppelte), angefragt wird aber mit der Original-Schreibweise – Commons unterscheidet Groß/klein
+  const score = new Map(), orig = new Map(), kw = w.kw ? new RegExp(w.kw, "i") : null;
+  const add = (title, s) => { const k = tkey(title); if (!k || JUNK.test(k)) return; if (!orig.has(k)) orig.set(k, String(title).replace(/^(file|datei|image|bild):/i, "").replace(/_/g, " ").trim()); s += (GOOD.test(k) ? 20 : 0) + (/deutsch/.test(k) ? 5 : 0); if (!score.has(k) || score.get(k) < s) score.set(k, s); };
+  (w.files || []).forEach((f, i) => add(f, 200 - i));
+  const jobs = [
+    api(API.c, { action: "query", list: "search", srnamespace: "6", srsearch: w.q + " map", srlimit: "25" }).then(d => ((d.query || {}).search || []).forEach(m => { if (!kw || kw.test(m.title)) add(m.title, 40); })),
+    api(API.de, { action: "query", generator: "search", gsrsearch: w.q, gsrlimit: "1", prop: "images", imlimit: "80" }).then(d => ((d.query || {}).pages || []).forEach(p => (p.images || []).forEach(im => add(im.title, 15)))),
+    api(API.en, { action: "query", generator: "search", gsrsearch: w.q, gsrlimit: "1", prop: "images", imlimit: "80" }).then(d => ((d.query || {}).pages || []).forEach(p => (p.images || []).forEach(im => add(im.title, 15))))
+  ];
+  if (kw) jobs.push(api(API.c, { action: "query", list: "categorymembers", cmtitle: "Category:Maps of sledding tracks", cmtype: "file", cmlimit: "500" })
+    .then(d => ((d.query || {}).categorymembers || []).forEach(m => { if (kw.test(m.title)) add(m.title, 80); })));
+  const res = await Promise.allSettled(jobs);
+  const keys = [...score.keys()].sort((a, b) => score.get(b) - score.get(a)).slice(0, 40);
+  if (!keys.length) { if (res.every(r => r.status === "rejected")) throw new Error("offline"); return []; }
+  const out = [];
+  for (let i = 0; i < keys.length; i += 20) {
+    const d = await api(API.c, { action: "query", titles: keys.slice(i, i + 20).map(k => "File:" + orig.get(k)).join("|"), prop: "imageinfo", iiprop: "url|size|mime|extmetadata", iiurlwidth: "1800", iiextmetadatafilter: "Artist|LicenseShortName" });
+    ((d.query || {}).pages || []).forEach(p => {
+      const ii = p.imageinfo && p.imageinfo[0]; if (!ii || p.missing) return;
+      if (!/^image\/(svg|png|jpe?g|gif|webp)/.test(ii.mime) || Math.max(ii.width, ii.height) < 300) return;
+      const md = ii.extmetadata || {};
+      out.push({ title: p.title.replace(/^File:/, ""), score: score.get(tkey(p.title)) || 0, url: ii.thumburl || ii.url, page: ii.descriptionurl, w: ii.width, h: ii.height,
+        artist: strip(md.Artist && md.Artist.value), license: strip(md.LicenseShortName && md.LicenseShortName.value) });
+    });
+  }
+  return out.sort((a, b) => b.score - a.score);
+}
+const thumb = u => u.replace(/\/(\d+)px-/, "/480px-");
+async function takeWiki(t, cand) {
+  const r = await fetch(cand.url); if (!r.ok) throw new Error("HTTP " + r.status);
+  const png = await toPNG(await r.blob(), 2200);
+  await setMap(t, png.blob, { src: "wiki", title: cand.title, page: cand.page, artist: cand.artist, license: cand.license, w: png.w, h: png.h });
+}
+// beim Hinzufügen einer Katalog-Bahn den besten Wikipedia-Plan gleich holen
+async function autoWiki(t) {
+  const cat = catOf(t); if (!cat || !cat.w || !navigator.onLine) return;
+  try {
+    const list = await wikiCandidates(cat.w); if (!list.length || track() !== t || t.map) return;
+    await takeWiki(t, list[0]); startPlacing(t); renderSafe(); toast("Plan von Wikipedia geladen – jetzt die Nummern antippen");
+  } catch (e) { /* ohne Netz: Knopf „Wikipedia-Plan laden“ bleibt */ }
 }
 
 /* ---------- Ansichten ---------- */
-let view = "bahnen", placing = null, mapImg = null;
+let view = "bahnen", placing = null;
 function show(v) {
   view = v;
   document.querySelectorAll(".view").forEach(s => s.classList.toggle("on", s.id === "v-" + v));
@@ -497,249 +631,362 @@ function show(v) {
   render(); scrollTo(0, 0);
 }
 function render() { if (view === "bahnen") renderBahnen(); else if (view === "plan") renderPlan(); else renderBuch(); }
+function renderSafe() { if (!$("sheet").classList.contains("on")) render(); }
 function progressBar(t) {
   const c = counts(t), n = t.curves.length || 1;
-  return `<div class="progress">${["sitzt", "ueben", "neu"].map(k => `<i style="width:${(c[k] || 0) / n * 100}%;background:${STATUS[k][2]}"></i>`).join("")}</div>`;
+  return `<div class="progress">${["sitzt", "ueben", "neu"].map(k => `<i style="width:${(c[k] || 0) / n * 100}%;background:${STATUS[k][1]}"></i>`).join("")}</div>`;
 }
 function renderBahnen() {
-  let h = `<p class="eyebrow">Training</p><h1>Bahnplan</h1><p class="sub">Dein Kurvenbuch: jede Bahn als Plan mit Nummern, zu jeder Kurve deine Linie, deine Bezugspunkte und deine Ansage.</p>`;
+  let h = `<p class="eyebrow">Training</p><h1>Bahnplan</h1><p class="sub">Dein Kurvenbuch: der Original-Plan jeder Bahn mit Nummern, zu jeder Kurve deine Linie, deine Bezugspunkte und deine Ansage.</p>`;
   h += `<section class="grp"><header><span>Meine Bahnen</span><button class="lnk" data-a="add">Hinzufügen</button></header><div class="cells">`;
   if (!S.tracks.length) h += `<div class="empty">Noch keine Bahn. Tippe auf „Hinzufügen“ und wähle eine Bahn aus der Liste – oder lege eine eigene an.</div>`;
   S.tracks.forEach(t => {
     const c = counts(t);
-    h += `<button class="row" data-open="${t.id}"><span class="ic" style="background:var(--acc)">${esc(t.name.charAt(0))}</span><span class="tx"><b>${esc(t.name)}</b><small>${esc([t.land, t.len + " m", t.curves.length + " Kurven", (c.sitzt || 0) + " sitzen"].filter(Boolean).join(" · "))}</small></span><span class="chev">›</span></button>`;
+    h += `<button class="row" data-open="${t.id}"><span class="ic" style="background:var(--acc)">${esc(t.name.charAt(0))}</span><span class="tx"><b>${esc(t.name)}</b><small>${esc([t.land, t.len + " m", t.curves.length + " Kurven", (c.sitzt || 0) + " sitzen", t.map ? "" : "noch kein Plan"].filter(Boolean).join(" · "))}</small></span><span class="chev">›</span></button>`;
   });
-  h += `</div><p class="gfoot">Notizen werden mit der Cloud-Sicherung abgeglichen. Bilder und gezeichnete Linien bleiben auf diesem Gerät.</p></section>`;
+  h += `</div><p class="gfoot">Notizen werden mit der Cloud-Sicherung abgeglichen. Die Plan-Bilder bleiben auf diesem Gerät – auf einem neuen Gerät einfach neu von Wikipedia laden.</p></section>`;
+  h += `<section class="grp"><header><span>Einstellungen</span></header><div class="cells"><button class="row" data-a="fields"><span class="tx"><b>Felder anpassen</b><small>Welche Bereiche das Kurvenblatt zeigt, eigene Felder</small></span><span class="chev">›</span></button></div></section>`;
   h += `<section class="grp"><header><span>So arbeitest du mit dem Buch</span></header><div class="cells"><div class="src">
-    <b>1. Bahnbegehung:</b> Bahn Kurve für Kurve abgehen, Nummern und Namen prüfen, Richtung und Winkel im Plan anpassen.<br>
-    <b>2. Bezugspunkte:</b> Pro Kurve vom Ausgang her denken – wo will ich raus? Daraus ergeben sich Scheitel, Einlenken und Anfahrt.<br>
-    <b>3. Ansage:</b> Eine kurze Zeile wie im Rallye-Aufschrieb, z. B. „L4 zieht zu, früh rein, Druck halten“.<br>
-    <b>4. Durchgehen:</b> Vor dem Lauf mit „Durchgehen“ die Bahn im Kopf abfahren.<br>
-    <b>5. Nach dem Lauf:</b> In den Kurven, die nicht gepasst haben, kurz notieren, was passiert ist.
+    <b>1. Plan laden:</b> Der Original-Streckenplan kommt von Wikipedia. Tippe auf jede Kurvennummer im Bild – dann sind die Nummern antippbar.<br>
+    <b>2. Bahnbegehung:</b> Kurve für Kurve Form, Radius, Gefälle und Druck eintragen.<br>
+    <b>3. Bezugspunkte:</b> Vom Ausgang her denken – wo will ich raus? Daraus ergeben sich Scheitel, Einlenken und Anfahrt. Die Linie zeichnest du direkt in den Ausschnitt des Plans.<br>
+    <b>4. Ansage:</b> Eine kurze Zeile wie im Rallye-Aufschrieb, z. B. „L4 zieht zu, früh rein, Druck halten“.<br>
+    <b>5. Durchgehen und Drucken:</b> Vor dem Lauf die Bahn im Kopf abfahren, unter „Buch“ den Bahnplan ausdrucken.
   </div></div></section>`;
   h += `<section class="grp"><header><span>Quellen und Vorbilder</span></header><div class="cells"><div class="src">
-    Bahndaten: <a href="https://en.wikipedia.org/wiki/List_of_bobsleigh,_luge,_and_skeleton_tracks" target="_blank" rel="noopener">Wikipedia – Liste der Bahnen</a>, <a href="https://www.fil-luge.org/en/tracks/artificial-tracks" target="_blank" rel="noopener">FIL – Kunstbahnen</a>, <a href="https://www.ibsf.org/en/tracks" target="_blank" rel="noopener">IBSF – Bahnen</a>, Betreiber und Presse (z. B. <a href="https://www.piquenewsmagazine.com/whistler-news/sliding-tracks-reputation-creating-nicknames-2481790" target="_blank" rel="noopener">Whistler-Kurvennamen</a>).<br>
-    Aufbau der Notizen nach: Kursbesichtigung im Skirennsport (<a href="https://eliteam.com/how-to-inspect-a-race-course/" target="_blank" rel="noopener">Elite Alpine</a>), Rallye-Aufschrieb (<a href="https://en.wikipedia.org/wiki/Pacenotes" target="_blank" rel="noopener">Pacenotes</a>), Bezugspunkte im Motorsport (<a href="https://blayze.io/blog/5-reference-points-for-every-corner-on-the-race-track" target="_blank" rel="noopener">5 Reference Points</a>).<br>
-    Kurvennamen und -formen sind Startwerte und nur teilweise belegt – bitte an der Bahn prüfen.
+    Pläne: <a href="https://commons.wikimedia.org/wiki/Category:Maps_of_sledding_tracks" target="_blank" rel="noopener">Wikimedia Commons – Maps of sledding tracks</a> und die Wikipedia-Artikel der Bahnen (Urheber und Lizenz stehen unter jedem Plan).<br>
+    Bahndaten: <a href="https://en.wikipedia.org/wiki/List_of_bobsleigh,_luge,_and_skeleton_tracks" target="_blank" rel="noopener">Wikipedia – Liste der Bahnen</a>, <a href="https://www.fil-luge.org/en/tracks/artificial-tracks" target="_blank" rel="noopener">FIL – Kunstbahnen</a>, <a href="https://www.ibsf.org/en/tracks" target="_blank" rel="noopener">IBSF – Bahnen</a>.<br>
+    Aufbau der Notizen nach: Kursbesichtigung im Skirennsport (<a href="https://eliteam.com/how-to-inspect-a-race-course/" target="_blank" rel="noopener">Elite Alpine</a>), Rallye-Aufschrieb (<a href="https://en.wikipedia.org/wiki/Pacenotes" target="_blank" rel="noopener">Pacenotes</a>), Bezugspunkte im Motorsport (<a href="https://blayze.io/blog/5-reference-points-for-every-corner-on-the-race-track" target="_blank" rel="noopener">5 Reference Points</a>).
   </div></div></section>`;
   $("v-bahnen").innerHTML = h;
 }
+function pinsHTML(t, opts) {
+  return t.curves.filter(x => x.x != null).map(x =>
+    `<button class="pin${placing === x.n ? " sel" : ""}" data-c="${x.n}" style="left:${x.x}%;top:${x.y}%;background:${STATUS[x.status][1]}" aria-label="Kurve ${x.n}">${x.n}</button>`).join("");
+}
+function mapBlock(t, big) {
+  if (!t.map || !mapURL) {
+    return `<div class="nomap"><b>Noch kein Plan</b><p>Lade den Original-Streckenplan von Wikipedia. Er wird als PNG auf diesem Gerät gespeichert und funktioniert danach auch ohne Netz.</p>
+      <div class="btns"><button class="btn p" data-a="wiki">Wikipedia-Plan laden</button><button class="btn" data-a="img">Eigenes Bild</button></div></div>`;
+  }
+  return `<div class="imgwrap${placing ? " placing" : ""}" id="imgwrap"><img src="${mapURL}" alt="Streckenplan ${esc(t.name)}" draggable="false">${pinsHTML(t)}</div>`;
+}
+function credit(t) {
+  if (!t.map) return "";
+  if (t.map.src !== "wiki") return `<p class="credit">Eigenes Bild</p>`;
+  return `<p class="credit">Plan: <a href="${esc(t.map.page)}" target="_blank" rel="noopener">${esc(t.map.title)}</a>${t.map.artist ? " · " + esc(t.map.artist) : ""}${t.map.license ? " · " + esc(t.map.license) : ""} · Wikimedia Commons</p>`;
+}
+function startPlacing(t) { const nx = t.curves.find(c => c.x == null); placing = nx ? nx.n : null; }
 function renderPlan() {
   const t = track();
   if (!t) { $("v-plan").innerHTML = `<p class="eyebrow">Bahnplan</p><h1>Kein Plan offen</h1><p class="sub">Wähle unter „Bahnen“ eine Bahn aus oder füge eine hinzu.</p><button class="btn p" data-a="add">Bahn hinzufügen</button>`; return; }
-  const c = counts(t);
+  const c = counts(t), pinned = t.curves.filter(x => x.x != null).length;
   let h = `<div class="planhead"><div class="t"><p class="eyebrow">${esc([t.ort, t.land].filter(Boolean).join(" · "))}</p><h1>${esc(t.name)}</h1></div>
     <div class="btns noprint"><button class="btn sm p" data-a="viz">Durchgehen</button><button class="btn sm" data-a="trackedit">Bahn bearbeiten</button></div></div>`;
   h += `<p class="sub" style="margin-top:6px">${t.len} m · ${t.curves.length} Kurven · ${c.sitzt || 0} sitzen, ${c.ueben || 0} übe ich, ${c.neu || 0} neu</p>`;
   h += progressBar(t);
   h += `<div class="plan"><div class="mapcard">`;
-  h += `<div class="maptools noprint"><div class="seg"><button data-map="skizze" class="${t.map !== "bild" ? "on" : ""}">Gezeichnet</button><button data-map="bild" class="${t.map === "bild" ? "on" : ""}">Eigenes Bild</button></div><span class="sp"></span>`;
-  if (t.map === "bild") h += `<button class="btn sm" data-a="img">${mapImg ? "Bild ändern" : "Bild wählen"}</button>`;
-  h += `</div>`;
-  if (t.map === "bild") {
-    if (!mapImg) h += `<div class="empty">Lade ein Foto oder einen Screenshot des offiziellen Bahnplans (z. B. von Wikipedia oder der Bahn) und setze die Nummern darauf.</div>`;
-    else {
-      h += `<div class="imgwrap${placing ? " placing" : ""}" id="imgwrap"><img src="${mapImg}" alt="Bahnplan">` + t.curves.filter(x => x.x != null).map(x =>
-        `<button class="pin${placing === x.n ? " sel" : ""}" data-c="${x.n}" style="left:${x.x}%;top:${x.y}%;background:${STATUS[x.status][2]}">${x.n}</button>`).join("") + `</div>`;
-      h += `<div class="maptools noprint"><span>${placing ? "Tippe ins Bild, um Kurve " + placing + " zu setzen" : "Nummer antippen zeigt die Kurve · zum Setzen unten eine Nummer wählen"}</span>${placing ? `<span class="sp"></span><button class="btn sm p" data-a="placedone">Fertig</button>` : ""}</div><div class="chips noprint">` +
-        t.curves.map(x => `<button data-place="${x.n}" class="${placing === x.n ? "on" : x.x != null ? "set" : ""}">${x.n}</button>`).join("") + `</div>`;
-    }
-  } else h += `<div class="map" id="map">${trackSVG(t)}</div><div class="maptools"><span>Form aus Richtung und Winkel jeder Kurve – im Kurvenblatt anpassen.</span></div>`;
+  if (placing && t.map) h += `<div class="placebar"><span>Tippe im Plan auf die Stelle von <b>Kurve ${placing}</b></span><button class="btn sm" data-a="placeskip">Überspringen</button><button class="btn sm p" data-a="placedone">Fertig</button></div>`;
+  h += mapBlock(t);
+  if (t.map && mapURL) {
+    h += `<div class="maptools noprint"><span>${placing ? "" : pinned ? "Nummer antippen zeigt die Kurve" : "Noch keine Nummern gesetzt"}</span><span class="sp"></span>
+      <button class="btn sm" data-a="zoom">Groß</button><button class="btn sm" data-a="placeall">${pinned ? "Nummern setzen" : "Nummern setzen"}</button><button class="btn sm" data-a="mapmenu">Plan ⋯</button></div>`;
+    if (placing) h += `<div class="chips noprint">` + t.curves.map(x => `<button data-place="${x.n}" class="${placing === x.n ? "on" : x.x != null ? "set" : ""}">${x.n}</button>`).join("") + `</div>`;
+    h += credit(t);
+  }
   h += `</div><div>`;
-  h += `<section class="grp"><header><span>Kurven</span></header><div class="cells">` + t.curves.map(x => `<button class="row crow" data-c="${x.n}"><span class="num" style="background:${STATUS[x.status][2]}">${x.n}</span><span class="tx"><b>${esc(x.name || x.type)}</b><small>${esc(x.cue || "Noch keine Ansage")}</small></span><span class="dirx">${x.type === "Gerade" || x.type === "Gegenanstieg" ? "" : (x.dir === "L" ? "links " : "rechts ") + x.angle + "°"}</span><span class="chev">›</span></button>`).join("") + `</div></section>`;
-  h += `<div class="legend">${Object.keys(STATUS).map(k => `<span><i style="background:${STATUS[k][2]}"></i>${STATUS[k][0]}</span>`).join("")}</div>`;
+  h += `<section class="grp"><header><span>Kurven</span></header><div class="cells">` + t.curves.map(x => `<button class="row crow" data-c="${x.n}"><span class="num" style="background:${STATUS[x.status][1]}">${x.n}</span><span class="tx"><b>${esc(x.name || x.type)}${x.o.prio === "Schlüsselkurve" ? " ★" : ""}</b><small>${esc(x.cue || formText(x, false))}</small></span><span class="chev">›</span></button>`).join("") + `</div></section>`;
+  h += `<div class="legend">${Object.keys(STATUS).map(k => `<span><i style="background:${STATUS[k][1]}"></i>${STATUS[k][0]}</span>`).join("")}</div>`;
   if (t.note) h += `<p class="gfoot" style="margin-top:14px">${esc(t.note)}</p>`;
   h += `</div></div>`;
   $("v-plan").innerHTML = h;
 }
+
+/* ---------- Ausschnitt einer Kurve aus dem Plan (mit gezeichneter Linie) ---------- */
+function cropBox(t, x) {
+  const W = t.map.w, H = t.map.h, z = clamp(x.zoom || .26, .08, 1), cw = Math.min(W, W * z), ch = Math.min(H, cw * .7);
+  return [clamp(x.x / 100 * W - cw / 2, 0, Math.max(0, W - cw)), clamp(x.y / 100 * H - ch / 2, 0, Math.max(0, H - ch)), cw, ch];
+}
+function cropSVG(t, x, id) {
+  if (!t.map || !mapURL || x.x == null) return "";
+  const b = cropBox(t, x), sw = (b[2] / 90).toFixed(1), mx = x.x / 100 * t.map.w, my = x.y / 100 * t.map.h;
+  return `<svg class="crop"${id ? ` id="${id}"` : ""} viewBox="${b.map(v => v.toFixed(1)).join(" ")}" preserveAspectRatio="xMidYMid meet"><image href="${mapURL}" width="${t.map.w}" height="${t.map.h}"/>` +
+    `<circle cx="${mx.toFixed(1)}" cy="${my.toFixed(1)}" r="${(b[2] / 34).toFixed(1)}" fill="none" stroke="${STATUS[x.status][1]}" stroke-width="${(b[2] / 160).toFixed(1)}" opacity=".9"/>` +
+    `<g class="ln">${x.line.map(p => `<polyline points="${p.join(" ")}" fill="none" stroke="#e5383b" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round"/>`).join("")}</g></svg>`;
+}
+
+/* ---------- Buch / Druck ---------- */
+function optRows(x) {
+  const rows = [];
+  OPTS.forEach(g => { if (S.hide[g[0]]) return; const v = g[1].filter(o => x.o[o[0]]).map(o => o[1] + ": " + x.o[o[0]]); if (v.length) rows.push([g[0], v.join(" · ")]); });
+  return rows;
+}
 function renderBuch() {
   const t = track();
   if (!t) { $("v-buch").innerHTML = `<h1>Buch</h1><p class="sub">Wähle zuerst eine Bahn.</p>`; return; }
-  let h = `<div class="planhead"><div class="t"><p class="eyebrow">Kurvenbuch</p><h1>${esc(t.name)}</h1></div><div class="btns noprint"><button class="btn sm" data-a="print">Drucken / PDF</button></div></div>`;
-  h += `<p class="sub" style="margin-top:6px">${esc([t.ort, t.land].filter(Boolean).join(" · "))} · ${t.len} m · ${t.curves.length} Kurven · Stand ${new Date().toLocaleDateString("de-DE")}</p>`;
-  h += `<div class="mapcard" style="margin-bottom:16px"><div class="map">${trackSVG(t)}</div></div><div class="book">`;
+  const P = S.print;
+  let h = `<div class="noprint printopts"><div class="planhead"><div class="t"><p class="eyebrow">Kurvenbuch</p><h1>Drucken</h1></div><div class="btns"><button class="btn p" data-a="print">Drucken / PDF</button></div></div>
+    <div class="chips">${[["pins", "Nummern im Plan"], ["crops", "Kurvenausschnitte"], ["opts", "Auswahlfelder"], ["runs", "Läufe"], ["empty", "Kurven ohne Notizen"]].map(o => `<button data-popt="${o[0]}" class="${P[o[0]] ? "on" : ""}">${P[o[0]] ? "✓ " : ""}${o[1]}</button>`).join("")}</div></div>`;
+  h += `<article class="paper"><header class="bookhead"><p class="eyebrow">Bahnplan</p><h1>${esc(t.name)}</h1><p class="sub">${esc([t.ort, t.land, t.len + " m", t.curves.length + " Kurven", "Stand " + new Date().toLocaleDateString("de-DE")].filter(Boolean).join(" · "))}</p></header>`;
+  if (t.map && mapURL) h += `<figure class="bmap"><div class="imgwrap"><img src="${mapURL}" alt="Streckenplan">${P.pins ? pinsHTML(t) : ""}</div>${credit(t)}</figure>`;
+  else h += `<div class="nomap noprint"><b>Noch kein Plan geladen</b><p>Unter „Plan“ den Wikipedia-Plan laden – er erscheint dann hier oben im Ausdruck.</p></div>`;
+  const tn = [["Allgemein", t.note], ["Start", t.startNote], ["Schlitten-Setup", t.setup]].filter(r => r[1]);
+  if (tn.length) h += `<dl class="tnotes">${tn.map(r => `<dt>${r[0]}</dt><dd>${esc(r[1])}</dd>`).join("")}</dl>`;
+  h += `<div class="book">`;
   t.curves.forEach(x => {
-    h += `<article class="cv"><div class="cvh"><span class="num" style="background:${STATUS[x.status][2]}">${x.n}</span><div><b>${esc(x.name || x.type)}</b><small>${esc([x.type, x.type === "Gerade" || x.type === "Gegenanstieg" ? "" : (x.dir === "L" ? "links" : "rechts") + " " + x.angle + "°", "Schwierigkeit " + x.diff + "/5", STATUS[x.status][0]].filter(Boolean).join(" · "))}</small></div></div>`;
-    if (x.cue) h += `<div class="cue">„${esc(x.cue)}“</div>`;
     const rows = [];
-    FIELDS.forEach(gr => gr[1].forEach(f => { if (x.f[f[0]]) rows.push(`<dt>${f[1]}</dt><dd>${esc(x.f[f[0]])}</dd>`); }));
-    if (x.runs.length) rows.push(`<dt>Letzter Lauf</dt><dd>${esc(x.runs[0].date.split("-").reverse().join(".") + ": " + (x.runs[0].text || ""))}</dd>`);
-    h += rows.length ? `<dl>${rows.join("")}</dl>` : `<p class="sub" style="margin:8px 0 0">Noch keine Notizen.</p>`;
-    h += `<img data-line="${t.id}:${x.n}" alt="" hidden></article>`;
+    if (P.opts) optRows(x).forEach(r => rows.push(r));
+    FIELDS.forEach(gr => { if (S.hide[gr[0]]) return; gr[1].forEach(f => { if (x.f[f[0]]) rows.push([f[1], x.f[f[0]]]); }); });
+    if (!S.hide["Eigene Felder"]) t.custom.forEach(cf => { if (x.f["c_" + cf.id]) rows.push([cf.label, x.f["c_" + cf.id]]); });
+    if (P.runs) x.runs.slice(0, 3).forEach(r => rows.push(["Lauf " + r.date.split("-").reverse().join("."), r.text]));
+    const has = rows.length || x.cue || x.line.length;
+    if (!has && !P.empty) return;
+    const crop = P.crops ? cropSVG(t, x) : "";
+    h += `<section class="cv${crop ? " wcrop" : ""}">${crop ? `<div class="cvimg">${crop}</div>` : ""}<div class="cvtx"><div class="cvh"><span class="num" style="background:${STATUS[x.status][1]}">${x.n}</span><div><b>${esc(x.name || x.type)}${x.o.prio === "Schlüsselkurve" ? " ★" : ""}</b><small>${esc([formText(x, false), "Schwierigkeit " + x.diff + "/5", STATUS[x.status][0]].filter(Boolean).join(" · "))}</small></div></div>`;
+    if (x.cue) h += `<div class="cue">„${esc(x.cue)}“</div>`;
+    h += rows.length ? `<dl>${rows.map(r => `<dt>${esc(r[0])}</dt><dd>${esc(r[1])}</dd>`).join("")}</dl>` : `<p class="sub" style="margin:8px 0 0">Noch keine Notizen.</p>`;
+    h += `</div></section>`;
   });
-  $("v-buch").innerHTML = h + `</div>`;
-  // gezeichnete Linien nachladen
-  document.querySelectorAll("#v-buch img[data-line]").forEach(async im => { const v = await imgGet("line:" + im.dataset.line); if (v) { im.src = v; im.hidden = false; } });
+  $("v-buch").innerHTML = h + `</div></article>`;
 }
 
 /* ---------- Kurvenblatt ---------- */
-let curN = null;
-function openCurve(n) {
+let curN = null, drawOn = false;
+function seg(key, opts, val, attr) { return `<div class="seg wrap" ${attr || `data-o="${key}"`}>${opts.map(v => `<button data-v="${esc(v)}" class="${val === v ? "on" : ""}">${esc(v)}</button>`).join("")}</div>`; }
+function openCurve(n, keepScroll) {
   const t = track(); if (!t) return;
   const x = t.curves.find(c => c.n === n); if (!x) return;
+  const sc = keepScroll ? $("sheetPane").scrollTop : 0;
   curN = n;
-  const i = t.curves.indexOf(x), noArc = x.type === "Gerade" || x.type === "Gegenanstieg";
+  const i = t.curves.indexOf(x), H = S.hide;
   let h = `<div class="shead"><button class="ib" data-a="cprev" ${i ? "" : "disabled"} aria-label="Vorige Kurve">‹</button><h2>Kurve ${x.n}</h2><button class="ib" data-a="cnext" ${i < t.curves.length - 1 ? "" : "disabled"} aria-label="Nächste Kurve">›</button><button class="ib" data-a="close" aria-label="Schließen">✕</button></div>`;
+  // Ausschnitt aus dem Original-Plan, darin die eigene Linie
+  if (!H["Ausschnitt"]) {
+    h += `<section class="grp"><header><span>Ausschnitt aus dem Plan</span>${x.line.length ? `<button class="lnk" data-a="lineundo">Rückgängig</button><button class="lnk" data-a="lineclear">Löschen</button>` : ""}</header><div class="cells">`;
+    if (!t.map || !mapURL) h += `<div class="empty">Noch kein Plan geladen. <button class="lnk" data-a="wiki">Wikipedia-Plan laden</button></div>`;
+    else if (x.x == null) h += `<div class="empty">Kurve ${x.n} ist im Plan noch nicht markiert. <button class="lnk" data-a="placeone">Jetzt im Plan antippen</button></div>`;
+    else h += `<div class="drawbox${drawOn ? " on" : ""}">${cropSVG(t, x, "cropDraw")}</div><div class="fieldrow tools"><button class="btn sm${drawOn ? " p" : ""}" data-a="drawtoggle">${drawOn ? "Zeichnen: an" : "Linie zeichnen"}</button><span class="sp"></span><button class="ib" data-a="zin" aria-label="Näher">+</button><button class="ib" data-a="zout" aria-label="Weiter weg">−</button><button class="btn sm" data-a="placeone">Nummer verschieben</button></div>`;
+    h += `</div><p class="gfoot">Rot ist deine Ideallinie. „Linie zeichnen“ antippen, dann mit dem Finger durch die Kurve ziehen.</p></section>`;
+  }
   h += `<section class="grp"><div class="cells">
     <div class="field cue"><label>Meine Ansage <small>– kurz, wie im Rallye-Aufschrieb</small></label><input data-k="cue" value="${esc(x.cue)}" placeholder="z. B. L4 zieht zu, früh rein, Druck halten"></div>
     <div class="field"><label>Name</label><input data-k="name" value="${esc(x.name)}" placeholder="z. B. Kreisel, Omega, Echowand"></div>
   </div></section>`;
-  h += `<section class="grp"><header><span>Form</span></header><div class="cells">
-    <div class="fieldrow"><label>Art</label><select data-k="type" style="border:0;background:var(--s2);border-radius:10px;padding:8px 10px;font-size:15px">${Object.keys(TYPES).map(k => `<option${k === x.type ? " selected" : ""}>${k}</option>`).join("")}</select></div>
-    ${noArc ? "" : `<div class="fieldrow"><label>Richtung und Winkel</label><div class="seg" data-seg="dir"><button data-v="L" class="${x.dir === "L" ? "on" : ""}">Links</button><button data-v="R" class="${x.dir === "R" ? "on" : ""}">Rechts</button></div>
-      <select data-k="angle" style="border:0;background:var(--s2);border-radius:10px;padding:8px 10px;font-size:15px">${[30, 45, 60, 75, 90, 105, 120, 135, 150, 180, 200, 225, 250, 270, 300, 320, 360].map(a => `<option value="${a}"${+x.angle === a ? " selected" : ""}>${a}°</option>`).join("")}</select></div>`}
-    <div class="fieldrow"><label>Gerade davor <small>(m, leer = automatisch)</small></label><input data-k="straight" type="number" inputmode="numeric" min="0" step="5" value="${x.straight == null ? "" : esc(x.straight)}" placeholder="auto" style="border:0;background:var(--s2);border-radius:10px;padding:8px 10px;width:120px"></div>
-  </div></section>`;
-  h += `<section class="grp"><header><span>Stand</span></header><div class="cells">
-    <div class="fieldrow"><label>Wie sicher fahre ich sie?</label><div class="seg" data-seg="status">${Object.keys(STATUS).map(k => `<button data-v="${k}" class="${x.status === k ? "on" : ""}">${STATUS[k][0]}</button>`).join("")}</div></div>
-    <div class="fieldrow"><label>Schwierigkeit</label><div class="seg" data-seg="diff">${[1, 2, 3, 4, 5].map(d => `<button data-v="${d}" class="${+x.diff === d ? "on" : ""}">${d}</button>`).join("")}</div></div>
-  </div></section>`;
+  if (!H["Form"]) {
+    h += `<section class="grp"><header><span>Form</span></header><div class="cells">
+      <div class="fieldrow"><label>Art</label><select class="inp" data-k="type">${Object.keys(TYPES).map(k => `<option${k === x.type ? " selected" : ""}>${k}</option>`).join("")}</select></div>
+      ${NOARC(x.type) ? "" : `<div class="fieldrow"><label>Richtung und Winkel</label>${seg("", ["L", "R"], x.dir, 'data-seg="dir"').replace(">L<", ">Links<").replace(">R<", ">Rechts<")}
+        <select class="inp" data-k="angle">${[20, 30, 45, 60, 75, 90, 105, 120, 135, 150, 180, 200, 225, 250, 270, 300, 320, 340, 360].map(a => `<option value="${a}"${+x.angle === a ? " selected" : ""}>${a}°</option>`).join("")}</select></div>`}
+      ${OPTS[0][1].map(o => `<div class="fieldrow"><label>${o[1]}</label>${seg(o[0], o[2], x.o[o[0]])}</div>`).join("")}
+      <div class="fieldrow"><label>Tempo und Länge</label><input class="inp" data-ok="speed" type="number" inputmode="numeric" min="0" max="160" value="${esc(x.o.speed || "")}" placeholder="km/h" style="width:110px"><input class="inp" data-ok="laenge" type="number" inputmode="numeric" min="0" max="500" value="${esc(x.o.laenge || "")}" placeholder="Länge m" style="width:120px"></div>
+    </div></section>`;
+  }
+  if (!H["Fahren"]) h += `<section class="grp"><header><span>Fahren</span></header><div class="cells">${OPTS[1][1].map(o => `<div class="fieldrow"><label>${o[1]}</label>${seg(o[0], o[2], x.o[o[0]])}</div>`).join("")}</div></section>`;
+  if (!H["Bewertung"]) {
+    h += `<section class="grp"><header><span>Stand und Bewertung</span></header><div class="cells">
+      <div class="fieldrow"><label>Wie sicher fahre ich sie?</label><div class="seg" data-seg="status">${Object.keys(STATUS).map(k => `<button data-v="${k}" class="${x.status === k ? "on" : ""}">${STATUS[k][0]}</button>`).join("")}</div></div>
+      <div class="fieldrow"><label>Schwierigkeit</label><div class="seg" data-seg="diff">${[1, 2, 3, 4, 5].map(d => `<button data-v="${d}" class="${+x.diff === d ? "on" : ""}">${d}</button>`).join("")}</div></div>
+      ${OPTS[2][1].map(o => `<div class="fieldrow"><label>${o[1]}</label>${seg(o[0], o[2], x.o[o[0]])}</div>`).join("")}
+    </div></section>`;
+  }
   FIELDS.forEach(gr => {
+    if (H[gr[0]]) return;
     h += `<section class="grp"><header><span>${gr[0]}</span></header><div class="cells">` + gr[1].map(f =>
       `<div class="field"><label>${f[1]}</label><textarea data-f="${f[0]}" rows="1" placeholder="${esc(f[2])}">${esc(x.f[f[0]] || "")}</textarea></div>`).join("") + `</div></section>`;
   });
-  h += `<section class="grp"><header><span>Ideallinie zeichnen</span><button class="lnk" data-a="lineclear">Löschen</button></header><div class="cells"><div class="drawbox"><canvas id="lineCv" width="640" height="420"></canvas></div></div><p class="gfoot">Mit dem Finger die Linie durch die Kurve ziehen – grau ist die Bahn, gestrichelt die Mitte.</p></section>`;
-  h += `<section class="grp runs"><header><span>Läufe</span></header><div class="cells">` + (x.runs.length ? x.runs.map((r, ri) =>
-    `<div class="run"><i class="rate" style="background:${r.rate === "gut" ? "#30d158" : r.rate === "schwer" ? "#ff453a" : "#ff9f0a"}"></i><b>${esc(r.date.split("-").reverse().join("."))}</b><span>${esc(r.text)}</span><button class="lnk" data-delrun="${ri}" aria-label="Löschen">✕</button></div>`).join("") : `<div class="empty">Noch keine Laufnotiz.</div>`) +
-    `<div class="runadd"><input type="date" id="runDate" value="${today()}" style="border:0;background:var(--s2);border-radius:10px;padding:8px 10px"><div class="seg" id="runRate"><button data-v="gut">Gut</button><button data-v="ok" class="on">Okay</button><button data-v="schwer">Schwer</button></div>
-      <textarea id="runText" placeholder="Was ist in dieser Kurve passiert? Was mache ich beim nächsten Lauf anders?"></textarea><button class="btn p" data-a="addrun" style="grid-column:1/-1">Laufnotiz speichern</button></div></div></section>`;
+  if (!H["Eigene Felder"]) {
+    h += `<section class="grp"><header><span>Eigene Felder</span><button class="lnk" data-a="fields">Bearbeiten</button></header><div class="cells">` +
+      (t.custom.length ? t.custom.map(cf => `<div class="field"><label>${esc(cf.label)}</label><textarea data-f="c_${cf.id}" rows="1">${esc(x.f["c_" + cf.id] || "")}</textarea></div>`).join("") : `<div class="empty">Lege unter „Bearbeiten“ eigene Felder an, z. B. „Kufenstellung“ oder „Gefühl im Bauch“.</div>`) + `</div></section>`;
+  }
+  if (!H["Läufe"]) {
+    h += `<section class="grp runs"><header><span>Läufe</span></header><div class="cells">` + (x.runs.length ? x.runs.map((r, ri) =>
+      `<div class="run"><i class="rate" style="background:${r.rate === "gut" ? "#30d158" : r.rate === "schwer" ? "#ff453a" : "#ff9f0a"}"></i><b>${esc(r.date.split("-").reverse().join("."))}</b><span>${esc(r.text)}</span><button class="lnk" data-delrun="${ri}" aria-label="Löschen">✕</button></div>`).join("") : `<div class="empty">Noch keine Laufnotiz.</div>`) +
+      `<div class="runadd"><input type="date" id="runDate" value="${today()}" class="inp"><div class="seg" id="runRate"><button data-v="gut">Gut</button><button data-v="ok" class="on">Okay</button><button data-v="schwer">Schwer</button></div>
+        <textarea id="runText" placeholder="Was ist in dieser Kurve passiert? Was mache ich beim nächsten Lauf anders?"></textarea><button class="btn p" data-a="addrun" style="grid-column:1/-1">Laufnotiz speichern</button></div></div></section>`;
+  }
+  h += `<p class="gfoot" style="text-align:center"><button class="lnk" data-a="fields">Felder anpassen</button></p>`;
   $("sheetPane").innerHTML = h;
   $("sheet").classList.add("on");
-  $("sheetPane").scrollTop = 0;
+  $("sheetPane").scrollTop = sc;
   document.querySelectorAll("#sheetPane textarea").forEach(grow);
-  setupCanvas(t, x);
+  setupDraw(t, x);
 }
-function closeSheet() { $("sheet").classList.remove("on"); curN = null; render(); }
+function closeSheet() { $("sheet").classList.remove("on"); curN = null; drawOn = false; render(); }
 function grow(ta) { ta.style.height = "auto"; ta.style.height = ta.scrollHeight + "px"; }
-function curCurve() { const t = track(); return t && t.curves.find(c => c.n === curN); }
-
-/* Ideallinie: Kurvenform als Hintergrund, Linie mit dem Finger */
-async function setupCanvas(t, x) {
-  const cv = $("lineCv"); if (!cv) return;
-  const ctx = cv.getContext("2d"), W = cv.width, H = cv.height;
-  const css = getComputedStyle(document.documentElement);
-  const drawBase = () => {
-    ctx.clearRect(0, 0, W, H);
-    // Kurve lokal: Gerade rein, Bogen, Gerade raus – mittig eingepasst
-    const a = (x.type === "Gerade" || x.type === "Gegenanstieg") ? 0 : Math.max(10, +x.angle || 90), sg = x.dir === "R" ? 1 : -1, R = 60;
-    let px = 0, py = 0, h = Math.PI / 2; const pts = [[px, py]];
-    const go = l => { for (let i = 0; i < 10; i++) { px += Math.cos(h) * l / 10; py += Math.sin(h) * l / 10; pts.push([px, py]); } };
-    go(70); const st = Math.max(4, Math.round(a / 5)); for (let i = 0; i < st; i++) { h += a / st * Math.PI / 180 * sg; px += Math.cos(h) * (a * Math.PI / 180 * R) / st; py += Math.sin(h) * (a * Math.PI / 180 * R) / st; pts.push([px, py]); } go(70);
-    let mnx = 1e9, mny = 1e9, mxx = -1e9, mxy = -1e9; pts.forEach(p => { mnx = Math.min(mnx, p[0]); mxx = Math.max(mxx, p[0]); mny = Math.min(mny, p[1]); mxy = Math.max(mxy, p[1]); });
-    const sc = Math.min((W - 90) / Math.max(1, mxx - mnx), (H - 90) / Math.max(1, mxy - mny)), ox = W / 2 - (mnx + mxx) / 2 * sc, oy = H / 2 - (mny + mxy) / 2 * sc;
-    ctx.lineCap = "round"; ctx.lineJoin = "round";
-    ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(ox + p[0] * sc, oy + p[1] * sc) : ctx.moveTo(ox + p[0] * sc, oy + p[1] * sc));
-    ctx.strokeStyle = css.getPropertyValue("--s3").trim() || "#333"; ctx.lineWidth = 64; ctx.stroke();
-    ctx.setLineDash([8, 10]); ctx.strokeStyle = css.getPropertyValue("--faint").trim() || "#666"; ctx.lineWidth = 2; ctx.stroke(); ctx.setLineDash([]);
-    ctx.fillStyle = css.getPropertyValue("--muted").trim() || "#999"; ctx.font = "600 18px sans-serif"; ctx.fillText("rein", ox + pts[0][0] * sc + 38, oy + pts[0][1] * sc + 18);
-  };
-  drawBase();
-  const saved = await imgGet("line:" + t.id + ":" + x.n);
-  let strokes = [];
-  if (saved) { const im = new Image(); im.onload = () => { ctx.drawImage(im, 0, 0, W, H); }; im.src = saved; }
-  let drawing = false, last = null;
-  const pos = e => { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left) / r.width * W, (e.clientY - r.top) / r.height * H]; };
-  cv.onpointerdown = e => { drawing = true; last = pos(e); cv.setPointerCapture(e.pointerId); };
-  cv.onpointermove = e => {
-    if (!drawing) return; const p = pos(e);
-    ctx.strokeStyle = css.getPropertyValue("--acc").trim() || "#529cca"; ctx.lineWidth = 6; ctx.lineCap = "round";
-    ctx.beginPath(); ctx.moveTo(last[0], last[1]); ctx.lineTo(p[0], p[1]); ctx.stroke(); last = p; strokes.push(1);
-  };
-  cv.onpointerup = cv.onpointercancel = async () => { if (!drawing) return; drawing = false; if (strokes.length) { await imgSet("line:" + t.id + ":" + x.n, cv.toDataURL("image/png")); } };
-  cv.clear = async () => { drawBase(); strokes = []; await imgSet("line:" + t.id + ":" + x.n, null); };
+// Linie mit dem Finger in den Ausschnitt zeichnen – gespeichert als Punkte im Plan-Bild (klein, mit Cloud-Sicherung)
+function setupDraw(t, x) {
+  const sv = $("cropDraw"); if (!sv || !drawOn) return;
+  sv.style.touchAction = "none";
+  let cur = null;
+  const pt = e => { const p = sv.createSVGPoint(); p.x = e.clientX; p.y = e.clientY; const q = p.matrixTransform(sv.getScreenCTM().inverse()); return [Math.round(q.x), Math.round(q.y)]; };
+  const g = sv.querySelector(".ln"), sw = (cropBox(t, x)[2] / 90).toFixed(1);
+  sv.onpointerdown = e => { e.preventDefault(); sv.setPointerCapture(e.pointerId); cur = pt(e); const pl = document.createElementNS("http://www.w3.org/2000/svg", "polyline");
+    pl.setAttribute("fill", "none"); pl.setAttribute("stroke", "#e5383b"); pl.setAttribute("stroke-width", sw); pl.setAttribute("stroke-linecap", "round"); pl.setAttribute("stroke-linejoin", "round"); pl.setAttribute("points", cur.join(" ")); g.appendChild(pl); sv._pl = pl; };
+  sv.onpointermove = e => { if (!cur) return; const p = pt(e); if (Math.hypot(p[0] - cur[cur.length - 2], p[1] - cur[cur.length - 1]) < 2) return; cur.push(p[0], p[1]); sv._pl.setAttribute("points", cur.join(" ")); };
+  sv.onpointerup = sv.onpointercancel = () => { if (!cur) return; if (cur.length >= 4) { x.line.push(cur); save(); } cur = null; openCurve(x.n, true); };
 }
 
 /* ---------- Durchgehen: Bahn im Kopf abfahren ---------- */
 let vizI = 0;
 function openViz(i) {
   const t = track(); if (!t || !t.curves.length) return;
-  vizI = Math.max(0, Math.min(t.curves.length - 1, i));
+  vizI = clamp(i, 0, t.curves.length - 1);
   const x = t.curves[vizI], f = x.f;
   const pts = [["Einlenken", f.einlenken], ["Scheitel", f.scheitel], ["Ausfahrt", f.ausfahrt], ["Blick", f.blick]].filter(p => p[1]);
   $("viz").innerHTML = `<div class="top"><span>${esc(t.name)} · Kurve ${x.n} von ${t.curves.length}</span><button class="ib" data-a="vizclose" aria-label="Beenden">✕</button></div>
-    <div class="mid"><div class="bign"><b>${x.n}</b>${esc([x.name || x.type, x.type === "Gerade" || x.type === "Gegenanstieg" ? "" : (x.dir === "L" ? "links" : "rechts") + " " + x.angle + "°"].filter(Boolean).join(" · "))}</div>
+    <div class="mid">${cropSVG(t, x) ? `<div class="vizcrop">${cropSVG(t, x)}</div>` : ""}<div class="bign"><b>${x.n}</b>${esc([x.name !== x.type ? x.name : "", formText(x, false)].filter(Boolean).join(" · "))}</div>
     <div class="cuebig">${esc(x.cue || "Noch keine Ansage – im Kurvenblatt eintragen.")}</div>
     <div class="pts">${pts.map(p => `<div><b>${p[0]}:</b> ${esc(p[1])}</div>`).join("")}</div></div>
     <div class="nav"><button class="btn" data-a="vizprev" ${vizI ? "" : "disabled"}>Zurück</button><button class="btn p" data-a="viznext">${vizI < t.curves.length - 1 ? "Nächste Kurve" : "Ziel ✓"}</button></div>`;
   $("viz").classList.add("on");
 }
 
-/* ---------- Auswahl: Bahn hinzufügen ---------- */
+/* ---------- Blätter: Bahn hinzufügen, Wikipedia-Auswahl, Plan groß, Bahn bearbeiten, Felder ---------- */
+function sheetHead(title) { return `<div class="shead"><span style="width:38px"></span><h2>${title}</h2><button class="ib" data-a="close" aria-label="Schließen">✕</button></div>`; }
+function openSheet(h) { $("sheetPane").innerHTML = h; $("sheet").classList.add("on"); $("sheetPane").scrollTop = 0; curN = null; }
 function openPicker(q) {
   q = (q || "").toLowerCase();
   const list = CATALOG.filter(c => !q || (c.name + " " + c.ort + " " + c.land).toLowerCase().includes(q));
   const lands = [...new Set(list.map(c => c.land))];
-  let h = `<div class="shead"><span style="width:38px"></span><h2>Bahn hinzufügen</h2><button class="ib" data-a="close" aria-label="Schließen">✕</button></div>`;
-  h += `<input class="search" id="pickQ" placeholder="Bahn, Ort oder Land suchen" value="${esc(q)}" autocomplete="off">`;
+  let h = sheetHead("Bahn hinzufügen") + `<input class="search" id="pickQ" placeholder="Bahn, Ort oder Land suchen" value="${esc(q)}" autocomplete="off">`;
   lands.forEach(l => {
     h += `<section class="grp"><header><span>${esc(l)}</span></header><div class="cells">` + list.filter(c => c.land === l).map(c => {
       const has = S.tracks.some(t => t.cat === c.id);
       return `<button class="row" data-cat="${c.id}"><span class="ic" style="background:var(--s3);color:var(--ink)">${c.n}</span><span class="tx"><b>${esc(c.name)}</b><small>${esc(c.ort + " · " + c.len + " m · " + c.n + " Kurven")}</small></span>${has ? `<span class="dirx">schon da</span>` : ""}<span class="chev">+</span></button>`;
     }).join("") + `</div></section>`;
   });
-  h += `<section class="grp"><header><span>Eigene Bahn (z. B. Naturbahn)</span></header><div class="cells">
+  h += `<section class="grp"><header><span>Andere Bahn (z. B. Naturbahn)</span></header><div class="cells">
     <div class="field"><label>Name</label><input id="cuName" placeholder="z. B. Naturbahn Umhausen"></div>
     <div class="field"><label>Ort, Land</label><input id="cuOrt" placeholder="optional"></div>
-    <div class="fieldrow"><label>Kurven und Länge</label><input id="cuN" type="number" min="1" max="40" value="12" style="border:0;background:var(--s2);border-radius:10px;padding:8px 10px;width:90px"> Kurven
-      <input id="cuLen" type="number" min="100" max="3000" step="10" value="1000" style="border:0;background:var(--s2);border-radius:10px;padding:8px 10px;width:110px"> m</div>
-    <div class="fieldrow"><button class="btn p" data-a="custom">Eigene Bahn anlegen</button></div></div></section>`;
-  $("sheetPane").innerHTML = h; $("sheet").classList.add("on"); curN = null;
+    <div class="fieldrow"><label>Kurven und Länge</label><input id="cuN" class="inp" type="number" min="1" max="40" value="12" style="width:90px"> Kurven
+      <input id="cuLen" class="inp" type="number" min="100" max="3000" step="10" value="1000" style="width:110px"> m</div>
+    <div class="fieldrow"><button class="btn p" data-a="custom">Bahn anlegen</button></div></div><p class="gfoot">Den Plan suchst du danach auf Wikipedia oder lädst ein eigenes Bild.</p></section>`;
+  openSheet(h);
   const inp = $("pickQ"); inp.oninput = () => { const v = inp.value; openPicker(v); const n = $("pickQ"); n.focus(); n.setSelectionRange(v.length, v.length); };
+}
+let wikiList = [];
+async function openWiki(q) {
+  const t = track(); if (!t) return;
+  const cat = catOf(t), w = q ? { q, kw: "", files: [] } : (cat && cat.w) || { q: t.name + " " + (t.ort || "") + " bobsleigh luge track", kw: "", files: [] };
+  openSheet(sheetHead("Plan von Wikipedia") + `<input class="search" id="wikiQ" placeholder="Suchbegriff, z. B. Bahnname" value="${esc(w.q)}" autocomplete="off"><div id="wikiRes"><div class="empty">Suche auf Wikipedia und Wikimedia Commons …</div></div>`);
+  $("wikiQ").onkeydown = e => { if (e.key === "Enter") openWiki($("wikiQ").value.trim()); };
+  try { wikiList = await wikiCandidates(w); }
+  catch (e) { if ($("wikiRes")) $("wikiRes").innerHTML = `<div class="empty">Wikipedia ist gerade nicht erreichbar. Mit Internet erneut versuchen – oder ein eigenes Bild wählen.</div><div class="btns"><button class="btn" data-a="img">Eigenes Bild</button></div>`; return; }
+  if (!$("wikiRes")) return;
+  $("wikiRes").innerHTML = wikiList.length ? `<p class="gfoot" style="margin:0 4px 10px">Tippe auf den Streckenplan, den du verwenden willst. Er wird als PNG gespeichert.</p><div class="wgrid">` +
+    wikiList.map((c, i) => `<button class="wimg" data-wiki="${i}"><span class="wi"><img src="${esc(thumb(c.url))}" alt="" loading="lazy"></span><b>${esc(c.title)}</b><small>${esc([c.artist, c.license].filter(Boolean).join(" · "))}</small></button>`).join("") + `</div>`
+    : `<div class="empty">Kein Bild gefunden. Probiere einen anderen Suchbegriff (z. B. den englischen Namen der Bahn) oder wähle ein eigenes Bild.</div><div class="btns"><button class="btn" data-a="img">Eigenes Bild</button></div>`;
+}
+let zoomZ = 2;
+function openZoom() {
+  const t = track(); if (!t || !mapURL) return;
+  openSheet(sheetHead("Plan") + `<div class="zoombar"><button class="ib" data-a="zzout">−</button><span>${Math.round(zoomZ * 100)} %</span><button class="ib" data-a="zzin">+</button></div>
+    <div class="zoomwrap"><div class="imgwrap" style="width:${zoomZ * 100}%"><img src="${mapURL}" alt="Streckenplan" draggable="false">${pinsHTML(t)}</div></div>${credit(t)}`);
+  $("sheet").classList.add("wide");
+}
+function openMapMenu() {
+  const t = track(); if (!t) return;
+  openSheet(sheetHead("Plan-Bild") + `<section class="grp"><div class="cells">
+    <button class="row" data-a="wiki"><span class="tx"><b>Anderen Wikipedia-Plan wählen</b><small>Alle passenden Bilder aus Wikipedia und Commons</small></span><span class="chev">›</span></button>
+    <button class="row" data-a="img"><span class="tx"><b>Eigenes Bild</b><small>Foto oder Screenshot des offiziellen Plans</small></span><span class="chev">›</span></button>
+    <button class="row" data-a="savepng"><span class="tx"><b>Als PNG speichern</b><small>Plan-Bild auf das Gerät laden</small></span><span class="chev">›</span></button>
+    <button class="row" data-a="pinsreset"><span class="tx"><b>Alle Nummern neu setzen</b><small>Markierungen löschen und von vorn antippen</small></span><span class="chev">›</span></button>
+    <button class="row" data-a="mapdel"><span class="tx"><b style="color:#ff6961">Plan-Bild entfernen</b></span></button>
+  </div></section>${credit(t)}`);
 }
 function openTrackEdit() {
   const t = track(); if (!t) return;
-  $("sheetPane").innerHTML = `<div class="shead"><span style="width:38px"></span><h2>Bahn bearbeiten</h2><button class="ib" data-a="close" aria-label="Schließen">✕</button></div>
+  openSheet(sheetHead("Bahn bearbeiten") + `
     <section class="grp"><div class="cells"><div class="field"><label>Name</label><input data-t="name" value="${esc(t.name)}"></div><div class="field"><label>Ort</label><input data-t="ort" value="${esc(t.ort)}"></div>
-    <div class="field"><label>Land</label><input data-t="land" value="${esc(t.land)}"></div><div class="field"><label>Länge (m)</label><input data-t="len" type="number" value="${t.len}"></div>
-    <div class="field"><label>Notiz zur Bahn</label><textarea data-t="note" rows="2">${esc(t.note || "")}</textarea></div></div></section>
-    <section class="grp"><header><span>Kurven (${t.curves.length})</span></header><div class="cells"><div class="fieldrow"><button class="btn" data-a="cadd">Kurve am Ende anfügen</button><button class="btn" data-a="cdel" ${t.curves.length > 1 ? "" : "disabled"}>Letzte Kurve entfernen</button></div></div>
-    <p class="gfoot">Richtung und Winkel stellst du in jeder Kurve ein – daraus zeichnet sich der Plan.</p></section>
-    <section class="grp"><div class="cells"><div class="fieldrow"><button class="btn d" data-a="tdel">Bahn löschen</button></div></div></section>`;
-  $("sheet").classList.add("on"); curN = null;
+    <div class="field"><label>Land</label><input data-t="land" value="${esc(t.land)}"></div><div class="field"><label>Länge (m)</label><input data-t="len" type="number" value="${t.len}"></div></div></section>
+    <section class="grp"><header><span>Notizen zur Bahn</span></header><div class="cells">
+      <div class="field"><label>Allgemein</label><textarea data-t="note" rows="2">${esc(t.note || "")}</textarea></div>
+      <div class="field"><label>Start</label><textarea data-t="startNote" rows="1" placeholder="Startgriffe, Paddeln, erste Kurve">${esc(t.startNote)}</textarea></div>
+      <div class="field"><label>Schlitten-Setup</label><textarea data-t="setup" rows="1" placeholder="Kufen, Schienen, Stahl, Gewicht – was hat hier funktioniert?">${esc(t.setup)}</textarea></div></div></section>
+    <section class="grp"><header><span>Kurven (${t.curves.length})</span></header><div class="cells"><div class="fieldrow"><button class="btn" data-a="cadd">Kurve am Ende anfügen</button><button class="btn" data-a="cdel" ${t.curves.length > 1 ? "" : "disabled"}>Letzte Kurve entfernen</button></div></div></section>
+    <section class="grp"><div class="cells"><button class="row" data-a="fields"><span class="tx"><b>Felder anpassen</b><small>Bereiche ein- und ausblenden, eigene Felder</small></span><span class="chev">›</span></button><button class="row" data-a="mapmenu"><span class="tx"><b>Plan-Bild</b><small>${t.map ? esc(t.map.title || "Eigenes Bild") : "noch keins"}</small></span><span class="chev">›</span></button></div></section>
+    <section class="grp"><div class="cells"><div class="fieldrow"><button class="btn d" data-a="tdel">Bahn löschen</button></div></div></section>`);
   document.querySelectorAll("#sheetPane textarea").forEach(grow);
 }
-
-/* ---------- Bild des offiziellen Plans ---------- */
-async function loadMapImg() { const t = track(); mapImg = t ? await imgGet("map:" + t.id) : null; }
-function readImage(file) {
-  return new Promise((res, rej) => {
-    const fr = new FileReader(); fr.onerror = rej;
-    fr.onload = () => { const im = new Image(); im.onerror = rej; im.onload = () => {
-      const k = Math.min(1, 1800 / Math.max(im.width, im.height)), c = document.createElement("canvas");
-      c.width = Math.round(im.width * k); c.height = Math.round(im.height * k); c.getContext("2d").drawImage(im, 0, 0, c.width, c.height); res(c.toDataURL("image/jpeg", .86)); }; im.src = fr.result; };
-    fr.readAsDataURL(file);
-  });
+function openFields() {
+  const t = track();
+  let h = sheetHead("Felder anpassen") + `<section class="grp"><header><span>Im Kurvenblatt zeigen</span></header><div class="cells">` +
+    GROUPS.map(g => `<label class="row tog"><span class="tx"><b>${g}</b></span><input type="checkbox" data-hide="${g}"${S.hide[g] ? "" : " checked"}></label>`).join("") + `</div><p class="gfoot">Ausgeblendete Bereiche fehlen auch im Ausdruck. Notizen bleiben erhalten.</p></section>`;
+  if (t) h += `<section class="grp"><header><span>Eigene Felder für ${esc(t.name)}</span></header><div class="cells">` +
+    t.custom.map(cf => `<div class="fieldrow"><input class="inp" data-cf="${cf.id}" value="${esc(cf.label)}" style="flex:1"><button class="lnk" data-cfdel="${cf.id}">Entfernen</button></div>`).join("") +
+    `<div class="fieldrow"><input class="inp" id="cfNew" placeholder="Neues Feld, z. B. Kufenstellung" style="flex:1"><button class="btn sm p" data-a="cfadd">Hinzufügen</button></div></div>
+    <p class="gfoot">Eigene Felder gibt es in jeder Kurve dieser Bahn.</p></section>`;
+  openSheet(h);
 }
-function toast(m) { const e = $("toast"); e.textContent = m; e.classList.add("on"); clearTimeout(toast.t); toast.t = setTimeout(() => e.classList.remove("on"), 2200); }
+
+/* ---------- Bild-Upload ---------- */
+async function readOwn(file) { const r = await toPNG(file, 2200, file.type === "image/png" ? "image/png" : "image/jpeg"); return r; }
+function toast(m) { const e = $("toast"); e.textContent = m; e.classList.add("on"); clearTimeout(toast.t); toast.t = setTimeout(() => e.classList.remove("on"), 2600); }
 
 /* ---------- Ereignisse ---------- */
 document.addEventListener("click", async e => {
-  const b = e.target.closest("[data-a],[data-v],[data-open],[data-c],[data-map],[data-place],[data-cat],[data-delrun]");
   if (e.target.id === "sheet") return closeSheet();
+  const b = e.target.closest("[data-a],[data-v],[data-open],[data-c],[data-place],[data-cat],[data-delrun],[data-wiki],[data-popt],[data-cfdel]");
   if (!b) {
-    // Nummer ins eigene Bild setzen
+    // Nummer ins Plan-Bild setzen
     const w = e.target.closest("#imgwrap");
-    if (w && placing) { const r = w.getBoundingClientRect(), t = track(), x = t.curves.find(c => c.n === placing);
+    if (w && placing) {
+      const r = w.getBoundingClientRect(), t = track(), x = t.curves.find(c => c.n === placing);
       x.x = +((e.clientX - r.left) / r.width * 100).toFixed(2); x.y = +((e.clientY - r.top) / r.height * 100).toFixed(2);
-      const nx = t.curves.find(c => c.n > placing && c.x == null); placing = nx ? nx.n : null; save(); renderPlan(); }
+      const nx = placeOne ? null : t.curves.find(c => c.n > placing && c.x == null);
+      const back = placeOne; placing = nx ? nx.n : null; placeOne = null; save(); renderPlan();
+      if (back) openCurve(back);
+    }
     return;
   }
   if (b.closest(".tabs") && b.dataset.v) return show(b.dataset.v);
-  if (b.closest("[data-seg]") && b.dataset.v) { const x = curCurve(), k = b.closest("[data-seg]").dataset.seg; if (!x) return; x[k] = k === "diff" ? +b.dataset.v : b.dataset.v; save(); openCurve(x.n); return; }
+  const t = track();
+  if (b.dataset.v != null && b.closest("[data-o]")) { const x = curCurve(), k = b.closest("[data-o]").dataset.o; if (!x) return; x.o[k] = x.o[k] === b.dataset.v ? "" : b.dataset.v; save(); b.parentNode.querySelectorAll("button").forEach(z => z.classList.toggle("on", z === b && !!x.o[k])); return; }
+  if (b.dataset.v != null && b.closest("[data-seg]")) { const x = curCurve(), k = b.closest("[data-seg]").dataset.seg; if (!x) return; x[k] = k === "diff" ? +b.dataset.v : b.dataset.v; save(); b.parentNode.querySelectorAll("button").forEach(z => z.classList.toggle("on", z === b)); return; }
   if (b.closest("#runRate")) { b.parentNode.querySelectorAll("button").forEach(z => z.classList.toggle("on", z === b)); return; }
-  if (b.dataset.open) { S.cur = b.dataset.open; save(); await loadMapImg(); return show("plan"); }
-  if (b.dataset.cat) { const c = CATALOG.find(z => z.id === b.dataset.cat); addTrack(c); $("sheet").classList.remove("on"); await loadMapImg(); toast(c.name + " hinzugefügt"); return show("plan"); }
-  if (b.dataset.map) { const t = track(); t.map = b.dataset.map; placing = null; save(); return renderPlan(); }
+  if (b.dataset.popt) { S.print[b.dataset.popt] = !S.print[b.dataset.popt]; save(); return renderBuch(); }
+  if (b.dataset.cfdel) { if (!confirm("Feld in allen Kurven entfernen? Die Einträge darin gehen verloren.")) return; t.custom = t.custom.filter(c => c.id !== b.dataset.cfdel); t.curves.forEach(c => delete c.f["c_" + b.dataset.cfdel]); save(); return openFields(); }
+  if (b.dataset.open) { S.cur = b.dataset.open; placing = null; save(); await loadMapImg(); return show("plan"); }
+  if (b.dataset.cat) {
+    const c = CATALOG.find(z => z.id === b.dataset.cat), nt = addTrack(c); placing = null;
+    $("sheet").classList.remove("on"); await loadMapImg(); toast(c.name + " hinzugefügt – Plan wird von Wikipedia geladen …"); show("plan"); autoWiki(nt); return;
+  }
+  if (b.dataset.wiki != null) {
+    const c = wikiList[+b.dataset.wiki]; if (!c || !t) return;
+    b.classList.add("busy");
+    try { await takeWiki(t, c); $("sheet").classList.remove("on", "wide"); if (!t.curves.some(x => x.x != null)) startPlacing(t); show("plan"); toast("Plan gespeichert" + (placing ? " – jetzt die Nummern antippen" : "")); }
+    catch (err) { b.classList.remove("busy"); toast("Bild konnte nicht geladen werden"); }
+    return;
+  }
   if (b.dataset.place) { placing = +b.dataset.place; return renderPlan(); }
-  if (b.dataset.delrun != null) { const x = curCurve(); x.runs.splice(+b.dataset.delrun, 1); save(); return openCurve(x.n); }
-  if (b.dataset.c && !b.dataset.a) { if (placing && b.classList.contains("pin")) { placing = +b.dataset.c; return renderPlan(); } return openCurve(+b.dataset.c); }
-  const a = b.dataset.a, t = track();
+  if (b.dataset.delrun != null) { const x = curCurve(); x.runs.splice(+b.dataset.delrun, 1); save(); return openCurve(x.n, true); }
+  if (b.dataset.c && !b.dataset.a) {
+    if (placing && b.classList.contains("pin") && !$("sheet").classList.contains("on")) { placing = +b.dataset.c; return renderPlan(); }
+    $("sheet").classList.remove("wide"); drawOn = false; return openCurve(+b.dataset.c);
+  }
+  const a = b.dataset.a;
   if (a === "add") return openPicker("");
-  if (a === "close") return closeSheet();
-  if (a === "custom") { const nm = $("cuName").value.trim(); if (!nm) { toast("Bitte einen Namen eingeben"); return; } const p = $("cuOrt").value.split(","); addTrack(null, { name: nm, ort: (p[0] || "").trim(), land: (p[1] || "").trim(), n: Math.max(1, Math.min(40, +$("cuN").value || 12)), len: +$("cuLen").value || 1000 }); $("sheet").classList.remove("on"); await loadMapImg(); return show("plan"); }
-  if (a === "cprev" || a === "cnext") { const i = t.curves.findIndex(c => c.n === curN), nx = t.curves[i + (a === "cnext" ? 1 : -1)]; if (nx) openCurve(nx.n); return; }
-  if (a === "lineclear") { const cv = $("lineCv"); if (cv && cv.clear) cv.clear(); return; }
-  if (a === "addrun") { const x = curCurve(), txt = $("runText").value.trim(); if (!txt) { toast("Kurz notieren, was passiert ist"); return; } const on = document.querySelector("#runRate .on"); x.runs.unshift({ date: $("runDate").value || today(), rate: on ? on.dataset.v : "ok", text: txt }); save(); toast("Laufnotiz gespeichert"); return openCurve(x.n); }
+  if (a === "close") { $("sheet").classList.remove("wide"); return closeSheet(); }
+  if (a === "custom") { const nm = $("cuName").value.trim(); if (!nm) { toast("Bitte einen Namen eingeben"); return; } const p = $("cuOrt").value.split(","); addTrack(null, { name: nm, ort: (p[0] || "").trim(), land: (p[1] || "").trim(), n: clamp(+$("cuN").value || 12, 1, 40), len: +$("cuLen").value || 1000 }); $("sheet").classList.remove("on"); await loadMapImg(); show("plan"); return openWiki(); }
+  if (a === "cprev" || a === "cnext") { const i = t.curves.findIndex(c => c.n === curN), nx = t.curves[i + (a === "cnext" ? 1 : -1)]; drawOn = false; if (nx) openCurve(nx.n); return; }
+  if (a === "drawtoggle") { drawOn = !drawOn; return openCurve(curN, true); }
+  if (a === "lineundo") { const x = curCurve(); x.line.pop(); save(); return openCurve(x.n, true); }
+  if (a === "lineclear") { const x = curCurve(); if (x.line.length && confirm("Gezeichnete Linie löschen?")) { x.line = []; save(); } return openCurve(x.n, true); }
+  if (a === "zin" || a === "zout") { const x = curCurve(); x.zoom = clamp((x.zoom || .26) * (a === "zin" ? .75 : 1.33), .08, 1); save(); return openCurve(x.n, true); }
+  if (a === "placeone") { const x = curCurve() || t.curves[0]; if (!t.map) return openWiki(); placeOne = x.n; placing = x.n; $("sheet").classList.remove("on"); curN = null; renderPlan(); scrollTo(0, 0); toast("Tippe im Plan auf die Stelle von Kurve " + x.n); return; }
+  if (a === "placeall") { startPlacing(t); if (!placing) placing = t.curves[0].n; return renderPlan(); }
+  if (a === "placeskip") { const nx = t.curves.find(c => c.n > placing && c.x == null) || t.curves.find(c => c.n > placing); placing = nx ? nx.n : null; return renderPlan(); }
+  if (a === "placedone") { placing = null; placeOne = null; return renderPlan(); }
+  if (a === "pinsreset") { if (!confirm("Alle Nummern im Plan löschen?")) return; t.curves.forEach(c => { c.x = c.y = null; }); save(); $("sheet").classList.remove("on"); startPlacing(t); return renderPlan(); }
+  if (a === "mapdel") { if (!confirm("Plan-Bild entfernen? Die Nummern-Positionen bleiben gespeichert.")) return; await imgSet("map:" + t.id, null); t.map = null; save(); await loadMapImg(); return closeSheet(); }
+  if (a === "savepng") { if (!mapURL) return; const l = document.createElement("a"); l.href = mapURL; l.download = "Bahnplan " + t.name + ".png"; document.body.appendChild(l); l.click(); l.remove(); return; }
+  if (a === "mapmenu") return openMapMenu();
+  if (a === "wiki") { $("sheet").classList.remove("wide"); return openWiki(); }
+  if (a === "zoom") return openZoom();
+  if (a === "zzin" || a === "zzout") { zoomZ = clamp(zoomZ * (a === "zzin" ? 1.4 : 1 / 1.4), 1, 6); return openZoom(); }
+  if (a === "fields") return openFields();
+  if (a === "cfadd") { const v = $("cfNew").value.trim(); if (!v) return; t.custom.push({ id: uid(), label: v }); save(); return openFields(); }
+  if (a === "addrun") { const x = curCurve(), txt = $("runText").value.trim(); if (!txt) { toast("Kurz notieren, was passiert ist"); return; } const on = document.querySelector("#runRate .on"); x.runs.unshift({ date: $("runDate").value || today(), rate: on ? on.dataset.v : "ok", text: txt }); save(); toast("Laufnotiz gespeichert"); return openCurve(x.n, true); }
   if (a === "viz") return openViz(0);
   if (a === "vizclose") { $("viz").classList.remove("on"); return; }
   if (a === "vizprev") return openViz(vizI - 1);
@@ -747,24 +994,30 @@ document.addEventListener("click", async e => {
   if (a === "trackedit") return openTrackEdit();
   if (a === "cadd") { t.curves.push(newCurve(t.curves.length + 1)); save(); return openTrackEdit(); }
   if (a === "cdel") { if (t.curves.length > 1 && confirm("Letzte Kurve (" + t.curves.length + ") mit allen Notizen entfernen?")) { t.curves.pop(); save(); } return openTrackEdit(); }
-  if (a === "tdel") { if (confirm("„" + t.name + "“ mit allen Kurvennotizen löschen?")) { S.tracks = S.tracks.filter(z => z !== t); S.cur = S.tracks[0] ? S.tracks[0].id : null; saveNow(); $("sheet").classList.remove("on"); show("bahnen"); } return; }
+  if (a === "tdel") { if (confirm("„" + t.name + "“ mit allen Kurvennotizen löschen?")) { await imgSet("map:" + t.id, null).catch(() => {}); S.tracks = S.tracks.filter(z => z !== t); S.cur = S.tracks[0] ? S.tracks[0].id : null; saveNow(); await loadMapImg(); $("sheet").classList.remove("on"); show("bahnen"); } return; }
   if (a === "img") return $("imgIn").click();
-  if (a === "placedone") { placing = null; return renderPlan(); }
   if (a === "print") return print();
 });
+let placeOne = null;
 document.addEventListener("input", e => {
   const el = e.target, x = curCurve();
   if (el.dataset.f && x) { x.f[el.dataset.f] = el.value; grow(el); save(); }
+  else if (el.dataset.ok && x) { x.o[el.dataset.ok] = el.value === "" ? "" : +el.value; save(); }
   else if (el.dataset.k && x) {
-    const k = el.dataset.k; x[k] = k === "angle" ? +el.value : k === "straight" ? (el.value === "" ? null : +el.value) : el.value;
-    if (k === "type" && TYPES[el.value] && el.value !== "Gerade" && el.value !== "Gegenanstieg") x.angle = TYPES[el.value];
-    save(); if (k === "type") openCurve(x.n);
+    const k = el.dataset.k; x[k] = k === "angle" ? +el.value : el.value;
+    if (k === "type" && TYPES[el.value] && !NOARC(el.value)) x.angle = TYPES[el.value];
+    save(); if (k === "type") openCurve(x.n, true);
   } else if (el.dataset.t) { const t = track(); t[el.dataset.t] = el.dataset.t === "len" ? +el.value || t.len : el.value; if (el.tagName === "TEXTAREA") grow(el); save(); }
+  else if (el.dataset.cf) { const t = track(), cf = t.custom.find(c => c.id === el.dataset.cf); if (cf) { cf.label = el.value; save(); } }
 });
+document.addEventListener("change", e => { const el = e.target; if (el.dataset.hide) { S.hide[el.dataset.hide] = !el.checked; save(); } });
 $("imgIn").addEventListener("change", async e => {
   const f = e.target.files[0]; e.target.value = ""; if (!f) return;
-  try { const t = track(); mapImg = await readImage(f); await imgSet("map:" + t.id, mapImg); const nx = t.curves.find(c => c.x == null); placing = nx ? nx.n : null; renderPlan(); toast("Bild gespeichert – jetzt die Nummern setzen"); }
-  catch (err) { toast("Bild konnte nicht gelesen werden"); }
+  try {
+    const t = track(), r = await readOwn(f);
+    await setMap(t, r.blob, { src: "eigen", title: f.name, w: r.w, h: r.h });
+    $("sheet").classList.remove("on", "wide"); if (!t.curves.some(x => x.x != null)) startPlacing(t); show("plan"); toast("Bild gespeichert" + (placing ? " – jetzt die Nummern antippen" : ""));
+  } catch (err) { toast("Bild konnte nicht gelesen werden"); }
 });
 document.addEventListener("keydown", e => {
   if ($("viz").classList.contains("on")) { if (e.key === "ArrowRight" || e.key === " ") openViz(vizI + 1); else if (e.key === "ArrowLeft") openViz(vizI - 1); else if (e.key === "Escape") $("viz").classList.remove("on"); }

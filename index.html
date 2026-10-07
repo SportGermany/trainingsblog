@@ -1195,7 +1195,9 @@
     "h1,h2,h3{letter-spacing:-.01em!important}" +
     ".card,.hero,.stat,.feed-card,.widget-tile,.tile,.bento>*,.stat-row>*,.panel,.set,.wk-card,.kpi,.mini,.quote-card,.settings-section,.stat-box,.passage{box-shadow:none!important;background-image:none!important}" +
     ".card,.hero,.feed-card,.widget-tile,.tile,.quote-card,.settings-section,.stat-box,.passage{border-radius:14px!important}" +
-    "button,.btn,.chip{box-shadow:none!important;background-image:none!important}";
+    "button,.btn,.chip{box-shadow:none!important;background-image:none!important}" +
+    // Ausdrucke ohne App-Knopf und Menüs des Verbunds
+    "@media print{#sg-shared-calendar{display:none!important}}";
   var GLASS_CARDS = {
     kalender: ".card,.tl-tile,.wpstrip,.nudge",
     lernplan: ".card,.wkall",
@@ -13251,8 +13253,8 @@ window.APP5 = {
     var b = json("bahnplan.v1"), n = b && b.tracks ? b.tracks.length : 0, cur = n && (b.tracks.find(function (t) { return t.id === b.cur; }) || b.tracks[0]);
     return "<div class='card' id='tsBahnCard'><div class='card-h'><h2>Bahnplan</h2><span>Kurvenbuch</span></div>" +
       "<p class='muted' style='margin-bottom:12px'>" + (n ? "Deine Bahnen: " + n + (cur ? " · zuletzt <b>" + esc(cur.name) + "</b>" : "") + ". Tippe im Plan auf eine Kurvennummer, um Linie, Körper und Ansage zu sehen."
-        : "Bahnen aus aller Welt mit nummerierten Kurven. Für jede Kurve hältst du deine Linie, Steuern, Blick und Fehlerbilder fest – wie ein Kurvenbuch.") + "</p>" +
-      "<div class='ts-grid'><button class='btn accent' data-tsopen='bahnplan" + (n ? "/plan" : "") + "'>" + (n ? "Plan öffnen" : "Bahn wählen") + "<small>" + (n ? "Kurven mit Nummern" : "über 15 Bahnen im Katalog") + "</small></button>" +
+        : "Bahnen aus aller Welt mit dem Original-Streckenplan von Wikipedia. Für jede Kurve hältst du Form, Linie, Steuern, Blick und Fehlerbilder fest – und druckst alles als Bahnplan aus.") + "</p>" +
+      "<div class='ts-grid'><button class='btn accent' data-tsopen='bahnplan" + (n ? "/plan" : "") + "'>" + (n ? "Plan öffnen" : "Bahn wählen") + "<small>" + (n ? "Kurven mit Nummern" : "16 Bahnen, Plan von Wikipedia") + "</small></button>" +
       "<button class='btn' data-tsopen='bahnplan/buch'>Buch<small>alle Kurven zum Lesen und Drucken</small></button></div></div>";
   }
   function mobText(m) {
