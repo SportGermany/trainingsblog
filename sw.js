@@ -1,6 +1,6 @@
 /* Training Service Worker: macht Training samt Mobility und Atmung offline nutzbar */
-const VERSION = 'training-v3';
-const SHELL = ['./', './index.html', './mobility/', './atmung/', './manifest.json', './inter.woff2', './icon-192.png', './icon-512.png', './icon-maskable-192.png', './icon-maskable-512.png'];
+const VERSION = 'training-v4';
+const SHELL = ['./', './index.html', './mobility/', './atmung/', './bahnplan/', './manifest.json', './inter.woff2', './icon-192.png', './icon-512.png', './icon-maskable-192.png', './icon-maskable-512.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(VERSION).then(c => c.addAll(SHELL)).catch(() => {}).then(() => self.skipWaiting()));

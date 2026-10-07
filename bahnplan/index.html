@@ -3,272 +3,150 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#EAF0F2">
-<meta name="description" content="Mobility-Training für Rennrodler: Tagestraining, Wettkampfprogramm, animierte Übungen.">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
-<style>html{padding-top:env(safe-area-inset-top,0px)}img{max-width:100%}</style>
-<title>Mobility</title>
+<meta name="theme-color" content="#131313">
+<title>Bahnplan</title>
+<meta name="description" content="Kurvenbuch für Rodelbahnen: Bahnplan mit Nummern und eigenen Notizen zu jeder Kurve">
 <style>
-:root{
-  --bg:#EAF0F2; --surface:#FFFFFF; --surface2:#F3F7F8; --ink:#0E1B24; --muted:#56666F; --line:#D3DDE2;
-  --accent:#C8283A; --accent-ink:#FFFFFF; --accent-soft:#F7DDE0;
-  --r-back:#1B6C8A; --r-hip:#A15A17; --r-leg:#3B7437; --r-warm:#6A7680; --r-start:#6A4C9C;
-  --far:#A7B6BE; --floor:#B9C8CF; --mat:#DCE6EA;
-  --shadow:0 1px 2px rgba(14,27,36,.06),0 8px 24px rgba(14,27,36,.06);
-  --fd:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
-  --fb:"Barlow",system-ui,-apple-system,"Segoe UI",sans-serif;
+/* Bahnplan – Kurvenbuch für Rodelbahnen. Farben kommen aus dem gemeinsamen Design (Variablen unten nur als Rückfall). */
+:root { --bg: #131313; --s1: #202020; --s2: #272727; --s3: #2f2f2f; --line: #2c2c2c; --ink: #ebebea; --muted: #9b9a97; --faint: #6b6a67; --acc: #529cca; --accfg: #10151c;
+  --neu: #8e8e93; --ueben: #ff9f0a; --sitzt: #30d158; color-scheme: dark; }
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-tap-highlight-color: transparent; padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px)); }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+.app { max-width: 1180px; margin: 0 auto; padding: calc(10px + env(safe-area-inset-top, 0px)) 16px 24px; }
+.view { display: none; }
+.view.on { display: block; }
+h1 { font-size: 30px; line-height: 1.12; letter-spacing: -.022em; margin: 6px 4px 4px; font-weight: 700; }
+.sub { color: var(--muted); margin: 0 4px 18px; font-size: 14.5px; }
+.eyebrow { color: var(--muted); font-size: 13px; margin: 8px 4px 0; }
+/* Gruppen wie in den Systemeinstellungen */
+.grp { margin: 0 0 22px; }
+.grp > header { display: flex; align-items: baseline; gap: 12px; margin: 0 16px 7px; font-size: 13.5px; color: var(--muted); font-weight: 500; }
+.grp > header span { flex: 1; }
+.lnk { border: 0; background: none; padding: 0; color: var(--acc); font-size: 14.5px; font-weight: 500; }
+.cells { background: var(--s1); border-radius: 14px; overflow: hidden; }
+.cells > * { position: relative; }
+.cells > * + *::before { content: ""; position: absolute; top: 0; left: 16px; right: 0; border-top: 1px solid var(--line); }
+.gfoot { margin: 7px 16px 0; font-size: 13px; color: var(--muted); line-height: 1.4; }
+.row { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 54px; padding: 9px 14px 9px 16px; border: 0; background: none; text-align: left; }
+.row:active { background: var(--s2); }
+.row .tx { flex: 1; min-width: 0; }
+.row .tx b { display: block; font-weight: 500; font-size: 15.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.row .tx small { display: block; color: var(--muted); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.row .chev { color: var(--faint); font-size: 21px; }
+.ic { width: 30px; height: 30px; border-radius: 8px; flex: none; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 700; font-size: 13px; }
+.empty { padding: 16px; color: var(--muted); }
+.btn { border: 0; border-radius: 12px; padding: 11px 16px; background: var(--s2); color: var(--ink); font-weight: 600; min-height: 44px; }
+.btn.p { background: var(--acc); color: var(--accfg); }
+.btn.sm { padding: 7px 12px; min-height: 36px; font-size: 14px; border-radius: 10px; }
+.btn.d { color: #ff6961; }
+.btns { display: flex; gap: 8px; flex-wrap: wrap; }
+/* Plan */
+.planhead { display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; }
+.planhead .t { flex: 1; min-width: 220px; }
+.seg { display: inline-flex; background: var(--s2); border-radius: 10px; padding: 3px; gap: 2px; }
+.seg button { border: 0; background: none; color: var(--muted); padding: 6px 12px; border-radius: 8px; font-size: 14px; font-weight: 600; min-height: 32px; }
+.seg button.on { background: var(--s3); color: var(--ink); }
+.progress { height: 6px; border-radius: 3px; background: var(--s2); overflow: hidden; display: flex; margin: 10px 4px 16px; }
+.progress i { display: block; height: 100%; }
+.plan { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+.plan > *, .book > * { min-width: 0; }
+@media (min-width: 860px) { .plan { grid-template-columns: minmax(0, 1.25fr) minmax(300px, .9fr); align-items: start; } .plan .mapcard { position: sticky; top: 12px; } }
+.mapcard { background: var(--s1); border-radius: 14px; padding: 10px; }
+.map svg { display: block; width: 100%; height: auto; max-height: 70vh; touch-action: manipulation; }
+.map .mk { cursor: pointer; }
+.map .mk circle { stroke: var(--bg); }
+.map .mk.sel circle { stroke: var(--ink); }
+.maptools { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 8px 4px 2px; color: var(--muted); font-size: 13px; }
+.maptools .sp { flex: 1; }
+.imgwrap { position: relative; border-radius: 10px; overflow: hidden; background: var(--s2); }
+.imgwrap img { display: block; width: 100%; height: auto; user-select: none; -webkit-user-drag: none; }
+.pin { position: absolute; transform: translate(-50%, -50%); width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--bg); color: #fff; font-weight: 700; font-size: 13px; display: flex; align-items: center; justify-content: center; padding: 0; box-shadow: 0 2px 8px rgba(0,0,0,.5); }
+.pin.sel { outline: 2px solid var(--ink); }
+.placing { outline: 2px dashed var(--acc); outline-offset: -2px; cursor: crosshair; }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; padding: 8px 4px 0; }
+.chips button { border: 1px solid var(--line); background: none; border-radius: 999px; min-width: 34px; height: 32px; padding: 0 10px; font-size: 13px; font-weight: 600; color: var(--muted); }
+.chips button.on { background: var(--acc); color: var(--accfg); border-color: var(--acc); }
+.chips button.set { color: var(--ink); }
+.crow .num { width: 30px; height: 30px; border-radius: 50%; flex: none; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13px; color: #fff; }
+.crow .dirx { font-size: 12px; color: var(--muted); width: 54px; text-align: right; flex: none; }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted); margin: 0 6px; }
+.legend i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 5px; vertical-align: 0; }
+/* Blatt (Kurve, Auswahl) */
+.sheet { position: fixed; inset: 0; z-index: 60; display: none; background: rgba(0,0,0,.45); }
+.sheet.on { display: flex; justify-content: flex-end; }
+.sheet .pane { width: 100%; max-width: 620px; height: 100%; overflow-y: auto; background: var(--bg); padding: calc(8px + env(safe-area-inset-top, 0px)) 16px calc(30px + env(safe-area-inset-bottom, 0px)); box-shadow: -20px 0 50px rgba(0,0,0,.4); }
+.shead { position: sticky; top: calc(-8px - env(safe-area-inset-top, 0px)); z-index: 2; display: flex; align-items: center; gap: 8px; padding: 10px 0; background: var(--bg); }
+.shead h2 { flex: 1; margin: 0; font-size: 19px; font-weight: 700; text-align: center; }
+.ib { width: 38px; height: 38px; border-radius: 50%; border: 0; background: var(--s2); font-size: 18px; display: flex; align-items: center; justify-content: center; flex: none; }
+.ib:disabled { opacity: .35; }
+.field { padding: 10px 16px; }
+.field label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 4px; }
+.field label small { color: var(--faint); }
+.field input, .field select, .field textarea { width: 100%; border: 0; background: transparent; outline: none; font-size: 16px; padding: 0; color: var(--ink); }
+.field textarea { resize: none; min-height: 24px; line-height: 1.45; overflow: hidden; }
+.field select { appearance: none; -webkit-appearance: none; }
+.field input::placeholder, .field textarea::placeholder { color: var(--faint); }
+.fieldrow { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; padding: 10px 16px; }
+.fieldrow > label { font-size: 13px; color: var(--muted); width: 100%; }
+.cue input { font-size: 19px; font-weight: 600; }
+.drawbox { padding: 10px; }
+.drawbox canvas { display: block; width: 100%; height: auto; border-radius: 10px; background: var(--s2); touch-action: none; }
+.runs .run { display: flex; gap: 10px; padding: 10px 16px; align-items: flex-start; }
+.runs .run b { font-size: 13px; color: var(--muted); font-weight: 500; white-space: nowrap; }
+.runs .run span { flex: 1; }
+.runs .rate { width: 10px; height: 10px; border-radius: 50%; margin-top: 6px; flex: none; }
+.runadd { display: grid; grid-template-columns: auto 1fr; gap: 8px; padding: 10px 16px; align-items: center; }
+.runadd textarea { grid-column: 1 / -1; width: 100%; border: 1px solid var(--line); background: var(--s2); border-radius: 10px; padding: 10px; min-height: 64px; resize: vertical; outline: none; }
+.search { width: 100%; border: 0; border-radius: 10px; background: var(--s2); padding: 10px 12px; margin: 4px 0 16px; outline: none; font-size: 16px; }
+/* Durchgehen (Visualisieren) */
+.viz { position: fixed; inset: 0; z-index: 70; background: var(--bg); display: none; flex-direction: column; padding: calc(16px + env(safe-area-inset-top, 0px)) 22px calc(20px + env(safe-area-inset-bottom, 0px)); }
+.viz.on { display: flex; }
+.viz .top { display: flex; align-items: center; gap: 10px; color: var(--muted); }
+.viz .top span { flex: 1; }
+.viz .mid { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 14px; max-width: 680px; margin: 0 auto; width: 100%; }
+.viz .bign { font-size: 15px; color: var(--muted); }
+.viz .bign b { font-size: 64px; color: var(--ink); display: block; line-height: 1; letter-spacing: -.03em; }
+.viz .cuebig { font-size: 30px; font-weight: 700; line-height: 1.2; letter-spacing: -.01em; }
+.viz .pts { color: var(--muted); font-size: 16px; display: grid; gap: 6px; }
+.viz .pts b { color: var(--ink); font-weight: 600; }
+.viz .nav { display: flex; gap: 10px; max-width: 680px; margin: 0 auto; width: 100%; }
+.viz .nav .btn { flex: 1; min-height: 54px; font-size: 16px; }
+/* Buch */
+.book .cv { background: var(--s1); border-radius: 14px; padding: 14px 16px; margin-bottom: 12px; break-inside: avoid; }
+.book .cvh { display: flex; align-items: center; gap: 12px; }
+.book .cvh .num { width: 34px; height: 34px; border-radius: 50%; color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; flex: none; }
+.book .cvh b { font-size: 17px; }
+.book .cvh small { display: block; color: var(--muted); font-size: 13px; }
+.book .cue { font-size: 17px; font-weight: 600; margin: 10px 0 4px; }
+.book dl { display: grid; grid-template-columns: 130px 1fr; gap: 4px 12px; margin: 8px 0 0; font-size: 14.5px; }
+.book dt { color: var(--muted); }
+.book dd { margin: 0; white-space: pre-wrap; }
+.book img { max-width: 260px; width: 100%; border-radius: 8px; margin-top: 8px; display: block; }
+@media (max-width: 520px) { .book dl { grid-template-columns: 1fr; } .book dt { margin-top: 6px; } }
+.src { font-size: 12.5px; color: var(--muted); line-height: 1.6; padding: 12px 16px; }
+.src a { color: var(--acc); }
+/* Leiste unten */
+.tabs { position: fixed; left: 12px; right: 12px; bottom: calc(10px + env(safe-area-inset-bottom, 0px)); max-width: 560px; margin: 0 auto; z-index: 40; display: flex; height: 60px; padding: 0 6px; border-radius: 30px; background: var(--s1); border: 1px solid rgba(255,255,255,.08); box-shadow: 0 8px 28px rgba(0,0,0,.45); }
+.tabs button { flex: 1; border: 0; background: none; color: var(--muted); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; font-size: 11px; font-weight: 600; border-radius: 24px; margin: 5px 0; }
+.tabs button svg { width: 22px; height: 22px; }
+.tabs button.on { color: var(--ink); background: rgba(255,255,255,.12); }
+.toast { position: fixed; left: 50%; bottom: calc(86px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 12px; font-size: 14px; z-index: 80; display: none; }
+.toast.on { display: block; }
+@media print {
+  body { background: #fff; color: #000; padding: 0; }
+  .tabs, .noprint, .sheet, .viz, .toast { display: none !important; }
+  .view { display: none !important; }
+  #v-buch { display: block !important; }
+  .book .cv { background: none; border: 1px solid #bbb; }
+  .book dt, .book .cvh small, .sub, .eyebrow { color: #555; }
+  .mapcard { background: none; border: 1px solid #bbb; }
 }
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    color-scheme:dark;
-    --bg:#091218; --surface:#101D25; --surface2:#15252F; --ink:#E3ECF0; --muted:#8CA0AB; --line:#223540;
-    --accent:#F2515F; --accent-ink:#1A0508; --accent-soft:#3A1A20;
-    --r-back:#5DB3D3; --r-hip:#E1A061; --r-leg:#8CC47F; --r-warm:#9AA7B0; --r-start:#B7A0DE;
-    --far:#48606D; --floor:#2C4350; --mat:#15262F;
-    --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);
-  }
-}
-:root[data-theme="dark"]{
-  color-scheme:dark;
-  --bg:#091218; --surface:#101D25; --surface2:#15252F; --ink:#E3ECF0; --muted:#8CA0AB; --line:#223540;
-  --accent:#F2515F; --accent-ink:#1A0508; --accent-soft:#3A1A20;
-  --r-back:#5DB3D3; --r-hip:#E1A061; --r-leg:#8CC47F; --r-warm:#9AA7B0; --r-start:#B7A0DE;
-  --far:#48606D; --floor:#2C4350; --mat:#15262F;
-  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);
-}
-[hidden]{display:none!important}
-*{box-sizing:border-box}
-html,body{height:100%}
-body{background:var(--bg);color:var(--ink);font-family:var(--fb);font-size:16px;line-height:1.45;-webkit-font-smoothing:antialiased}
-button{font:inherit;color:inherit;cursor:pointer}
-button:focus-visible,a:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.app{max-width:620px;margin:0 auto;padding-inline:16px;padding-block:0 calc(92px + env(safe-area-inset-bottom,0px))}
-.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:18px 6px}
-.brand{white-space:nowrap;font-family:var(--fd);font-weight:700;font-size:22px;letter-spacing:.02em;text-transform:uppercase;display:flex;align-items:center;gap:8px}
-.brand svg{width:26px;height:14px}
-.today{text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
-h1,h2,h3{text-wrap:balance;margin:0}
-.eyebrow{font-family:var(--fd);font-weight:600;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-.view{display:flex;flex-direction:column;gap:18px;padding-top:8px}
-
-/* Heute */
-.hero{background:var(--surface);border-radius:18px;padding:18px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:14px}
-.rot{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.rot button{border:1.5px solid var(--line);background:var(--surface2);border-radius:12px;padding:8px 10px;text-align:left;display:flex;flex-direction:column;gap:0}
-.rot b{font-family:var(--fd);font-size:26px;line-height:1;font-weight:700}
-.rot span{font-size:12px;color:var(--muted)}
-.rot button.on{border-color:var(--ink);background:var(--ink);color:var(--bg)}
-.rot button.on span{color:inherit;opacity:.75}
-.rot button .done{font-size:11px}
-.blk{font-family:var(--fd);font-weight:700;font-size:40px;line-height:1;text-transform:uppercase;letter-spacing:.01em}
-.meta{margin:0;color:var(--muted);font-size:14px}
-.seg{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.seg .lbl{font-size:13px;color:var(--muted)}
-.seg .opts{display:inline-flex;background:var(--surface2);border:1px solid var(--line);border-radius:10px;padding:3px;gap:2px}
-.seg .opts button{border:0;background:transparent;border-radius:7px;padding:5px 12px;font-size:14px;font-variant-numeric:tabular-nums}
-.seg .opts button.on{background:var(--surface);box-shadow:0 1px 2px rgba(0,0,0,.12);font-weight:600}
-.start{white-space:nowrap;display:flex;align-items:center;justify-content:center;gap:10px;border:0;border-radius:14px;background:var(--accent);color:var(--accent-ink);padding:16px;font-family:var(--fd);font-weight:700;font-size:22px;letter-spacing:.06em;text-transform:uppercase}
-.start svg{width:18px;height:18px}
-.start small{font-family:var(--fb);font-weight:500;font-size:14px;letter-spacing:0;text-transform:none;opacity:.85;font-variant-numeric:tabular-nums}
-.list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
-.row{display:grid;grid-template-columns:64px 1fr auto;gap:12px;align-items:center;background:var(--surface);border-radius:14px;padding:8px 10px 8px 8px;border:1px solid var(--line)}
-.row .th{width:64px;height:64px;border-radius:10px;background:var(--surface2);display:block}
-.row .nm{font-weight:600;line-height:1.2}
-.row .sub{font-size:13px;color:var(--muted);line-height:1.3;margin-top:2px}
-.row .main{border:0;background:none;text-align:left;padding:0;min-width:0}
-.row .right{display:flex;align-items:center;gap:6px}
-.chip{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;padding:3px 8px;border-radius:99px;background:var(--surface2);border:1px solid var(--line);white-space:nowrap;font-variant-numeric:tabular-nums}
-.dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex:none}
-.ibtn{width:36px;height:36px;border-radius:10px;border:1px solid var(--line);background:var(--surface2);display:grid;place-items:center}
-.ibtn svg{width:18px;height:18px}
-.note{font-size:14px;color:var(--muted);background:var(--surface2);border:1px dashed var(--line);border-radius:12px;padding:10px 12px}
-.note b{color:var(--ink)}
-.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-.stat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 12px}
-.stat b{display:block;font-family:var(--fd);font-weight:700;font-size:30px;line-height:1.05;font-variant-numeric:tabular-nums}
-.stat span{font-size:12px;color:var(--muted)}
-.linkbtn{border:0;background:none;padding:0;color:var(--accent);font-weight:600;font-size:14px;text-decoration:underline;text-underline-offset:3px}
-
-/* Wettkampf */
-.tabs2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.tabs2 button{border:1.5px solid var(--line);background:var(--surface);border-radius:12px;padding:10px 12px;text-align:left}
-.tabs2 button b{display:block;font-family:var(--fd);font-size:20px;text-transform:uppercase;letter-spacing:.02em}
-.tabs2 button span{font-size:13px;color:var(--muted)}
-.tabs2 button.on{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
-.phase{display:flex;flex-direction:column;gap:8px}
-.phase h3{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--fd);font-weight:600;font-size:18px;letter-spacing:.06em;text-transform:uppercase}
-.phase h3 span{font-family:var(--fb);font-weight:500;font-size:13px;letter-spacing:0;text-transform:none;color:var(--muted);font-variant-numeric:tabular-nums}
-.warn{display:flex;gap:10px;align-items:flex-start;background:var(--accent-soft);border-radius:12px;padding:12px;font-size:14px}
-.warn svg{flex:none;width:20px;height:20px;color:var(--accent);margin-top:1px}
-
-/* Übungen */
-.search{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:0 12px}
-.search input{flex:1;border:0;background:transparent;color:var(--ink);font:inherit;padding:12px 0;min-width:0}
-.search input:focus{outline:none}
-.search:focus-within{outline:2px solid var(--accent);outline-offset:1px}
-.chips{display:flex;gap:6px;flex-wrap:wrap}
-.chips button{border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:6px 12px;font-size:14px;display:inline-flex;align-items:center;gap:6px}
-.chips button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
-.grp{font-family:var(--fd);font-weight:600;font-size:15px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:8px;margin-top:4px}
-
-/* Fortschritt */
-.card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;display:flex;flex-direction:column;gap:12px}
-.card h2{font-family:var(--fd);font-weight:700;font-size:22px;text-transform:uppercase;letter-spacing:.02em}
-.card p{margin:0;font-size:14px;color:var(--muted)}
-.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
-.cal .d{aspect-ratio:1;max-width:100%;border-radius:6px;background:var(--surface2);border:1px solid var(--line);display:grid;place-items:center;font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
-.cal .d.has{background:var(--ink);color:var(--bg);border-color:var(--ink);font-weight:600}
-.cal .d.comp{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
-.cal .d.today{box-shadow:inset 0 0 0 2px var(--accent)}
-.cal .h{font-size:11px;color:var(--muted);text-align:center;font-weight:600}
-.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted)}
-.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
-form.test{display:flex;gap:8px;align-items:stretch;flex-wrap:wrap}
-form.test label{flex:1 1 180px;display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
-form.test input{border:1px solid var(--line);background:var(--surface2);color:var(--ink);border-radius:10px;padding:10px 12px;font:inherit;font-variant-numeric:tabular-nums}
-form.test button{align-self:flex-end;border:0;background:var(--ink);color:var(--bg);border-radius:10px;padding:11px 16px;font-weight:600}
-.chart{width:100%;height:auto;display:block}
-.entries{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;font-size:14px}
-.entries li{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
-.entries li:last-child{border-bottom:0}
-.entries button{border:0;background:none;color:var(--muted);font-size:13px;padding:4px 6px}
-.entries button.really{color:var(--accent);font-weight:600}
-.set{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:6px 0;border-bottom:1px solid var(--line)}
-.set:last-child{border-bottom:0}
-.set span{font-size:15px}
-.set small{display:block;color:var(--muted);font-size:13px}
-.tog{width:48px;height:28px;border-radius:99px;border:0;background:var(--line);position:relative;flex:none}
-.tog::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:var(--surface);box-shadow:0 1px 2px rgba(0,0,0,.25);transition:transform .18s}
-.tog[aria-pressed="true"]{background:var(--accent)}
-.tog[aria-pressed="true"]::after{transform:translateX(20px)}
-
-/* Tab bar */
-.tabbar{position:fixed;left:0;right:0;bottom:0;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);z-index:20}
-.tabbar .in{max-width:620px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr)}
-.tabbar button{border:0;background:none;padding:9px 4px 10px;display:flex;flex-direction:column;align-items:center;gap:3px;font-size:12px;color:var(--muted);font-weight:500}
-.tabbar button svg{width:22px;height:22px}
-.tabbar button.on{color:var(--ink);font-weight:600}
-.tabbar button.on svg{color:var(--accent)}
-
-/* Sheet */
-.scrim{position:fixed;inset:0;background:rgba(5,12,16,.5);z-index:40;display:flex;align-items:flex-end;justify-content:center}
-.sheet{background:var(--bg);width:100%;max-width:620px;max-height:94%;overflow:auto;border-radius:20px 20px 0 0;padding-inline:16px;padding-block:0 calc(24px + env(safe-area-inset-bottom,0px));overscroll-behavior:contain}
-.sheet .grab{position:sticky;top:0;background:var(--bg);z-index:2;display:flex;justify-content:space-between;align-items:center;padding-block:12px 8px;gap:10px}
-.sheet h2{font-family:var(--fd);font-weight:700;font-size:30px;line-height:1.02;text-transform:uppercase}
-.pills{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
-.stage{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden}
-.stage canvas{display:block;width:100%;height:260px}
-.stage .bar{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:10px;border-top:1px solid var(--line);flex-wrap:wrap}
-.play{display:inline-flex;align-items:center;gap:8px;border:0;background:var(--ink);color:var(--bg);border-radius:10px;padding:10px 14px;font-weight:600}
-.play svg{width:16px;height:16px}
-.speed{border:1px solid var(--line);background:var(--surface2);border-radius:10px;padding:9px 12px;font-size:14px;font-variant-numeric:tabular-nums}
-.ext{font-size:14px;color:var(--muted);text-decoration:underline;text-underline-offset:3px}
-.stage .cap{position:absolute;left:10px;top:10px;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px}
-.sec{display:flex;flex-direction:column;gap:6px;margin-top:18px}
-.sec h3{font-family:var(--fd);font-weight:600;font-size:15px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-.sec p{margin:0;max-width:65ch}
-.steps{margin:0;padding:0;list-style:none;counter-reset:s;display:flex;flex-direction:column;gap:8px}
-.steps li{counter-increment:s;display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:start}
-.steps li::before{content:counter(s);font-family:var(--fd);font-weight:700;font-size:16px;width:28px;height:28px;border-radius:8px;background:var(--surface);border:1px solid var(--line);display:grid;place-items:center}
-.musc{display:flex;flex-wrap:wrap;gap:6px}
-.musc .chip.p{background:var(--accent-soft);border-color:transparent;color:var(--ink)}
-.bul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
-.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.mini{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:14px}
-.mini b{display:block;font-family:var(--fd);font-weight:600;letter-spacing:.08em;text-transform:uppercase;font-size:13px;color:var(--muted);margin-bottom:2px}
-.sled{background:var(--ink);color:var(--bg);border-radius:14px;padding:12px 14px;font-size:15px}
-.sled b{font-family:var(--fd);letter-spacing:.08em;text-transform:uppercase;font-size:13px;display:block;opacity:.7}
-
-/* Player */
-.player{position:fixed;inset:0;z-index:60;background:var(--bg);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-.player .ph{display:flex;align-items:center;gap:10px;padding:12px 16px 8px;max-width:620px;width:100%;margin:0 auto}
-.prog{flex:1;display:flex;gap:3px}
-.prog i{flex:1;height:5px;border-radius:3px;background:var(--line);overflow:hidden;position:relative}
-.prog i b{position:absolute;inset:0;background:var(--ink);transform-origin:left;transform:scaleX(0)}
-.player .body{flex:1;display:flex;flex-direction:column;max-width:620px;width:100%;margin:0 auto;padding-inline:16px;min-height:0;gap:10px}
-.pstage{flex:1;min-height:160px;position:relative;background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden}
-.pstage canvas{position:absolute;inset:0;width:100%;height:100%}
-.side{position:absolute;top:12px;left:12px;font-family:var(--fd);font-weight:700;text-transform:uppercase;letter-spacing:.08em;font-size:15px;background:var(--ink);color:var(--bg);padding:4px 10px;border-radius:8px}
-.flash{position:absolute;inset:0;display:grid;place-items:center;background:color-mix(in srgb,var(--accent) 88%,transparent);color:var(--accent-ink);font-family:var(--fd);font-weight:700;font-size:40px;text-transform:uppercase;letter-spacing:.04em;text-align:center}
-.pinfo{display:flex;flex-direction:column;gap:2px}
-.pinfo .k{font-family:var(--fd);font-weight:600;letter-spacing:.12em;text-transform:uppercase;font-size:13px;color:var(--muted)}
-.pinfo h2{font-family:var(--fd);font-weight:700;font-size:32px;line-height:1;text-transform:uppercase}
-.pinfo p{margin:2px 0 0;color:var(--muted);font-size:15px}
-.clock{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
-.clock .t{font-family:var(--fd);font-weight:700;font-size:84px;line-height:.85;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
-.clock .t.prep{color:var(--muted)}
-.clock .nx{font-size:13px;color:var(--muted);text-align:right;max-width:48%}
-.clock .nx b{display:block;color:var(--ink);font-size:15px}
-.tbar{height:6px;border-radius:3px;background:var(--line);overflow:hidden}
-.tbar b{display:block;height:100%;background:var(--accent);transform-origin:left;transform:scaleX(0)}
-.ctrl{display:flex;justify-content:center;align-items:center;gap:22px;padding-block:6px 14px}
-.ctrl button{border:1px solid var(--line);background:var(--surface);width:56px;height:56px;border-radius:50%;display:grid;place-items:center}
-.ctrl button svg{width:22px;height:22px}
-.ctrl .big{width:76px;height:76px;background:var(--ink);color:var(--bg);border:0}
-.ctrl .big svg{width:28px;height:28px}
-.fin{flex:1;display:flex;flex-direction:column;justify-content:center;gap:14px;text-align:left}
-.fin h2{font-family:var(--fd);font-weight:700;font-size:54px;line-height:.95;text-transform:uppercase}
-.fin p{margin:0;color:var(--muted);font-size:16px;max-width:40ch}
-.xbtn{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center;flex:none}
-.xbtn svg{width:18px;height:18px}
-@media (max-width:380px){.blk{font-size:34px}.rot b{font-size:22px}}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
-/* Android / 16:9 */
-html{-webkit-tap-highlight-color:transparent}
-body{margin:0;overscroll-behavior-y:contain}
-button{touch-action:manipulation}
-.ibtn{width:44px;height:44px}
-.hdr-r{display:flex;align-items:center;gap:10px;min-width:0;flex:1;justify-content:flex-end}
-.gear{width:40px;height:40px;border-radius:12px;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center;flex:none}
-.gear svg{width:20px;height:20px}
-.install{display:flex;align-items:center;gap:12px;background:var(--ink);color:var(--bg);border-radius:14px;padding:12px 14px}
-.install div{flex:1;font-size:14px;line-height:1.3}
-.install b{display:block;font-size:15px}
-.install button{border:0;background:var(--accent);color:var(--accent-ink);border-radius:10px;padding:10px 14px;font-weight:600;white-space:nowrap}
-.install .no{background:none;color:inherit;opacity:.7;padding:10px 4px}
-.plan{display:flex;gap:12px;align-items:center;flex-wrap:wrap;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
-.plan label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--muted)}
-.plan input{border:1px solid var(--line);background:var(--surface2);color:var(--ink);border-radius:10px;padding:9px 10px;font:inherit;font-variant-numeric:tabular-nums;min-height:44px}
-.plan .out{flex:1 1 170px;font-size:14px;color:var(--muted);line-height:1.35}
-.plan .out b{display:block;font-family:var(--fd);font-weight:700;font-size:30px;line-height:1;color:var(--ink);font-variant-numeric:tabular-nums}
-.set .opts{display:inline-flex;background:var(--surface2);border:1px solid var(--line);border-radius:10px;padding:3px;gap:2px;flex:none}
-.set .opts button{border:0;background:transparent;border-radius:7px;padding:7px 10px;font-size:14px;min-height:36px;font-variant-numeric:tabular-nums}
-.set .opts button.on{background:var(--surface);box-shadow:0 1px 2px rgba(0,0,0,.12);font-weight:600}
-.set.stack{flex-wrap:wrap}
-.btnrow{display:flex;gap:8px;flex-wrap:wrap}
-.sbtn{border:1px solid var(--line);background:var(--surface2);border-radius:10px;padding:10px 14px;font-size:14px;font-weight:600;min-height:44px}
-.toast{position:fixed;left:50%;bottom:calc(88px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:14px;z-index:90;box-shadow:var(--shadow);max-width:calc(100% - 32px)}
-.player{height:100%;height:100dvh}
-.clock .t{font-size:clamp(52px,11.5vh,96px)}
-.pinfo h2{font-size:clamp(24px,4.2vh,34px)}
-.ctrl{padding-block:4px clamp(8px,2vh,16px)}
-.pstage{min-height:120px}
-@media (max-height:720px){
-  .ctrl button{width:52px;height:52px}.ctrl .big{width:66px;height:66px}
-  .player .body{gap:7px}.pinfo p{font-size:14px}.clock .nx b{font-size:14px}
-  .top{padding-block:12px 4px}.hero{padding:14px;gap:12px}.blk{font-size:34px}.start{padding:13px;font-size:20px}
-}
-@media (orientation:landscape) and (max-height:520px){
-  .player .ph{max-width:none;padding:6px 16px 4px}
-  .player .body{max-width:none;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);grid-template-rows:auto auto auto 1fr;column-gap:16px;row-gap:6px;padding-bottom:8px}
-  .pstage{grid-column:1;grid-row:1 / span 4;min-height:0}
-  .pinfo,.clock,.tbar,.ctrl,#plAsk{grid-column:2}
-  .ctrl{align-self:end;padding:0}
-  .clock .t{font-size:clamp(44px,17vh,80px)}
-  .fin{grid-column:1 / -1}
-  .tabbar button{padding:5px 4px 6px}
-  .ctrl button{width:46px;height:46px}.ctrl .big{width:58px;height:58px}
-  .pinfo p{display:none}
-  #plAsk{padding:8px 10px}
-}
-@media (max-width:420px){.today{display:none}}
 </style>
 <!-- verbund-design:start -->
-<script data-design="rodeln" data-sync="rodeln">
+<script data-design="bahn" data-sync="bahnplan">
 /* SportGermany-Design: 10 dunkle Farbwelten für alle Apps. Läuft im <head>, damit beim Laden nichts aufblitzt.
  * Die Wahl liegt im gemeinsamen Speicher (gilt sofort für alle Apps) und wird vom Verbund-Sync mit abgeglichen.
  * data-design nennt, welche CSS-Variablen die jeweilige App benutzt. */
@@ -458,1127 +336,450 @@ button{touch-action:manipulation}
 <!-- verbund-design:end -->
 </head>
 <body>
-
-
-<div class="app" id="app">
-  <header class="top">
-    <div class="brand">
-      <svg viewBox="0 0 52 28" aria-hidden="true"><path d="M3 20 Q10 26 22 22 L46 14" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/><path d="M14 17 L40 9" stroke="var(--accent)" stroke-width="5" stroke-linecap="round"/></svg>
-      Mobility
-    </div>
-    <div class="hdr-r"><div class="today" id="today"></div><button class="gear" id="gear" aria-label="Einstellungen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button></div>
-  </header>
-  <main>
-    <section class="view" id="v-heute"></section>
-    <section class="view" id="v-wettkampf" hidden></section>
-    <section class="view" id="v-uebungen" hidden></section>
-    <section class="view" id="v-fortschritt" hidden></section>
-  </main>
+<div class="app">
+  <!-- Bahnen -->
+  <section class="view on" id="v-bahnen"></section>
+  <!-- Plan einer Bahn -->
+  <section class="view" id="v-plan"></section>
+  <!-- Buch -->
+  <section class="view" id="v-buch"></section>
 </div>
 
-<nav class="tabbar" aria-label="Bereiche">
-  <div class="in">
-    <button data-tab="heute" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>Heute</button>
-    <button data-tab="wettkampf"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4"/><path d="M5 4h12l-2 4 2 4H5"/></svg>Wettkampf</button>
-    <button data-tab="uebungen"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="7" height="7" rx="1.5"/><rect x="13" y="4" width="7" height="7" rx="1.5"/><rect x="4" y="13" width="7" height="7" rx="1.5"/><rect x="13" y="13" width="7" height="7" rx="1.5"/></svg>Übungen</button>
-    <button data-tab="fortschritt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19h16"/><path d="M6 15l4-4 3 3 5-6"/></svg>Fortschritt</button>
-  </div>
+<nav class="tabs" aria-label="Bahnplan">
+  <button data-v="bahnen" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16M4 12h16M4 19h16"/></svg>Bahnen</button>
+  <button data-v="plan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3c0 4 12 3 12 8s-12 3-12 8"/><circle cx="6" cy="3" r="1.4"/><circle cx="6" cy="19" r="1.4"/></svg>Plan</button>
+  <button data-v="buch"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4.5h10.5A3.5 3.5 0 0 1 19 8v11.5H8.5A3.5 3.5 0 0 1 5 16z"/><path d="M5 16a3.5 3.5 0 0 1 3.5-3.5H19"/></svg>Buch</button>
 </nav>
 
-<div class="scrim" id="scrim" hidden>
-  <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sh-title"></div>
-</div>
-
-<div class="player" id="player" hidden role="dialog" aria-modal="true" aria-label="Training"></div>
-<div class="toast" id="toast" hidden role="status"></div>
-<input type="file" id="impFile" accept="application/json,.json" hidden>
+<div class="sheet" id="sheet"><div class="pane" id="sheetPane"></div></div>
+<div class="viz" id="viz"></div>
+<div class="toast" id="toast"></div>
+<input type="file" id="imgIn" accept="image/*" hidden>
 
 <script>
-/* =========================================================
-   Figur-Modell: 2D-Kinematik mit Keyframes
-   Winkel: 0 = nach unten, 90 = nach vorn (rechts), 180 = nach oben
-   ========================================================= */
-const L={lumb:26,thor:30,neck:6,head:9,arm:27,fore:27,thigh:44,shin:42,foot:13};
-const AK=['lumb','thor','head','armN','foreN','armF','foreF','thighN','shinN','footN','thighF','shinF','footF','hipW','shW'];
-const SK=['lumb','thor','head','armN','foreN','armF','foreF','thighN','shinN','footN','thighF','shinF','footF'];
-const R=Math.PI/180;
-const dv=a=>[Math.sin(a*R),Math.cos(a*R)];
-const pv=a=>[-Math.cos(a*R),Math.sin(a*R)];
-const ad=(p,d,l)=>[p[0]+d[0]*l,p[1]+d[1]*l];
-
-const B={
-  stand:{view:'side',lumb:180,thor:180,head:180,armN:4,foreN:2,armF:-4,foreF:-2,thighN:0,shinN:0,footN:90,thighF:0,shinF:0,footF:90},
-  quad:{view:'side',lumb:100,thor:100,head:115,armN:0,foreN:0,armF:0,foreF:0,thighN:0,shinN:-90,footN:-90,thighF:0,shinF:-90,footF:-90},
-  sup:{view:'side',lumb:-90,thor:-90,head:-90,armN:90,foreN:90,armF:90,foreF:90,thighN:150,shinN:30,footN:90,thighF:150,shinF:30,footF:90},
-  long:{view:'side',lumb:180,thor:180,head:180,armN:20,foreN:20,armF:20,foreF:20,thighN:90,shinN:90,footN:180,thighF:90,shinF:90,footF:180},
-  front:{view:'front',hipW:18,shW:32,lumb:180,thor:180,head:180,armN:14,foreN:4,armF:-14,foreF:-4,thighN:0,shinN:0,footN:90,thighF:0,shinF:0,footF:-90,sc:{footN:.35,footF:.35}},
-  topSup:{view:'top',hipW:18,shW:34,lumb:180,thor:180,head:180,armN:90,foreN:90,armF:-90,foreF:-90,thighN:0,shinN:0,footN:0,thighF:0,shinF:0,footF:0,sc:{head:.5,thighN:.45,thighF:.45,shinN:.5,shinF:.5,footN:.8,footF:.8}},
-  topChild:{view:'top',hipW:16,shW:32,lumb:180,thor:180,head:180,armN:176,foreN:178,armF:184,foreF:182,thighN:180,thighF:180,shinN:0,shinF:0,footN:0,footF:0,sc:{lumb:.75,thor:.85,head:.6,thighN:.3,thighF:.3,shinN:.6,shinF:.6,footN:.3,footF:.3}},
-  topSeat:{view:'top',hipW:18,shW:34,lumb:180,thor:180,head:180,armN:15,foreN:0,armF:-15,foreF:0,thighF:0,shinF:0,footF:0,thighN:-8,shinN:-35,footN:0,sc:{lumb:.2,thor:.22,head:.2,footN:.4,footF:.4,thighN:.55,shinN:.75,armN:.8,foreN:.7,armF:.8,foreF:.7}},
-  top9090:{view:'top',hipW:20,shW:34,lumb:180,thor:180,head:180,armN:160,foreN:170,armF:200,foreF:190,thighN:90,shinN:180,footN:180,thighF:0,shinF:90,footF:90,sc:{lumb:.4,thor:.45,head:.25,armN:.7,foreN:.6,armF:.7,foreF:.6,footN:.3,footF:.3}},
-  topFrog:{view:'top',hipW:18,shW:32,lumb:180,thor:180,head:180,armN:180,foreN:180,armF:180,foreF:180,thighN:95,shinN:0,footN:0,thighF:-95,shinF:0,footF:0,sc:{lumb:.85,thor:.85,head:.7,armN:.15,armF:.15,footN:.5,footF:.5}}
-};
-
-/* =========================================================
-   Übungen (eigene Beschreibungen, fachlich abgeglichen)
-   ========================================================= */
-const REG={
-  warm:{n:'Aufwärmen',c:'--r-warm'},
-  back:{n:'Rücken & Wirbelsäule',s:'Rücken',c:'--r-back'},
-  hip:{n:'Hüfte & Becken',s:'Hüfte',c:'--r-hip'},
-  leg:{n:'Beinrückseite & Waden',s:'Beinrückseite',c:'--r-leg'},
-  start:{n:'Startspezifisch',s:'Start',c:'--r-start'}
-};
-
-const EX=[
-{id:'warm',name:'Lockeres Aufwärmen',reg:'warm',type:'dyn',
- mp:['Herz-Kreislauf','Hüftbeuger'],ms:['Schultern','Waden'],
- start:'Aufrecht stehen, genug Platz um dich herum.',
- steps:['Auf der Stelle gehen oder locker traben, Knie abwechselnd bis etwa Hüfthöhe anheben.','Die Arme schwingen gegengleich mit.','Nach etwa einer Minute große Armkreise dazunehmen: 10 vorwärts, 10 rückwärts.','Zum Schluss ein paar Mal locker in die Knie federn.'],
- cue:'Du solltest leicht warm werden, aber nicht außer Atem sein.',
- err:['Kalt direkt in tiefe Dehnungen gehen.','Zu kurz: Unter einer Minute wird das Gewebe kaum wärmer.'],
- sled:'Warme Muskulatur lässt sich weiter und sicherer bewegen. Das gilt besonders bei Kälte an der Bahn.',
- dose:'2–3 Minuten',easy:'Nur gehen.',hard:'Hopserlauf auf der Stelle.',q:'marching in place arm circles warm up',
- anim:{base:'stand',frames:[{thighN:62,shinN:-12,armN:-32,foreN:-12,armF:34,foreF:62,d:.5,h:.05},{d:.5,h:.05},{thighF:62,shinF:-12,armF:-32,foreF:-12,armN:34,foreN:62,d:.5,h:.05},{d:.5,h:.05}],hl:[],th:0}},
-
-{id:'katze',name:'Katze-Kuh',reg:'back',type:'dyn',
- mp:['Rückenstrecker (M. erector spinae)','Multifidus'],ms:['Gerade und schräge Bauchmuskeln','Nackenmuskulatur'],
- start:'Vierfüßlerstand: Hände unter den Schultern, Knie unter den Hüften, Rücken neutral.',
- steps:['Ausatmen: Steißbein einrollen, Bauchnabel Richtung Wirbelsäule ziehen und den Rücken Wirbel für Wirbel zur Decke runden. Kinn Richtung Brust.','Einatmen: Becken nach vorn kippen, Brustbein nach vorn-oben schieben, der Rücken sinkt ins Hohlkreuz. Blick schräg nach vorn.','Jede Richtung startet im Becken und wandert nach oben bis zum Kopf.','Langsam und fließend im Atemrhythmus wechseln.'],
- cue:'Stell dir vor, deine Wirbelsäule ist eine Perlenkette, die du Perle für Perle bewegst.',
- err:['Nur die Brustwirbelsäule bewegt sich, das Becken bleibt still.','Ellbogen knicken ein oder die Schultern rutschen zu den Ohren.'],
- sled:'Trainiert genau das Einrollen und Aufrichten der Wirbelsäule, das du beim Anschwingen an den Startgriffen brauchst.',
- dose:'8–10 langsame Wiederholungen',easy:'Kleinerer Bewegungsumfang, nur das Becken kippen.',hard:'Am Ende jeder Richtung 2 Sekunden halten.',q:'cat cow stretch',
- anim:{base:'quad',frames:[{d:.9,h:.3},{lumb:122,thor:76,head:40,armN:6,armF:6,d:1.4,h:.9},{d:1.2,h:.2},{lumb:78,thor:114,head:150,d:1.4,h:.9}],anchor:'kneeN',hl:['lumb','thor'],th:1}},
-
-{id:'thread',name:'Thread the Needle',reg:'back',type:'dyn',sides:true,
- mp:['Rotatoren der Brustwirbelsäule','Rautenmuskeln (Rhomboiden)','Hinterer Deltamuskel'],ms:['Latissimus','Schräge Bauchmuskeln'],
- start:'Vierfüßlerstand, Hände unter den Schultern, Knie unter den Hüften.',
- steps:['Rechten Arm seitlich zur Decke öffnen. Der Blick folgt der Hand, der Brustkorb dreht auf.','Den Arm dann unter dem linken Arm hindurch weit zur linken Seite schieben.','Rechte Schulter und rechte Schläfe sinken zum Boden, die linke Hand stützt.','2 Sekunden halten, dann wieder aufdrehen. Nach der Hälfte der Zeit Seite wechseln.'],
- cue:'Die Hüften bleiben die ganze Zeit über den Knien. Gedreht wird nur der Oberkörper.',
- err:['Das Becken dreht mit oder weicht zur Seite aus.','Schwung statt kontrollierter Bewegung.'],
- sled:'Eine drehfähige Brustwirbelsäule lässt Schultern und Arme beim Paddeln frei arbeiten.',
- dose:'6–8 pro Seite',easy:'Schulter nur halb Richtung Boden.',hard:'Stützhand ein Stück weiter nach vorn setzen.',q:'thread the needle stretch',
- anim:{base:'quad',frames:[{d:1,h:.2},{thor:108,armN:180,foreN:180,head:160,d:1.3,h:.7},{d:1,h:0},{thor:82,lumb:98,armN:-40,foreN:-55,armF:32,foreF:-32,head:45,d:1.5,h:1.2}],anchor:'kneeN',hl:['thor','armN'],th:3}},
-
-{id:'kind',name:'Kindhaltung, Arme vorn',reg:'back',type:'stat',
- mp:['Latissimus dorsi','Rückenstrecker'],ms:['Quadratus lumborum','Gesäß','Schultern'],
- start:'Kniestand, die großen Zehen berühren sich, Knie hüftbreit oder etwas weiter.',
- steps:['Gesäß Richtung Fersen sinken lassen.','Oberkörper zwischen oder auf die Oberschenkel legen, Stirn auf den Boden.','Arme lang nach vorn. Die Handflächen drücken leicht in den Boden, die Fingerspitzen wandern weit weg.','Mit jedem Ausatmen das Gesäß ein Stück mehr Richtung Fersen.'],
- cue:'Zug entsteht vom Becken bis in die Achseln. Schultern weg von den Ohren.',
- err:['Schultern hochziehen.','Knie zu eng, dadurch schwebt das Gesäß hoch.'],
- sled:'Dehnt Latissimus und unteren Rücken, die in der tiefen Paddelposition lang werden müssen.',
- dose:'30–45 s halten, 2 Durchgänge',easy:'Kissen zwischen Gesäß und Fersen.',hard:'Hände auf einem Block erhöht ablegen und die Brust sinken lassen.',q:'child pose arms extended',
- anim:{base:'quad',frames:[{armN:25,foreN:25,armF:25,foreF:25,d:1,h:.4},{thighN:62,thighF:62,lumb:76,thor:72,head:78,armN:84,foreN:88,armF:84,foreF:88,d:1.8,h:2.2}],anchor:'kneeN',hl:['lumb','thor','armN'],th:1}},
-
-{id:'kindSeite',name:'Kindhaltung seitlich',reg:'back',type:'stat',sides:true,
- mp:['Latissimus','Quadratus lumborum'],ms:['Schräge Bauchmuskeln','Zwischenrippenmuskeln'],
- start:'Kindhaltung mit den Armen lang nach vorn.',
- steps:['Beide Hände nach rechts wandern lassen, bis in der linken Flanke eine Dehnung entsteht.','Das Gesäß bleibt auf den Fersen.','Für mehr Zug die linke Hand auf die rechte legen.','Bewusst in die linke Flanke atmen. Nach der Hälfte der Zeit Seite wechseln.'],
- cue:'Du dehnst die Seite, die von den Händen weg zeigt.',
- err:['Das Gesäß hebt ab und kippt mit zur Seite.'],
- sled:'Die seitliche Rumpfkette muss frei sein für Steuerimpulse und das saubere Ablegen nach dem Start.',
- dose:'30 s pro Seite',easy:'Hände weniger weit zur Seite.',hard:'Gesäß aktiv zur Gegenseite schieben.',q:'side child pose stretch',
- anim:{base:'topChild',frames:[{d:1,h:.6},{lumb:168,thor:146,head:150,armN:128,foreN:124,armF:136,foreF:130,d:1.8,h:2}],hl:['lumb','thor'],th:1}},
-
-{id:'kneeChest',name:'Knie zur Brust',reg:'back',type:'stat',
- mp:['Lendenwirbelsäule (Rückenstrecker)','Großer Gesäßmuskel'],ms:['Quadratus lumborum'],
- start:'Rückenlage, Knie angewinkelt, Füße am Boden.',
- steps:['Beide Knie zur Brust ziehen, Hände unter den Knien oder auf den Schienbeinen.','Das Kreuzbein darf sich etwas vom Boden lösen, der untere Rücken rundet sich.','Sanft vor und zurück oder seitlich wiegen.','Kopf und Schultern bleiben entspannt am Boden.'],
- cue:'Ein angenehmes Ziehen im unteren Rücken, kein Druck.',
- err:['Kopf hochziehen.','An den Schienbeinen reißen. Bei empfindlichen Knien unter den Knien fassen.'],
- sled:'Entlastet die Lendenwirbelsäule nach den Läufen und eignet sich gut als Abschluss.',
- dose:'30–45 s, sanft wiegen',easy:'Nur ein Knie zur Brust.',hard:'Stirn Richtung Knie heben (nur ohne Nackenprobleme).',q:'knees to chest stretch supine',
- anim:{base:'sup',frames:[{d:1,h:.3},{thighN:210,thighF:210,shinN:100,shinF:100,armN:140,foreN:125,armF:140,foreF:125,d:1.5,h:.4},{lumb:-82,thor:-86,thighN:200,thighF:200,d:.8,h:.2},{thighN:210,thighF:210,shinN:100,shinF:100,armN:140,foreN:125,armF:140,foreF:125,d:.8,h:.6}],hl:['lumb','hip'],th:1}},
-
-{id:'lumbRot',name:'Lumbale Rotation',reg:'back',type:'dyn',sides:true,
- mp:['Rotatoren der Lendenwirbelsäule','Quadratus lumborum','Schräge Bauchmuskeln'],ms:['Gesäß seitlich','Tensor fasciae latae'],
- start:'Rückenlage, Knie angewinkelt und geschlossen, Füße am Boden, Arme in T-Position.',
- steps:['Beide Knie langsam nach rechts sinken lassen.','Beide Schultern bleiben am Boden, den Kopf kannst du nach links drehen.','Kurz halten und ausatmen.','Über die Mitte zur anderen Seite.'],
- cue:'Nur so weit, wie die gegenüberliegende Schulter liegen bleibt.',
- err:['Die Schulter hebt ab.','Die Knie fallen unkontrolliert.'],
- sled:'Mobilisiert die Drehung im unteren Rücken ohne Last. Ideal vor dem Start.',
- dose:'8 pro Seite langsam, oder 30 s pro Seite halten',easy:'Füße weiter auseinander.',hard:'Oberes Bein strecken.',q:'supine lumbar rotation stretch',
- anim:{base:'topSup',frames:[{d:1,h:.4},{thighN:58,thighF:58,shinN:10,shinF:10,sc:{thighN:.95,thighF:.95,shinN:.8,shinF:.8},d:1.6,h:1.2},{d:1.4,h:.3},{thighN:-58,thighF:-58,shinN:-10,shinF:-10,sc:{thighN:.95,thighF:.95,shinN:.8,shinF:.8},d:1.6,h:1.2}],hl:['lumb'],th:1}},
-
-{id:'seatTwist',name:'Sitzende Drehung',reg:'back',type:'stat',sides:true,
- mp:['Rotatoren der Brustwirbelsäule','Schräge Bauchmuskeln'],ms:['Gesäß und Piriformis des aufgestellten Beins'],
- start:'Langsitz. Rechtes Bein anwinkeln und den Fuß außen neben das linke Knie stellen.',
- steps:['Aufrecht sitzen, Scheitel Richtung Decke.','Rechte Hand hinter dem Gesäß aufstützen.','Linken Ellbogen außen gegen das rechte Knie legen und den Oberkörper nach rechts drehen.','Einatmen: länger werden. Ausatmen: ein Stück weiter drehen.'],
- cue:'Die Drehung kommt aus dem Brustkorb, nicht nur aus dem Kopf.',
- err:['Rund sitzen, dann drehen nur die Schultern.','Mit dem Ellbogen ruckartig ziehen.'],
- sled:'Verbindet aufrechten Sitz mit Rotation, wie beim Ausrichten auf dem Schlitten.',
- dose:'30 s pro Seite',easy:'Das untere Bein angewinkelt lassen.',hard:'Hand weiter hinten aufsetzen.',q:'seated spinal twist',
- anim:{base:'topSeat',frames:[{d:1,h:.5},{thor:235,head:225,armN:170,foreN:175,armF:55,foreF:10,d:1.8,h:2}],hl:['thor'],th:1}},
-
-{id:'bwsRolle',name:'Brustwirbelsäule über Rolle',reg:'back',type:'dyn',
- mp:['Brustwirbelsäulen-Strecker','Großer Brustmuskel'],ms:['Bauchmuskeln','Latissimus'],
- start:'Rückenlage, Faszienrolle (oder fest eingerolltes Handtuch) quer unter dem oberen Rücken auf Höhe der Schulterblätter. Knie angewinkelt, Hände stützen den Kopf.',
- steps:['Gesäß bleibt am Boden.','Ausatmen und den Oberkörper über die Rolle nach hinten sinken lassen, Ellbogen zeigen nach oben.','2–3 Sekunden halten, zurück in die Ausgangsposition.','Die Rolle eine Handbreit höher oder tiefer legen und wiederholen.'],
- cue:'Die Bewegung passiert nur in der Brustwirbelsäule. Rippen bleiben unten.',
- err:['Rolle unter der Lendenwirbelsäule: dort nie.','Kopf nach hinten fallen lassen.'],
- sled:'Das flache Zurücklegen auf den Schlitten nach dem Paddeln verlangt eine streckbare Brustwirbelsäule.',
- dose:'3 Positionen × 5 Wiederholungen',easy:'Weicheres Handtuch statt Rolle.',hard:'Arme gestreckt über den Kopf.',q:'thoracic extension foam roller',
- anim:{base:'sup',frames:[{lumb:-130,thor:-102,head:-108,armN:-160,foreN:-13,armF:-160,foreF:-13,d:1,h:.5},{lumb:-130,thor:-76,head:-88,armN:-160,foreN:-13,armF:-160,foreF:-13,d:1.6,h:1.5}],props:[{t:'roller'}],hl:['thor'],th:1}},
-
-{id:'lat',name:'Lat-Dehnung an Wand oder Stange',reg:'back',type:'stat',
- mp:['Latissimus dorsi','Großer Rundmuskel (Teres major)'],ms:['Trizeps','Rückenstrecker','Oberschenkelrückseite'],
- start:'Etwa einen Meter vor einer Wand, Stange oder Stuhllehne stehen. Hände schulterbreit auf Hüfthöhe auflegen.',
- steps:['Hüfte nach hinten schieben, die Arme bleiben gestreckt.','Der Oberkörper sinkt zwischen die Arme, Brust Richtung Boden.','Knie leicht beugen, wenn die Beinrückseite zu stark zieht.','Für mehr Zug im Lat das Gesäß leicht zur Seite schieben.'],
- cue:'Rücken lang, Kopf zwischen den Oberarmen.',
- err:['Ins Hohlkreuz fallen.','Kopf hängen lassen.'],
- sled:'Ein freier Lat gibt dir die volle Armreichweite beim Paddeln.',
- dose:'30–45 s, 2 Durchgänge',easy:'Hände höher auflegen.',hard:'Eine Hand auf die andere legen und zur Seite schieben.',q:'lat stretch wall',
- anim:{base:'stand',frames:[{lumb:92,thor:90,head:95,armN:95,foreN:95,armF:95,foreF:95,thighN:8,shinN:4,thighF:8,shinF:4,d:1,h:1},{lumb:90,thor:78,head:84,armN:104,foreN:104,armF:104,foreF:104,thighN:10,shinN:4,thighF:10,shinF:4,d:1.6,h:2}],anchor:'ankleN',props:[{t:'wall',f:0}],hl:['armN','thor'],th:1}},
-
-{id:'abrollen',name:'Wirbelweises Abrollen',reg:'back',type:'dyn',
- mp:['Rückenstrecker','Rückenfaszie'],ms:['Oberschenkelrückseite','Waden','Nacken'],
- start:'Hüftbreit stehen, Knie leicht gebeugt, Arme hängen locker.',
- steps:['Kinn zur Brust sinken lassen.','Wirbel für Wirbel nach unten abrollen, die Arme hängen schwer.','Unten 2–3 Atemzüge hängen lassen.','Genauso langsam von unten nach oben aufrollen. Der Kopf kommt zuletzt.'],
- cue:'Langsam genug, dass du jeden Abschnitt des Rückens spürst.',
- err:['Mit geradem Rücken abkippen (das ist dann ein Hüftscharnier).','Zu schnell.'],
- sled:'Schult die Kontrolle über jeden Wirbelsäulenabschnitt, die du für einen runden, kraftvollen Start brauchst.',
- dose:'5 Wiederholungen, je ca. 10 s',easy:'Nur bis zur Hälfte abrollen.',hard:'Unten Knie abwechselnd strecken.',q:'standing roll down spine',
- anim:{base:'stand',pingpong:true,frames:[{d:1.2,h:.6},{head:122,d:1.2,h:.2},{thor:122,head:70,armN:18,armF:14,d:1.4,h:.2},{lumb:122,thor:55,head:22,armN:2,foreN:0,armF:0,foreF:0,thighN:6,thighF:6,d:1.5,h:.2},{lumb:62,thor:14,head:4,armN:-4,armF:-4,foreN:-2,foreF:-2,thighN:16,shinN:-4,thighF:16,shinF:-4,d:1.6,h:2}],anchor:'ankleN',hl:['lumb','thor'],th:3}},
-
-{id:'taube',name:'Taube (Pigeon)',reg:'hip',type:'stat',sides:true,
- mp:['Großer Gesäßmuskel','Piriformis','Tiefe Außenrotatoren der Hüfte'],ms:['Hüftbeuger des hinteren Beins'],
- start:'Vierfüßlerstand.',
- steps:['Rechtes Knie hinter das rechte Handgelenk bringen, den rechten Fuß Richtung linke Hand legen.','Linkes Bein gestreckt nach hinten, Fußrücken am Boden.','Hüfte gerade ausrichten, beide Beckenknochen zeigen nach vorn.','Erst aufrecht bleiben, dann den Oberkörper auf die Unterarme sinken lassen.'],
- cue:'Der Zug sitzt im Gesäß des vorderen Beins. Im Knie darf es nicht ziehen.',
- err:['Das Becken kippt zur Seite, eine Gesäßhälfte schwebt. Dann ein Kissen darunter legen.','Knieschmerz: den Fuß näher zum Körper holen.'],
- sled:'Freie Außenrotatoren und Gesäß erlauben die tiefe Hüftbeugung beim Paddeln, ohne dass das Becken nach hinten kippt.',
- dose:'30–45 s pro Seite',easy:'Figur 4 in Rückenlage.',hard:'Vorderes Schienbein paralleler zur Mattenkante.',q:'pigeon pose stretch',
- anim:{base:'stand',frames:[{thighN:80,shinN:0,footN:0,thighF:-63,shinF:-90,footF:-90,armN:-5,armF:5,sc:{shinN:.3,footN:.3},d:1,h:1.2},{thighN:80,shinN:0,footN:0,thighF:-63,shinF:-90,footF:-90,lumb:112,thor:98,head:100,armN:12,foreN:92,armF:12,foreF:92,sc:{shinN:.3,footN:.3},d:2,h:2.5}],anchor:'kneeF',hl:['hip'],th:1}},
-
-{id:'fig4',name:'Figur 4 (Rückenlage)',reg:'hip',type:'stat',sides:true,
- mp:['Piriformis','Großer Gesäßmuskel'],ms:['Tiefe Außenrotatoren'],
- start:'Rückenlage, Knie angewinkelt, Füße am Boden.',
- steps:['Rechten Knöchel auf das linke Knie legen, das rechte Knie zeigt nach außen.','Linken Fuß abheben und mit beiden Händen hinter den linken Oberschenkel greifen.','Den Oberschenkel zur Brust ziehen, bis im rechten Gesäß ein Zug entsteht.','Kopf und Kreuzbein bleiben am Boden.'],
- cue:'Den rechten Fuß aktiv anziehen (Zehen Richtung Schienbein), das schützt das Knie.',
- err:['Kopf und Schultern hochziehen.','Fuß hängen lassen.'],
- sled:'Die sanfte Variante der Taube, gut für den Einstieg und nach dem Lauf.',
- dose:'30–45 s pro Seite',easy:'Linken Fuß am Boden lassen.',hard:'Rechtes Knie mit dem Ellbogen sanft nach außen drücken.',q:'figure four stretch supine',
- anim:{base:'sup',frames:[{thighF:150,shinF:30,thighN:165,shinN:150,sc:{thighN:.75,shinN:.3},d:1,h:.8},{thighF:210,shinF:100,thighN:190,shinN:251,armN:118,foreN:108,armF:118,foreF:108,sc:{thighN:.75,shinN:.42},d:1.8,h:2.5}],hl:['hip'],th:1}},
-
-{id:'n9090',name:'90/90-Wechsel',reg:'hip',type:'dyn',
- mp:['Innen- und Außenrotatoren der Hüfte','Gesäß','Piriformis'],ms:['Adduktoren','Hüftgelenkkapsel'],
- start:'Sitz auf dem Boden. Vorderes Bein 90° gebeugt vor dir, hinteres Bein 90° gebeugt seitlich hinter dir. Hände hinter dem Körper aufstützen.',
- steps:['Beide Knie anheben, die Füße bleiben etwas breiter als hüftbreit am Boden.','Die Knie zur anderen Seite ablegen, sodass wieder beide Beine 90° gebeugt sind.','Der Oberkörper bleibt aufrecht.','Langsam hin und her wechseln.'],
- cue:'Beide Gesäßhälften so gut es geht am Boden lassen.',
- err:['Rund sitzen.','Mit Schwung umklappen.'],
- sled:'Trainiert Innen- und Außenrotation, damit das Becken im Sitz frei bleibt.',
- dose:'8–10 Wechsel',easy:'Hände weiter hinten aufstützen.',hard:'Ohne Hände, aufrecht.',q:'90 90 hip switch',
- anim:{base:'top9090',frames:[{d:1,h:1},{thighN:45,thighF:-45,shinN:225,shinF:135,sc:{thighN:.45,thighF:.45,shinN:.75,shinF:.75},d:.9,h:.1},{thighN:0,shinN:270,footN:270,thighF:-90,shinF:180,footF:180,d:.9,h:1},{thighN:45,thighF:-45,shinN:225,shinF:135,footN:225,footF:135,sc:{thighN:.45,thighF:.45,shinN:.75,shinF:.75},d:.9,h:.1}],hl:['hip'],th:0}},
-
-{id:'lunge',name:'Tiefer Ausfallschritt',reg:'hip',type:'dyn',sides:true,
- mp:['Hüftbeuger (Iliopsoas)','Gerader Oberschenkelmuskel (Rectus femoris)'],ms:['Adduktoren','Gesäß des vorderen Beins'],
- start:'Kniestand, rechter Fuß vorn, linkes Knie am Boden (weich unterlegen).',
- steps:['Becken leicht nach hinten kippen (Steißbein Richtung Boden) und das Gesäß anspannen.','Hüfte nach vorn-unten schieben, bis vorn in der linken Leiste ein Zug entsteht.','2 Sekunden halten, dann zurück.','Das vordere Knie bleibt über dem Fuß.'],
- cue:'Der Zug gehört in die Leiste des hinteren Beins, nicht ins Kreuz.',
- err:['Hohlkreuz statt Hüftstreckung.','Das vordere Knie fällt nach innen.'],
- sled:'Im Rodelsitz sind die Hüftbeuger dauerhaft verkürzt und ziehen das Becken ins Hohlkreuz.',
- dose:'8 pro Seite, dynamisch',easy:'Kleinerer Schritt.',hard:'Gleichseitigen Arm nach oben strecken.',q:'kneeling hip flexor lunge stretch',
- anim:{base:'stand',frames:[{thighN:90,shinN:0,thighF:-17,shinF:-90,footF:-90,armN:38,foreN:42,armF:38,foreF:42,d:1,h:.4},{thighN:100,shinN:25,thighF:-45,shinF:-90,footF:-90,lumb:182,armN:40,foreN:48,armF:40,foreF:48,d:1.2,h:1.2}],anchor:'ankleN',hl:['hipF','thighF'],th:1}},
-
-{id:'butterfly',name:'Schmetterling',reg:'hip',type:'stat',
- mp:['Kurze Adduktoren','Gracilis'],ms:['Hüftgelenkkapsel'],
- start:'Sitz, Fußsohlen aneinander, Fersen nah zum Körper.',
- steps:['Hände um die Füße legen und aufrecht sitzen.','Die Knie Richtung Boden sinken lassen, ohne zu drücken.','Für mehr Dehnung mit geradem Rücken aus der Hüfte nach vorn kippen.','Ruhig atmen und in der Position bleiben.'],
- cue:'Brustbein nach vorn, nicht die Stirn Richtung Füße.',
- err:['Runder Rücken.','Knie mit den Ellbogen nach unten drücken.'],
- sled:'Freie Adduktoren erlauben eine stabile, breite Beckenposition auf dem Schlitten.',
- dose:'30–45 s',easy:'Füße weiter weg vom Körper.',hard:'Aus der Hüfte weiter vorbeugen.',q:'butterfly stretch',
- anim:{base:'front',frames:[{lumb:180,thor:180,armN:12,foreN:-12,armF:-12,foreF:12,thighN:125,shinN:-55,thighF:-125,shinF:55,footN:0,footF:0,sc:{thighN:.75,thighF:.75,shinN:.95,shinF:.95,footN:.25,footF:.25},d:1,h:1},{thighN:105,shinN:-74,thighF:-105,shinF:74,footN:0,footF:0,armN:28,foreN:-22,armF:-28,foreF:22,sc:{lumb:.9,thor:.85,thighN:.8,thighF:.8,shinN:.96,shinF:.96,footN:.25,footF:.25},d:1.8,h:2}],hl:['thighN','thighF'],th:1}},
-
-{id:'frosch',name:'Frosch',reg:'hip',type:'stat',
- mp:['Adduktoren (v. a. Adduktor magnus)'],ms:['Gracilis','Hüftgelenkkapsel'],
- start:'Unterarmstütz. Knie so weit auseinander wie angenehm, Unterschenkel parallel, Fußinnenseiten am Boden.',
- steps:['Die Knie liegen auf einer Linie mit der Hüfte.','Das Gesäß langsam nach hinten Richtung Fersen schieben.','Der Rücken bleibt neutral, kein Hohlkreuz.','Halten oder langsam vor und zurück wippen.'],
- cue:'Der Zug sitzt an den Oberschenkelinnenseiten.',
- err:['Knie zu weit auseinander, dann sticht es innen am Knie. Weich unterlegen.','Hohlkreuz.'],
- sled:'Die großen Adduktoren begrenzen oft die tiefe Hüftbeugung. Der Frosch öffnet sie.',
- dose:'30–45 s oder 10 Wipper',easy:'Knie enger.',hard:'Länger halten, tiefer sinken.',q:'frog stretch adductor',
- anim:{base:'topFrog',frames:[{d:1,h:.6},{thighN:125,thighF:-125,d:1.6,h:1.6}],anchor:'kneeN',hl:['thighN','thighF'],th:1}},
-
-{id:'hocke',name:'Tiefe Hocke halten',reg:'hip',type:'stat',
- mp:['Großer Gesäßmuskel','Adduktoren'],ms:['Schollenmuskel (Sprunggelenk)','Lendenwirbelsäule'],
- start:'Schulterbreit stehen, Fußspitzen leicht nach außen.',
- steps:['Tief hinsetzen, die Fersen bleiben am Boden.','Hände vor der Brust zusammen, Ellbogen innen an die Knie.','Mit den Ellbogen die Knie sanft nach außen drücken, Brust hoch.','Das Gewicht langsam etwas nach links und rechts verlagern.'],
- cue:'Knie zeigen in Richtung der Fußspitzen.',
- err:['Fersen heben ab. Dann ein Brett unter die Fersen legen.','Knie fallen nach innen.'],
- sled:'Kombiniert Hüftbeugung, Sprunggelenk und unteren Rücken in einer Position.',
- dose:'30–60 s',easy:'An einem Türrahmen festhalten.',hard:'Arme über den Kopf strecken.',q:'deep squat hold',
- anim:{base:'stand',frames:[{d:1,h:.5},{thighN:112,shinN:-24,thighF:112,shinF:-24,lumb:158,thor:165,head:170,armN:55,foreN:150,armF:55,foreF:150,d:1.8,h:1.5},{thighN:112,shinN:-24,thighF:112,shinF:-24,lumb:168,thor:172,head:176,armN:40,foreN:150,armF:40,foreF:150,d:1,h:1.5}],anchor:'ankleN',hl:['hip','thighN'],th:2}},
-
-{id:'kosak',name:'Kosakenhocke',reg:'hip',type:'dyn',
- mp:['Adduktoren des gestreckten Beins','Innere Oberschenkelrückseite'],ms:['Gesäß und Quadrizeps des gebeugten Beins','Sprunggelenk'],
- start:'Sehr breiter Stand, Fußspitzen leicht nach außen.',
- steps:['Gewicht auf das rechte Bein verlagern und tief in die Hocke setzen.','Das linke Bein bleibt gestreckt, die Zehen zeigen nach oben, die Ferse bleibt am Boden.','Die rechte Ferse bleibt ebenfalls am Boden, Brust hoch.','Über die Mitte zur anderen Seite wechseln.'],
- cue:'Tiefer ist nicht besser. Rücken lang ist wichtiger.',
- err:['Der Rücken rundet sich.','Die Ferse des Hockbeins hebt ab.'],
- sled:'Dehnt Adduktoren und Beinrückseite dynamisch und wärmt zugleich die Hüfte auf.',
- dose:'8 pro Seite, abwechselnd',easy:'An etwas festhalten.',hard:'Unten 2 s halten.',q:'cossack squat',
- anim:{base:'front',frames:[{armN:25,foreN:-140,armF:-25,foreF:140,thighN:48,shinN:48,footN:90,thighF:-48,shinF:-48,footF:-90,d:1,h:.4},{armN:25,foreN:-140,armF:-25,foreF:140,thighN:90,shinN:10,footN:90,thighF:-61.6,shinF:-61.6,footF:180,d:1.4,h:1},{armN:25,foreN:-140,armF:-25,foreF:140,thighN:48,shinN:48,footN:90,thighF:-48,shinF:-48,footF:-90,d:1.2,h:.3},{armN:25,foreN:-140,armF:-25,foreF:140,thighN:61.6,shinN:61.6,footN:180,thighF:-90,shinF:-10,footF:-90,d:1.4,h:1}],anchor:'ankleN',hl:['thighN','thighF'],th:1}},
-
-{id:'hipCircle',name:'Hüftkreisen im Vierfüßler',reg:'hip',type:'dyn',sides:true,
- mp:['Hüftgelenkkapsel','Tiefe Hüftrotatoren','Gesäß'],ms:['Rumpfstabilisatoren'],
- start:'Vierfüßlerstand.',
- steps:['Rechtes Knie Richtung Brust ziehen.','Das Knie zur Seite öffnen und nach oben führen.','Nach hinten führen und wieder unter die Hüfte bringen.','So groß wie möglich kreisen, Becken und Rücken bleiben ruhig. Nach der Hälfte Richtung wechseln.'],
- cue:'Die Hüfte bewegt sich, der Rumpf bleibt wie ein Tisch.',
- err:['Der Rücken dreht und kippt mit.','Zu schnell.'],
- sled:'Mobilisiert die Hüftkapsel in alle Richtungen, eine gute Vorbereitung für die Sitzposition.',
- dose:'8 pro Richtung und Seite',easy:'Kleinere Kreise.',hard:'Langsamer, mit Pause an jedem Punkt.',q:'quadruped hip circles',
- anim:{base:'quad',frames:[{d:.8,h:.2},{thighN:75,shinN:-40,footN:-40,d:.9,h:.2},{thighN:20,shinN:-85,sc:{thighN:.45},d:.9,h:.2},{thighN:-80,shinN:-150,footN:-150,d:.9,h:.2}],anchor:'kneeF',hl:['hip'],th:1}},
-
-{id:'gurt',name:'Beinheben mit Gurt',reg:'leg',type:'stat',sides:true,
- mp:['Oberschenkelrückseite (Hamstrings)'],ms:['Zwillingswadenmuskel (Gastrocnemius)','Gesäß'],
- start:'Rückenlage. Gurt, Gürtel oder Handtuch um die rechte Fußsohle.',
- steps:['Das linke Bein liegt gestreckt am Boden, Zehen zeigen zur Decke.','Das rechte Bein gestreckt anheben, bis hinten ein Zug entsteht.','Den Fuß anziehen (Zehen Richtung Schienbein), dann dehnt die Wade mit.','Das Becken bleibt gerade am Boden.'],
- cue:'Hier siehst du ehrlich, wie kurz deine Hamstrings sind, weil der Rücken nicht ausweichen kann.',
- err:['Das untere Bein beugt sich oder hebt ab.','Mit dem Gurt ruckartig ziehen.'],
- sled:'Isoliert die Oberschenkelrückseite, ohne dass der Rücken mitmogelt.',
- dose:'30–45 s pro Seite',easy:'Unteres Bein angewinkelt.',hard:'Bein leicht nach innen führen (mehr seitliche Kette).',q:'supine hamstring stretch strap',
- anim:{base:'sup',frames:[{thighF:90,shinF:90,footF:180,thighN:130,shinN:130,footN:220,armN:150,foreN:160,armF:150,foreF:160,d:1,h:.5},{thighF:90,shinF:90,footF:180,thighN:168,shinN:168,footN:258,armN:165,foreN:172,armF:165,foreF:172,d:1.8,h:2.2}],props:[{t:'strap'}],hl:['thighN','shinN'],th:1}},
-
-{id:'sitVorbeuge',name:'Sitzende Vorbeuge',reg:'leg',type:'stat',
- mp:['Oberschenkelrückseite','Waden'],ms:['Rückenstrecker','Rückenfaszie'],
- start:'Langsitz, Handtuch um die Fußsohlen. Auf den Sitzbeinhöckern sitzen, nicht auf dem Kreuzbein.',
- steps:['Aufrichten, Brustbein nach vorn.','Mit langem Rücken aus der Hüfte nach vorn kippen, das Handtuch hilft.','Erst wenn die Hüfte nicht weiter kippt, darf der Rücken rund werden.','Mit jedem Ausatmen ein kleines Stück weiter sinken.'],
- cue:'Erst Hüfte, dann Rücken. Diese Reihenfolge ist der Kern der Übung.',
- err:['Sofort rund werden.','Knie durchdrücken, bis es in der Kniekehle sticht.'],
- sled:'Das ist fast deine Position beim Paddeln: Beine lang, Oberkörper tief vorn.',
- dose:'30–45 s, 2 Durchgänge',easy:'Kissen unter das Gesäß, Knie leicht gebeugt.',hard:'Handtuch kürzer fassen.',q:'seated forward fold towel',
- anim:{base:'long',frames:[{armN:108,foreN:100,armF:108,foreF:100,d:1,h:.6},{lumb:128,thor:122,head:120,armN:100,foreN:95,armF:100,foreF:95,d:1.6,h:.8},{lumb:115,thor:96,head:72,armN:82,foreN:86,armF:82,foreF:86,d:1.4,h:2.2}],props:[{t:'strap'}],hl:['thighN','shinN','lumb'],th:2}},
-
-{id:'hinge',name:'Hüftscharnier mit Stab',reg:'leg',type:'dyn',
- mp:['Oberschenkelrückseite','Großer Gesäßmuskel'],ms:['Rückenstrecker (haltend)'],
- start:'Hüftbreit stehen. Ein Besenstiel liegt längs am Rücken und berührt Hinterkopf, Brustwirbelsäule und Kreuzbein. Eine Hand hält ihn hinter dem Nacken, die andere am unteren Rücken.',
- steps:['Knie leicht beugen.','Hüfte nach hinten schieben, der Oberkörper kippt nach vorn.','Alle drei Kontaktpunkte bleiben am Stab.','Wenn die Beinrückseite deutlich zieht: aufrichten und dabei das Gesäß anspannen.'],
- cue:'Das Gewicht bleibt über dem Mittelfuß.',
- err:['Der Stab löst sich am Kopf oder am Kreuzbein, dann rundet der Rücken.','Knie beugen statt Hüfte nach hinten.'],
- sled:'Lehrt dich, die Vorbeuge aus der Hüfte zu machen statt aus dem Rücken.',
- dose:'10 langsame Wiederholungen',easy:'Ohne Stab, Hände an den Hüften.',hard:'Auf einem Bein.',q:'hip hinge dowel',
- anim:{base:'stand',frames:[{armN:-25,foreN:20,armF:-160,foreF:15,sc:{foreN:.7,foreF:.6},d:1,h:.6},{lumb:128,thor:128,head:128,thighN:20,shinN:-5,thighF:20,shinF:-5,armN:-77,foreN:-32,armF:-212,foreF:-37,sc:{foreN:.7,foreF:.6},d:1.6,h:1}],anchor:'ankleN',props:[{t:'stick'}],hl:['thighN'],th:1}},
-
-{id:'wade',name:'Wadendehnung an der Wand',reg:'leg',type:'stat',sides:true,
- mp:['Zwillingswadenmuskel (Knie gestreckt)','Schollenmuskel (Knie gebeugt)'],ms:['Achillessehne','Fußsohle'],
- start:'Vor einer Wand stehen, Hände etwa auf Schulterhöhe.',
- steps:['Linkes Bein weit zurück, Ferse am Boden, Fußspitze zeigt nach vorn.','Vorderes Knie beugen und die Hüfte Richtung Wand schieben, bis die hintere Wade zieht.','Nach der halben Zeit das hintere Knie beugen. Die Ferse bleibt unten, der Zug wandert tiefer.','Seite wechseln.'],
- cue:'Beide Varianten machen: gestreckt für den Zwillingswadenmuskel, gebeugt für den Schollenmuskel.',
- err:['Fuß nach außen gedreht.','Ferse hebt ab.'],
- sled:'Freie Waden lassen die Beinrückseite in der Vorbeuge weiter aufgehen.',
- dose:'30 s je Variante und Seite',easy:'Kürzerer Schritt.',hard:'Vorfuß auf eine Stufe.',q:'wall calf stretch gastrocnemius soleus',
- anim:{base:'stand',frames:[{lumb:163,thor:160,head:160,thighN:22,shinN:0,thighF:-20,shinF:-20,footF:90,armN:98,foreN:92,armF:98,foreF:92,d:1,h:2.2},{lumb:165,thor:162,head:162,thighN:32,shinN:-10,thighF:-5,shinF:-30,footF:90,armN:98,foreN:92,armF:98,foreF:92,d:1.5,h:2.2}],anchor:'ankleN',props:[{t:'wall',f:0}],hl:['shinF'],th:0}},
-
-{id:'dog',name:'Herabschauender Hund',reg:'leg',type:'dyn',
- mp:['Waden','Oberschenkelrückseite'],ms:['Latissimus','Schultern','Rückenstrecker'],
- start:'Vierfüßlerstand, Zehen aufstellen.',
- steps:['Knie abheben und das Gesäß nach hinten-oben schieben: ein umgedrehtes V.','Der Rücken bleibt lang, die Knie dürfen gebeugt sein.','Abwechselnd ein Knie beugen und die andere Ferse Richtung Boden drücken.','Zum Schluss 20 s ruhig halten.'],
- cue:'Langer Rücken hat Vorrang vor gestreckten Beinen.',
- err:['Runder Rücken, weil die Beine gestreckt erzwungen werden.','Schultern rutschen zu den Ohren.'],
- sled:'Dehnt die ganze hintere Kette von der Hand bis zur Ferse in einer Position.',
- dose:'8 pro Seite, dann 20 s halten',easy:'Hände auf einem Stuhl.',hard:'Ein Bein zur Decke heben.',q:'downward dog pedaling',
- anim:{base:'stand',frames:[{lumb:48,thor:46,head:35,armN:42,foreN:42,armF:42,foreF:42,thighN:12,shinN:-45,footN:62,thighF:-25,shinF:-25,footF:90,d:.9,h:.5},{lumb:48,thor:46,head:35,armN:42,foreN:42,armF:42,foreF:42,thighF:12,shinF:-45,footF:62,thighN:-25,shinN:-25,footN:90,d:.9,h:.5}],anchor:'handN',hl:['shinN','thighN','shinF','thighF'],th:0}},
-
-{id:'vorbeuge',name:'Stehende Vorbeuge',reg:'leg',type:'stat',
- mp:['Oberschenkelrückseite','Waden'],ms:['Rückenstrecker','Gesäß'],
- start:'Hüftbreit stehen.',
- steps:['Knie deutlich beugen, aus der Hüfte nach vorn, Bauch auf die Oberschenkel, Hände zu den Zehen oder zum Boden.','Die Brust bleibt auf den Oberschenkeln, die Knie langsam strecken, bis es zieht.','Ganz entspannen, den Kopf hängen lassen.','Mit gebeugten Knien Wirbel für Wirbel aufrollen.'],
- cue:'Das ist auch dein Fortschritts-Test: Abstand der Fingerspitzen zum Boden messen.',
- err:['Knie durchdrücken und nach unten federn.','Kalt ausführen.'],
- sled:'Führt alles zusammen, was die Einzelübungen vorbereitet haben.',
- dose:'30–45 s',easy:'Hände auf einen Stuhl oder Block.',hard:'Auf einer Stufe stehend.',q:'standing forward fold bent knees',
- anim:{base:'stand',frames:[{d:1,h:.5},{thighN:38,shinN:-14,thighF:38,shinF:-14,lumb:45,thor:25,head:15,armN:6,foreN:4,armF:6,foreF:4,d:1.8,h:1},{thighN:6,shinN:-2,thighF:6,shinF:-2,lumb:55,thor:20,head:6,armN:3,foreN:0,armF:3,foreF:0,d:2,h:1.6},{thighN:6,shinN:-2,thighF:6,shinF:-2,lumb:50,thor:8,head:0,armN:0,foreN:0,armF:0,foreF:0,d:1.2,h:2}],anchor:'ankleN',hl:['thighN','shinN'],th:2}},
-
-{id:'zehen',name:'Vorbeuge mit hochgezogenen Zehen',reg:'leg',type:'stat',
- mp:['Waden','Fußsohle (Plantarfaszie)'],ms:['Oberschenkelrückseite'],
- start:'Vorfüße auf ein Buch, Brett oder gerolltes Handtuch stellen, Fersen am Boden.',
- steps:['Knie leicht gebeugt, aus der Hüfte vorbeugen.','Die Hände Richtung Boden sinken lassen.','Knie langsam strecken.','Der Zug verlagert sich in Wade und Kniekehle.'],
- cue:'Die Erhöhung muss nur 2–4 cm hoch sein.',
- err:['Zu hohe Erhöhung.','Mit Schwung nach unten.'],
- sled:'Nimmt die Waden gezielt mit in die Vorbeuge, die beim normalen Zehen-Berühren oft zu kurz kommen.',
- dose:'30 s',easy:'Niedrigere Erhöhung.',hard:'Länger halten.',q:'forward fold toes elevated',
- anim:{base:'stand',frames:[{footN:110,footF:110,d:1,h:.5},{footN:110,footF:110,thighN:36,shinN:-14,thighF:36,shinF:-14,lumb:47,thor:25,head:15,armN:6,foreN:4,armF:6,foreF:4,d:1.8,h:1},{footN:110,footF:110,thighN:6,shinN:-2,thighF:6,shinF:-2,lumb:56,thor:18,head:6,armN:3,foreN:0,armF:3,foreF:0,d:2,h:2}],anchor:'ankleN',props:[{t:'wedge'}],hl:['shinN'],th:2}},
-
-{id:'startImit',name:'Start-Imitation',reg:'start',type:'dyn',
- mp:['Rumpfbeuger und -strecker im Wechsel','Hüftbeuger','Latissimus und Schultern'],ms:['Oberschenkelrückseite'],
- start:'Langsitz auf dem Boden oder einer Bank, Beine gestreckt.',
- steps:['Oberkörper weit nach vorn, die Arme greifen über die Knie hinaus nach vorn (wie an die Startgriffe).','Kontrolliert nach hinten lehnen, als würdest du an den Griffen ziehen.','Wieder tief nach vorn und 2–3 Paddelbewegungen neben dem Körper.','Flach nach hinten ablegen, dann wieder aufsetzen.'],
- cue:'Locker und rhythmisch, noch nicht mit voller Kraft.',
- err:['Nur aus den Armen arbeiten, statt den Rumpf mitzunehmen.','Beim Ablegen ins Hohlkreuz fallen.'],
- sled:'Verbindet die Beweglichkeit direkt mit deinem Startablauf.',
- dose:'8–10 Wiederholungen',easy:'Nur Vor- und Zurücklehnen.',hard:'Mit leichtem Widerstand (Theraband).',q:'luge start technique',
- anim:{base:'long',frames:[{armN:40,foreN:40,armF:40,foreF:40,d:1,h:.3},{lumb:128,thor:108,head:110,armN:95,foreN:92,armF:95,foreF:92,d:.9,h:.2},{lumb:205,thor:200,head:190,armN:105,foreN:100,armF:105,foreF:100,d:.9,h:.2},{lumb:120,thor:100,head:105,armN:70,foreN:30,armF:70,foreF:30,d:.8,h:.05},{lumb:122,thor:104,head:105,armN:40,foreN:-60,armF:40,foreF:-60,d:.4,h:.05},{lumb:120,thor:100,head:105,armN:70,foreN:30,armF:70,foreF:30,d:.4,h:.05},{lumb:122,thor:104,head:105,armN:40,foreN:-60,armF:40,foreF:-60,d:.4,h:.05},{lumb:268,thor:270,head:268,armN:90,foreN:90,armF:90,foreF:90,d:1.2,h:1}],props:[{t:'sled'}],hl:['lumb','thor'],th:1}}
+"use strict";
+/* =====================================================================
+   Bahnkatalog – Startwerte aus öffentlichen Quellen (Wikipedia-Liste der Bob-, Rodel- und Skeletonbahnen,
+   FIL/IBSF, Betreiber). Kurvennamen und -formen sind nur dort eingetragen, wo sie belegt sind –
+   alles ist frei änderbar und sollte an der Bahn geprüft werden.
+   t = Art, a = Winkel in Grad, d = Richtung (L/R), nm = Name
+   ===================================================================== */
+const CATALOG = [
+  { id: "altenberg", name: "Altenberg", ort: "Altenberg (Erzgebirge)", land: "Deutschland", len: 1413, n: 17, note: "Gilt als eine der schwierigsten Bahnen der Welt. Bekannte Abschnitte: Omega-Kurve, Kreisel, Zielkreisel." },
+  { id: "koenigssee", name: "Königssee", ort: "Schönau am Königssee", land: "Deutschland", len: 1251, n: 16, note: "Bekannte Kurven: Teufelsmühle, Turbodrom (Kreisel, ca. 320°), Schlangengrube (S-Kombination, Kurven 6–9), Echowand – heute Josef-Fendt-Kurve.",
+    c: { 6: { t: "S-Kombination", nm: "Schlangengrube" }, 7: { t: "S-Kombination", nm: "Schlangengrube" }, 8: { t: "S-Kombination", nm: "Schlangengrube" }, 9: { t: "S-Kombination", nm: "Schlangengrube" } } },
+  { id: "oberhof", name: "Oberhof", ort: "Oberhof (Thüringen)", land: "Deutschland", len: 1354, n: 15, note: "Rennschlittenbahn von 1971, Wettkampflänge Herren ca. 1070 m." },
+  { id: "winterberg", name: "Winterberg", ort: "Winterberg (Sauerland)", land: "Deutschland", len: 1609, n: 14, note: "Omega (Kurven 1–3), Veltins-Kreisel (Kurve 7, 270°), Labyrinth (Kurven 11–13).",
+    c: { 1: { t: "Omega", nm: "Omega" }, 2: { t: "Omega", nm: "Omega" }, 3: { t: "Omega", nm: "Omega" }, 7: { t: "Kreisel", a: 270, nm: "Veltins-Kreisel" }, 11: { t: "Labyrinth", nm: "Labyrinth" }, 12: { t: "Labyrinth", nm: "Labyrinth" }, 13: { t: "Labyrinth", nm: "Labyrinth" } } },
+  { id: "igls", name: "Innsbruck-Igls", ort: "Igls bei Innsbruck", land: "Österreich", len: 1270, n: 14, note: "Olympia-Eiskanal von 1976, mit Kreisel. Länge und Kurvenzahl je nach Start verschieden." },
+  { id: "sigulda", name: "Sigulda", ort: "Sigulda", land: "Lettland", len: 1200, n: 16, note: "Damen/Doppel: 988 m, 13 Kurven. Nach Kurve 15 lange Gerade, Kurve 16 dreht ca. 270° mit schwieriger Ausfahrt.",
+    c: { 16: { t: "Kreisel", a: 270 } } },
+  { id: "lillehammer", name: "Lillehammer", ort: "Hunderfossen", land: "Norwegen", len: 1365, n: 16, note: "Olympiabahn von 1994." },
+  { id: "laplagne", name: "La Plagne", ort: "La Plagne", land: "Frankreich", len: 1507, n: 19, note: "Olympiabahn von 1992." },
+  { id: "cortina", name: "Cortina d'Ampezzo", ort: "Cortina Sliding Centre „Eugenio Monti“", land: "Italien", len: 1445, n: 16, note: "Neu gebaut für die Winterspiele 2026, folgt teilweise der alten Monti-Bahn." },
+  { id: "stmoritz", name: "St. Moritz–Celerina", ort: "Olympia Bobrun", land: "Schweiz", len: 1722, n: 19, note: "Natureisbahn, nur Bob und Skeleton. Bekannte Kurven: Horseshoe, Shamrock, Leap, Wall, Snake." },
+  { id: "lakeplacid", name: "Lake Placid", ort: "Mt. Van Hoevenberg", land: "USA", len: 1455, n: 20, note: "Abschnitte: Devil's Highway, Shady II, Labyrinth, Chicane, zum Ziel die Heart-Kombination (links-rechts-links)." },
+  { id: "parkcity", name: "Park City", ort: "Utah Olympic Park", land: "USA", len: 1335, n: 15, note: "Olympiabahn von 2002." },
+  { id: "whistler", name: "Whistler", ort: "Whistler Sliding Centre", land: "Kanada", len: 1450, n: 16, note: "Schnellste Bahn der Welt (Rodel-Rekord über 150 km/h).",
+    c: { 3: { nm: "Wedge" }, 7: { nm: "Lueders' Loop" }, 11: { nm: "Shiver" }, 13: { nm: "50/50" }, 16: { nm: "Thunderbird" } } },
+  { id: "pyeongchang", name: "Pyeongchang", ort: "Alpensia Sliding Centre", land: "Südkorea", len: 1376, n: 16, note: "Olympiabahn von 2018." },
+  { id: "yanqing", name: "Yanqing", ort: "National Sliding Centre", land: "China", len: 1615, n: 16, note: "Olympiabahn von 2022 mit der einzigen 360°-Kurve – bitte die Nummer an der Bahn eintragen." },
+  { id: "sochi", name: "Sotschi", ort: "Sliding Center Sanki", land: "Russland", len: 1500, n: 18, note: "Längste Bahn, drei Gegenanstiege. Je nach Quelle 17 oder 18 Kurven." }
 ];
-const EXM={};EX.forEach(e=>EXM[e.id]=e);
+const TYPES = { "Kurve": 90, "Kehre": 180, "Kreisel": 270, "Omega": 200, "S-Kombination": 80, "Labyrinth": 70, "Schikane": 40, "Gerade": 0, "Gegenanstieg": 0 };
+const STATUS = { neu: ["Neu", "var(--neu)", "#8e8e93"], ueben: ["Übe ich", "var(--ueben)", "#ff9f0a"], sitzt: ["Sitzt", "var(--sitzt)", "#30d158"] };
+// Felder je Kurve – nach Ski-Besichtigung, Rallye-Aufschrieb und Motorsport-Bezugspunkten
+const FIELDS = [
+  ["Linie", [["anfahrt", "Anfahrt", "Wo komme ich aus der letzten Kurve? Position in der Bahn"], ["einlenken", "Einlenken", "Bezugspunkt und Zeitpunkt – wann lenke ich ein?"],
+    ["scheitel", "Scheitel & Druck", "Wie hoch in der Wand? Wo kommt der Druck?"], ["ausfahrt", "Ausfahrt", "Wo will ich rauskommen? Übergang in die nächste Kurve"]]],
+  ["Körper", [["steuern", "Steuern", "Beine, Kufen, Schultern – wie stark, wie lange?"], ["blick", "Kopf & Blick", "Kopfhaltung, wohin schauen, Spannung"]]],
+  ["Kopf", [["fehler", "Typische Fehler & Korrektur", "Was passiert, wenn ich zu früh/zu spät bin – und was hilft?"], ["bild", "Mein Bild", "Gefühl oder Bild, das mir in dieser Kurve hilft"]]]
+];
+const KEY = "bahnplan.v1";
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const today = () => { const d = new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); };
 
-/* =========================================================
-   Kinematik + Rendering
-   ========================================================= */
-function fk(p,ex){
-  const s=k=>(p.sc&&p.sc[k]!=null)?p.sc[k]:1;
-  const P={};P.hip=[0,0];
-  const hw=(p.hipW||0)/2, ph=pv(p.lumb);
-  P.hipN=ad(P.hip,ph,hw);P.hipF=ad(P.hip,ph,-hw);
-  P.mid=ad(P.hip,dv(p.lumb),L.lumb*s('lumb'));
-  P.sh=ad(P.mid,dv(p.thor),L.thor*s('thor'));
-  const sw=(p.shW||0)/2, ps=pv(p.thor);
-  P.shN=ad(P.sh,ps,sw);P.shF=ad(P.sh,ps,-sw);
-  if(p.view==='side'){P.hipF=[P.hipF[0]-2.5,P.hipF[1]-1.5];P.shF=[P.shF[0]-2.5,P.shF[1]-1.5];}
-  P.neck=ad(P.sh,dv(p.head),L.neck*s('head'));
-  P.headC=ad(P.neck,dv(p.head),L.head*s('head'));
-  for(const n of ['N','F']){
-    P['elbow'+n]=ad(P['sh'+n],dv(p['arm'+n]),L.arm*s('arm'+n));
-    P['hand'+n]=ad(P['elbow'+n],dv(p['fore'+n]),L.fore*s('fore'+n));
-    P['knee'+n]=ad(P['hip'+n],dv(p['thigh'+n]),L.thigh*s('thigh'+n));
-    P['ankle'+n]=ad(P['knee'+n],dv(p['shin'+n]),L.shin*s('shin'+n));
-    P['toe'+n]=ad(P['ankle'+n],dv(p['foot'+n]),L.foot*s('foot'+n));
-  }
-  const props=(ex&&ex.anim.props)||[];
-  for(const pr of props){
-    if(pr.t==='roller'){P.rollC=[P.mid[0],P.mid[1]+11];P.rollB=[P.mid[0],P.mid[1]+18];}
-    if(pr.t==='sled'){P.sledB=[P.hip[0],P.hip[1]+16];}
-  }
-  return P;
+/* ---------- Speicher: Texte in localStorage (mit Cloud-Sicherung), Bilder und Zeichnungen in IndexedDB (nur dieses Gerät) ---------- */
+function load() { try { const d = JSON.parse(localStorage.getItem(KEY) || "null"); if (d && Array.isArray(d.tracks)) return d; } catch (e) {} return { tracks: [], cur: null }; }
+let S = load(), saveT;
+function save() { clearTimeout(saveT); saveT = setTimeout(saveNow, 300); }
+function saveNow() { clearTimeout(saveT); S.updated = Date.now(); try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { toast("Speichern fehlgeschlagen"); } try { parent.postMessage({ sg: "changed" }, location.origin); } catch (e) {} }
+addEventListener("pagehide", saveNow);
+addEventListener("storage", e => { if (e.key === KEY) { S = load(); render(); } });
+let idb;
+function db() {
+  if (idb) return idb;
+  idb = new Promise((res, rej) => { const r = indexedDB.open("bahnplan", 1); r.onupgradeneeded = () => r.result.createObjectStore("img"); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
+  return idb;
 }
-function groundPts(P,p){
-  const out=[];
-  for(const k in P){if(k==='headC'||k==='rollC')continue;out.push(P[k]);}
-  out.push([P.headC[0],P.headC[1]+L.head]);
-  return out;
-}
-function place(ex,p){
-  const P=fk(p,ex);
-  let dx=0,dy=0;
-  if(p.view!=='top'){let my=-1e9;for(const q of groundPts(P,p))my=Math.max(my,q[1]);dy=-my;}
-  const a=ex.anim.anchor;
-  if(a&&ex._ref){dx=ex._ref[0]-P[a][0];if(p.view==='top')dy=ex._ref[1]-P[a][1];}
-  for(const k in P){P[k]=[P[k][0]+dx,P[k][1]+dy];}
-  return P;
-}
-const ease=u=>.5-.5*Math.cos(Math.PI*u);
-function lerpPose(a,b,u){
-  const o={view:b.view,sc:{}};
-  for(const k of AK){const x=a[k]||0,y=b[k]||0;o[k]=x+(y-x)*u;}
-  for(const k of SK){const x=(a.sc&&a.sc[k]!=null)?a.sc[k]:1,y=(b.sc&&b.sc[k]!=null)?b.sc[k]:1;o.sc[k]=x+(y-x)*u;}
-  return o;
-}
-function prep(ex){
-  if(ex._fr)return;
-  const A=ex.anim, base=B[A.base];
-  let fr=A.frames.map(f=>{const p=Object.assign({},base,f);p.sc=Object.assign({},base.sc||{},f.sc||{});p.d=f.d!=null?f.d:1.2;p.h=f.h!=null?f.h:.6;return p;});
-  if(A.pingpong)fr=fr.concat(fr.slice(1,-1).reverse().map(p=>Object.assign({},p)));
-  ex._fr=fr;ex._T=fr.reduce((s,p)=>s+p.d+p.h,0);
-  ex._ref=null;
-  if(A.anchor){const P0=place(ex,fr[0]);ex._ref=P0[A.anchor];}
-  const wall=(A.props||[]).find(x=>x.t==='wall');
-  if(wall){const Pw=place(ex,fr[wall.f||0]);ex._wallX=Pw.handN[0]+3;}
-  // Bounding box
-  let x0=1e9,x1=-1e9,y0=1e9,y1=-1e9;
-  const N=72;
-  for(let i=0;i<N;i++){
-    const p=poseAt(ex,ex._T*i/N);const P=place(ex,p);
-    for(const k in P){const q=P[k];const r=(k==='headC')?L.head:(k==='rollC'?7:0);x0=Math.min(x0,q[0]-r);x1=Math.max(x1,q[0]+r);y0=Math.min(y0,q[1]-r);y1=Math.max(y1,q[1]+r);}
-  }
-  if(ex._wallX!=null){x1=Math.max(x1,ex._wallX+4);y0=Math.min(y0,-120);}
-  if(ex._fr[0].view!=='top')y1=Math.max(y1,0);
-  ex._bb={x0,x1,y0,y1};
-}
-function poseAt(ex,t){
-  const fr=ex._fr;const T=ex._T;t=((t%T)+T)%T;
-  let acc=0;
-  for(let i=0;i<fr.length;i++){
-    const f=fr[i];
-    if(t<acc+f.d){const prev=fr[(i-1+fr.length)%fr.length];return lerpPose(prev,f,ease((t-acc)/f.d));}
-    acc+=f.d;
-    if(t<acc+f.h)return lerpPose(f,f,0);
-    acc+=f.h;
-  }
-  return lerpPose(fr[0],fr[0],0);
-}
+async function imgGet(k) { try { const d = await db(); return await new Promise(res => { const r = d.transaction("img").objectStore("img").get(k); r.onsuccess = () => res(r.result || null); r.onerror = () => res(null); }); } catch (e) { return null; } }
+async function imgSet(k, v) { const d = await db(); return new Promise((res, rej) => { const tx = d.transaction("img", "readwrite"); v == null ? tx.objectStore("img").delete(k) : tx.objectStore("img").put(v, k); tx.oncomplete = res; tx.onerror = () => rej(tx.error); }); }
 
-let COL={};
-function readColors(){
-  const cs=getComputedStyle(document.documentElement);
-  const g=n=>cs.getPropertyValue(n).trim();
-  COL={ink:g('--ink'),far:g('--far'),hl:g('--accent'),floor:g('--floor'),mat:g('--mat'),muted:g('--muted'),surface:g('--surface'),hip:g('--r-hip'),prop:g('--r-hip'),line:g('--line')};
+/* ---------- Modell ---------- */
+function newCurve(n, preset) {
+  const p = preset || {}, t = p.t || "Kurve";
+  return { n, name: p.nm || "", dir: p.d || (n % 2 ? "L" : "R"), type: t, angle: p.a || TYPES[t] || 90, straight: null, diff: 3, status: "neu", cue: "", f: {}, runs: [], x: null, y: null };
 }
-readColors();
+function addTrack(cat, custom) {
+  const c = cat || custom;
+  const t = { id: uid(), cat: cat ? cat.id : null, name: c.name, ort: c.ort || "", land: c.land || "", len: +c.len || 1300, note: cat ? cat.note : "", curves: [], map: "skizze", created: Date.now() };
+  for (let i = 1; i <= (+c.n || 15); i++) t.curves.push(newCurve(i, cat && cat.c && cat.c[i]));
+  S.tracks.push(t); S.cur = t.id; saveNow(); return t;
+}
+const track = () => S.tracks.find(t => t.id === S.cur) || null;
+const counts = t => t.curves.reduce((o, c) => (o[c.status] = (o[c.status] || 0) + 1, o), {});
 
-function drawFigure(cv,ex,t,opts={}){
-  prep(ex);
-  const dpr=Math.min(window.devicePixelRatio||1,2.5);
-  const W=cv.clientWidth,H=cv.clientHeight;
-  if(!W||!H)return;
-  if(cv.width!==Math.round(W*dpr)||cv.height!==Math.round(H*dpr)){cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);}
-  const c=cv.getContext('2d');
-  c.setTransform(dpr,0,0,dpr,0,0);
-  c.clearRect(0,0,W,H);
-  const p=poseAt(ex,t);const P=place(ex,p);
-  const bb=ex._bb;const pad=opts.pad!=null?opts.pad:Math.max(10,Math.min(W,H)*.08);
-  const bw=bb.x1-bb.x0,bh=bb.y1-bb.y0;
-  let s=Math.min((W-2*pad)/bw,(H-2*pad)/bh);
-  const ox=W/2-(bb.x0+bb.x1)/2*s, oy=H/2-(bb.y0+bb.y1)/2*s;
-  c.save();
-  if(opts.mirror){c.translate(W,0);c.scale(-1,1);}
-  c.translate(ox,oy);c.scale(s,s);
-  c.lineCap='round';c.lineJoin='round';
-  const lw=1/s;
-  // Boden / Matte
-  if(p.view==='top'){
-    c.fillStyle=COL.mat;const m=8;
-    roundRect(c,bb.x0-m,bb.y0-m,bw+2*m,bh+2*m,10);c.fill();
-  }else{
-    c.strokeStyle=COL.floor;c.lineWidth=2*lw;
-    c.beginPath();c.moveTo((-ox)/s,0);c.lineTo((W-ox)/s,0);c.stroke();
-    c.lineWidth=1*lw;
-    for(let x=Math.floor((-ox)/s/14)*14;x<(W-ox)/s;x+=14){c.beginPath();c.moveTo(x,0);c.lineTo(x-6,7);c.stroke();}
-  }
-  const props=ex.anim.props||[];
-  // Requisiten hinten
-  for(const pr of props){
-    if(pr.t==='wall'){c.fillStyle=COL.floor;c.fillRect(ex._wallX,bb.y0-10,6,-bb.y0+10);}
-    if(pr.t==='roller'){c.fillStyle=COL.prop;c.globalAlpha=.85;c.beginPath();c.arc(P.rollC[0],P.rollC[1],7,0,Math.PI*2);c.fill();c.globalAlpha=1;}
-    if(pr.t==='sled'){
-      c.fillStyle=COL.floor;c.strokeStyle=COL.muted;c.lineWidth=2*lw;
-      const x0=P.hip[0]-14,x1=P.toeN[0]+6,y=P.hip[1]+4;
-      roundRect(c,x0,y,x1-x0,6,3);c.fill();
-      c.beginPath();c.moveTo(x0+4,y+6);c.lineTo(x0+4,y+12);c.moveTo(x1-10,y+6);c.lineTo(x1-10,y+12);c.stroke();
-      c.lineWidth=2.5*lw;c.beginPath();c.moveTo(x0-4,y+12);c.lineTo(x1+2,y+12);c.quadraticCurveTo(x1+10,y+12,x1+10,y+4);c.stroke();
+/* ---------- Bahn zeichnen: Kurven nacheinander mit Richtung und Winkel (wie eine Schildkröte), dazwischen Geraden ---------- */
+function geometry(t) {
+  const R = 26, cs = t.curves;
+  const arcLen = c => (c.type === "Gerade" || c.type === "Gegenanstieg" ? 0 : Math.max(10, c.angle) * Math.PI / 180 * R);
+  const sumArc = cs.reduce((s, c) => s + arcLen(c), 0);
+  const free = Math.max((cs.length + 1) * 18, (t.len || 1300) - sumArc), def = free / (cs.length + 1);
+  let x = 0, y = 0, h = Math.PI / 2;
+  const pts = [[x, y]], marks = [];
+  // Skizze wie eine echte Bahn: auf den Geraden dreht die Richtung langsam zurück in die Falllinie (bergab),
+  // so laufen auch große Kurven (Omega, Kreisel) nicht über die restliche Bahn
+  const wrap = v => Math.atan2(Math.sin(v), Math.cos(v));
+  const go = (len) => { const k = Math.max(1, Math.round(len / 8)); for (let i = 0; i < k; i++) { h += wrap(Math.PI / 2 - h) * Math.min(.2, 1.1 / k); x += Math.cos(h) * len / k; y += Math.sin(h) * len / k; pts.push([x, y]); } };
+  cs.forEach(c => {
+    go(c.straight != null && c.straight !== "" ? Math.max(4, +c.straight) : def);
+    const a = (c.type === "Gerade" || c.type === "Gegenanstieg") ? 0 : Math.max(10, +c.angle || 90), sg = c.dir === "R" ? 1 : -1;
+    if (!a) { const mx = x + Math.cos(h) * 20, my = y + Math.sin(h) * 20; go(40); marks.push({ c, x: mx, y: my, nx: Math.cos(h + Math.PI / 2), ny: Math.sin(h + Math.PI / 2) }); return; }
+    const steps = Math.max(3, Math.round(a / 6)), da = a / steps * Math.PI / 180 * sg, step = arcLen(c) / steps;
+    let mid = null;
+    for (let i = 0; i < steps; i++) { h += da; x += Math.cos(h) * step; y += Math.sin(h) * step; pts.push([x, y]); if (i === Math.floor(steps / 2)) mid = [x, y, h]; }
+    // Nummer außen an der Kurve (gegenüber dem Kurvenmittelpunkt)
+    marks.push({ c, x: mid[0], y: mid[1], nx: Math.cos(mid[2] - sg * Math.PI / 2), ny: Math.sin(mid[2] - sg * Math.PI / 2) });
+  });
+  go(def);
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  pts.forEach(p => { minX = Math.min(minX, p[0]); maxX = Math.max(maxX, p[0]); minY = Math.min(minY, p[1]); maxY = Math.max(maxY, p[1]); });
+  const size = Math.max(maxX - minX, maxY - minY, 200), pad = size * .1, mr = size / 26;
+  marks.forEach(m => { m.mx = m.x + m.nx * mr * 2.1; m.my = m.y + m.ny * mr * 2.1; });
+  // Nummern, die sich überdecken, auseinanderschieben
+  for (let it = 0; it < 30; it++) {
+    let moved = false;
+    for (let i = 0; i < marks.length; i++) for (let j = i + 1; j < marks.length; j++) {
+      const A = marks[i], B = marks[j], dx = B.mx - A.mx, dy = B.my - A.my, d = Math.hypot(dx, dy) || .01, need = mr * 2.3;
+      if (d < need) { const p = (need - d) / 2, ux = dx / d, uy = dy / d; A.mx -= ux * p; A.my -= uy * p; B.mx += ux * p; B.my += uy * p; moved = true; }
     }
-    if(pr.t==='wedge'){c.fillStyle=COL.prop;c.globalAlpha=.8;const tx=P.toeN[0];c.beginPath();c.moveTo(tx-16,0);c.lineTo(tx+4,0);c.lineTo(tx+4,P.toeN[1]+1.5);c.closePath();c.fill();c.globalAlpha=1;}
+    if (!moved) break;
   }
-  const hl=new Set(ex.anim.hl||[]);
-  const seg=(a,b,w,col)=>{c.strokeStyle=col;c.lineWidth=w;c.beginPath();c.moveTo(P[a][0],P[a][1]);c.lineTo(P[b][0],P[b][1]);c.stroke();};
-  const limb=(n,col,alpha)=>{
-    c.globalAlpha=alpha;
-    const hc=hl=>COL.hl;
-    seg('hip'+n,'knee'+n,7,hl.has('thigh'+n)?COL.hl:col);
-    seg('knee'+n,'ankle'+n,6.2,hl.has('shin'+n)?COL.hl:col);
-    seg('ankle'+n,'toe'+n,5,col);
-    c.globalAlpha=1;
+  marks.forEach(m => { minX = Math.min(minX, m.mx); maxX = Math.max(maxX, m.mx); minY = Math.min(minY, m.my); maxY = Math.max(maxY, m.my); });
+  return { pts, marks, vb: [minX - pad, minY - pad, maxX - minX + 2 * pad, maxY - minY + 2 * pad], mr, size };
+}
+function trackSVG(t, sel) {
+  const g = geometry(t), d = "M" + g.pts.map(p => p[0].toFixed(1) + " " + p[1].toFixed(1)).join("L"), w = g.size / 34;
+  const s = g.pts[0], e = g.pts[g.pts.length - 1];
+  let h = `<svg viewBox="${g.vb.map(v => v.toFixed(1)).join(" ")}" role="img" aria-label="Bahnplan ${esc(t.name)}">`;
+  h += `<path d="${d}" fill="none" stroke="var(--s3)" stroke-width="${(w * 2.6).toFixed(1)}" stroke-linecap="round" stroke-linejoin="round"/>`;
+  h += `<path d="${d}" fill="none" stroke="var(--acc)" stroke-opacity=".55" stroke-width="${(w * .5).toFixed(1)}" stroke-linecap="round" stroke-linejoin="round"/>`;
+  g.marks.forEach(m => { h += `<line x1="${m.x.toFixed(1)}" y1="${m.y.toFixed(1)}" x2="${m.mx.toFixed(1)}" y2="${m.my.toFixed(1)}" stroke="var(--faint)" stroke-width="${(w * .25).toFixed(1)}"/>`; });
+  const fs = g.mr * 1.05;
+  h += `<text x="${s[0].toFixed(1)}" y="${(s[1] - g.mr * 1.4).toFixed(1)}" text-anchor="middle" font-size="${(fs * .9).toFixed(1)}" fill="var(--muted)" font-weight="600">Start</text>`;
+  h += `<circle cx="${e[0].toFixed(1)}" cy="${e[1].toFixed(1)}" r="${(w * 1.1).toFixed(1)}" fill="var(--ink)"/><text x="${e[0].toFixed(1)}" y="${(e[1] + g.mr * 2).toFixed(1)}" text-anchor="middle" font-size="${(fs * .9).toFixed(1)}" fill="var(--muted)" font-weight="600">Ziel</text>`;
+  g.marks.forEach(m => {
+    const col = STATUS[m.c.status][2];
+    h += `<g class="mk${sel === m.c.n ? " sel" : ""}" data-c="${m.c.n}"><circle cx="${m.mx.toFixed(1)}" cy="${m.my.toFixed(1)}" r="${g.mr.toFixed(1)}" fill="${col}" stroke-width="${(g.mr * .18).toFixed(1)}"/>` +
+      `<text x="${m.mx.toFixed(1)}" y="${(m.my + fs * .36).toFixed(1)}" text-anchor="middle" font-size="${fs.toFixed(1)}" font-weight="700" fill="#fff">${m.c.n}</text></g>`;
+  });
+  return h + "</svg>";
+}
+
+/* ---------- Ansichten ---------- */
+let view = "bahnen", placing = null, mapImg = null;
+function show(v) {
+  view = v;
+  document.querySelectorAll(".view").forEach(s => s.classList.toggle("on", s.id === "v-" + v));
+  document.querySelectorAll(".tabs button").forEach(b => b.classList.toggle("on", b.dataset.v === v));
+  render(); scrollTo(0, 0);
+}
+function render() { if (view === "bahnen") renderBahnen(); else if (view === "plan") renderPlan(); else renderBuch(); }
+function progressBar(t) {
+  const c = counts(t), n = t.curves.length || 1;
+  return `<div class="progress">${["sitzt", "ueben", "neu"].map(k => `<i style="width:${(c[k] || 0) / n * 100}%;background:${STATUS[k][2]}"></i>`).join("")}</div>`;
+}
+function renderBahnen() {
+  let h = `<p class="eyebrow">Training</p><h1>Bahnplan</h1><p class="sub">Dein Kurvenbuch: jede Bahn als Plan mit Nummern, zu jeder Kurve deine Linie, deine Bezugspunkte und deine Ansage.</p>`;
+  h += `<section class="grp"><header><span>Meine Bahnen</span><button class="lnk" data-a="add">Hinzufügen</button></header><div class="cells">`;
+  if (!S.tracks.length) h += `<div class="empty">Noch keine Bahn. Tippe auf „Hinzufügen“ und wähle eine Bahn aus der Liste – oder lege eine eigene an.</div>`;
+  S.tracks.forEach(t => {
+    const c = counts(t);
+    h += `<button class="row" data-open="${t.id}"><span class="ic" style="background:var(--acc)">${esc(t.name.charAt(0))}</span><span class="tx"><b>${esc(t.name)}</b><small>${esc([t.land, t.len + " m", t.curves.length + " Kurven", (c.sitzt || 0) + " sitzen"].filter(Boolean).join(" · "))}</small></span><span class="chev">›</span></button>`;
+  });
+  h += `</div><p class="gfoot">Notizen werden mit der Cloud-Sicherung abgeglichen. Bilder und gezeichnete Linien bleiben auf diesem Gerät.</p></section>`;
+  h += `<section class="grp"><header><span>So arbeitest du mit dem Buch</span></header><div class="cells"><div class="src">
+    <b>1. Bahnbegehung:</b> Bahn Kurve für Kurve abgehen, Nummern und Namen prüfen, Richtung und Winkel im Plan anpassen.<br>
+    <b>2. Bezugspunkte:</b> Pro Kurve vom Ausgang her denken – wo will ich raus? Daraus ergeben sich Scheitel, Einlenken und Anfahrt.<br>
+    <b>3. Ansage:</b> Eine kurze Zeile wie im Rallye-Aufschrieb, z. B. „L4 zieht zu, früh rein, Druck halten“.<br>
+    <b>4. Durchgehen:</b> Vor dem Lauf mit „Durchgehen“ die Bahn im Kopf abfahren.<br>
+    <b>5. Nach dem Lauf:</b> In den Kurven, die nicht gepasst haben, kurz notieren, was passiert ist.
+  </div></div></section>`;
+  h += `<section class="grp"><header><span>Quellen und Vorbilder</span></header><div class="cells"><div class="src">
+    Bahndaten: <a href="https://en.wikipedia.org/wiki/List_of_bobsleigh,_luge,_and_skeleton_tracks" target="_blank" rel="noopener">Wikipedia – Liste der Bahnen</a>, <a href="https://www.fil-luge.org/en/tracks/artificial-tracks" target="_blank" rel="noopener">FIL – Kunstbahnen</a>, <a href="https://www.ibsf.org/en/tracks" target="_blank" rel="noopener">IBSF – Bahnen</a>, Betreiber und Presse (z. B. <a href="https://www.piquenewsmagazine.com/whistler-news/sliding-tracks-reputation-creating-nicknames-2481790" target="_blank" rel="noopener">Whistler-Kurvennamen</a>).<br>
+    Aufbau der Notizen nach: Kursbesichtigung im Skirennsport (<a href="https://eliteam.com/how-to-inspect-a-race-course/" target="_blank" rel="noopener">Elite Alpine</a>), Rallye-Aufschrieb (<a href="https://en.wikipedia.org/wiki/Pacenotes" target="_blank" rel="noopener">Pacenotes</a>), Bezugspunkte im Motorsport (<a href="https://blayze.io/blog/5-reference-points-for-every-corner-on-the-race-track" target="_blank" rel="noopener">5 Reference Points</a>).<br>
+    Kurvennamen und -formen sind Startwerte und nur teilweise belegt – bitte an der Bahn prüfen.
+  </div></div></section>`;
+  $("v-bahnen").innerHTML = h;
+}
+function renderPlan() {
+  const t = track();
+  if (!t) { $("v-plan").innerHTML = `<p class="eyebrow">Bahnplan</p><h1>Kein Plan offen</h1><p class="sub">Wähle unter „Bahnen“ eine Bahn aus oder füge eine hinzu.</p><button class="btn p" data-a="add">Bahn hinzufügen</button>`; return; }
+  const c = counts(t);
+  let h = `<div class="planhead"><div class="t"><p class="eyebrow">${esc([t.ort, t.land].filter(Boolean).join(" · "))}</p><h1>${esc(t.name)}</h1></div>
+    <div class="btns noprint"><button class="btn sm p" data-a="viz">Durchgehen</button><button class="btn sm" data-a="trackedit">Bahn bearbeiten</button></div></div>`;
+  h += `<p class="sub" style="margin-top:6px">${t.len} m · ${t.curves.length} Kurven · ${c.sitzt || 0} sitzen, ${c.ueben || 0} übe ich, ${c.neu || 0} neu</p>`;
+  h += progressBar(t);
+  h += `<div class="plan"><div class="mapcard">`;
+  h += `<div class="maptools noprint"><div class="seg"><button data-map="skizze" class="${t.map !== "bild" ? "on" : ""}">Gezeichnet</button><button data-map="bild" class="${t.map === "bild" ? "on" : ""}">Eigenes Bild</button></div><span class="sp"></span>`;
+  if (t.map === "bild") h += `<button class="btn sm" data-a="img">${mapImg ? "Bild ändern" : "Bild wählen"}</button>`;
+  h += `</div>`;
+  if (t.map === "bild") {
+    if (!mapImg) h += `<div class="empty">Lade ein Foto oder einen Screenshot des offiziellen Bahnplans (z. B. von Wikipedia oder der Bahn) und setze die Nummern darauf.</div>`;
+    else {
+      h += `<div class="imgwrap${placing ? " placing" : ""}" id="imgwrap"><img src="${mapImg}" alt="Bahnplan">` + t.curves.filter(x => x.x != null).map(x =>
+        `<button class="pin${placing === x.n ? " sel" : ""}" data-c="${x.n}" style="left:${x.x}%;top:${x.y}%;background:${STATUS[x.status][2]}">${x.n}</button>`).join("") + `</div>`;
+      h += `<div class="maptools noprint"><span>${placing ? "Tippe ins Bild, um Kurve " + placing + " zu setzen" : "Nummer antippen zeigt die Kurve · zum Setzen unten eine Nummer wählen"}</span>${placing ? `<span class="sp"></span><button class="btn sm p" data-a="placedone">Fertig</button>` : ""}</div><div class="chips noprint">` +
+        t.curves.map(x => `<button data-place="${x.n}" class="${placing === x.n ? "on" : x.x != null ? "set" : ""}">${x.n}</button>`).join("") + `</div>`;
+    }
+  } else h += `<div class="map" id="map">${trackSVG(t)}</div><div class="maptools"><span>Form aus Richtung und Winkel jeder Kurve – im Kurvenblatt anpassen.</span></div>`;
+  h += `</div><div>`;
+  h += `<section class="grp"><header><span>Kurven</span></header><div class="cells">` + t.curves.map(x => `<button class="row crow" data-c="${x.n}"><span class="num" style="background:${STATUS[x.status][2]}">${x.n}</span><span class="tx"><b>${esc(x.name || x.type)}</b><small>${esc(x.cue || "Noch keine Ansage")}</small></span><span class="dirx">${x.type === "Gerade" || x.type === "Gegenanstieg" ? "" : (x.dir === "L" ? "links " : "rechts ") + x.angle + "°"}</span><span class="chev">›</span></button>`).join("") + `</div></section>`;
+  h += `<div class="legend">${Object.keys(STATUS).map(k => `<span><i style="background:${STATUS[k][2]}"></i>${STATUS[k][0]}</span>`).join("")}</div>`;
+  if (t.note) h += `<p class="gfoot" style="margin-top:14px">${esc(t.note)}</p>`;
+  h += `</div></div>`;
+  $("v-plan").innerHTML = h;
+}
+function renderBuch() {
+  const t = track();
+  if (!t) { $("v-buch").innerHTML = `<h1>Buch</h1><p class="sub">Wähle zuerst eine Bahn.</p>`; return; }
+  let h = `<div class="planhead"><div class="t"><p class="eyebrow">Kurvenbuch</p><h1>${esc(t.name)}</h1></div><div class="btns noprint"><button class="btn sm" data-a="print">Drucken / PDF</button></div></div>`;
+  h += `<p class="sub" style="margin-top:6px">${esc([t.ort, t.land].filter(Boolean).join(" · "))} · ${t.len} m · ${t.curves.length} Kurven · Stand ${new Date().toLocaleDateString("de-DE")}</p>`;
+  h += `<div class="mapcard" style="margin-bottom:16px"><div class="map">${trackSVG(t)}</div></div><div class="book">`;
+  t.curves.forEach(x => {
+    h += `<article class="cv"><div class="cvh"><span class="num" style="background:${STATUS[x.status][2]}">${x.n}</span><div><b>${esc(x.name || x.type)}</b><small>${esc([x.type, x.type === "Gerade" || x.type === "Gegenanstieg" ? "" : (x.dir === "L" ? "links" : "rechts") + " " + x.angle + "°", "Schwierigkeit " + x.diff + "/5", STATUS[x.status][0]].filter(Boolean).join(" · "))}</small></div></div>`;
+    if (x.cue) h += `<div class="cue">„${esc(x.cue)}“</div>`;
+    const rows = [];
+    FIELDS.forEach(gr => gr[1].forEach(f => { if (x.f[f[0]]) rows.push(`<dt>${f[1]}</dt><dd>${esc(x.f[f[0]])}</dd>`); }));
+    if (x.runs.length) rows.push(`<dt>Letzter Lauf</dt><dd>${esc(x.runs[0].date.split("-").reverse().join(".") + ": " + (x.runs[0].text || ""))}</dd>`);
+    h += rows.length ? `<dl>${rows.join("")}</dl>` : `<p class="sub" style="margin:8px 0 0">Noch keine Notizen.</p>`;
+    h += `<img data-line="${t.id}:${x.n}" alt="" hidden></article>`;
+  });
+  $("v-buch").innerHTML = h + `</div>`;
+  // gezeichnete Linien nachladen
+  document.querySelectorAll("#v-buch img[data-line]").forEach(async im => { const v = await imgGet("line:" + im.dataset.line); if (v) { im.src = v; im.hidden = false; } });
+}
+
+/* ---------- Kurvenblatt ---------- */
+let curN = null;
+function openCurve(n) {
+  const t = track(); if (!t) return;
+  const x = t.curves.find(c => c.n === n); if (!x) return;
+  curN = n;
+  const i = t.curves.indexOf(x), noArc = x.type === "Gerade" || x.type === "Gegenanstieg";
+  let h = `<div class="shead"><button class="ib" data-a="cprev" ${i ? "" : "disabled"} aria-label="Vorige Kurve">‹</button><h2>Kurve ${x.n}</h2><button class="ib" data-a="cnext" ${i < t.curves.length - 1 ? "" : "disabled"} aria-label="Nächste Kurve">›</button><button class="ib" data-a="close" aria-label="Schließen">✕</button></div>`;
+  h += `<section class="grp"><div class="cells">
+    <div class="field cue"><label>Meine Ansage <small>– kurz, wie im Rallye-Aufschrieb</small></label><input data-k="cue" value="${esc(x.cue)}" placeholder="z. B. L4 zieht zu, früh rein, Druck halten"></div>
+    <div class="field"><label>Name</label><input data-k="name" value="${esc(x.name)}" placeholder="z. B. Kreisel, Omega, Echowand"></div>
+  </div></section>`;
+  h += `<section class="grp"><header><span>Form</span></header><div class="cells">
+    <div class="fieldrow"><label>Art</label><select data-k="type" style="border:0;background:var(--s2);border-radius:10px;padding:8px 10px;font-size:15px">${Object.keys(TYPES).map(k => `<option${k === x.type ? " selected" : ""}>${k}</option>`).join("")}</select></div>
+    ${noArc ? "" : `<div class="fieldrow"><label>Richtung und Winkel</label><div class="seg" data-seg="dir"><button data-v="L" class="${x.dir === "L" ? "on" : ""}">Links</button><button data-v="R" class="${x.dir === "R" ? "on" : ""}">Rechts</button></div>
+      <select data-k="angle" style="border:0;background:var(--s2);border-radius:10px;padding:8px 10px;font-size:15px">${[30, 45, 60, 75, 90, 105, 120, 135, 150, 180, 200, 225, 250, 270, 300, 320, 360].map(a => `<option value="${a}"${+x.angle === a ? " selected" : ""}>${a}°</option>`).join("")}</select></div>`}
+    <div class="fieldrow"><label>Gerade davor <small>(m, leer = automatisch)</small></label><input data-k="straight" type="number" inputmode="numeric" min="0" step="5" value="${x.straight == null ? "" : esc(x.straight)}" placeholder="auto" style="border:0;background:var(--s2);border-radius:10px;padding:8px 10px;width:120px"></div>
+  </div></section>`;
+  h += `<section class="grp"><header><span>Stand</span></header><div class="cells">
+    <div class="fieldrow"><label>Wie sicher fahre ich sie?</label><div class="seg" data-seg="status">${Object.keys(STATUS).map(k => `<button data-v="${k}" class="${x.status === k ? "on" : ""}">${STATUS[k][0]}</button>`).join("")}</div></div>
+    <div class="fieldrow"><label>Schwierigkeit</label><div class="seg" data-seg="diff">${[1, 2, 3, 4, 5].map(d => `<button data-v="${d}" class="${+x.diff === d ? "on" : ""}">${d}</button>`).join("")}</div></div>
+  </div></section>`;
+  FIELDS.forEach(gr => {
+    h += `<section class="grp"><header><span>${gr[0]}</span></header><div class="cells">` + gr[1].map(f =>
+      `<div class="field"><label>${f[1]}</label><textarea data-f="${f[0]}" rows="1" placeholder="${esc(f[2])}">${esc(x.f[f[0]] || "")}</textarea></div>`).join("") + `</div></section>`;
+  });
+  h += `<section class="grp"><header><span>Ideallinie zeichnen</span><button class="lnk" data-a="lineclear">Löschen</button></header><div class="cells"><div class="drawbox"><canvas id="lineCv" width="640" height="420"></canvas></div></div><p class="gfoot">Mit dem Finger die Linie durch die Kurve ziehen – grau ist die Bahn, gestrichelt die Mitte.</p></section>`;
+  h += `<section class="grp runs"><header><span>Läufe</span></header><div class="cells">` + (x.runs.length ? x.runs.map((r, ri) =>
+    `<div class="run"><i class="rate" style="background:${r.rate === "gut" ? "#30d158" : r.rate === "schwer" ? "#ff453a" : "#ff9f0a"}"></i><b>${esc(r.date.split("-").reverse().join("."))}</b><span>${esc(r.text)}</span><button class="lnk" data-delrun="${ri}" aria-label="Löschen">✕</button></div>`).join("") : `<div class="empty">Noch keine Laufnotiz.</div>`) +
+    `<div class="runadd"><input type="date" id="runDate" value="${today()}" style="border:0;background:var(--s2);border-radius:10px;padding:8px 10px"><div class="seg" id="runRate"><button data-v="gut">Gut</button><button data-v="ok" class="on">Okay</button><button data-v="schwer">Schwer</button></div>
+      <textarea id="runText" placeholder="Was ist in dieser Kurve passiert? Was mache ich beim nächsten Lauf anders?"></textarea><button class="btn p" data-a="addrun" style="grid-column:1/-1">Laufnotiz speichern</button></div></div></section>`;
+  $("sheetPane").innerHTML = h;
+  $("sheet").classList.add("on");
+  $("sheetPane").scrollTop = 0;
+  document.querySelectorAll("#sheetPane textarea").forEach(grow);
+  setupCanvas(t, x);
+}
+function closeSheet() { $("sheet").classList.remove("on"); curN = null; render(); }
+function grow(ta) { ta.style.height = "auto"; ta.style.height = ta.scrollHeight + "px"; }
+function curCurve() { const t = track(); return t && t.curves.find(c => c.n === curN); }
+
+/* Ideallinie: Kurvenform als Hintergrund, Linie mit dem Finger */
+async function setupCanvas(t, x) {
+  const cv = $("lineCv"); if (!cv) return;
+  const ctx = cv.getContext("2d"), W = cv.width, H = cv.height;
+  const css = getComputedStyle(document.documentElement);
+  const drawBase = () => {
+    ctx.clearRect(0, 0, W, H);
+    // Kurve lokal: Gerade rein, Bogen, Gerade raus – mittig eingepasst
+    const a = (x.type === "Gerade" || x.type === "Gegenanstieg") ? 0 : Math.max(10, +x.angle || 90), sg = x.dir === "R" ? 1 : -1, R = 60;
+    let px = 0, py = 0, h = Math.PI / 2; const pts = [[px, py]];
+    const go = l => { for (let i = 0; i < 10; i++) { px += Math.cos(h) * l / 10; py += Math.sin(h) * l / 10; pts.push([px, py]); } };
+    go(70); const st = Math.max(4, Math.round(a / 5)); for (let i = 0; i < st; i++) { h += a / st * Math.PI / 180 * sg; px += Math.cos(h) * (a * Math.PI / 180 * R) / st; py += Math.sin(h) * (a * Math.PI / 180 * R) / st; pts.push([px, py]); } go(70);
+    let mnx = 1e9, mny = 1e9, mxx = -1e9, mxy = -1e9; pts.forEach(p => { mnx = Math.min(mnx, p[0]); mxx = Math.max(mxx, p[0]); mny = Math.min(mny, p[1]); mxy = Math.max(mxy, p[1]); });
+    const sc = Math.min((W - 90) / Math.max(1, mxx - mnx), (H - 90) / Math.max(1, mxy - mny)), ox = W / 2 - (mnx + mxx) / 2 * sc, oy = H / 2 - (mny + mxy) / 2 * sc;
+    ctx.lineCap = "round"; ctx.lineJoin = "round";
+    ctx.beginPath(); pts.forEach((p, i) => i ? ctx.lineTo(ox + p[0] * sc, oy + p[1] * sc) : ctx.moveTo(ox + p[0] * sc, oy + p[1] * sc));
+    ctx.strokeStyle = css.getPropertyValue("--s3").trim() || "#333"; ctx.lineWidth = 64; ctx.stroke();
+    ctx.setLineDash([8, 10]); ctx.strokeStyle = css.getPropertyValue("--faint").trim() || "#666"; ctx.lineWidth = 2; ctx.stroke(); ctx.setLineDash([]);
+    ctx.fillStyle = css.getPropertyValue("--muted").trim() || "#999"; ctx.font = "600 18px sans-serif"; ctx.fillText("rein", ox + pts[0][0] * sc + 38, oy + pts[0][1] * sc + 18);
   };
-  const arm=(n,col,alpha)=>{
-    c.globalAlpha=alpha;
-    seg('sh'+n,'elbow'+n,6,hl.has('arm'+n)?COL.hl:col);
-    seg('elbow'+n,'hand'+n,5.2,col);
-    c.globalAlpha=1;
+  drawBase();
+  const saved = await imgGet("line:" + t.id + ":" + x.n);
+  let strokes = [];
+  if (saved) { const im = new Image(); im.onload = () => { ctx.drawImage(im, 0, 0, W, H); }; im.src = saved; }
+  let drawing = false, last = null;
+  const pos = e => { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left) / r.width * W, (e.clientY - r.top) / r.height * H]; };
+  cv.onpointerdown = e => { drawing = true; last = pos(e); cv.setPointerCapture(e.pointerId); };
+  cv.onpointermove = e => {
+    if (!drawing) return; const p = pos(e);
+    ctx.strokeStyle = css.getPropertyValue("--acc").trim() || "#529cca"; ctx.lineWidth = 6; ctx.lineCap = "round";
+    ctx.beginPath(); ctx.moveTo(last[0], last[1]); ctx.lineTo(p[0], p[1]); ctx.stroke(); last = p; strokes.push(1);
   };
-  const side=p.view==='side';
-  const farCol=side?COL.far:COL.ink;
-  const farA=side?1:.92;
-  arm('F',farCol,farA);limb('F',farCol,farA);
-  // Rumpf
-  if(side){
-    c.strokeStyle=COL.ink;c.lineWidth=11;
-    c.beginPath();c.moveTo(P.hip[0],P.hip[1]);c.quadraticCurveTo(P.mid[0],P.mid[1],P.sh[0],P.sh[1]);c.stroke();
-    if(hl.has('lumb')||hl.has('thor')){
-      c.strokeStyle=COL.hl;c.lineWidth=5;c.beginPath();
-      const m=[(P.hip[0]+P.mid[0])/2,(P.hip[1]+P.mid[1])/2],n=[(P.mid[0]+P.sh[0])/2,(P.mid[1]+P.sh[1])/2];
-      if(hl.has('lumb')&&hl.has('thor')){c.moveTo(P.hip[0],P.hip[1]);c.quadraticCurveTo(P.mid[0],P.mid[1],P.sh[0],P.sh[1]);}
-      else if(hl.has('lumb')){c.moveTo(P.hip[0],P.hip[1]);c.quadraticCurveTo(m[0],m[1],P.mid[0],P.mid[1]);}
-      else{c.moveTo(P.mid[0],P.mid[1]);c.quadraticCurveTo(n[0],n[1],P.sh[0],P.sh[1]);}
-      c.stroke();
-    }
-  }else{
-    seg('hipF','hipN',9,COL.ink);
-    seg('hip','mid',9,hl.has('lumb')?COL.hl:COL.ink);
-    seg('mid','sh',9,hl.has('thor')?COL.hl:COL.ink);
-    seg('shF','shN',8,hl.has('thor')?COL.hl:COL.ink);
-  }
-  seg('sh','neck',5,COL.ink);
-  c.fillStyle=COL.ink;c.beginPath();c.arc(P.headC[0],P.headC[1],L.head*(p.view==='top'?.9:1),0,Math.PI*2);c.fill();
-  // Gelenk-Markierungen (Zielzone)
-  for(const k of ['hip','hipN','hipF']){
-    if(hl.has(k)){c.fillStyle=COL.hl;c.globalAlpha=.9;c.beginPath();c.arc(P[k][0],P[k][1],6.5,0,Math.PI*2);c.fill();c.globalAlpha=1;}
-  }
-  limb('N',COL.ink,1);arm('N',COL.ink,1);
-  // Requisiten vorn
-  for(const pr of props){
-    if(pr.t==='strap'){c.strokeStyle=COL.prop;c.lineWidth=2.2;c.setLineDash([4,3]);c.beginPath();c.moveTo(P.handN[0],P.handN[1]);c.lineTo((P.toeN[0]+P.ankleN[0])/2,(P.toeN[1]+P.ankleN[1])/2);c.stroke();c.setLineDash([]);}
-    if(pr.t==='stick'){
-      const d=[P.sh[0]-P.hip[0],P.sh[1]-P.hip[1]];const l=Math.hypot(d[0],d[1]);const u=[d[0]/l,d[1]/l];const bk=[u[1],-u[0]];
-      const a=[P.hip[0]-u[0]*10+bk[0]*6.5,P.hip[1]-u[1]*10+bk[1]*6.5];
-      const b=[P.headC[0]+u[0]*12+bk[0]*(L.head+1.5),P.headC[1]+u[1]*12+bk[1]*(L.head+1.5)];
-      c.strokeStyle=COL.prop;c.lineWidth=3;c.beginPath();c.moveTo(a[0],a[1]);c.lineTo(b[0],b[1]);c.stroke();
-    }
-  }
-  c.restore();
-}
-function roundRect(c,x,y,w,h,r){c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
-function thumbT(ex){prep(ex);let acc=0;const i=Math.min(ex.anim.th||0,ex._fr.length-1);for(let k=0;k<=i;k++){acc+=ex._fr[k].d;if(k<i)acc+=ex._fr[k].h;}return acc+.01;}
-
-/* Animations-Schleife */
-const live=new Map();
-let rafOn=false;
-function loop(now){
-  for(const [cv,a] of live){
-    if(!cv.isConnected){live.delete(cv);continue;}
-    if(a.playing){a.t+=(now-(a.last||now))/1000*a.speed;}
-    a.last=now;
-    drawFigure(cv,EXM[a.id],a.t,{mirror:a.mirror});
-  }
-  if(live.size)requestAnimationFrame(loop);else rafOn=false;
-}
-function animate(cv,id,o={}){
-  live.set(cv,Object.assign({id,t:o.t!=null?o.t:0,speed:1,playing:true,last:0,mirror:false},o));
-  if(!rafOn){rafOn=true;requestAnimationFrame(loop);}
-  return live.get(cv);
-}
-function drawThumbs(root=document){
-  root.querySelectorAll('canvas[data-thumb]').forEach(cv=>{const ex=EXM[cv.dataset.thumb];drawFigure(cv,ex,thumbT(ex),{pad:5});});
+  cv.onpointerup = cv.onpointercancel = async () => { if (!drawing) return; drawing = false; if (strokes.length) { await imgSet("line:" + t.id + ":" + x.n, cv.toDataURL("image/png")); } };
+  cv.clear = async () => { drawBase(); strokes = []; await imgSet("line:" + t.id + ":" + x.n, null); };
 }
 
-/* =========================================================
-   Speicher
-   ========================================================= */
-const KEY='rodelmobility.v1';
-const DEF={sessions:[],tests:[],next:0,dur:40,sound:true,voice:false,vibrate:true,prep:5,switchPause:3,theme:'system',startTime:'',installHide:false,swaps:{}};
-let S=load();
-function load(){try{const r=JSON.parse(localStorage.getItem(KEY)||'null');return Object.assign(structuredClone(DEF),r||{});}catch(e){return structuredClone(DEF);}}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
-
-/* =========================================================
-   Programme
-   ========================================================= */
-const BLOCKS=[
-  {k:'A',reg:'back',name:'Rücken & Wirbelsäule',short:'Rücken',ex:['katze','thread','lumbRot','kindSeite','abrollen']},
-  {k:'B',reg:'hip',name:'Hüfte & Becken',short:'Hüfte',ex:['hipCircle','n9090','lunge','hocke','frosch']},
-  {k:'C',reg:'leg',name:'Beinrückseite & Waden',short:'Beine',ex:['hinge','dog','wade','gurt','vorbeuge']}
-];
-const COMP=[
-  {ph:'Aktivierung',items:[{id:'warm',t:180,note:'Gehen oder locker traben, Arme kreisen'}]},
-  {ph:'Wirbelsäule',items:[{id:'katze',t:60,note:'10 Wiederholungen'},{id:'thread',t:90,note:'8 pro Seite',sides:true},{id:'lumbRot',t:80,note:'8 pro Seite, langsam',sides:true}]},
-  {ph:'Hüfte',items:[{id:'hipCircle',t:120,note:'8 pro Seite und Richtung',sides:true},{id:'n9090',t:60,note:'8 Wechsel'},{id:'hocke',t:30,note:'30 s halten, Knie sanft nach außen'},{id:'lunge',t:90,note:'8 pro Seite, dynamisch rein und raus',sides:true},{id:'kosak',t:90,note:'8 pro Seite, abwechselnd'}]},
-  {ph:'Beinrückseite',items:[{id:'hinge',t:60,note:'10 Wiederholungen'},{id:'dog',t:60,note:'8 pro Seite die Fersen senken'},{id:'wade',t:30,note:'nur 15 s pro Seite',sides:true}]},
-  {ph:'Startspezifisch',items:[{id:'startImit',t:90,note:'10 Wiederholungen, locker'},{id:'startImit',t:60,note:'Ein paar echte Startbewegungen ohne volle Intensität',label:'Probestarts'}]}
-];
-const COOL=[
-  {ph:'Nach dem Lauf',items:[{id:'kind',t:45,note:'Ruhig atmen, 45 s halten'},{id:'taube',t:90,note:'45 s pro Seite',sides:true},{id:'frosch',t:45,note:'45 s halten'},{id:'lat',t:45,note:'45 s halten'},{id:'sitVorbeuge',t:45,note:'Erst Hüfte, dann Rücken'},{id:'kneeChest',t:45,note:'Sanft wiegen'}]}
-];
-let compMode='pre';
-function blockEx(i){const b=BLOCKS[i];const sw=S.swaps[b.k];return (sw&&sw.length===b.ex.length)?sw.slice():b.ex.slice();}
-function dailyItems(i){return blockEx(i).map(id=>({id,t:S.dur,sides:!!EXM[id].sides,note:EXM[id].sides?`${S.dur/2} s pro Seite`:(EXM[id].type==='dyn'?'Langsam und kontrolliert':'Ruhig halten und ausatmen')}));}
-const trD=()=>S.prep, trC=()=>S.prep+3;
-const BUFFER_MIN=10;
-function totalSec(items,tr){return items.reduce((s,x)=>s+x.t,0)+items.length*tr;}
-const mmss=s=>{s=Math.max(0,Math.ceil(s));return Math.floor(s/60)+':'+String(s%60).padStart(2,'0');};
-
-/* =========================================================
-   Hilfsfunktionen
-   ========================================================= */
-const $=s=>document.querySelector(s);
-const esc=s=>String(s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
-const dkey=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-const today=()=>dkey(new Date());
-const regDot=r=>`<span class="dot" style="background:var(${REG[r].c})"></span>`;
-const IC={
-  info:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>',
-  swap:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 7h11l-3-3M17 17H6l3 3"/></svg>',
-  play:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 4.5v15l13-7.5z"/></svg>',
-  pause:'<svg viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4.5" width="4" height="15" rx="1"/><rect x="14" y="4.5" width="4" height="15" rx="1"/></svg>',
-  next:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M5 5v14l10-7zM17 5h2.5v14H17z"/></svg>',
-  prev:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 5v14L9 12zM4.5 5H7v14H4.5z"/></svg>',
-  x:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
-  warn:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4M12 17h.01"/></svg>',
-  search:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg>'
-};
-function row(item,opts={}){
-  const ex=EXM[item.id];
-  const t=item.sides?`2 × ${mmss(item.t/2)}`:mmss(item.t);
-  return `<li class="row" data-id="${ex.id}">
-    <canvas class="th" data-thumb="${ex.id}" aria-hidden="true"></canvas>
-    <button class="main" data-open="${ex.id}"><div class="nm">${esc(item.label||ex.name)}</div><div class="sub">${esc(item.note||ex.mp.slice(0,2).join(' · '))}</div></button>
-    <div class="right"><span class="chip">${t}</span>${opts.swap!=null?`<button class="ibtn" data-swap="${opts.swap}" aria-label="${esc(ex.name)} tauschen" title="Übung tauschen">${IC.swap}</button>`:''}</div>
-  </li>`;
-}
-function streak(){
-  const days=new Set(S.sessions.map(s=>s.date));let n=0;const d=new Date();
-  if(!days.has(dkey(d)))d.setDate(d.getDate()-1);
-  while(days.has(dkey(d))){n++;d.setDate(d.getDate()-1);}
-  return n;
-}
-function weekCount(){
-  const d=new Date();const wd=(d.getDay()+6)%7;const mon=new Date(d.getFullYear(),d.getMonth(),d.getDate()-wd);
-  const days=new Set(S.sessions.filter(s=>new Date(s.date+'T12:00')>=mon).map(s=>s.date));return days.size;
+/* ---------- Durchgehen: Bahn im Kopf abfahren ---------- */
+let vizI = 0;
+function openViz(i) {
+  const t = track(); if (!t || !t.curves.length) return;
+  vizI = Math.max(0, Math.min(t.curves.length - 1, i));
+  const x = t.curves[vizI], f = x.f;
+  const pts = [["Einlenken", f.einlenken], ["Scheitel", f.scheitel], ["Ausfahrt", f.ausfahrt], ["Blick", f.blick]].filter(p => p[1]);
+  $("viz").innerHTML = `<div class="top"><span>${esc(t.name)} · Kurve ${x.n} von ${t.curves.length}</span><button class="ib" data-a="vizclose" aria-label="Beenden">✕</button></div>
+    <div class="mid"><div class="bign"><b>${x.n}</b>${esc([x.name || x.type, x.type === "Gerade" || x.type === "Gegenanstieg" ? "" : (x.dir === "L" ? "links" : "rechts") + " " + x.angle + "°"].filter(Boolean).join(" · "))}</div>
+    <div class="cuebig">${esc(x.cue || "Noch keine Ansage – im Kurvenblatt eintragen.")}</div>
+    <div class="pts">${pts.map(p => `<div><b>${p[0]}:</b> ${esc(p[1])}</div>`).join("")}</div></div>
+    <div class="nav"><button class="btn" data-a="vizprev" ${vizI ? "" : "disabled"}>Zurück</button><button class="btn p" data-a="viznext">${vizI < t.curves.length - 1 ? "Nächste Kurve" : "Ziel ✓"}</button></div>`;
+  $("viz").classList.add("on");
 }
 
-/* =========================================================
-   Ansicht: Heute
-   ========================================================= */
-function renderHeute(){
-  const i=S.next%3,b=BLOCKS[i],items=dailyItems(i);
-  const last=S.sessions.filter(s=>s.type==='daily').slice(-1)[0];
-  const nxt=BLOCKS[(i+1)%3];
-  $('#v-heute').innerHTML=`
-  ${installBanner()}
-  <div class="hero">
-    <div class="eyebrow">Tagestraining · rotiert A → B → C</div>
-    <div class="rot" role="group" aria-label="Block wählen">
-      ${BLOCKS.map((x,j)=>`<button data-block="${j}" class="${j===i?'on':''}" aria-pressed="${j===i}"><b>${x.k}</b><span>${x.short}</span></button>`).join('')}
-    </div>
-    <div>
-      <h1 class="blk">${b.name}</h1>
-      <p class="meta">${items.length} Übungen · ca. ${mmss(totalSec(items,trD()))} Min.${last?` · zuletzt Block ${esc(last.block)}`:''} · danach Block ${nxt.k}</p>
-    </div>
-    <div class="seg"><span class="lbl">Zeit pro Übung</span><div class="opts">${[30,40,60].map(v=>`<button data-dur="${v}" class="${S.dur===v?'on':''}">${v} s</button>`).join('')}</div></div>
-    <button class="start" id="goDaily">${IC.play}Block ${b.k} starten <small>${mmss(totalSec(items,trD()))}</small></button>
-  </div>
-  <ol class="list">${items.map((it,j)=>row(it,{swap:j})).join('')}</ol>
-  <div class="note">Mit <b>⇄</b> tauschst du eine Übung gegen eine andere aus derselben Region. Empfehlung: alle 2–3 Wochen eine pro Block. ${S.swaps[b.k]?'<button class="linkbtn" id="resetSwap">Standard wiederherstellen</button>':''}</div>
-  <div class="stats">
-    <div class="stat"><b>${streak()}</b><span>Tage in Folge</span></div>
-    <div class="stat"><b>${weekCount()}</b><span>Tage diese Woche</span></div>
-    <div class="stat"><b>${S.sessions.length}</b><span>Einheiten gesamt</span></div>
-  </div>`;
-  drawThumbs($('#v-heute'));
+/* ---------- Auswahl: Bahn hinzufügen ---------- */
+function openPicker(q) {
+  q = (q || "").toLowerCase();
+  const list = CATALOG.filter(c => !q || (c.name + " " + c.ort + " " + c.land).toLowerCase().includes(q));
+  const lands = [...new Set(list.map(c => c.land))];
+  let h = `<div class="shead"><span style="width:38px"></span><h2>Bahn hinzufügen</h2><button class="ib" data-a="close" aria-label="Schließen">✕</button></div>`;
+  h += `<input class="search" id="pickQ" placeholder="Bahn, Ort oder Land suchen" value="${esc(q)}" autocomplete="off">`;
+  lands.forEach(l => {
+    h += `<section class="grp"><header><span>${esc(l)}</span></header><div class="cells">` + list.filter(c => c.land === l).map(c => {
+      const has = S.tracks.some(t => t.cat === c.id);
+      return `<button class="row" data-cat="${c.id}"><span class="ic" style="background:var(--s3);color:var(--ink)">${c.n}</span><span class="tx"><b>${esc(c.name)}</b><small>${esc(c.ort + " · " + c.len + " m · " + c.n + " Kurven")}</small></span>${has ? `<span class="dirx">schon da</span>` : ""}<span class="chev">+</span></button>`;
+    }).join("") + `</div></section>`;
+  });
+  h += `<section class="grp"><header><span>Eigene Bahn (z. B. Naturbahn)</span></header><div class="cells">
+    <div class="field"><label>Name</label><input id="cuName" placeholder="z. B. Naturbahn Umhausen"></div>
+    <div class="field"><label>Ort, Land</label><input id="cuOrt" placeholder="optional"></div>
+    <div class="fieldrow"><label>Kurven und Länge</label><input id="cuN" type="number" min="1" max="40" value="12" style="border:0;background:var(--s2);border-radius:10px;padding:8px 10px;width:90px"> Kurven
+      <input id="cuLen" type="number" min="100" max="3000" step="10" value="1000" style="border:0;background:var(--s2);border-radius:10px;padding:8px 10px;width:110px"> m</div>
+    <div class="fieldrow"><button class="btn p" data-a="custom">Eigene Bahn anlegen</button></div></div></section>`;
+  $("sheetPane").innerHTML = h; $("sheet").classList.add("on"); curN = null;
+  const inp = $("pickQ"); inp.oninput = () => { const v = inp.value; openPicker(v); const n = $("pickQ"); n.focus(); n.setSelectionRange(v.length, v.length); };
 }
-$('#v-heute').addEventListener('click',e=>{
-  const bl=e.target.closest('[data-block]');if(bl){S.next=+bl.dataset.block;save();renderHeute();return;}
-  const du=e.target.closest('[data-dur]');if(du){S.dur=+du.dataset.dur;save();renderHeute();return;}
-  const sw=e.target.closest('[data-swap]');
-  if(sw){
-    const i=S.next%3,b=BLOCKS[i];const list=blockEx(i);const j=+sw.dataset.swap;
-    const pool=EX.filter(x=>x.reg===b.reg).map(x=>x.id);
-    let k=pool.indexOf(list[j]);
-    for(let n=0;n<pool.length;n++){k=(k+1)%pool.length;if(!list.includes(pool[k])){list[j]=pool[k];break;}}
-    S.swaps[b.k]=list;if(list.join()===b.ex.join())delete S.swaps[b.k];save();renderHeute();return;
+function openTrackEdit() {
+  const t = track(); if (!t) return;
+  $("sheetPane").innerHTML = `<div class="shead"><span style="width:38px"></span><h2>Bahn bearbeiten</h2><button class="ib" data-a="close" aria-label="Schließen">✕</button></div>
+    <section class="grp"><div class="cells"><div class="field"><label>Name</label><input data-t="name" value="${esc(t.name)}"></div><div class="field"><label>Ort</label><input data-t="ort" value="${esc(t.ort)}"></div>
+    <div class="field"><label>Land</label><input data-t="land" value="${esc(t.land)}"></div><div class="field"><label>Länge (m)</label><input data-t="len" type="number" value="${t.len}"></div>
+    <div class="field"><label>Notiz zur Bahn</label><textarea data-t="note" rows="2">${esc(t.note || "")}</textarea></div></div></section>
+    <section class="grp"><header><span>Kurven (${t.curves.length})</span></header><div class="cells"><div class="fieldrow"><button class="btn" data-a="cadd">Kurve am Ende anfügen</button><button class="btn" data-a="cdel" ${t.curves.length > 1 ? "" : "disabled"}>Letzte Kurve entfernen</button></div></div>
+    <p class="gfoot">Richtung und Winkel stellst du in jeder Kurve ein – daraus zeichnet sich der Plan.</p></section>
+    <section class="grp"><div class="cells"><div class="fieldrow"><button class="btn d" data-a="tdel">Bahn löschen</button></div></div></section>`;
+  $("sheet").classList.add("on"); curN = null;
+  document.querySelectorAll("#sheetPane textarea").forEach(grow);
+}
+
+/* ---------- Bild des offiziellen Plans ---------- */
+async function loadMapImg() { const t = track(); mapImg = t ? await imgGet("map:" + t.id) : null; }
+function readImage(file) {
+  return new Promise((res, rej) => {
+    const fr = new FileReader(); fr.onerror = rej;
+    fr.onload = () => { const im = new Image(); im.onerror = rej; im.onload = () => {
+      const k = Math.min(1, 1800 / Math.max(im.width, im.height)), c = document.createElement("canvas");
+      c.width = Math.round(im.width * k); c.height = Math.round(im.height * k); c.getContext("2d").drawImage(im, 0, 0, c.width, c.height); res(c.toDataURL("image/jpeg", .86)); }; im.src = fr.result; };
+    fr.readAsDataURL(file);
+  });
+}
+function toast(m) { const e = $("toast"); e.textContent = m; e.classList.add("on"); clearTimeout(toast.t); toast.t = setTimeout(() => e.classList.remove("on"), 2200); }
+
+/* ---------- Ereignisse ---------- */
+document.addEventListener("click", async e => {
+  const b = e.target.closest("[data-a],[data-v],[data-open],[data-c],[data-map],[data-place],[data-cat],[data-delrun]");
+  if (e.target.id === "sheet") return closeSheet();
+  if (!b) {
+    // Nummer ins eigene Bild setzen
+    const w = e.target.closest("#imgwrap");
+    if (w && placing) { const r = w.getBoundingClientRect(), t = track(), x = t.curves.find(c => c.n === placing);
+      x.x = +((e.clientX - r.left) / r.width * 100).toFixed(2); x.y = +((e.clientY - r.top) / r.height * 100).toFixed(2);
+      const nx = t.curves.find(c => c.n > placing && c.x == null); placing = nx ? nx.n : null; save(); renderPlan(); }
+    return;
   }
-  if(e.target.closest('#instGo')){doInstall();return;}
-  if(e.target.closest('#instNo')){S.installHide=true;save();renderHeute();return;}
-  if(e.target.closest('#resetSwap')){delete S.swaps[BLOCKS[S.next%3].k];save();renderHeute();return;}
-  const op=e.target.closest('[data-open]');if(op){openSheet(op.dataset.open);return;}
-  if(e.target.closest('#goDaily')){const i=S.next%3;startPlayer({items:dailyItems(i),trans:trD(),type:'daily',block:BLOCKS[i].k,title:'Block '+BLOCKS[i].k+' · '+BLOCKS[i].name});}
+  if (b.closest(".tabs") && b.dataset.v) return show(b.dataset.v);
+  if (b.closest("[data-seg]") && b.dataset.v) { const x = curCurve(), k = b.closest("[data-seg]").dataset.seg; if (!x) return; x[k] = k === "diff" ? +b.dataset.v : b.dataset.v; save(); openCurve(x.n); return; }
+  if (b.closest("#runRate")) { b.parentNode.querySelectorAll("button").forEach(z => z.classList.toggle("on", z === b)); return; }
+  if (b.dataset.open) { S.cur = b.dataset.open; save(); await loadMapImg(); return show("plan"); }
+  if (b.dataset.cat) { const c = CATALOG.find(z => z.id === b.dataset.cat); addTrack(c); $("sheet").classList.remove("on"); await loadMapImg(); toast(c.name + " hinzugefügt"); return show("plan"); }
+  if (b.dataset.map) { const t = track(); t.map = b.dataset.map; placing = null; save(); return renderPlan(); }
+  if (b.dataset.place) { placing = +b.dataset.place; return renderPlan(); }
+  if (b.dataset.delrun != null) { const x = curCurve(); x.runs.splice(+b.dataset.delrun, 1); save(); return openCurve(x.n); }
+  if (b.dataset.c && !b.dataset.a) { if (placing && b.classList.contains("pin")) { placing = +b.dataset.c; return renderPlan(); } return openCurve(+b.dataset.c); }
+  const a = b.dataset.a, t = track();
+  if (a === "add") return openPicker("");
+  if (a === "close") return closeSheet();
+  if (a === "custom") { const nm = $("cuName").value.trim(); if (!nm) { toast("Bitte einen Namen eingeben"); return; } const p = $("cuOrt").value.split(","); addTrack(null, { name: nm, ort: (p[0] || "").trim(), land: (p[1] || "").trim(), n: Math.max(1, Math.min(40, +$("cuN").value || 12)), len: +$("cuLen").value || 1000 }); $("sheet").classList.remove("on"); await loadMapImg(); return show("plan"); }
+  if (a === "cprev" || a === "cnext") { const i = t.curves.findIndex(c => c.n === curN), nx = t.curves[i + (a === "cnext" ? 1 : -1)]; if (nx) openCurve(nx.n); return; }
+  if (a === "lineclear") { const cv = $("lineCv"); if (cv && cv.clear) cv.clear(); return; }
+  if (a === "addrun") { const x = curCurve(), txt = $("runText").value.trim(); if (!txt) { toast("Kurz notieren, was passiert ist"); return; } const on = document.querySelector("#runRate .on"); x.runs.unshift({ date: $("runDate").value || today(), rate: on ? on.dataset.v : "ok", text: txt }); save(); toast("Laufnotiz gespeichert"); return openCurve(x.n); }
+  if (a === "viz") return openViz(0);
+  if (a === "vizclose") { $("viz").classList.remove("on"); return; }
+  if (a === "vizprev") return openViz(vizI - 1);
+  if (a === "viznext") { if (vizI >= t.curves.length - 1) { $("viz").classList.remove("on"); toast("Bahn im Kopf abgefahren ✓"); return; } return openViz(vizI + 1); }
+  if (a === "trackedit") return openTrackEdit();
+  if (a === "cadd") { t.curves.push(newCurve(t.curves.length + 1)); save(); return openTrackEdit(); }
+  if (a === "cdel") { if (t.curves.length > 1 && confirm("Letzte Kurve (" + t.curves.length + ") mit allen Notizen entfernen?")) { t.curves.pop(); save(); } return openTrackEdit(); }
+  if (a === "tdel") { if (confirm("„" + t.name + "“ mit allen Kurvennotizen löschen?")) { S.tracks = S.tracks.filter(z => z !== t); S.cur = S.tracks[0] ? S.tracks[0].id : null; saveNow(); $("sheet").classList.remove("on"); show("bahnen"); } return; }
+  if (a === "img") return $("imgIn").click();
+  if (a === "placedone") { placing = null; return renderPlan(); }
+  if (a === "print") return print();
+});
+document.addEventListener("input", e => {
+  const el = e.target, x = curCurve();
+  if (el.dataset.f && x) { x.f[el.dataset.f] = el.value; grow(el); save(); }
+  else if (el.dataset.k && x) {
+    const k = el.dataset.k; x[k] = k === "angle" ? +el.value : k === "straight" ? (el.value === "" ? null : +el.value) : el.value;
+    if (k === "type" && TYPES[el.value] && el.value !== "Gerade" && el.value !== "Gegenanstieg") x.angle = TYPES[el.value];
+    save(); if (k === "type") openCurve(x.n);
+  } else if (el.dataset.t) { const t = track(); t[el.dataset.t] = el.dataset.t === "len" ? +el.value || t.len : el.value; if (el.tagName === "TEXTAREA") grow(el); save(); }
+});
+$("imgIn").addEventListener("change", async e => {
+  const f = e.target.files[0]; e.target.value = ""; if (!f) return;
+  try { const t = track(); mapImg = await readImage(f); await imgSet("map:" + t.id, mapImg); const nx = t.curves.find(c => c.x == null); placing = nx ? nx.n : null; renderPlan(); toast("Bild gespeichert – jetzt die Nummern setzen"); }
+  catch (err) { toast("Bild konnte nicht gelesen werden"); }
+});
+document.addEventListener("keydown", e => {
+  if ($("viz").classList.contains("on")) { if (e.key === "ArrowRight" || e.key === " ") openViz(vizI + 1); else if (e.key === "ArrowLeft") openViz(vizI - 1); else if (e.key === "Escape") $("viz").classList.remove("on"); }
+  else if (e.key === "Escape" && $("sheet").classList.contains("on")) closeSheet();
 });
 
-/* =========================================================
-   Ansicht: Wettkampf
-   ========================================================= */
-function renderComp(){
-  const prog=compMode==='pre'?COMP:COOL;
-  const all=prog.flatMap(p=>p.items);
-  $('#v-wettkampf').innerHTML=`
-  <div>
-    <div class="eyebrow">Wettkampftag</div>
-    <h1 class="blk" style="margin-top:4px">${compMode==='pre'?'Vor dem Start':'Nach dem Lauf'}</h1>
-  </div>
-  <div class="tabs2" role="group">
-    <button data-mode="pre" class="${compMode==='pre'?'on':''}"><b>Vor dem Start</b><span>dynamisch · ca. ${Math.round(totalSec(COMP.flatMap(p=>p.items),trC())/60)} Min.</span></button>
-    <button data-mode="post" class="${compMode==='post'?'on':''}"><b>Nach dem Lauf</b><span>statisch · ca. ${Math.round(totalSec(COOL.flatMap(p=>p.items),trC())/60)} Min.</span></button>
-  </div>
-  ${compMode==='pre'?`<div class="warn">${IC.warn}<div>Vor dem Start nur <b>kurze, bewegte Dehnung</b>. Lang gehaltene statische Dehnungen (über 60 s pro Muskel) können die Schnellkraft kurzzeitig senken. Taube, Frosch und lange Halteübungen kommen nach dem Lauf.</div></div>`:`<div class="note">Nach dem letzten Lauf oder am Abend. Jetzt darfst du lange halten: <b>ruhig ausatmen, nicht federn</b>.</div>`}
-  ${compMode==='pre'?`<div class="plan"><label for="stt">Dein Start um<input id="stt" type="time" value="${esc(S.startTime)}"></label><div class="out" id="planOut">${planText()}</div></div>`:''}
-  <button class="start" id="goComp">${IC.play}Programm starten <small>${mmss(totalSec(all,trC()))}</small></button>
-  ${prog.map(p=>`<div class="phase"><h3>${p.ph}<span>${mmss(p.items.reduce((s,x)=>s+x.t,0))}</span></h3><ol class="list">${p.items.map(it=>row(it)).join('')}</ol></div>`).join('')}`;
-  drawThumbs($('#v-wettkampf'));
-}
-function planText(){
-  const tot=Math.ceil(totalSec(COMP.flatMap(p=>p.items),trC())/60);
-  if(!S.startTime)return `Startzeit eintragen. Die App rechnet aus, wann du mit dem Programm beginnst (${tot} Min. + ${BUFFER_MIN} Min. Puffer für Weg und Schlitten).`;
-  const [h,m]=S.startTime.split(':').map(Number);let t=h*60+m-tot-BUFFER_MIN;t=(t+1440)%1440;
-  return `<b>${String(Math.floor(t/60)).padStart(2,'0')}:${String(t%60).padStart(2,'0')} Uhr</b>beginnen: ${tot} Min. Programm, danach ${BUFFER_MIN} Min. Puffer bis zum Start.`;
-}
-$('#v-wettkampf').addEventListener('input',e=>{if(e.target.id==='stt'){S.startTime=e.target.value;save();$('#planOut').innerHTML=planText();}});
-$('#v-wettkampf').addEventListener('click',e=>{
-  const m=e.target.closest('[data-mode]');if(m){compMode=m.dataset.mode;renderComp();return;}
-  const op=e.target.closest('[data-open]');if(op){openSheet(op.dataset.open);return;}
-  if(e.target.closest('#goComp')){const prog=compMode==='pre'?COMP:COOL;startPlayer({items:prog.flatMap(p=>p.items.map(x=>Object.assign({ph:p.ph},x))),trans:trC(),type:compMode==='pre'?'comp':'cool',block:compMode==='pre'?'W':'N',title:compMode==='pre'?'Wettkampf · vor dem Start':'Wettkampf · nach dem Lauf'});}
-});
-
-/* =========================================================
-   Ansicht: Übungen
-   ========================================================= */
-let fReg='all',fQ='';
-function renderLib(){
-  const v=$('#v-uebungen');
-  if(!v.dataset.init){
-    v.dataset.init=1;
-    v.innerHTML=`<div><div class="eyebrow">Bibliothek</div><h1 class="blk" style="margin-top:4px">${EX.length} Übungen</h1></div>
-    <label class="search">${IC.search}<input id="q" type="search" placeholder="Übung oder Muskel suchen, z. B. Piriformis" autocomplete="off"></label>
-    <div class="chips" id="regs"></div><div id="libList" style="display:flex;flex-direction:column;gap:10px"></div>`;
-    $('#q').addEventListener('input',e=>{fQ=e.target.value.trim().toLowerCase();renderLibList();});
-    v.addEventListener('click',e=>{
-      const r=e.target.closest('[data-reg]');if(r){fReg=r.dataset.reg;renderLibList();return;}
-      const op=e.target.closest('[data-open]');if(op)openSheet(op.dataset.open);
-    });
-  }
-  renderLibList();
-}
-function renderLibList(){
-  const regs=['all','back','hip','leg','start','warm'];
-  $('#regs').innerHTML=regs.map(r=>`<button data-reg="${r}" class="${fReg===r?'on':''}">${r==='all'?'Alle':regDot(r)+(REG[r].s||REG[r].n)}</button>`).join('');
-  const f=EX.filter(x=>(fReg==='all'||x.reg===fReg)&&(!fQ||(x.name+' '+x.mp.join(' ')+' '+x.ms.join(' ')).toLowerCase().includes(fQ)));
-  const groups=['back','hip','leg','start','warm'].map(r=>[r,f.filter(x=>x.reg===r)]).filter(g=>g[1].length);
-  $('#libList').innerHTML=groups.length?groups.map(([r,xs])=>`<div class="grp">${regDot(r)}${REG[r].n}</div><ol class="list">${xs.map(x=>`<li class="row"><canvas class="th" data-thumb="${x.id}" aria-hidden="true"></canvas><button class="main" data-open="${x.id}"><div class="nm">${esc(x.name)}</div><div class="sub">${esc(x.mp.join(' · '))}</div></button><div class="right"><span class="chip">${x.type==='dyn'?'dynamisch':'statisch'}</span></div></li>`).join('')}</ol>`).join(''):`<div class="note">Keine Übung gefunden. Versuch es mit einem Muskel wie „Wade“ oder „Adduktoren“.</div>`;
-  drawThumbs($('#libList'));
-}
-
-/* =========================================================
-   Detail-Sheet
-   ========================================================= */
-let sheetAnim=null,lastFocus=null;
-function openSheet(id){
-  const ex=EXM[id];prep(ex);lastFocus=document.activeElement;
-  const view=ex._fr[0].view==='top'?'Ansicht von oben':(ex._fr[0].view==='front'?'Ansicht von vorn':'Ansicht von der Seite');
-  $('#sheet').innerHTML=`
-  <div class="grab"><div><div class="eyebrow">${regDot(ex.reg)} ${REG[ex.reg].n}</div></div><button class="xbtn" id="shClose" aria-label="Schließen">${IC.x}</button></div>
-  <h2 id="sh-title">${esc(ex.name)}</h2>
-  <div class="pills"><span class="chip">${ex.type==='dyn'?'Dynamisch':'Statisch halten'}</span>${ex.sides?'<span class="chip">Beide Seiten</span>':''}<span class="chip">${esc(ex.dose)}</span></div>
-  <div class="stage" style="margin-top:14px">
-    <canvas id="shCv" aria-label="Animation: ${esc(ex.name)}"></canvas>
-    <div class="cap"><span class="dot" style="background:var(--accent)"></span>Zielzone · ${view}</div>
-    <div class="bar">
-      <button class="play" id="shPlay">${IC.play}<span>Bewegung ansehen</span></button>
-      <button class="speed" id="shSpeed" hidden>Tempo 1×</button>
-      <a class="ext" href="https://www.google.com/search?tbm=isch&q=${encodeURIComponent(ex.q)}" target="_blank" rel="noopener">Fotos im Web ↗</a>
-    </div>
-  </div>
-  <div class="sec"><h3>Zielmuskeln</h3><div class="musc">${ex.mp.map(m=>`<span class="chip p">${esc(m)}</span>`).join('')}${ex.ms.map(m=>`<span class="chip">${esc(m)}</span>`).join('')}</div></div>
-  <div class="sec"><h3>Ausgangsposition</h3><p>${esc(ex.start)}</p></div>
-  <div class="sec"><h3>Ausführung</h3><ol class="steps">${ex.steps.map(s=>`<li><span>${esc(s)}</span></li>`).join('')}</ol></div>
-  <div class="sec"><h3>Darauf achten</h3><p>${esc(ex.cue)}</p></div>
-  <div class="sec"><h3>Häufige Fehler</h3><ul class="bul">${ex.err.map(s=>`<li>${esc(s)}</li>`).join('')}</ul></div>
-  <div class="sec"><div class="sled"><b>Warum fürs Rodeln</b>${esc(ex.sled)}</div></div>
-  <div class="sec"><div class="two"><div class="mini"><b>Leichter</b>${esc(ex.easy)}</div><div class="mini"><b>Schwerer</b>${esc(ex.hard)}</div></div></div>
-  <div class="sec"><p style="font-size:13px;color:var(--muted)">Dehnen darf ziehen, aber nicht stechen. Bei Bandscheibenproblemen, Ischias oder Taubheitsgefühlen vorher mit Physio oder Arzt sprechen.</p></div>`;
-  $('#scrim').hidden=false;$('#sheet').scrollTop=0;
-  history.pushState({ov:'sheet'},'');
-  const cv=$('#shCv');
-  requestAnimationFrame(()=>{sheetAnim=animate(cv,id,{t:thumbT(ex),playing:false});});
-  $('#shClose').focus();
-}
-function closeSheet(fromPop){if($('#scrim').hidden)return;if(!fromPop&&history.state&&history.state.ov==='sheet'){ignorePop=true;history.back();}$('#scrim').hidden=true;const cv=$('#shCv');if(cv)live.delete(cv);$('#sheet').innerHTML='';sheetAnim=null;if(lastFocus&&lastFocus.focus)lastFocus.focus();}
-$('#scrim').addEventListener('click',e=>{
-  if(e.target.id==='scrim'||e.target.closest('#shClose')){closeSheet(false);return;}
-  if(e.target.closest('#shPlay')&&sheetAnim){
-    sheetAnim.playing=!sheetAnim.playing;sheetAnim.last=0;
-    $('#shPlay').innerHTML=sheetAnim.playing?IC.pause+'<span>Pause</span>':IC.play+'<span>Weiter</span>';
-    $('#shSpeed').hidden=false;return;
-  }
-  if(e.target.closest('#shSpeed')&&sheetAnim){sheetAnim.speed=sheetAnim.speed===1?.5:1;$('#shSpeed').textContent='Tempo '+(sheetAnim.speed===1?'1×':'½×');}
-});
-document.addEventListener('keydown',e=>{if(e.key==='Escape'){if(!$('#scrim').hidden)closeSheet(false);else if(!$('#player').hidden)askClose();}});
-
-/* =========================================================
-   Ansicht: Fortschritt
-   ========================================================= */
-let delArm=null;
-function renderProg(){
-  const d=new Date();const wd=(d.getDay()+6)%7;
-  const start=new Date(d.getFullYear(),d.getMonth(),d.getDate()-wd-28);
-  const byDay={};S.sessions.forEach(s=>{(byDay[s.date]=byDay[s.date]||[]).push(s.type);});
-  let cal='';['Mo','Di','Mi','Do','Fr','Sa','So'].forEach(h=>cal+=`<div class="h">${h}</div>`);
-  for(let k=0;k<35;k++){
-    const x=new Date(start.getFullYear(),start.getMonth(),start.getDate()+k);const key=dkey(x);
-    const t=byDay[key];const fut=x>d;
-    cal+=`<div class="d ${t?(t.some(y=>y!=='daily')?'comp':'has'):''} ${key===today()?'today':''}" style="${fut?'opacity:.35':''}" title="${key}">${x.getDate()}</div>`;
-  }
-  const tests=S.tests.slice().sort((a,b)=>a.date.localeCompare(b.date));
-  const sample=!tests.length;
-  const data=sample?[{date:'2026-09-01',cm:18},{date:'2026-09-08',cm:15},{date:'2026-09-15',cm:13},{date:'2026-09-22',cm:10}]:tests;
-  $('#v-fortschritt').innerHTML=`
-  <div><div class="eyebrow">Fortschritt</div><h1 class="blk" style="margin-top:4px">Dranbleiben</h1></div>
-  <div class="stats">
-    <div class="stat"><b>${streak()}</b><span>Tage in Folge</span></div>
-    <div class="stat"><b>${weekCount()}</b><span>Tage diese Woche</span></div>
-    <div class="stat"><b>${S.sessions.length}</b><span>Einheiten gesamt</span></div>
-  </div>
-  <div class="card">
-    <h2>Letzte 5 Wochen</h2>
-    <div class="cal">${cal}</div>
-    <div class="legend"><span><i style="background:var(--ink)"></i>Tagestraining</span><span><i style="background:var(--accent)"></i>Wettkampfprogramm</span></div>
-    <p>Ziel: 4–5 Tage pro Woche. Regelmäßigkeit bringt mehr als eine lange Einheit.</p>
-  </div>
-  <div class="card">
-    <h2>Vorbeuge-Test</h2>
-    <p>Alle 2–3 Wochen, aufgewärmt: Knie gestreckt, langsam vorbeugen, Abstand Mittelfinger zum Boden messen. 0 cm = Boden berührt, negative Werte = tiefer (auf einer Stufe stehend).</p>
-    ${chartSVG(data,sample)}
-    ${sample?'<p style="font-size:13px"><b style="color:var(--accent)">Beispielwerte.</b> Sobald du deinen ersten Test einträgst, siehst du hier deine eigene Kurve.</p>':''}
-    <form class="test" id="testForm">
-      <label for="tcm">Abstand in cm<input id="tcm" type="number" inputmode="decimal" step="0.5" min="-40" max="80" placeholder="z. B. 12" required></label>
-      <label for="tdate">Datum<input id="tdate" type="date" value="${today()}" required></label>
-      <button type="submit">Eintragen</button>
-    </form>
-    ${tests.length?`<ul class="entries">${tests.slice().reverse().map(t=>`<li><span>${fmtDate(t.date)}</span><span><b>${t.cm} cm</b> <button data-del="${t.date}|${t.cm}" class="${delArm===t.date+'|'+t.cm?'really':''}">${delArm===t.date+'|'+t.cm?'Wirklich löschen?':'Löschen'}</button></span></li>`).join('')}</ul>`:''}
-  </div>
-  <div class="card" id="settings">
-    <h2>Einstellungen</h2>
-    <div>
-      ${isStandalone()?'':(deferredPrompt?`<div class="set"><span>App installieren<small>Eigenes Symbol auf dem Startbildschirm, Vollbild, funktioniert offline</small></span><button class="sbtn" id="instGo2">Installieren</button></div>`:'')}
-      <div class="set stack"><span>Installation prüfen<small>Zeigt, ob Chrome die App installieren kann und was fehlt</small></span><button class="sbtn" id="chkBtn">Jetzt prüfen</button></div>
-      <div id="chkOut" hidden></div>
-      <div class="set stack"><span>Darstellung</span><div class="opts">${[['system','Auto'],['light','Hell'],['dark','Dunkel']].map(([k,l])=>`<button data-theme-set="${k}" class="${S.theme===k?'on':''}">${l}</button>`).join('')}</div></div>
-      <div class="set stack"><span>Vorbereitung<small>Zeit zum Einnehmen der Position</small></span><div class="opts">${[3,5,10].map(v=>`<button data-prep="${v}" class="${S.prep===v?'on':''}">${v} s</button>`).join('')}</div></div>
-      <div class="set stack"><span>Pause beim Seitenwechsel<small>Timer hält kurz an</small></span><div class="opts">${[0,3,5].map(v=>`<button data-sp="${v}" class="${S.switchPause===v?'on':''}">${v?v+' s':'Aus'}</button>`).join('')}</div></div>
-      <div class="set"><span>Vibration<small>Kurzes Vibrieren bei Start, Seitenwechsel und Ende</small></span><button class="tog" data-set="vibrate" aria-pressed="${S.vibrate}" aria-label="Vibration"></button></div>
-      <div class="set"><span>Signaltöne<small>Piepton in den letzten 3 Sekunden und beim Seitenwechsel</small></span><button class="tog" data-set="sound" aria-pressed="${S.sound}" aria-label="Signaltöne"></button></div>
-      <div class="set"><span>Sprachansage<small>Liest den Namen der nächsten Übung vor</small></span><button class="tog" data-set="voice" aria-pressed="${S.voice}" aria-label="Sprachansage"></button></div>
-      <div class="set stack"><span>Datensicherung<small>Sichern, bevor du das Handy wechselst oder den Browser-Speicher löschst</small></span><div class="btnrow"><button class="sbtn" id="expBtn">Exportieren</button><button class="sbtn" id="impBtn">Importieren</button></div></div>
-      <div class="set"><span>Alle Daten löschen<small>Einheiten, Tests und Einstellungen auf diesem Gerät</small></span><button class="linkbtn" id="wipe">${delArm==='ALL'?'Wirklich alles löschen?':'Zurücksetzen'}</button></div>
-    </div>
-    <p style="font-size:13px">Deine Daten liegen auf diesem Gerät. Mit dem Sync der Training-App werden sie zusätzlich in deiner privaten Cloud gesichert.</p>
-    <div class="card" style="margin-top:14px"><h2 style="font-size:16px;margin:0 0 6px">Wissenschaftliche Grundlagen</h2>
-      <p style="font-size:13px;margin:0 0 6px">Vor dem Start nur bewegtes, kurzes Dehnen: lange statische Dehnung (über 60 s je Muskel) kann die Schnellkraft kurzzeitig senken – Behm et al. 2016; Opplert &amp; Babault 2018.</p>
-      <p style="font-size:13px;margin:0 0 6px">Beweglichkeit wächst vor allem mit der gesamten Dehnzeit pro Woche und Muskel; regelmäßig (4–5 Tage pro Woche) bringt mehr als selten und lang – Thomas et al. 2018.</p>
-      <p style="font-size:13px;margin:0">Der Vorbeuge-Test (Finger-Boden-Abstand) ist ein einfaches, wiederholbares Maß für die Beweglichkeit der Beinrückseite – nur mit sich selbst vergleichen, immer aufgewärmt.</p>
-    </div>
-  </div>`;
-}
-function fmtDate(k){const [y,m,d]=k.split('-');return `${+d}.${+m}.${y}`;}
-function chartSVG(data,sample){
-  const W=340,H=170,l=34,r=12,t=14,b=26;
-  const vals=data.map(d=>d.cm);let mn=Math.min(0,...vals),mx=Math.max(...vals,5);
-  const span=mx-mn;const step=span>40?20:span>20?10:5;mn=Math.floor(mn/step)*step;mx=Math.ceil(mx/step)*step;
-  const n=data.length;
-  const X=i=>n===1?(l+(W-l-r)/2):l+i*(W-l-r)/(n-1);
-  const Y=v=>t+(v-mn)/(mx-mn)*(H-t-b); // invertiert: kleinere Werte (besser) oben
-  let g='';
-  for(let v=mn;v<=mx;v+=step){g+=`<line x1="${l}" x2="${W-r}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)" stroke-width="1"/><text x="${l-6}" y="${Y(v)+4}" text-anchor="end" font-size="11" fill="var(--muted)">${v}</text>`;}
-  const zero=`<line x1="${l}" x2="${W-r}" y1="${Y(0)}" y2="${Y(0)}" stroke="var(--accent)" stroke-width="1.5" stroke-dasharray="4 3"/><text x="${W-r}" y="${Y(0)-5}" text-anchor="end" font-size="11" fill="var(--accent)" font-weight="600">Boden</text>`;
-  const pts=data.map((d,i)=>`${X(i)},${Y(d.cm)}`).join(' ');
-  const area=n>1?`<polygon points="${X(0)},${H-b} ${pts} ${X(n-1)},${H-b}" fill="var(--ink)" opacity=".06"/>`:'';
-  const dots=data.map((d,i)=>`<circle cx="${X(i)}" cy="${Y(d.cm)}" r="${i===n-1?5:3.5}" fill="${i===n-1?'var(--accent)':'var(--surface)'}" stroke="${i===n-1?'var(--accent)':'var(--ink)'}" stroke-width="2"/>`).join('');
-  const lastL=`<text x="${X(n-1)}" y="${Y(data[n-1].cm)-10}" text-anchor="${n>1?'end':'middle'}" font-size="12" font-weight="600" fill="var(--ink)">${data[n-1].cm} cm</text>`;
-  const xl=data.map((d,i)=>(n<=6||i===0||i===n-1)?`<text x="${X(i)}" y="${H-8}" text-anchor="middle" font-size="10.5" fill="var(--muted)">${fmtDate(d.date).split('.').slice(0,2).join('.')}.</text>`:'').join('');
-  return `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Verlauf Finger-Boden-Abstand${sample?' (Beispiel)':''}" style="${sample?'opacity:.75':''}">${g}${zero}${area}${n>1?`<polyline points="${pts}" fill="none" stroke="var(--ink)" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>`:''}${dots}${lastL}${xl}</svg>`;
-}
-$('#v-fortschritt').addEventListener('submit',e=>{
-  if(e.target.id!=='testForm')return;e.preventDefault();
-  const cm=parseFloat($('#tcm').value);const date=$('#tdate').value||today();
-  if(isNaN(cm))return;
-  S.tests=S.tests.filter(t=>t.date!==date);S.tests.push({date,cm});save();delArm=null;renderProg();
-});
-$('#v-fortschritt').addEventListener('click',e=>{
-  const st=e.target.closest('[data-set]');if(st){const k=st.dataset.set;S[k]=!S[k];save();st.setAttribute('aria-pressed',S[k]);if(k==='voice'&&S.voice)speak('Sprachansage an');if(k==='vibrate'&&S.vibrate)vib(80);return;}
-  const dl=e.target.closest('[data-del]');
-  if(dl){const k=dl.dataset.del;if(delArm===k){const [d,c]=k.split('|');S.tests=S.tests.filter(t=>!(t.date===d&&String(t.cm)===c));save();delArm=null;}else delArm=k;renderProg();return;}
-  if(e.target.closest('#wipe')){if(delArm==='ALL'){S=structuredClone(DEF);save();delArm=null;applyTheme();toast('Alle Daten gelöscht');}else delArm='ALL';renderProg();return;}
-  const th=e.target.closest('[data-theme-set]');if(th){S.theme=th.dataset.themeSet;save();applyTheme();renderProg();return;}
-  const pr=e.target.closest('[data-prep]');if(pr){S.prep=+pr.dataset.prep;save();renderProg();return;}
-  const sp=e.target.closest('[data-sp]');if(sp){S.switchPause=+sp.dataset.sp;save();renderProg();return;}
-  if(e.target.closest('#expBtn')){exportData();return;}
-  if(e.target.closest('#impBtn')){$('#impFile').click();return;}
-  if(e.target.closest('#instGo2')){doInstall();return;}
-  if(e.target.closest('#chkBtn')){checkInstall();return;}
-});
-
-/* =========================================================
-   Player
-   ========================================================= */
-let PL=null,actx=null,wake=null;
-function beep(f=880,d=.12,v=.25){
-  if(!S.sound)return;
-  try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();const o=actx.createOscillator(),g=actx.createGain();o.frequency.value=f;o.type='sine';g.gain.setValueAtTime(v,actx.currentTime);g.gain.exponentialRampToValueAtTime(.001,actx.currentTime+d);o.connect(g);g.connect(actx.destination);o.start();o.stop(actx.currentTime+d+.02);}catch(e){}
-}
-function vib(p){if(!S.vibrate)return;try{navigator.vibrate&&navigator.vibrate(p);}catch(e){}}
-function speak(txt){
-  if(!S.voice)return;
-  try{const u=new SpeechSynthesisUtterance(txt);u.lang='de-DE';u.rate=1.02;speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){}
-}
-function startPlayer(cfg){
-  try{actx=actx||new (window.AudioContext||window.webkitAudioContext)();actx.resume&&actx.resume();}catch(e){}
-  PL={cfg,i:0,phase:'prep',left:cfg.trans,paused:false,last:performance.now(),elapsed:0,side:0,hold:0,beeped:{}};
-  history.pushState({ov:'player'},'');
-  const pl=$('#player');pl.hidden=false;document.body.style.overflow='hidden';
-  pl.innerHTML=`
-  <div class="ph"><div class="prog" id="plProg">${cfg.items.map(()=>'<i><b></b></i>').join('')}</div><button class="xbtn" id="plX" aria-label="Training beenden">${IC.x}</button></div>
-  <div class="body" id="plBody">
-    <div class="pstage"><canvas id="plCv"></canvas><div class="side" id="plSide" hidden></div><div class="flash" id="plFlash" hidden></div></div>
-    <div class="pinfo"><div class="k" id="plK"></div><h2 id="plName"></h2><p id="plNote"></p></div>
-    <div class="clock"><div class="t" id="plT">0:00</div><div class="nx" id="plNx"></div></div>
-    <div class="tbar"><b id="plBar"></b></div>
-    <div class="ctrl"><button id="plPrev" aria-label="Vorherige Übung">${IC.prev}</button><button class="big" id="plPlay" aria-label="Pause">${IC.pause}</button><button id="plNext" aria-label="Nächste Übung">${IC.next}</button></div>
-  </div>`;
-  try{navigator.wakeLock&&navigator.wakeLock.request('screen').then(w=>wake=w).catch(()=>{});}catch(e){}
-  PL.anim=animate($('#plCv'),cfg.items[0].id,{playing:true});
-  showItem();
-  speak('Als Nächstes: '+(cfg.items[0].label||EXM[cfg.items[0].id].name));
-  requestAnimationFrame(tick);
-}
-function showItem(){
-  const it=PL.cfg.items[PL.i],ex=EXM[it.id];
-  PL.anim.id=it.id;PL.anim.t=0;PL.anim.mirror=false;
-  $('#plK').textContent=PL.phase==='prep'?'Gleich · '+(PL.i+1)+' von '+PL.cfg.items.length:(it.ph?it.ph+' · ':'')+(PL.i+1)+' von '+PL.cfg.items.length;
-  $('#plName').textContent=it.label||ex.name;
-  $('#plNote').textContent=it.note||'';
-  const n=PL.cfg.items[PL.i+1];
-  $('#plNx').innerHTML=PL.phase==='prep'?`<span>Dauer</span><b>${it.sides?'2 × '+mmss(it.t/2):mmss(it.t)}</b>`:(n?`<span>Danach</span><b>${esc(n.label||EXM[n.id].name)}</b>`:'<span>Danach</span><b>Geschafft</b>');
-  $('#plT').classList.toggle('prep',PL.phase==='prep');
-  const sd=$('#plSide');
-  if(it.sides&&PL.phase==='work'){sd.hidden=false;sd.textContent=PL.side?'Linke Seite':'Rechte Seite';}else sd.hidden=true;
-  [...$('#plProg').children].forEach((el,j)=>{el.firstChild.style.transform=`scaleX(${j<PL.i?1:0})`;});
-}
-function tick(now){
-  if(!PL)return;
-  const dt=Math.min(.25,(now-PL.last)/1000);PL.last=now;
-  if(!PL.paused&&PL.hold>0){
-    PL.hold-=dt;const f=$('#plFlash');f.hidden=false;f.textContent='Seite wechseln · '+Math.max(1,Math.ceil(PL.hold));
-    if(PL.hold<=0){f.hidden=true;beep(1320,.2,.3);vib(150);}
-  }else if(!PL.paused){
-    PL.left-=dt;
-    const it=PL.cfg.items[PL.i];
-    const sec=Math.ceil(PL.left);
-    if(sec<=3&&sec>=1&&!PL.beeped[PL.phase+sec]){PL.beeped[PL.phase+sec]=1;beep(880,.1,.2);vib(35);}
-    if(PL.phase==='work'){
-      PL.elapsed+=dt;
-      if(it.sides&&!PL.side&&PL.left<=it.t/2){
-        PL.side=1;PL.anim.mirror=true;beep(1320,.12);setTimeout(()=>beep(1320,.12),180);speak('Seite wechseln');vib([120,80,120]);
-        showItem();if(S.switchPause>0){PL.hold=S.switchPause;}else flash('Seite wechseln');
-      }
-    }
-    if(PL.left<=0)advance();
-  }
-  if(!PL)return;
-  const it=PL.cfg.items[PL.i];
-  const tot=PL.phase==='prep'?PL.cfg.trans:it.t;
-  $('#plT').textContent=mmss(PL.left);
-  $('#plBar').style.transform=`scaleX(${Math.min(1,1-PL.left/tot)})`;
-  if(PL.phase==='work')$('#plProg').children[PL.i].firstChild.style.transform=`scaleX(${Math.min(1,1-PL.left/tot)})`;
-  PL.anim.playing=!PL.paused;
-  requestAnimationFrame(tick);
-}
-function flash(txt){const f=$('#plFlash');f.textContent=txt;f.hidden=false;clearTimeout(flash.t);flash.t=setTimeout(()=>f.hidden=true,1100);}
-function advance(){
-  const it=PL.cfg.items[PL.i];
-  if(PL.phase==='prep'){PL.phase='work';PL.left=it.t;PL.side=0;PL.beeped={};beep(1320,.25,.3);vib(200);flash('Los');showItem();return;}
-  if(PL.i<PL.cfg.items.length-1){
-    PL.i++;PL.phase='prep';PL.left=PL.cfg.trans;PL.beeped={};showItem();
-    const n=PL.cfg.items[PL.i];speak('Als Nächstes: '+(n.label||EXM[n.id].name));
-  }else finish();
-}
-function jump(d){
-  const ni=PL.i+d;
-  if(ni<0){PL.phase='prep';PL.left=PL.cfg.trans;}
-  else if(ni>=PL.cfg.items.length){finish();return;}
-  else{PL.i=ni;PL.phase='prep';PL.left=PL.cfg.trans;}
-  PL.beeped={};PL.side=0;PL.hold=0;$('#plFlash').hidden=true;showItem();
-}
-function finish(){
-  const cfg=PL.cfg;const mins=Math.max(1,Math.round(PL.elapsed/60));
-  S.sessions.push({date:today(),type:cfg.type,block:cfg.block,sec:Math.round(PL.elapsed)});
-  if(cfg.type==='daily')S.next=(BLOCKS.findIndex(b=>b.k===cfg.block)+1)%3;
-  save();beep(1046,.18);setTimeout(()=>beep(1318,.3),200);speak('Geschafft');vib([200,100,200]);
-  live.delete($('#plCv'));
-  const nx=cfg.type==='daily'?`Morgen ist Block ${BLOCKS[S.next].k} dran: ${BLOCKS[S.next].name}.`:(cfg.type==='comp'?'Viel Erfolg auf der Bahn.':'Gute Erholung.');
-  $('#plBody').innerHTML=`<div class="fin"><div class="eyebrow">${esc(cfg.title)}</div><h2>Geschafft</h2><p>${mins} Min. aktiv, ${cfg.items.length} Übungen. ${nx}</p><div class="stats"><div class="stat"><b>${streak()}</b><span>Tage in Folge</span></div><div class="stat"><b>${weekCount()}</b><span>diese Woche</span></div><div class="stat"><b>${S.sessions.length}</b><span>gesamt</span></div></div><button class="start" id="plDone">Fertig</button></div>`;
-  [...$('#plProg').children].forEach(el=>el.firstChild.style.transform='scaleX(1)');
-  PL=null;
-}
-let ignorePop=false;
-function closePlayer(fromPop){if(!fromPop&&history.state&&history.state.ov==='player'){ignorePop=true;history.back();}PL=null;live.delete($('#plCv'));const pl=$('#player');pl.hidden=true;pl.innerHTML='';document.body.style.overflow='';try{wake&&wake.release();}catch(e){}wake=null;try{speechSynthesis.cancel();}catch(e){}renderAll();}
-function askClose(){
-  if(!PL){closePlayer(false);return;}
-  PL.paused=true;updPlay();
-  const b=$('#plBody');if($('#plAsk'))return;
-  const d=document.createElement('div');d.id='plAsk';d.className='warn';d.style.marginBottom='6px';
-  d.innerHTML=`${IC.warn}<div style="flex:1">Training beenden? Die Einheit wird dann nicht gespeichert.<div style="display:flex;gap:14px;margin-top:8px"><button class="linkbtn" id="plQuit">Beenden</button><button class="linkbtn" id="plStay" style="color:var(--ink)">Weitermachen</button></div></div>`;
-  b.insertBefore(d,b.firstChild);
-}
-function updPlay(){const b=$('#plPlay');if(b){b.innerHTML=PL&&PL.paused?IC.play:IC.pause;b.setAttribute('aria-label',PL&&PL.paused?'Weiter':'Pause');}}
-$('#player').addEventListener('click',e=>{
-  if(e.target.closest('#plDone')){closePlayer(false);return;}
-  if(e.target.closest('#plX')){askClose();return;}
-  if(e.target.closest('#plQuit')){closePlayer(false);return;}
-  if(e.target.closest('#plStay')){$('#plAsk').remove();if(PL){PL.paused=false;PL.last=performance.now();updPlay();}return;}
-  if(!PL)return;
-  if(e.target.closest('#plPlay')){PL.paused=!PL.paused;PL.last=performance.now();updPlay();return;}
-  if(e.target.closest('#plNext')){jump(1);return;}
-  if(e.target.closest('#plPrev')){jump(PL.phase==='work'&&PL.left<(PL.cfg.items[PL.i].t-3)?0:-1);return;}
-});
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&$('#player').hidden===false){try{navigator.wakeLock&&navigator.wakeLock.request('screen').then(w=>wake=w).catch(()=>{});}catch(e){}}});
-
-/* =========================================================
-   Navigation
-   ========================================================= */
-const TABS=['heute','wettkampf','uebungen','fortschritt'];
-let tab='heute';
-function setTab(t,o={}){
-  if(!o.fromPop&&!o.init){
-    if(t!=='heute'&&tab==='heute')history.pushState({tab:t},'');
-    else if(t!=='heute')history.replaceState({tab:t},'');
-    else if(t==='heute'&&history.state&&history.state.tab){history.back();return;}
-  }
-  tab=t;TABS.forEach(x=>{$('#v-'+x).hidden=x!==t;});
-  document.querySelectorAll('.tabbar button').forEach(b=>{b.classList.toggle('on',b.dataset.tab===t);b.setAttribute('aria-current',b.dataset.tab===t?'page':'false');});
-  try{localStorage.setItem(KEY+'.tab',t);}catch(e){}
-  renderTab();window.scrollTo(0,0);
-}
-function renderTab(){if(tab==='heute')renderHeute();if(tab==='wettkampf')renderComp();if(tab==='uebungen')renderLib();if(tab==='fortschritt')renderProg();}
-function renderAll(){renderTab();}
-document.querySelector('.tabbar').addEventListener('click',e=>{const b=e.target.closest('[data-tab]');if(b)setTab(b.dataset.tab);});
-$('#today').textContent=new Date().toLocaleDateString('de-DE',{weekday:'short',day:'numeric',month:'short'});
-function onTheme(){readColors();drawThumbs();updMeta();}
-function updMeta(){const m=document.querySelector('meta[name="theme-color"]');if(m)m.setAttribute('content',getComputedStyle(document.documentElement).getPropertyValue('--bg').trim()||'#EAF0F2');}
-function applyTheme(){const r=document.documentElement;if(S.theme==='system'){if(r.dataset.themeByApp){r.removeAttribute('data-theme');delete r.dataset.themeByApp;}}else{r.setAttribute('data-theme',S.theme);r.dataset.themeByApp='1';}onTheme();}
-window.addEventListener('popstate',()=>{
-  if(ignorePop){ignorePop=false;return;}
-  if(!$('#player').hidden){if(PL){history.pushState({ov:'player'},'');askClose();}else closePlayer(true);return;}
-  if(!$('#scrim').hidden){closeSheet(true);return;}
-  if(tab!=='heute')setTab('heute',{fromPop:true});
-});
-$('#gear').addEventListener('click',()=>{setTab('fortschritt');requestAnimationFrame(()=>{const el=$('#settings');if(el)el.scrollIntoView({behavior:'smooth',block:'start'});});});
-/* Installation */
-let deferredPrompt=null;
-const isStandalone=()=>{try{return matchMedia('(display-mode: standalone)').matches||navigator.standalone===true;}catch(e){return false;}};
-window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;renderTab();});
-window.addEventListener('appinstalled',()=>{deferredPrompt=null;toast('App installiert');renderTab();});
-function installBanner(){
-  if(!deferredPrompt||isStandalone()||S.installHide)return '';
-  return `<div class="install"><div><b>Als App installieren</b>Startbildschirm-Symbol, Vollbild, offline nutzbar.</div><button id="instGo">Installieren</button><button class="no" id="instNo" aria-label="Hinweis ausblenden">${IC.x}</button></div>`;
-}
-async function doInstall(){if(!deferredPrompt)return;deferredPrompt.prompt();try{await deferredPrompt.userChoice;}catch(e){}deferredPrompt=null;renderTab();}
-/* Datensicherung */
-function exportData(){
-  try{const blob=new Blob([JSON.stringify(S,null,1)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='rodel-mobility-'+today()+'.json';document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},500);toast('Sicherung gespeichert');}catch(e){toast('Export hat nicht geklappt');}
-}
-$('#impFile').addEventListener('change',e=>{
-  const f=e.target.files&&e.target.files[0];if(!f)return;const r=new FileReader();
-  r.onload=()=>{try{const d=JSON.parse(r.result);if(!d||!Array.isArray(d.sessions))throw 0;S=Object.assign(structuredClone(DEF),d);save();applyTheme();renderTab();toast('Sicherung geladen: '+S.sessions.length+' Einheiten');}catch(err){toast('Datei ist keine Mobility-Sicherung');}e.target.value='';};
-  r.readAsText(f);
-});
-async function checkInstall(){
-  const out=$('#chkOut');out.hidden=false;out.innerHTML='<p style="padding:8px 0">Prüfe …</p>';
-  const R=[];const add=(ok,t,h)=>R.push({ok,t,h});
-  const host=location.hostname;
-  const preview=/claude|anthropic|usercontent/.test(host)||location.protocol==='file:'||location.protocol==='blob:';
-  if(preview){add(false,'Du bist nicht auf deiner GitHub-Adresse',location.protocol==='file:'?'Die Datei wurde direkt vom Handy geöffnet. Chrome installiert nur Apps von einer https-Adresse, also über GitHub Pages.':'Das ist die Vorschau in Claude. Installieren geht nur über deine GitHub-Adresse, z. B. https://NAME.github.io/rodel-mobility/');}
-  else add(window.isSecureContext,'Sichere Adresse (https)',window.isSecureContext?'':'Die Adresse muss mit https:// beginnen.');
-  let man=null;
-  try{const r=await fetch('manifest.webmanifest',{cache:'no-store'});if(r.ok)man=await r.json();}catch(e){}
-  add(!!man,'App-Beschreibung (manifest.webmanifest) gefunden',man?'':'Datei fehlt im Repository oder liegt in einem Unterordner. Sie muss neben index.html liegen.');
-  if(man){
-    let bad=[];
-    for(const ic of man.icons||[]){try{const r=await fetch(ic.src,{cache:'no-store'});if(!r.ok)bad.push(ic.src);}catch(e){bad.push(ic.src);}}
-    add(!bad.length,'App-Symbole erreichbar',bad.length?'Fehlt: '+bad.join(', ')+'. Diese Dateien neben index.html hochladen.':'');
-  }
-  let sw=false;
-  try{sw=!!(navigator.serviceWorker&&await navigator.serviceWorker.getRegistration());}catch(e){}
-  add(sw,'Offline-Modus (sw.js) aktiv',sw?'':'sw.js fehlt oder wurde noch nicht geladen. Seite einmal neu laden.');
-  if(isStandalone())add(true,'App ist bereits installiert','');
-  else add(!!deferredPrompt,'Chrome bietet die Installation an',deferredPrompt?'Tippe oben auf „Installieren“.':'Noch nicht. Wenn alles darüber grün ist: Seite neu laden, 30 Sekunden warten, dann Menü ⋮ → „App installieren“ oder „Zum Startbildschirm hinzufügen“.');
-  out.innerHTML='<ul class="entries" style="margin:6px 0 10px">'+R.map(x=>`<li style="align-items:flex-start"><span><b style="color:${x.ok?'var(--r-leg)':'var(--accent)'}">${x.ok?'✓':'✗'}</b> ${esc(x.t)}${x.h?`<small style="display:block;color:var(--muted)">${esc(x.h)}</small>`:''}</span></li>`).join('')+'</ul>';
-}
-function toast(t){const el=$('#toast');el.textContent=t;el.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>el.hidden=true,2600);}
-try{matchMedia('(prefers-color-scheme: dark)').addEventListener('change',onTheme);}catch(e){}
-new MutationObserver(onTheme).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
-let rz;window.addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(()=>drawThumbs(),150);});
-(function init(){
-  let t='heute';const h=(location.hash||'').slice(1);
-  if(TABS.includes(h))t=h;else{try{const s=localStorage.getItem(KEY+'.tab');if(TABS.includes(s))t=s;}catch(e){}}
-  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>drawThumbs());
-  try{history.replaceState({root:1},'');}catch(e){}
-  applyTheme();
-  setTab('heute',{init:true});
-  if(t!=='heute')setTab(t);
+/* ---------- Start ---------- */
+(async function () {
+  await loadMapImg();
+  const h = location.hash.replace("#", "");
+  show(h === "plan" || h === "buch" ? h : S.tracks.length && S.cur ? "plan" : "bahnen");
 })();
 </script>
-
-<script>
-if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(()=>{});});}
-</script>
 <!-- gemeinsamer-kalender:start -->
-<script data-app="rodeln">
+<script data-app="bahnplan">
 /* SportGermany-Verbund (v2): gemeinsamer Kalender, App-Wechsel und Cloud-Sync für alle Apps.
  * Alle Apps liegen auf sportgermany.github.io und teilen sich deshalb denselben localStorage.
  * Kalender und App-Daten werden zusätzlich in einem privaten GitHub-Gist gespeichert und so

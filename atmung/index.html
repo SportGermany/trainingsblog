@@ -203,7 +203,8 @@ details ul, details ol { margin: 0; padding-left: 20px; display: flex; flex-dire
     rodeln: { bg: "bg", surface: "s1", surface2: "s2", ink: "ink", muted: "muted", line: "line", accent: "acc", "accent-soft": "accsoft", "accent-ink": "accfg", mat: "s2", floor: "s3", far: "faint" },
     lernplan: { bg: "bg", surface: "s1", surface2: "s2", text: "ink", muted: "muted", line: "line", weekend: "bg", grid: "line", accent: "acc", "accent-soft": "accsoft" },
     puls: { bg: "bg", surface: "s1", ink: "ink", muted: "muted", line: "line", breath: "acc", "breath-soft": "accsoft" },
-    kalender: { bg: "bg", s1: "s1", s2: "s2", s3: "s3", line: "line", line2: "s2", ink: "ink", muted: "muted", faint: "faint", acc: "acc", accfg: "accfg" }
+    kalender: { bg: "bg", s1: "s1", s2: "s2", s3: "s3", line: "line", line2: "s2", ink: "ink", muted: "muted", faint: "faint", acc: "acc", accfg: "accfg" },
+    bahn: { bg: "bg", s1: "s1", s2: "s2", s3: "s3", line: "line", ink: "ink", muted: "muted", faint: "faint", acc: "acc", accfg: "accfg" }
   };
   // Laptop-Anpassungen: schmale Handy-Spalten verbreitern, zu breite Seiten mittig begrenzen
   // Doppelte Design-Schalter der einzelnen Apps ausblenden: Farben kommen für alle aus dem Bereich „Design“.
@@ -256,7 +257,8 @@ details ul, details ol { margin: 0; padding-left: 20px; display: flex; flex-dire
     panel: [".nav", ".tab.on"],
     rodeln: [".tabbar", ".tabbar button.on"],
     puls: ["nav.tabs", "nav.tabs button.on"],
-    bibel: [".tabbar", ".tabbar button.active"]
+    bibel: [".tabbar", ".tabbar button.active"],
+    bahn: [".tabs", ".tabs button.on"]
   };
   /* Natürlicher Aufbau wie in den iOS-Einstellungen: Inhalte auf ruhigen, gruppierten Flächen (ohne Rahmen, ohne Glas),
    * Glas nur für Leisten und Menüs, die über dem Inhalt schweben. Die untere Leiste rückt nach rechts, wenn links der App-Knopf sitzt. */
@@ -1577,13 +1579,14 @@ if ("serviceWorker" in navigator && location.protocol !== "file:") {
     { id: "planer", name: "Planer", cal: "Kalender", path: "Schulplaner", color: "#6ea8fe", info: "Kalender, Schule, Aufgaben, Pausen",
       sections: [["Heute", "#brief"], ["Kalender", "#cal"], ["Aufgaben", "#tasks"], ["Schule", "#schule"], ["Pause", "#pause"]], owns: ["lernplan", "denkpause"] },
     { id: "training", name: "Training", cal: "Training", path: "trainingsblog", color: "#4fc18a", info: "Training, Mobility, Atmung und HRV",
-      sections: [["Heute", ""], ["Mobility", "#mobility"], ["Atmung", "#atmung"]], owns: ["training", "rodeln", "puls"] },
+      sections: [["Heute", ""], ["Mobility", "#mobility"], ["Atmung", "#atmung"], ["Bahnplan", "#bahnplan"]], owns: ["training", "rodeln", "puls", "bahnplan"] },
     { id: "bibel", name: "Bibel", cal: "Bibel", path: "Bibel", color: "#c9a27a", info: "Ganze Elberfelder Bibel · ohne Cloud", sections: [], owns: [] }
   ];
   // Eingebettete Module: gehören zu einer App, haben selbst keinen Knopf und keinen eigenen Sync
   var MODULES = [
     { id: "lernplan", name: "Lernplan", app: "planer" }, { id: "denkpause", name: "Denkpause", app: "planer" },
-    { id: "rodeln", name: "Rodel-Mobility", app: "training" }, { id: "puls", name: "Pulsplan", app: "training" }
+    { id: "rodeln", name: "Rodel-Mobility", app: "training" }, { id: "puls", name: "Pulsplan", app: "training" },
+    { id: "bahnplan", name: "Bahnplan", app: "training" }
   ];
   /* Datengruppen für den Cloud-Sync (Dateiname im Gist: app-<id>.json).
    * Bewusst NICHT dabei: gerätebezogene Daten wie Zugangsschlüssel, Wetter-Cache oder Fensterstellungen
@@ -1596,7 +1599,8 @@ if ("serviceWorker" in navigator && location.protocol !== "file:") {
     { id: "denkpause", name: "Pause (Denkpause)", keys: ["denkpause.v1"] },
     { id: "training", name: "Training", keys: ["wk_settings", "wk_log", "wk_activities", "wk_runs", "wk_body", "wk_colors", "wk_custom_ex", "wk_custom_gym", "wk_freezes", "wk_gymlog", "wk_illness_active", "wk_injury_active", "wk_injurydays", "wk_onboarded", "wk_race", "wk_rests", "wk_sections", "wk_sickdays", "wk_skin", "wk_swaps", "wk_trainedoverride", "wk_vacation", "wk_weekgoal", "wk_widgets"] },
     { id: "rodeln", name: "Mobility", keys: ["rodelmobility.v1"] },
-    { id: "puls", name: "Atmung & HRV", keys: ["pulsplan.v1"] }
+    { id: "puls", name: "Atmung & HRV", keys: ["pulsplan.v1"] },
+    { id: "bahnplan", name: "Bahnplan", keys: ["bahnplan.v1"] }
   ];
   // Farben der Kalender-Quellen (Eintrag.app); alte Namen bleiben gültig
   var SOURCES = [
@@ -3057,6 +3061,8 @@ if ("serviceWorker" in navigator && location.protocol !== "file:") {
     add("Training", "Mobility vor/nach dem Wettkampf", function () { go("training", "#mobility/wettkampf"); });
     add("Training", "Atemübung starten", function () { go("training", "#atmung/train"); });
     add("Training", "Morgen-HRV messen", function () { go("training", "#atmung"); });
+    add("Training", "Bahnplan öffnen", function () { go("training", "#bahnplan"); });
+    add("Training", "Kurvenbuch drucken", function () { go("training", "#bahnplan/buch"); });
     add("Training", "Atemplan dieser Woche", function () { go("training", "#atmung/week"); });
     add("Bibel", "Heute lesen", function () { go("bibel", "#lesen"); });
     add("Bibel", "Bibliothek (alle Bücher)", function () { go("bibel", "#bibliothek"); });

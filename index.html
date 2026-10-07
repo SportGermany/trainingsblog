@@ -1157,7 +1157,8 @@
     rodeln: { bg: "bg", surface: "s1", surface2: "s2", ink: "ink", muted: "muted", line: "line", accent: "acc", "accent-soft": "accsoft", "accent-ink": "accfg", mat: "s2", floor: "s3", far: "faint" },
     lernplan: { bg: "bg", surface: "s1", surface2: "s2", text: "ink", muted: "muted", line: "line", weekend: "bg", grid: "line", accent: "acc", "accent-soft": "accsoft" },
     puls: { bg: "bg", surface: "s1", ink: "ink", muted: "muted", line: "line", breath: "acc", "breath-soft": "accsoft" },
-    kalender: { bg: "bg", s1: "s1", s2: "s2", s3: "s3", line: "line", line2: "s2", ink: "ink", muted: "muted", faint: "faint", acc: "acc", accfg: "accfg" }
+    kalender: { bg: "bg", s1: "s1", s2: "s2", s3: "s3", line: "line", line2: "s2", ink: "ink", muted: "muted", faint: "faint", acc: "acc", accfg: "accfg" },
+    bahn: { bg: "bg", s1: "s1", s2: "s2", s3: "s3", line: "line", ink: "ink", muted: "muted", faint: "faint", acc: "acc", accfg: "accfg" }
   };
   // Laptop-Anpassungen: schmale Handy-Spalten verbreitern, zu breite Seiten mittig begrenzen
   // Doppelte Design-Schalter der einzelnen Apps ausblenden: Farben kommen für alle aus dem Bereich „Design“.
@@ -1210,7 +1211,8 @@
     panel: [".nav", ".tab.on"],
     rodeln: [".tabbar", ".tabbar button.on"],
     puls: ["nav.tabs", "nav.tabs button.on"],
-    bibel: [".tabbar", ".tabbar button.active"]
+    bibel: [".tabbar", ".tabbar button.active"],
+    bahn: [".tabs", ".tabs button.on"]
   };
   /* Natürlicher Aufbau wie in den iOS-Einstellungen: Inhalte auf ruhigen, gruppierten Flächen (ohne Rahmen, ohne Glas),
    * Glas nur für Leisten und Menüs, die über dem Inhalt schweben. Die untere Leiste rückt nach rechts, wenn links der App-Knopf sitzt. */
@@ -13044,7 +13046,7 @@ window.APP5 = {
   "use strict";
   if (!window.APP) return;
   var A = window.APP;
-  var MODS = { mobility: { title: "Mobility", src: "mobility/" }, atmung: { title: "Atmung & HRV", src: "atmung/" } };
+  var MODS = { mobility: { title: "Mobility", src: "mobility/" }, atmung: { title: "Atmung & HRV", src: "atmung/" }, bahnplan: { title: "Bahnplan", src: "bahnplan/" } };
   var BLOCKS = [["A", "Rücken & Wirbelsäule"], ["B", "Hüfte & Becken"], ["C", "Beinrückseite & Waden"]];
   function json(k) { try { return JSON.parse(localStorage.getItem(k) || "null"); } catch (e) { return null; } }
   function esc(s) { return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
@@ -13109,7 +13111,7 @@ window.APP5 = {
   // Unterbereich im Modul öffnen (z. B. Wettkampf), sobald es geladen ist
   function goSub(f, sub, tries) {
     try {
-      var b = f.contentDocument && f.contentDocument.querySelector("nav [data-tab='" + sub + "'], nav [data-go='" + sub + "']");
+      var b = f.contentDocument && f.contentDocument.querySelector("nav [data-tab='" + sub + "'], nav [data-go='" + sub + "'], nav [data-v='" + sub + "']");
       if (b) { b.click(); return; }
     } catch (e) {}
     if ((tries || 0) < 40) setTimeout(function () { goSub(f, sub, (tries || 0) + 1); }, 150);
@@ -13242,7 +13244,16 @@ window.APP5 = {
       "<button class='btn' data-tsclick='btnRodelnStart'>Rodeln-Aufwärmen<small>15 Min., durchgehend bewegt</small></button></div></div>" +
       "<div class='card' id='tsBreathCard'><div class='card-h'><h2>Atmung & HRV</h2><span>12-Wochen-Plan</span></div>" +
       "<p class='muted' style='margin-bottom:12px'>Resonanzatmung mit Biofeedback (Polar H10), Resonanztest, Morgenmessung der Herzratenvariabilität und Werkzeuge gegen akuten Stress. Die Morgen-HRV fließt in deine Trainingsbereitschaft ein.</p>" +
-      "<div class='ts-grid'><button class='btn accent' data-tsopen='atmung'>Atmung öffnen<small>Übungen und Plan</small></button><button class='btn' data-tsopen='atmung/train'>Jetzt üben<small>Takt, Resonanz, Morgenmessung</small></button></div></div>";
+      "<div class='ts-grid'><button class='btn accent' data-tsopen='atmung'>Atmung öffnen<small>Übungen und Plan</small></button><button class='btn' data-tsopen='atmung/train'>Jetzt üben<small>Takt, Resonanz, Morgenmessung</small></button></div></div>" +
+      bahnHTML();
+  }
+  function bahnHTML() {
+    var b = json("bahnplan.v1"), n = b && b.tracks ? b.tracks.length : 0, cur = n && (b.tracks.find(function (t) { return t.id === b.cur; }) || b.tracks[0]);
+    return "<div class='card' id='tsBahnCard'><div class='card-h'><h2>Bahnplan</h2><span>Kurvenbuch</span></div>" +
+      "<p class='muted' style='margin-bottom:12px'>" + (n ? "Deine Bahnen: " + n + (cur ? " · zuletzt <b>" + esc(cur.name) + "</b>" : "") + ". Tippe im Plan auf eine Kurvennummer, um Linie, Körper und Ansage zu sehen."
+        : "Bahnen aus aller Welt mit nummerierten Kurven. Für jede Kurve hältst du deine Linie, Steuern, Blick und Fehlerbilder fest – wie ein Kurvenbuch.") + "</p>" +
+      "<div class='ts-grid'><button class='btn accent' data-tsopen='bahnplan" + (n ? "/plan" : "") + "'>" + (n ? "Plan öffnen" : "Bahn wählen") + "<small>" + (n ? "Kurven mit Nummern" : "über 15 Bahnen im Katalog") + "</small></button>" +
+      "<button class='btn' data-tsopen='bahnplan/buch'>Buch<small>alle Kurven zum Lesen und Drucken</small></button></div></div>";
   }
   function mobText(m) {
     return "Täglich rotierend Block A Rücken, B Hüfte, C Beine – heute <b>Block " + m.block[0] + "</b>" + (m.done ? " (✓ erledigt)" : "") + ". Vor dem Wettkampf nur bewegtes Dehnen, lange Dehnungen danach." +
@@ -13383,13 +13394,14 @@ window.APP5 = {
     { id: "planer", name: "Planer", cal: "Kalender", path: "Schulplaner", color: "#6ea8fe", info: "Kalender, Schule, Aufgaben, Pausen",
       sections: [["Heute", "#brief"], ["Kalender", "#cal"], ["Aufgaben", "#tasks"], ["Schule", "#schule"], ["Pause", "#pause"]], owns: ["lernplan", "denkpause"] },
     { id: "training", name: "Training", cal: "Training", path: "trainingsblog", color: "#4fc18a", info: "Training, Mobility, Atmung und HRV",
-      sections: [["Heute", ""], ["Mobility", "#mobility"], ["Atmung", "#atmung"]], owns: ["training", "rodeln", "puls"] },
+      sections: [["Heute", ""], ["Mobility", "#mobility"], ["Atmung", "#atmung"], ["Bahnplan", "#bahnplan"]], owns: ["training", "rodeln", "puls", "bahnplan"] },
     { id: "bibel", name: "Bibel", cal: "Bibel", path: "Bibel", color: "#c9a27a", info: "Ganze Elberfelder Bibel · ohne Cloud", sections: [], owns: [] }
   ];
   // Eingebettete Module: gehören zu einer App, haben selbst keinen Knopf und keinen eigenen Sync
   var MODULES = [
     { id: "lernplan", name: "Lernplan", app: "planer" }, { id: "denkpause", name: "Denkpause", app: "planer" },
-    { id: "rodeln", name: "Rodel-Mobility", app: "training" }, { id: "puls", name: "Pulsplan", app: "training" }
+    { id: "rodeln", name: "Rodel-Mobility", app: "training" }, { id: "puls", name: "Pulsplan", app: "training" },
+    { id: "bahnplan", name: "Bahnplan", app: "training" }
   ];
   /* Datengruppen für den Cloud-Sync (Dateiname im Gist: app-<id>.json).
    * Bewusst NICHT dabei: gerätebezogene Daten wie Zugangsschlüssel, Wetter-Cache oder Fensterstellungen
@@ -13402,7 +13414,8 @@ window.APP5 = {
     { id: "denkpause", name: "Pause (Denkpause)", keys: ["denkpause.v1"] },
     { id: "training", name: "Training", keys: ["wk_settings", "wk_log", "wk_activities", "wk_runs", "wk_body", "wk_colors", "wk_custom_ex", "wk_custom_gym", "wk_freezes", "wk_gymlog", "wk_illness_active", "wk_injury_active", "wk_injurydays", "wk_onboarded", "wk_race", "wk_rests", "wk_sections", "wk_sickdays", "wk_skin", "wk_swaps", "wk_trainedoverride", "wk_vacation", "wk_weekgoal", "wk_widgets"] },
     { id: "rodeln", name: "Mobility", keys: ["rodelmobility.v1"] },
-    { id: "puls", name: "Atmung & HRV", keys: ["pulsplan.v1"] }
+    { id: "puls", name: "Atmung & HRV", keys: ["pulsplan.v1"] },
+    { id: "bahnplan", name: "Bahnplan", keys: ["bahnplan.v1"] }
   ];
   // Farben der Kalender-Quellen (Eintrag.app); alte Namen bleiben gültig
   var SOURCES = [
@@ -14863,6 +14876,8 @@ window.APP5 = {
     add("Training", "Mobility vor/nach dem Wettkampf", function () { go("training", "#mobility/wettkampf"); });
     add("Training", "Atemübung starten", function () { go("training", "#atmung/train"); });
     add("Training", "Morgen-HRV messen", function () { go("training", "#atmung"); });
+    add("Training", "Bahnplan öffnen", function () { go("training", "#bahnplan"); });
+    add("Training", "Kurvenbuch drucken", function () { go("training", "#bahnplan/buch"); });
     add("Training", "Atemplan dieser Woche", function () { go("training", "#atmung/week"); });
     add("Bibel", "Heute lesen", function () { go("bibel", "#lesen"); });
     add("Bibel", "Bibliothek (alle Bücher)", function () { go("bibel", "#bibliothek"); });
