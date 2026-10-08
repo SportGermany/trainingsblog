@@ -323,6 +323,8 @@ details.fold:not([open]) { margin-bottom: 12px; }
     var cards = GLASS_CARDS[MODE];
     if (cards) css += cards + "{background-color:" + t.s1 + "!important;border:0!important;border-radius:14px!important;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}";
     var nav = GLASS_NAV[MODE];
+    // In der Übersicht-Navigation steuert die Übersicht die Unterseiten der Bereiche – deren eigene Leiste entfällt
+    if (nav && DIRPARENT) return css + nav[0] + "{display:none!important}";
     if (nav && nav[2]) { var inner = glassNav(t, nav, g); return css + "@media " + nav[2] + "{" + inner + "}"; }
     if (nav) css += glassNav(t, nav, g);
     return css;
@@ -351,7 +353,11 @@ details.fold:not([open]) { margin-bottom: 12px; }
     window.addEventListener("beforeinstallprompt", function (e) { e.preventDefault(); window.SGInstallEvt = e; window.dispatchEvent(new Event("sg-install")); });
     window.addEventListener("appinstalled", function () { window.SGInstallEvt = null; window.SGInstalled = true; window.dispatchEvent(new Event("sg-install")); });
   }
+  if (!EMBED && script && script.getAttribute("data-dir")) document.documentElement.classList.add("sg-dir");
+  var DIRPARENT = false;
   if (EMBED) {
+    try { DIRPARENT = window.parent.document.documentElement.classList.contains("sg-dir"); } catch (e) {}
+    if (DIRPARENT) document.documentElement.classList.add("sg-dir-embed");
     document.documentElement.classList.add("sg-embed");
     try { if (navigator.serviceWorker) navigator.serviceWorker.register = function () { return Promise.resolve({ scope: "" }); }; } catch (e) {}
   }
@@ -1671,7 +1677,7 @@ document.addEventListener("keydown", e => {
 
   // Gleicht die Daten aller Verbund-Apps ab, nicht nur der gerade offenen –
   // so landen auch Änderungen aus einer App, die lange nicht offen war, in der Cloud.
-  var EXTRA = [{ id: "einstellungen", name: "Einstellungen", keys: ["sg-design", "sg-glass"], lww: true }, { id: "wochenplan", name: "Wochenplanung", keys: ["sg-wochenplan-v1"], lww: true }];
+  var EXTRA = [{ id: "einstellungen", name: "Einstellungen", keys: ["sg-design", "sg-glass", "sg-dir-v1"], lww: true }, { id: "wochenplan", name: "Wochenplanung", keys: ["sg-wochenplan-v1"], lww: true }];
   function syncApps(g, files) {
     DATA.concat(EXTRA).forEach(function (app) {
       if (!app.keys.length || (app.own && app.own())) return;
@@ -2926,7 +2932,7 @@ document.addEventListener("keydown", e => {
     appm.anchor = anchor || appb;
   }
   function mountSwitcher() {
-    if (EMBED || !root || appb) return;
+    if (EMBED || !root || appb || document.documentElement.classList.contains("sg-dir")) return;
     document.documentElement.classList.add("sg-appbtn");
     var v = root.querySelector(".v");
     appb = document.createElement("button"); appb.className = "appb"; appb.setAttribute("aria-label", "Apps und Befehle");
@@ -2960,6 +2966,8 @@ document.addEventListener("keydown", e => {
   }
   if (!EMBED) { window.addEventListener("hashchange", hashCmd); setTimeout(hashCmd, 300); }
   api.palette = openPalette;
+  api.openDesign = function () { openPanel(null, "design"); };
+  api.openSync = function () { openPanel(null, "sync"); };
   api.wordsMatch = wordsMatch;
   api.commands = globalCommands;
   api.addCommands = function (list) { CMD_EXTRA = CMD_EXTRA.concat(list); };

@@ -1,5 +1,5 @@
 /* Training Service Worker: macht Training samt Mobility und Atmung offline nutzbar */
-const VERSION = 'training-v4';
+const VERSION = 'training-v5';
 const SHELL = ['./', './index.html', './mobility/', './atmung/', './bahnplan/', './manifest.json', './inter.woff2', './icon-192.png', './icon-512.png', './icon-maskable-192.png', './icon-maskable-512.png'];
 
 self.addEventListener('install', e => {

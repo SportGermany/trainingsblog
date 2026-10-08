@@ -38,31 +38,53 @@
   "shortcuts": [
     {
       "name": "Heute",
-      "url": "./#heute",
+      "short_name": "Heute",
+      "description": "Training heute",
+      "url": "./#sg=t_heute",
       "icons": [
         {
           "src": "icon-192.png",
-          "sizes": "192x192"
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Lauf live",
+      "short_name": "Lauf live",
+      "description": "Lauf live tracken",
+      "url": "./#sg=t_live",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
         }
       ]
     },
     {
       "name": "Mobility",
-      "url": "./#mobility",
+      "short_name": "Mobility",
+      "description": "Mobility-Tagesblock",
+      "url": "./#sg=t_m_heute",
       "icons": [
         {
           "src": "icon-192.png",
-          "sizes": "192x192"
+          "sizes": "192x192",
+          "type": "image/png"
         }
       ]
     },
     {
-      "name": "Atmung & HRV",
-      "url": "./#atmung",
+      "name": "Atmung",
+      "short_name": "Atmung",
+      "description": "Atmung üben & HRV",
+      "url": "./#sg=t_a_train",
       "icons": [
         {
           "src": "icon-192.png",
-          "sizes": "192x192"
+          "sizes": "192x192",
+          "type": "image/png"
         }
       ]
     }
